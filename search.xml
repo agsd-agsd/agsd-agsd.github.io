@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>BrokerHub学习Day1</title>
+      <link href="/2026/01/29/BrokerHub%E5%AD%A6%E4%B9%A0Day1/"/>
+      <url>/2026/01/29/BrokerHub%E5%AD%A6%E4%B9%A0Day1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="0-BrokerHub可以用来干什么？"><a href="#0-BrokerHub可以用来干什么？" class="headerlink" title="0.BrokerHub可以用来干什么？"></a>0.BrokerHub可以用来干什么？</h1><hr><p>这是一个由<strong>中山大学 HuangLab</strong> 开发的区块链协议验证平台，名为 <strong>BlockEmulator</strong>。</p><p>简单来说，<strong>它的用途是帮助研究人员或学生快速“模拟”和“验证”新的区块链技术</strong>，特别是“分片（Sharding）”和“共识协议”。它不是一个用来挖矿赚钱的工具，而是一个<strong>科研实验工具</strong>。</p><h3 id="它可以帮你做这些事："><a href="#它可以帮你做这些事：" class="headerlink" title="它可以帮你做这些事："></a>它可以帮你做这些事：</h3><ol><li><strong>模拟区块链运行</strong>：<br> 它可以在一台电脑（或多台）上模拟出一整条分片区块链网络，包含多个分片、多个节点。</li><li><strong>验证“跨分片”机制</strong>：<br> 它内置了两种主流的跨分片技术（BrokerChain 的 Broker 机制和 Monoxide 的 Relay 机制），你可以用它来测试不同分片间怎么处理交易。</li><li><strong>验证“共识”算法</strong>：<br> 它支持 PBFT（拜占庭容错）等共识协议，你可以修改代码来测试自己写的新共识算法效果如何。</li><li><strong>跑实验、出数据</strong>：<br> 它会自动记录 TPS（吞吐量）、延迟等核心指标，并输出成 CSV 文件。写论文或做研究时，可以直接用这些数据画图。</li><li><strong>支持智能合约</strong>：<br> 它包含了一个 VM 模块，可以在模拟链上跑 Solidity 智能合约。</li></ol><p><strong>总结</strong>：如果你在做区块链底层技术的研究（比如想改进分片效率、设计新共识），这个项目就是你的“测试沙盒”，让你不必从零写一条区块链就能验证你的想法。</p><h1 id="核心参数说明"><a href="#核心参数说明" class="headerlink" title="核心参数说明"></a>核心参数说明</h1><p>项目的核心参数集中在 <code>c:/MyWorkSpace/Github Stuff/BrokerHub/params/global_config.go</code> 文件中。</p><h2 id="关键参数配置"><a href="#关键参数配置" class="headerlink" title="关键参数配置"></a>关键参数配置</h2><table><thead><tr><th align="left">参数名</th><th align="left">默认值</th><th align="left">含义&#x2F;作用</th><th align="left">更新建议</th></tr></thead><tbody><tr><td align="left"><strong>Block_Interval</strong></td><td align="left"><code>1000</code></td><td align="left"><strong>出块间隔 (ms)</strong><br>每隔多少毫秒产生一个新区块</td><td align="left">想让出块更快就改小，模拟高延迟环境可改大</td></tr><tr><td align="left"><strong>MaxBlockSize_global</strong></td><td align="left"><code>500000</code></td><td align="left"><strong>区块最大容量</strong><br>一个区块里最多能装多少笔交易</td><td align="left">限制吞吐量上限的参数之一</td></tr><tr><td align="left"><strong>InjectSpeed</strong></td><td align="left"><code>5000</code></td><td align="left"><strong>交易注入速度 (TPS)</strong><br>模拟器每秒向网络发送多少笔交易</td><td align="left"><strong>最重要的负载参数</strong><br>想测极限性能就把这个调大，看系统能不能撑住</td></tr><tr><td align="left"><strong>TotalDataSize</strong></td><td align="left"><code>500000</code></td><td align="left"><strong>总交易数量</strong><br>整个实验一共跑多少笔交易后停止</td><td align="left">控制实验时长。如果跑太久，可以改小这个值</td></tr><tr><td align="left"><strong>BatchSize</strong></td><td align="left"><code>5000</code></td><td align="left"><strong>批处理大小</strong><br>Supervisor 每次读取并发送多少笔交易</td><td align="left">最好比 <strong>InjectSpeed</strong> 稍微大一点，保证发送顺畅</td></tr><tr><td align="left"><strong>ShardNum</strong></td><td align="left"><code>4</code></td><td align="left"><strong>分片数量</strong><br>整个网络被切分成几个片</td><td align="left">验证分片扩展性的核心参数</td></tr><tr><td align="left"><strong>NodesInShard</strong></td><td align="left"><code>4</code></td><td align="left"><strong>分片内节点数</strong><br>每个分片里有多少个节点参与共识</td><td align="left">节点越多，共识（PBFT）通常越慢</td></tr><tr><td align="left"><strong>BrokerNum</strong></td><td align="left"><code>1</code></td><td align="left"><strong>Broker 数量</strong><br>辅助跨分片的中间人节点数量</td><td align="left">仅在 broker 模式下生效</td></tr><tr><td align="left"><strong>DatWrite_path</strong></td><td align="left"><code>&quot;./result/&quot;</code></td><td align="left"><strong>数据输出路径</strong><br>实验结果 CSV 存哪儿</td><td align="left">一般不用改</td></tr></tbody></table><h2 id="如何修改参数"><a href="#如何修改参数" class="headerlink" title="如何修改参数"></a>如何修改参数</h2><ol><li><p><strong>打开配置文件</strong></p><ul><li>编辑 <code>global_config.go</code> 文件</li><li>找到对应的变量值直接修改数字</li></ul></li><li><p><strong>重新编译</strong></p><ul><li>修改代码后，必须<strong>重新编译</strong>（或重新运行构建脚本），新的参数才会生效</li><li>如果用 <code>bat_shardNum=...</code> 脚本启动，脚本第一行通常包含 <code>go build</code>，直接重新运行脚本即可</li></ul></li></ol><h2 id="输入数据修改"><a href="#输入数据修改" class="headerlink" title="输入数据修改"></a>输入数据修改</h2><p><strong>FileInput</strong> 参数指向交易数据集文件（默认 <code>&quot;./TXs.csv&quot;</code>）。如果有真实的以太坊历史交易数据或其他数据集，可以替换这个文件来做更真实的模拟。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> BrokerHub </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title></title>
+      <link href="/2026/01/27/test/"/>
+      <url>/2026/01/27/test/</url>
+      
+        <content type="html"><![CDATA[<h1 id="test"><a href="#test" class="headerlink" title="test"></a>test</h1><hr><p>1111</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Hello World</title>
+      <link href="/2026/01/27/hello-world/"/>
+      <url>/2026/01/27/hello-world/</url>
+      
+        <content type="html"><![CDATA[<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+  
+  
+</search>
