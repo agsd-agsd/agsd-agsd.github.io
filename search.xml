@@ -4,27 +4,46 @@
   
     
     <entry>
-      <title>Hexo+anzhiyu Theme搭建博客工具箱合集</title>
-      <link href="/2026/02/02/Hexo-anzhiyu-Theme%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E5%B7%A5%E5%85%B7%E7%AE%B1%E5%90%88%E9%9B%86/"/>
-      <url>/2026/02/02/Hexo-anzhiyu-Theme%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E5%B7%A5%E5%85%B7%E7%AE%B1%E5%90%88%E9%9B%86/</url>
+      <title>在Flaticon帮你的网站找到一个好看的矢量图标</title>
+      <link href="/2026/02/02/%E5%9C%A8flaticon%E5%B8%AE%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E6%89%BE%E5%88%B0%E4%B8%80%E4%B8%AA%E5%A5%BD%E7%9C%8B%E7%9A%84%E7%9F%A2%E9%87%8F%E5%9B%BE%E6%A0%87/"/>
+      <url>/2026/02/02/%E5%9C%A8flaticon%E5%B8%AE%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E6%89%BE%E5%88%B0%E4%B8%80%E4%B8%AA%E5%A5%BD%E7%9C%8B%E7%9A%84%E7%9F%A2%E9%87%8F%E5%9B%BE%E6%A0%87/</url>
       
-        <content type="html"><![CDATA[<p><a href="https://new.express.adobe.com/">https://new.express.adobe.com/</a></p><p><a href="https://flaticon.com/">https://flaticon.com/</a></p>]]></content>
+        <content type="html"><![CDATA[<p><strong>操作流程：更换 Hexo 博客的 Favicon 图标</strong></p><p>本文介绍如何通过 Flaticon 获取图标并更换 Hexo 博客的网站图标 (Favicon)。</p><p><strong>1. 获取图标</strong><br>访问 <a href="https://www.flaticon.com/">Flaticon</a>，搜索并选择适合的图标。通常 PNG 格式即可满足网站使用需求。<br><img src="/pics/2026-2/chooseicon.png"></p><p>在下载页面选择 <strong>Free download</strong> 将其保存至本地。<br><img src="/pics/2026-2/freedownload.png"></p><p><strong>2. 更换配置</strong><br>将下载的图标文件置于博客的静态资源目录（例如 <code>source/icons/</code>）。随后在主题配置文件（如 <code>_config.anzhiyu.yml</code>）中更新 <code>favicon</code> 字段，指向该图标路径，并建议附上作者链接以便标注来源。</p><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Favicon（网站图标）</span></span><br><span class="line"><span class="attr">favicon:</span> <span class="string">/icons/bank.png</span> <span class="comment"># 图标作者链接：https://www.flaticon.com/authors/icongeek26</span></span><br></pre></td></tr></table></figure><p><strong>3. 生效确认</strong><br>清除缓存并重新生成博客文件后，访问网站即可看到图标已更新。<br><img src="/pics/2026-2/favicon.png"></p><p><strong>版权声明</strong><br>本教程所示图标来源于 Flaticon 作者 <a href="https://www.flaticon.com/authors/icongeek26">Icongeek26</a>，仅作个人学习与演示之用，非商业用途。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> website </tag>
+            
+            <tag> Tools </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Adobe Express帮助你创建背景透明图片</title>
+      <link href="/2026/02/02/Adobe-Express%E5%B8%AE%E5%8A%A9%E4%BD%A0%E5%88%9B%E5%BB%BA%E8%83%8C%E6%99%AF%E9%80%8F%E6%98%8E%E5%9B%BE%E7%89%87/"/>
+      <url>/2026/02/02/Adobe-Express%E5%B8%AE%E5%8A%A9%E4%BD%A0%E5%88%9B%E5%BB%BA%E8%83%8C%E6%99%AF%E9%80%8F%E6%98%8E%E5%9B%BE%E7%89%87/</url>
+      
+        <content type="html"><![CDATA[<p><strong>目的与背景</strong><br>在基于 Hexo 框架与 Anzhiyu 主题进行博客定制时，笔者希望保留侧边栏 <code>weixin_card</code> 组件的悬停翻转动效，但将其内容从微信公众号展示替换为自定义图像。本操作选用《Street Fighter》系列中的春丽（Chun-Li）与嘉米（Cammy）角色图片作为正面与背面展示内容。</p><p><strong>问题描述</strong><br>直接替换图像后，发现春丽图像背景未能完全透明，存在明显残留色块（见图1），导致与卡片背景融合不佳，影响视觉效果。</p><p><img src="/pics/2026-2/chunli1.png"></p><p><strong>解决方案</strong><br>使用 Adobe Express 在线工具进行背景移除操作，具体步骤如下：</p><ol><li>访问 <a href="https://new.express.adobe.com/">Adobe Express</a>；</li><li>选择“移除背景”功能；</li><li>上传原图并自动处理；</li><li>下载生成的透明背景 PNG 图像。</li></ol><p>处理界面与结果如下所示：</p><p><img src="/pics/2026-2/AdobeExpress.png"><br><img src="/pics/2026-2/paste.png"><br><img src="/pics/2026-2/result.png"><br><strong>部署与验证</strong><br>将处理后的图像替换至主题对应目录，在本地执行以下命令清除缓存并启动服务：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo cl &amp;&amp; hexo s</span><br></pre></td></tr></table></figure><p>刷新页面后，春丽图像已完整去除背景，正常嵌入卡片正面（见图2）：</p><p><img src="/pics/2026-2/chunli2.png"></p><p>随后对嘉米图像执行相同处理，并配置为卡片的 <code>back_face</code>（背面图像），实现悬停翻转时的图像切换效果（见图3）：</p><p><img src="/pics/2026-2/cammy.png"></p><p><strong>完成状态</strong><br>至此，原 <code>weixin_card</code> 组件的视觉样式与动效得以保留，内容已替换为定制图像，并具备完整的透明背景与双面翻转交互。</p><p><strong>版权声明</strong><br>本文所使用的春丽与嘉米角色图片来源于 Pixiv 画师 <strong>JuicePiggy16</strong>，该改造仅为个人博客美化使用，未涉及任何商业行为。</p>]]></content>
       
       
       <categories>
           
-          <category> 博客搭建 </category>
+          <category> 工具箱 </category>
           
       </categories>
       
       
         <tags>
             
+            <tag> website </tag>
+            
             <tag> Tools </tag>
-            
-            <tag> Hexo </tag>
-            
-            <tag> anzhiyu </tag>
             
         </tags>
       
@@ -52,19 +71,6 @@
             <tag> BrokerHub </tag>
             
         </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title></title>
-      <link href="/2026/01/27/test/"/>
-      <url>/2026/01/27/test/</url>
-      
-        <content type="html"><![CDATA[<h1 id="test"><a href="#test" class="headerlink" title="test"></a>test</h1><hr><p>1111</p>]]></content>
-      
-      
       
     </entry>
     
