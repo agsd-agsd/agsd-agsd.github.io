@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>为twikoo评论系统设置二级域名</title>
+      <link href="/2026/02/08/%E4%B8%BAtwikoo%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%E8%AE%BE%E7%BD%AE%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/"/>
+      <url>/2026/02/08/%E4%B8%BAtwikoo%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%E8%AE%BE%E7%BD%AE%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/</url>
+      
+        <content type="html"><![CDATA[<h1 id="0-背景信息"><a href="#0-背景信息" class="headerlink" title="0.背景信息"></a>0.背景信息</h1><hr><p>Twikoo 是一个轻量级的静态网站评论系统。部署到 Vercel 后，默认域名 <code>*.vercel.app</code> 在中国大陆访问经常受限（需科学上网）。为改善访问体验，推荐为 Twikoo 绑定自己域名的二级子域。</p><h2 id="1-在-Vercel-为-Twikoo-添加二级域名"><a href="#1-在-Vercel-为-Twikoo-添加二级域名" class="headerlink" title="1. 在 Vercel 为 Twikoo 添加二级域名"></a>1. 在 Vercel 为 Twikoo 添加二级域名</h2><hr><ol><li>登录 Vercel 控制台，进入你的 Twikoo 项目</li><li>左侧菜单 → <strong>Settings</strong> → <strong>Domains</strong></li><li>在「Add Domain」处输入你想使用的二级域名，例如：<code>twikoo.example.com</code></li><li>点击 <strong>Add</strong>，此时状态会显示 <strong>Invalid Configuration</strong>（因为 DNS 尚未解析，属于正常现象）</li></ol><p><img src="/pics/2026-2/vercelTwikoo.png"></p><h2 id="2-在域名服务商处添加-DNS-解析记录"><a href="#2-在域名服务商处添加-DNS-解析记录" class="headerlink" title="2. 在域名服务商处添加 DNS 解析记录"></a>2. 在域名服务商处添加 DNS 解析记录</h2><hr><p>以阿里云为例：</p><ol><li><p>登录阿里云控制台 → <a href="https://dnsnext.console.aliyun.com/authoritative/domains/">域名控制台 - 公网权威解析</a></p></li><li><p>找到你的主域名，点击「解析设置」或「添加记录」</p></li><li><p>添加一条记录，参数如下（根据 Vercel 页面提示填写）：</p><ul><li><strong>记录类型</strong>：CNAME（推荐）  </li><li><strong>主机记录</strong>：twikoo（即你刚才填的子域名前缀）  </li><li><strong>记录值</strong>：Vercel 提供的目标地址（通常为 <code>cname.vercel-dns.com</code> 或类似格式）  </li><li><strong>TTL</strong>：默认（600 或 3600 均可）</li></ul></li><li><p>保存记录，等待 DNS 生效（通常 5–30 分钟，视运营商而定）</p></li></ol><h2 id="3-返回-Vercel-刷新并等待证书生成"><a href="#3-返回-Vercel-刷新并等待证书生成" class="headerlink" title="3. 返回 Vercel 刷新并等待证书生成"></a>3. 返回 Vercel 刷新并等待证书生成</h2><hr><ol><li>返回 Vercel 项目 → Domains 页面</li><li>点击刚才添加的域名旁边的 <strong>Refresh</strong> 按钮</li><li>等待系统自动申请并生成 SSL 证书（通常需要 2–15 分钟）</li></ol><p><img src="/pics/2026-2/GeneratingSSL.png"></p><p>证书生成完成后，域名状态变为有效，点击域名即可看到 Twikoo 的默认页面，表示绑定成功。</p><p><img src="/pics/2026-2/TwikooWebsite.png"></p><h2 id="4-修改主题配置文件"><a href="#4-修改主题配置文件" class="headerlink" title="4. 修改主题配置文件"></a>4. 修改主题配置文件</h2><hr><p>在 <code>_config.yourTheme.yml</code> 中修改以下两部分：</p><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="comment"># 最多支持两个评论系统，第一个作为默认显示</span></span><br><span class="line">  <span class="comment"># 可选值：Valine / Waline / Twikoo / ...</span></span><br><span class="line">  <span class="attr">use:</span> <span class="string">Twikoo</span>          <span class="comment"># 如需同时保留 Waline，可写：Twikoo,Waline</span></span><br><span class="line">  <span class="attr">text:</span> <span class="literal">true</span>           <span class="comment"># 按钮旁显示“评论”文字</span></span><br><span class="line">  <span class="attr">lazyload:</span> <span class="literal">true</span>       <span class="comment"># 推荐开启：评论框进入视口后再加载，加快首屏速度</span></span><br><span class="line">  <span class="attr">count:</span> <span class="literal">true</span>          <span class="comment"># 文章页顶部显示评论数量</span></span><br><span class="line">  <span class="attr">card_post_count:</span> <span class="literal">false</span>  <span class="comment"># 首页文章卡片不显示评论数（可选）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Twikoo 配置</span></span><br><span class="line"><span class="attr">twikoo:</span></span><br><span class="line">  <span class="attr">envId:</span> <span class="string">https://twikoo.example.com/</span>    <span class="comment"># 必须改为你绑定的完整二级域名，注意带 https:// 和结尾斜杠 /</span></span><br><span class="line">  <span class="attr">region:</span>               <span class="comment"># 一般留空，除非使用了腾讯云/阿里云函数</span></span><br><span class="line">  <span class="attr">visitor:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">option:</span></span><br></pre></td></tr></table></figure><p><strong>注意</strong>：  </p><ul><li><code>envId</code> 必须是 <code>https://</code> 开头，且以 <code>/</code> 结尾，否则 Twikoo 会加载失败。  </li><li>修改配置文件后需重新生成静态文件。</li></ul><h2 id="5-本地测试"><a href="#5-本地测试" class="headerlink" title="5. 本地测试"></a>5. 本地测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo server</span><br></pre></td></tr></table></figure><p>启动本地服务后，访问任意文章页面，滚动到评论区，确认 Twikoo 评论框正常加载且可以提交评论。</p><p><img src="/pics/2026-2/TwikooTest.png"></p><p>完成以上步骤后，Twikoo 即可通过自定义二级域名正常工作。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Hexo魔改 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> website </tag>
+            
+            <tag> hexo </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>用Google Fonts为Hexo博客替换字体</title>
       <link href="/2026/02/07/%E7%94%A8Google-Fonts%E4%B8%BAHexo%E5%8D%9A%E5%AE%A2%E6%9B%BF%E6%8D%A2%E5%AD%97%E4%BD%93/"/>
       <url>/2026/02/07/%E7%94%A8Google-Fonts%E4%B8%BAHexo%E5%8D%9A%E5%AE%A2%E6%9B%BF%E6%8D%A2%E5%AD%97%E4%BD%93/</url>
@@ -45,9 +72,9 @@
       
         <tags>
             
-            <tag> website </tag>
-            
             <tag> Tools </tag>
+            
+            <tag> website </tag>
             
             <tag> hexo </tag>
             
@@ -74,9 +101,9 @@
       
         <tags>
             
-            <tag> website </tag>
-            
             <tag> Tools </tag>
+            
+            <tag> website </tag>
             
             <tag> hexo </tag>
             
