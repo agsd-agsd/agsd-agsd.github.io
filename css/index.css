@@ -7898,16 +7898,18 @@ body[data-type='about'] #web_bg {
   -ms-transform: translate3d(150%, 0, 0) skewX(-25deg);
   transform: translate3d(150%, 0, 0) skewX(-25deg);
 }
-.author-content-item.like-music {
+.author-content-item.like-music,
+.author-content-item.like-technology {
   background-size: 100% !important;
-  -webkit-transition: background-size 1s ease-in-out !important;
-  -moz-transition: background-size 1s ease-in-out !important;
-  -o-transition: background-size 1s ease-in-out !important;
-  -ms-transition: background-size 1s ease-in-out !important;
-  transition: background-size 1s ease-in-out !important;
+  -webkit-transition: background-size 2s ease-in-out !important;
+  -moz-transition: background-size 2s ease-in-out !important;
+  -o-transition: background-size 2s ease-in-out !important;
+  -ms-transition: background-size 2s ease-in-out !important;
+  transition: background-size 2s ease-in-out !important;
   cursor: pointer;
 }
-.author-content-item.like-music:hover {
+.author-content-item.like-music:hover,
+.author-content-item.like-technology:hover {
   background-size: 120% !important;
 }
 @-moz-keyframes loading-bar {
@@ -9669,6 +9671,7 @@ body[data-type="link"] #page .page-title {
   -ms-transition: all 0.6s ease 0s;
   transition: all 0.6s ease 0s;
   object-fit: cover;
+  object-position: center top;
 }
 #recent-posts > .recent-post-item .post_cover.right {
   -webkit-box-ordinal-group: 1;
@@ -11684,13 +11687,14 @@ h1.page-title + .tag-cloud-list {
   filter: blur(0) brightness(1);
 }
 #aside-content .card-widget .author-info-avatar .author-status {
+  z-index: 100;
   position: absolute;
   bottom: 2px;
   right: 2px;
   width: 33px;
   height: 33px;
   border-radius: 2em;
-  background-color: var(--anzhiyu-white);
+  background-color: transparent;
   overflow: hidden;
   display: -webkit-box;
   display: -moz-box;
@@ -11724,7 +11728,7 @@ h1.page-title + .tag-cloud-list {
 #aside-content .card-widget .author-info-avatar .author-status img {
   width: 26px;
   height: 26px;
-  border-radius: 0px;
+  border-radius: 50%;
   -webkit-transition: 0s;
   -moz-transition: 0s;
   -o-transition: 0s;
@@ -12207,7 +12211,7 @@ h1.page-title + .tag-cloud-list {
   -o-transition: 0.3s;
   -ms-transition: 0.3s;
   transition: 0.3s;
-  border: var(--style-border-avatar);
+  border: 4px solid #fff;
 }
 .avatar-img img {
   width: 100%;
@@ -25746,6 +25750,7 @@ a.categoryButton:after {
 }
 #topPostGroup .post_cover img {
   object-fit: cover;
+  object-position: center 20%;
   width: 100%;
   height: 80px;
   background: var(--anzhiyu-secondbg);
@@ -26460,6 +26465,7 @@ div#swiper_container:hover {
 
 .topGroup .recent-post-item .post_cover img {
   object-fit: cover;
+  object-position: center 20%;
   width: 100%;
   background: var(--anzhiyu-secondbg);
   border-radius: 12px 12px 0 0;

@@ -13,7 +13,7 @@
       
       <categories>
           
-          <category> Hexo魔改 </category>
+          <category> Hexo </category>
           
       </categories>
       
@@ -42,7 +42,34 @@
       
       <categories>
           
-          <category> Hexo魔改 </category>
+          <category> Hexo </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> AnZhiYu </tag>
+            
+            <tag> Hexo </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>为 Hexo AnZhiYu 主题添加动态视频头像</title>
+      <link href="/2026/02/11/AnZhiYu-Dynamic-Avatar/"/>
+      <url>/2026/02/11/AnZhiYu-Dynamic-Avatar/</url>
+      
+        <content type="html"><![CDATA[<p>想要让你的博客侧边栏更加生动吗？相比于静态图片或 GIF，使用高质量的 MP4 视频作为头像不仅清晰度更高，还能实现完美的无缝循环。今天我们就来动手给 AnZhiYu 主题加上这个酷炫的功能。</p><h2 id="核心原理"><a href="#核心原理" class="headerlink" title="核心原理"></a>核心原理</h2><p>Hexo 的 AnZhiYu 主题默认使用 <code>img</code> 标签来显示头像。我们需要修改侧边栏作者卡片的模板文件，增加一个判断逻辑：如果配置文件中的头像路径以 <code>.mp4</code> 结尾，就渲染为 <code>&lt;video&gt;</code> 标签，否则保持原样的 <code>&lt;img&gt;</code> 标签。</p><h2 id="修改步骤"><a href="#修改步骤" class="headerlink" title="修改步骤"></a>修改步骤</h2><h3 id="1-修改-Pug-模板"><a href="#1-修改-Pug-模板" class="headerlink" title="1. 修改 Pug 模板"></a>1. 修改 Pug 模板</h3><p>找到主题目录下的 <code>themes/anzhiyu/layout/includes/widget/card_author.pug</code> 文件。</p><p>我们需要将原本直接输出 <code>img</code> 的代码替换为带有条件判断的逻辑。</p><p><strong>修改前：</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.author-info-avatar</span><br><span class="line">  img.avatar-img(src=url_for(theme.avatar.img) onerror=`this.onerror=null;this.src=&#x27;` + url_for(theme.error_img.flink) + `&#x27;` alt=&quot;avatar&quot;)</span><br></pre></td></tr></table></figure><p><strong>修改后：</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.author-info-avatar</span><br><span class="line">  if theme.avatar.img &amp;&amp; theme.avatar.img.endsWith(&#x27;.mp4&#x27;)</span><br><span class="line">    video.avatar-img(autoplay loop muted playsinline style=&quot;object-fit: cover;&quot;)</span><br><span class="line">      source(src=url_for(theme.avatar.img) type=&quot;video/mp4&quot;)</span><br><span class="line">  else</span><br><span class="line">    img.avatar-img(src=url_for(theme.avatar.img) onerror=`this.onerror=null;this.src=&#x27;` + url_for(theme.error_img.flink) + `&#x27;` alt=&quot;avatar&quot;)</span><br></pre></td></tr></table></figure><p>这段代码的作用是：当检测到 <code>theme.avatar.img</code> 配置项以 <code>.mp4</code> 结尾时，自动插入一个静音、自动播放、循环播放的视频标签。</p><h3 id="2-优化-CSS-样式"><a href="#2-优化-CSS-样式" class="headerlink" title="2. 优化 CSS 样式"></a>2. 优化 CSS 样式</h3><p>引入视频头像后，可能会遇到样式问题：</p><ol><li>头像右下角的“状态表情”（比如正在工作、休息中）可能会被视频层级遮挡。</li></ol><p>我们需要修改 <code>themes/anzhiyu/source/css/_layout/aside.styl</code> 文件。</p><p><strong>修复层级遮挡问题：</strong></p><p>找到 <code>.author-status</code> 类，添加 <code>z-index</code> 属性：</p><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.author-status</span></span><br><span class="line">  <span class="attribute">z-index</span>: <span class="number">100</span>; <span class="comment">/* 确保状态图标在视频上方 */</span></span><br><span class="line">  <span class="attribute">position</span>: absolute;</span><br><span class="line">  <span class="comment">/* ...其他原有属性... */</span></span><br></pre></td></tr></table></figure><h2 id="配置使用"><a href="#配置使用" class="headerlink" title="配置使用"></a>配置使用</h2><p>修改完成后，使用方法非常简单。你只需要准备一个正方形的 MP4 视频（建议比例 1:1，否则会被裁切），放入 <code>source/img/</code> 或其他资源目录。</p><p>然后修改你的配置文件 <code>_config.anzhiyu.yml</code>：</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">avatar:</span></span><br><span class="line">  <span class="attr">img:</span> <span class="string">/img/your-avatar.mp4</span></span><br><span class="line">  <span class="comment"># img: /img/avatar.jpg  &lt;-- 如果想换回图片，直接改回图片路径即可</span></span><br></pre></td></tr></table></figure><h2 id="重新部署"><a href="#重新部署" class="headerlink" title="重新部署"></a>重新部署</h2><p>最后，别忘了三连击：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br><span class="line">hexo server</span><br></pre></td></tr></table></figure><p>现在打开你的博客，侧边栏的头像应该已经动起来了！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Hexo </category>
           
       </categories>
       
@@ -103,11 +130,11 @@
       
         <tags>
             
-            <tag> website </tag>
-            
             <tag> AnZhiYu </tag>
             
             <tag> Hexo </tag>
+            
+            <tag> website </tag>
             
         </tags>
       
@@ -159,13 +186,13 @@
       
         <tags>
             
-            <tag> website </tag>
-            
-            <tag> Tools </tag>
-            
             <tag> AnZhiYu </tag>
             
             <tag> Hexo </tag>
+            
+            <tag> website </tag>
+            
+            <tag> Tools </tag>
             
         </tags>
       
@@ -190,13 +217,13 @@
       
         <tags>
             
-            <tag> website </tag>
-            
-            <tag> Tools </tag>
-            
             <tag> AnZhiYu </tag>
             
             <tag> Hexo </tag>
+            
+            <tag> website </tag>
+            
+            <tag> Tools </tag>
             
         </tags>
       
