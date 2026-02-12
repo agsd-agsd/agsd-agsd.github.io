@@ -4,7 +4,36 @@
   
     
     <entry>
-      <title>AnZhiYu主题深度定制：为关于页(About)注入更多交互灵魂</title>
+      <title>Hexo|提取Wallpaper Engine壁纸作为AnZhiYu主题首页动态封面</title>
+      <link href="/2026/02/13/%E5%A6%82%E4%BD%95%E6%8A%8Awallpaper%E7%9A%84%E5%A3%81%E7%BA%B8%E6%94%BE%E5%88%B0%E4%BD%A0%E7%9A%84Hexo%E5%8D%9A%E5%AE%A2%E4%B8%8A/"/>
+      <url>/2026/02/13/%E5%A6%82%E4%BD%95%E6%8A%8Awallpaper%E7%9A%84%E5%A3%81%E7%BA%B8%E6%94%BE%E5%88%B0%E4%BD%A0%E7%9A%84Hexo%E5%8D%9A%E5%AE%A2%E4%B8%8A/</url>
+      
+        <content type="html"><![CDATA[<p>Wallpaper Engine 里有太多好看的动态壁纸了，有没有想过把它们搬到自己的 Hexo 博客上作为首页 Banner？<br>这篇文章将记录全过程：从 Wallpaper Engine 提取视频资源，并<strong>硬核修改 AnZhiYu 主题源码</strong>，让它原生支持 MP4 视频封面播放。</p><span id="more"></span><h1 id="1-导出-Wallpaper-Engine-壁纸"><a href="#1-导出-Wallpaper-Engine-壁纸" class="headerlink" title="1. 导出 Wallpaper Engine 壁纸"></a>1. 导出 Wallpaper Engine 壁纸</h1><p>首先在 Wallpaper Engine (Steam版) 中挑选一个喜欢的壁纸（最好是视频场景类的）。</p><ol><li>在壁纸库中右键点击壁纸。</li><li>选择 <strong>发送至移动设备</strong> -&gt; <strong>导出 .mpkg 文件</strong>。</li><li>导出完成后，将获得一个 <code>.mpkg</code> 文件，手动将其后缀名修改为 <code>.pkg</code>。</li></ol><h1 id="2-使用-RePKG-提取视频资源"><a href="#2-使用-RePKG-提取视频资源" class="headerlink" title="2. 使用 RePKG 提取视频资源"></a>2. 使用 RePKG 提取视频资源</h1><p>MPKG&#x2F;PKG 本质是加密或打包的格式，我们需要专用工具将其解包。</p><ol><li>下载开源工具 <a href="https://github.com/Keineliebeundkeinleid/RePKG-GUI">RePKG-GUI</a>。</li><li>解压并打开应用程序，按照 GUI 界面指引，将上一步的 <code>.pkg</code> 文件拖入。</li><li>点击 <strong>输出 (Extract)</strong>。</li><li>在输出目录中，你通常能找到一张预览图和一个高质量的 <code>.mp4</code> 视频文件。</li></ol><p><img src="/pics/2026-2/RePKG.png"></p><h1 id="3-魔改主题源码-核心步骤"><a href="#3-魔改主题源码-核心步骤" class="headerlink" title="3. 魔改主题源码 (核心步骤)"></a>3. 魔改主题源码 (核心步骤)</h1><p>AnZhiYu 主题默认的首页 Banner 逻辑仅针对图片 (<code>&lt;img&gt;</code> 标签)。为了让它兼容视频，我们需要修改底层的 Pug 模板引擎代码。</p><p>定位文件：<code>themes/anzhiyu/layout/includes/top/top.pug</code></p><p>找到渲染 <code>todayCard-cover</code> 的位置（大约在文件末尾部分），将原有的 <code>img</code> 标签逻辑替换为如下代码：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//- 识别 .mp4 结尾的链接，渲染为 video 标签</span><br><span class="line">if top_group_banner_image.toLowerCase().endsWith(&#x27;.mp4&#x27;)</span><br><span class="line">  video.todayCard-cover(src=url_for(top_group_banner_image) autoplay loop muted playsinline style=&#x27;object-fit: cover;&#x27;)</span><br><span class="line">else</span><br><span class="line">  img.todayCard-cover(src=url_for(top_group_banner_image) onerror=`this.onerror=null;this.src=&#x27;$&#123;url_for(theme.error_img.post_page)&#125;&#x27;` alt=&#x27;封面&#x27;)</span><br></pre></td></tr></table></figure><p><strong>原理说明：</strong><br>这段代码通过判断我们在配置文件中填写的路径是否以 <code>.mp4</code> 结尾，来智能决定是渲染普通的图片标签，还是带有 <code>autoplay</code> 属性的视频标签。</p><h1 id="4-部署与配置"><a href="#4-部署与配置" class="headerlink" title="4. 部署与配置"></a>4. 部署与配置</h1><p>万事俱备，最后只需要把资源放进去并开启配置。</p><ol><li><strong>移动文件</strong>：将提取出的 <code>wallpaper.mp4</code> 放入博客源文件夹，例如 <code>source/mp4/wallpaper.mp4</code>。</li><li><strong>修改配置</strong>：编辑 <code>_config.anzhiyu.yml</code>，定位到 <code>home_top</code> -&gt; <code>banner</code>。</li></ol><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">home_top:</span></span><br><span class="line">  <span class="attr">banner:</span></span><br><span class="line">    <span class="attr">tips:</span> <span class="string">享受动态的快乐</span></span><br><span class="line">    <span class="attr">title:</span> <span class="string">Wallpaper</span> <span class="string">Engine</span></span><br><span class="line">    <span class="comment"># 这里直接填写视频的路径</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">/mp4/wallpaper.mp4</span></span><br><span class="line">    <span class="attr">link:</span> <span class="string">/</span></span><br></pre></td></tr></table></figure><ol start="3"><li><strong>预览</strong>：执行 <code>hexo clean &amp;&amp; hexo s</code>，刷新首页，你应该能看到封皮已经动起来了！</li></ol><blockquote><p><strong>Tips</strong>: 建议视频文件不要过大（建议压缩在 5MB 以内），否则会影响网站首屏加载速度。</p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> Hexo </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Tools </tag>
+            
+            <tag> AnZhiYu </tag>
+            
+            <tag> Hexo </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Hexo|为关于页(About)注入更多交互灵魂</title>
       <link href="/2026/02/11/AnZhiYu-About-Page-Interaction-Optimization/"/>
       <url>/2026/02/11/AnZhiYu-About-Page-Interaction-Optimization/</url>
       
@@ -33,7 +62,7 @@
     
     
     <entry>
-      <title>AnZhiYu主题深度定制：升级关于页(About)生涯卡片</title>
+      <title>Hexo|升级关于页(About)生涯卡片</title>
       <link href="/2026/02/11/AnZhiYu-About-Page-Upgrade/"/>
       <url>/2026/02/11/AnZhiYu-About-Page-Upgrade/</url>
       
@@ -60,7 +89,7 @@
     
     
     <entry>
-      <title>为 Hexo AnZhiYu 主题添加动态视频头像</title>
+      <title>Hexo|为AnZhiYu主题添加动态视频头像</title>
       <link href="/2026/02/11/AnZhiYu-Dynamic-Avatar/"/>
       <url>/2026/02/11/AnZhiYu-Dynamic-Avatar/</url>
       
@@ -87,7 +116,7 @@
     
     
     <entry>
-      <title>配置&amp;优化倒计时挂件</title>
+      <title>Hexo|配置&amp;优化倒计时挂件</title>
       <link href="/2026/02/09/%E9%85%8D%E7%BD%AE-%E4%BC%98%E5%8C%96%E5%80%92%E8%AE%A1%E6%97%B6%E6%8C%82%E4%BB%B6/"/>
       <url>/2026/02/09/%E9%85%8D%E7%BD%AE-%E4%BC%98%E5%8C%96%E5%80%92%E8%AE%A1%E6%97%B6%E6%8C%82%E4%BB%B6/</url>
       
@@ -114,7 +143,7 @@
     
     
     <entry>
-      <title>为twikoo评论系统设置二级域名</title>
+      <title>Hexo|为twikoo评论系统设置二级域名</title>
       <link href="/2026/02/08/%E4%B8%BAtwikoo%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%E8%AE%BE%E7%BD%AE%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/"/>
       <url>/2026/02/08/%E4%B8%BAtwikoo%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F%E8%AE%BE%E7%BD%AE%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D/</url>
       
@@ -130,11 +159,11 @@
       
         <tags>
             
+            <tag> website </tag>
+            
             <tag> AnZhiYu </tag>
             
             <tag> Hexo </tag>
-            
-            <tag> website </tag>
             
         </tags>
       
@@ -143,7 +172,7 @@
     
     
     <entry>
-      <title>用Google Fonts为Hexo博客替换字体</title>
+      <title>Hexo|用Google Fonts为Hexo博客替换字体</title>
       <link href="/2026/02/07/%E7%94%A8Google-Fonts%E4%B8%BAHexo%E5%8D%9A%E5%AE%A2%E6%9B%BF%E6%8D%A2%E5%AD%97%E4%BD%93/"/>
       <url>/2026/02/07/%E7%94%A8Google-Fonts%E4%B8%BAHexo%E5%8D%9A%E5%AE%A2%E6%9B%BF%E6%8D%A2%E5%AD%97%E4%BD%93/</url>
       
@@ -170,7 +199,7 @@
     
     
     <entry>
-      <title>在Flaticon帮你的网站找到一个好看的矢量图标</title>
+      <title>Hexo|在Flaticon帮你的网站找到一个好看的矢量图标</title>
       <link href="/2026/02/02/%E5%9C%A8flaticon%E5%B8%AE%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E6%89%BE%E5%88%B0%E4%B8%80%E4%B8%AA%E5%A5%BD%E7%9C%8B%E7%9A%84%E7%9F%A2%E9%87%8F%E5%9B%BE%E6%A0%87/"/>
       <url>/2026/02/02/%E5%9C%A8flaticon%E5%B8%AE%E4%BD%A0%E7%9A%84%E7%BD%91%E7%AB%99%E6%89%BE%E5%88%B0%E4%B8%80%E4%B8%AA%E5%A5%BD%E7%9C%8B%E7%9A%84%E7%9F%A2%E9%87%8F%E5%9B%BE%E6%A0%87/</url>
       
@@ -186,13 +215,13 @@
       
         <tags>
             
-            <tag> AnZhiYu </tag>
-            
-            <tag> Hexo </tag>
-            
             <tag> website </tag>
             
             <tag> Tools </tag>
+            
+            <tag> AnZhiYu </tag>
+            
+            <tag> Hexo </tag>
             
         </tags>
       
@@ -201,7 +230,7 @@
     
     
     <entry>
-      <title>Adobe Express帮助你创建背景透明图片</title>
+      <title>Hexo|Adobe Express帮助你创建背景透明图片</title>
       <link href="/2026/02/02/Adobe-Express%E5%B8%AE%E5%8A%A9%E4%BD%A0%E5%88%9B%E5%BB%BA%E8%83%8C%E6%99%AF%E9%80%8F%E6%98%8E%E5%9B%BE%E7%89%87/"/>
       <url>/2026/02/02/Adobe-Express%E5%B8%AE%E5%8A%A9%E4%BD%A0%E5%88%9B%E5%BB%BA%E8%83%8C%E6%99%AF%E9%80%8F%E6%98%8E%E5%9B%BE%E7%89%87/</url>
       
@@ -217,13 +246,13 @@
       
         <tags>
             
-            <tag> AnZhiYu </tag>
-            
-            <tag> Hexo </tag>
-            
             <tag> website </tag>
             
             <tag> Tools </tag>
+            
+            <tag> AnZhiYu </tag>
+            
+            <tag> Hexo </tag>
             
         </tags>
       
