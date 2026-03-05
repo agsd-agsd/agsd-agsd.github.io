@@ -1,0 +1,892 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>LiquidityPool学习day1 | God Only Knows</title><meta name="keywords" content="BlockChain,DeFi"><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="LiquidityPool学习day1"><meta name="application-name" content="LiquidityPool学习day1"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="LiquidityPool学习day1"><meta property="og:url" content="http://example.com/2026/03/02/LiquidityPool/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="1. Knife-edge equilibria Knife-edge equilibria（直译为“刀刃上的均衡”）是经济学和系统科学中常用的一个比喻，用来描述一种极其不稳定、难以维持的平衡状态。 在这种状态下，系统处于一种完美的平衡中，但任何微小的扰动、偏差或外部冲击都会导致系统彻底偏离原本的轨"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/rashid.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/rashid.png"><meta name="description" content="1. Knife-edge equilibria Knife-edge equilibria（直译为“刀刃上的均衡”）是经济学和系统科学中常用的一个比喻，用来描述一种极其不稳定、难以维持的平衡状态。 在这种状态下，系统处于一种完美的平衡中，但任何微小的扰动、偏差或外部冲击都会导致系统彻底偏离原本的轨"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/03/02/LiquidityPool/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'LiquidityPool学习day1',
+  postAI: '',
+  pageFillDescription: '1. Knife-edge equilibria, 1. 直观比喻, 2. 核心特征, 3. 现实世界中的例子, 总结, 2. Stackelberg博弈, 1. 核心概念：领导者与追随者, 2. 一个简单的例子：两家矿泉水公司, 3. 求解方法：逆向归纳, 4. Stackelberg博弈的核心特征, 5. 与古诺博弈的区别, 6. 现实生活中的例子, 总结, 3.Convex revenue functions, 1. 核心定义：什么是凸性？, 2. 数学表达, 3. 直观的经济直觉, 4. 现实世界中的例子, 5. 凸收益函数的决策含义, 6. 总结, 4.Cornut and Bertrand competition, 1. 古诺竞争, 核心思想, 关键结论, 2. 伯特兰竞争, 核心思想, 关键结论, 3. 核心区别对比表, 4. 为什么会有这么大的差异？（产能约束的关键）, 5. 现实生活中的例子, 古诺竞争的例子：石油生产, 伯特兰竞争的例子：电商平台, 总结, 5.LP token, 1. 为什么需要 LP Token？, 2. 它代表什么？, 3. 具体运作流程, 4. 总结直译为刀刃上的均衡是经济学和系统科学中常用的一个比喻用来描述一种极其不稳定难以维持的平衡状态在这种状态下系统处于一种完美的平衡中但任何微小的扰动偏差或外部冲击都会导致系统彻底偏离原本的轨道走向完全不同的结果通常是极端的繁荣或崩溃且很难自动恢复到原来的均衡点可以用以下几个核心点来理解这个概念直观比喻想象一把直立的剃刀刀刃朝上试图把一个球放在刀刃上物理原理从数学上讲球确实可以完美地放在刀刃上保持静止这是一个均衡点现实情况只要有极其微小的气流桌子的轻微震动或者球的重心偏离了哪怕一微米球就会立刻掉下去并且再也不会回到刀刃上这就是刀刃上的均衡它在理论上是可能的但在现实中几乎无法维持核心特征高度敏感性系统对初始条件参数变化或外部冲击极其敏感临界点存在一个极窄的稳定点一旦偏离这个点系统就会滑向截然不同的路径不可逆性一旦偏离通常无法通过微调回到原来的平衡点现实世界中的例子宏观经济学索洛增长模型中的刀刃在经济学中最经典的例子是经济增长理论情景假设一个国家的经济增长取决于技术进步资本和劳动力刀刃状态如果资本和产出以完全相同的速度增长经济就能保持稳定增长这是一个均衡偏离的结果如果资本增长的速度稍微快了一点根据某些模型的假设经济可能会陷入无效率的过度积累如果资本增长的速度稍微慢了一点经济可能会陷入停滞或衰退除非参数被精确地设定在某个特定的值上否则经济无法实现稳定增长这种对参数精确性的极端要求被称为刀刃条件汇率制度情景一个实行固定汇率制的国家刀刃状态只要市场相信这个汇率是可持续的汇率就能稳定维持偏离的结果一旦有细微的迹象如外汇储备轻微下降让市场开始怀疑其维持能力就会引发大规模投机攻击抛售本币这种微小的偏离会自我强化导致汇率瞬间崩溃货币危机这种稳定的固定汇率制往往就处于刀刃上社会与政治情景一个多民族或多党派的社会权力平衡极其微妙刀刃状态社会和谐运行偏离的结果一次小的选举舞弊传闻或一起小的民族冲突如果恰好触动了这根敏感的神经就可能迅速滑向内战或国家分裂这种和平状态有时也被形容为刀刃上的和平总结并不是指一种罕见的完美的状态而是一种警示当一个系统无论是经济生态还是社会处于这种平衡时它实际上是非常脆弱的它在模型分析中常被用来揭示系统的临界点并提醒决策者试图让系统长期停留在这种状态是极其危险的因为微小的误差就可能导致灾难性的后果博弈博弈斯坦克尔伯格博弈是由德国经济学家海因里希冯斯坦克尔伯格在年提出的一个寡头市场模型它是博弈论中一个非常重要的概念主要描述的是不对称的竞争即参与者之间存在行动顺序的差异它的核心思想可以概括为领先一步与随后跟进的博弈以下是对博弈的详细解读核心概念领导者与追随者与古诺博弈双方同时行动不同博弈强调顺序参与者被分为两类领导者率先做出决策如决定产量价格或投资规模领导者知道追随者会观察自己的行动并做出反应因此会在决策时策略性地将追随者的反应考虑在内追随者在观察到领导者的决策后再做出自己的最优反应一个简单的例子两家矿泉水公司假设市场上只有两家公司和生产同质矿泉水决策变量是产量古诺博弈同时行动和都蒙着眼睛猜对方生产多少然后同时决定自己的产量双方势均力敌博弈顺序行动领导者假设是先宣布我要生产万瓶追随者看到的产量后计算剩余的市场需求为了利润最大化决定生产万瓶这是针对万的最优反应结果因为先动占据了更大的市场份额万万获得了更高的利润求解方法逆向归纳求解博弈的标准方法是逆向归纳也叫动态规划即从最后一步往前推先分析追随者追随者的决策函数是即追随者的最优产量取决于领导者的产量再分析领导者领导者在做决策时知道自己一旦选了就会导致的结果因此领导者会把代入自己的利润函数选择一个让自己利润最大化的博弈的核心特征先动优势在大多数产量竞争的模型中领导者通常能获得比追随者更高的利润因为领导者可以承诺一个较大的产量迫使追随者只能选择较小的产量否则市场会崩盘策略承诺领导者的优势在于其决策是可置信的承诺如果只是嘴上说说可能不信但在博弈中通常假设的决策是不可逆转的比如已经建好了大工厂只能接受现实信息不对称追随者拥有更多信息他看到了领导者的行动但领导者拥有位置优势他能预见未来与古诺博弈的区别特征古诺博弈博弈行动顺序同时行动顺序行动领导者先动信息结构不了解对方的具体决策追随者了解领导者的决策市场总产量较低较高市场价格较高较低总福利较高更高因为产量更接近完全竞争现实生活中的例子技术创新领导者苹果公司率先推出平板电脑它在设计时就考虑了后续竞争者如三星华为会如何模仿或改进追随者其他厂商看到的成功后推出类似产品但为了抢占市场可能会在价格或某些功能上做差异化价格领导在某些行业如银行业或航空业通常由一家大公司领导者率先宣布调价其他公司追随者随后跟进调整以维持行业价格秩序零售布局大型超市如沃尔玛先在一个地区开设大卖场决定产能周边的小型便利店追随者在看到大超市的商品种类和价格后再决定自己卖什么比如主打生鲜或小时服务总结博弈描述的是一种动态的主从型的竞争关系它揭示了一个深刻的道理在特定的博弈中行动的顺序本身就是一种权力率先行动并做出可信的承诺如大规模投资可以迫使竞争对手做出对自己有利的反应从而将市场优势掌握在自己手中凸收益函数是经济学金融学以及运营管理中用来描述收益行为的一个数学概念它描述了收益随着某个决策变量如产量销售量或努力程度的增加而以递增的速度增长为了深入理解这个概念我们需要拆解凸性的含义并将其置于收益函数的背景下核心定义什么是凸性在数学中如果一个函数是凸函数它通常满足以下几何或代数性质图形形状函数的图像位于任意两点连线的下方即形状是向下弯曲的像字母或碗状这里需要特别注意在经济学中我们通常所说的凸函数是指二阶导数大于即曲线是向上弯曲的斜率越来越陡斜率变化函数的斜率导数是递增的也就是说随着的增加每增加一单位所带来的增量越来越大应用到收益函数上自变量通常是销售量广告投入努力程度或投资规模因变量表示总收入结论一个凸的收益函数意味着边际收益是递增的即你卖得越多每多卖出一个单位产品所带来的额外收入不仅不会减少反而会越来越多数学表达假设收益函数为它相对于是凸的则满足二阶导数大于零边际收益递增边际收益随着销量增加而增加直观的经济直觉在传统的经济学教科书如完全竞争市场中我们通常假设企业是价格接受者收益函数是线性的是常数这既是凸函数也是凹函数线性函数的二阶导数为在垄断市场中为了将产品多卖出去企业通常需要降价因此收益函数往往是凹的边际收益递减那么在什么情况下会出现凸收益函数边际收益递增这通常发生在存在正反馈或网络效应的市场中现实世界中的例子网络效应平台经济情景假设你是一个社交媒体平台的运营者是用户数量凸性表现当用户很少时比如人新加入一个用户带来的广告收益可能只有元但当用户达到亿人时由于网络的密度和互动性新加入一个用户不仅自己看广告还能吸引更多人来互动此时新用户带来的边际收益可能高达元因此收益随着用户数的增加而加速增长形成凸函数赢家通吃的竞赛情景竞赛或研发投入假设是你投入的研发资金是赢得大奖的概率乘以奖金凸性表现在竞赛中如果你投入很少可能根本赢不了收益为当你投入超过某个临界点成为领先者时你赢得整个市场的概率急剧上升收益瞬间放大这种阈值效应也会导致收益函数在某些区间呈现凸性金融衍生品期权情景你购买了一个看涨期权是标的资产如股票的价格凸性表现如果股票价格低于行权价你的收益为固定一旦股票价格超过行权价你的收益开始变为正并且随着股价每上涨元你的收益也增加元线性虽然期权收益函数通常被称为是凸的但在到期日它是分段线性的而在到期前其理论价格相对于标的资产价格是严格的凸函数凸收益函数的决策含义如果一个决策者面对的是凸收益函数这会导致非常激进的行为策略极端化策略因为边际收益递增做一点点的尝试是低效的最优策略往往是要么不做要做就做最大因为没有中间状态是最优的规模效应凸收益函数是产生自然垄断或寡头垄断的数学基础因为大企业的边际收益远高于小企业市场最终会向头部玩家集中与刀刃均衡的关系凸收益函数往往是导致刀刃均衡的原因之一因为在凸收益的作用下系统存在一个临界点一旦超过临界点收益会加速增长从而脱离原来的均衡轨道总结凹函数边际收益递减增长得越来越慢常见于传统实物商品市场卖得越多越难卖越要降价线性函数边际收益不变匀速增长凸函数边际收益递增增长得越来越快常见于数字经济网络平台和具有正反馈的领域它描述了一种强者恒强的收益结构伯特兰竞争和古诺竞争是产业组织理论中描述寡头垄断市场少数几家大公司控制市场的两个最基础最经典的博弈模型它们都试图解释当市场上只有少数几个卖家时他们会如何行为以及市场会达到什么样的均衡两者的核心区别在于企业决策的变量不同古诺竞争企业决定生产多少产量竞争伯特兰竞争企业决定定什么价价格竞争正是这个关键差异导致了截然不同的市场结果古诺竞争提出者奥古斯丁古诺决策变量产量核心逻辑每个企业根据对手可能生产的产量来决定自己的产量从而共同决定市场价格核心思想市场上只有两家公司和生产完全相同的矿泉水它们同时决定生产多少瓶水总产量决定了市场上的总供给从而决定了水的价格供给越多价格越低在决定产量时会猜测生产多少然后选择一个能让自己利润最大化的产量反应函数双方不断调整猜测最终达到一个谁都不想单方面改变产量的状态这就是古诺均衡关键结论市场结果价格高于完全竞争市场但低于完全垄断市场总产量低于完全竞争但高于完全垄断特点每个企业都有一定的市场势力能赚取一定的经济利润但不如垄断者那么多伯特兰竞争提出者约瑟夫伯特兰决策变量价格核心逻辑每个企业根据对手可能定的价格来决定自己的价格消费者从最低价那里购买核心思想同样是两家公司生产完全相同的矿泉水它们同时宣布自己的价格因为水是一样的消费者都会去买价格低的那家如果定价元为了抢走所有客户会定价元看到后为了抢回客户会再降价到元这种价格战会一直持续直到价格降到等于成本为止关键结论市场结果价格等于边际成本生产成本特点伯特兰悖论即便市场上只有两家公司只要它们进行价格竞争且产品同质就能达到完全竞争市场的效果企业没有利润经济利润为零核心区别对比表维度古诺竞争伯特兰竞争决策变量产量价格均衡价格高于边际成本等于边际成本企业利润正的经济利润零经济利润产品性质通常假设同质严格假设同质否则结果不同核心过程调整产量直到市场出清调整价格直到价格战结束直观理解建工厂定产能慢变量定标签打折促销快变量为什么会有这么大的差异产能约束的关键这个差异的核心在于企业对产能的假设古诺的世界企业一旦决定了产量就不能轻易改变比如工厂已经建好了苹果摘下来不能放回去如果我把价格定得很低但我的产量有限我没法满足所有涌来的顾客因此企业倾向于用产量来竞争伯特兰的世界假设企业有无限产能可以满足整个市场的需求只要你价格比我低一丁点所有顾客都跑你那儿去了我会一无所获这迫使双方疯狂降价直到成本价现实生活中的例子古诺竞争的例子石油生产场景沙特阿拉伯俄罗斯美国页岩油为什么是古诺石油的生产取决于油田投资和钻井产能建设周期长一旦决定日产量万桶短期内很难大幅改变各国主要盯着对方的产量配额来决定自己的产量从而影响全球油价伯特兰竞争的例子电商平台场景京东拼多多天猫卖同一款品牌家电如某品牌电视机为什么是伯特兰只要鼠标一点消费者就能看到全网价格且商品完全一样同质哪家便宜消费者就去哪家买这导致了激烈的价格战家电的零售利润率通常被压得很低接近成本总结古诺竞争是关于产能和数量的博弈它描述的是企业通过设定生产规模来竞争结果导致价格高于成本大家都有利可图伯特兰竞争是关于价格的博弈它描述的是企业通过降价来抢生意结果导致价格等于成本谁也没赚到钱在实际分析中经济学家会根据行业特性选择模型如果行业产能调整慢如重工业常用古诺模型如果行业价格调整快且产能充足如零售业常用伯特兰模型中文常称为流动性提供者代币是去中心化交易所如中的一个核心概念简单来说它是你在流动性池中存款的凭证或收据为什么需要想象一个场景流动性池就像一个大水池里面混着两种代币比如和你流动性提供者往这个池子里倒入了个和个其他人也往里面倒入了不同数量的代币当你以后想把钱取出来的时候怎么证明这池子里有多少比例的水是属于你的这时候交易所的智能合约就会发给你一种特殊的代币它代表什么所有权证明代表了你在这个巨大的资金池中所占的份额如果你持有的意味着无论池子里现在的资金总量是多少你都有权赎回池子总资金的具体运作流程存钱你向池子存入资金合约确实收到了你的币合约铸造新的发送给你比如你存入了占池子的资金你就会收到总供应量的新持有期间交易者在这个池子里进行兑换比如把换成需要支付交易手续费通常是这些手续费会直接留在池子里导致池子里的资金总量变多了因为你持有固定比例的池子变大了你的那对应的价值也变大了这就相当于你在赚利息取钱你想退出了你把手中的发回给合约合约销毁这些合约根据你销毁的份额从池子里拿出对应比例的和还给你注意拿回来的两种币数量可能和你存进去时不一样因为币价波动和有人交易但总价值通常会包含赚取的手续费总结在你的代码和中函数会计算你应该得到多少并在模拟数据库里增加你的余额函数会检查你有多少扣除它们然后通过计算把你应得的原始代币和还给你一句话就是你在银行里的定期存款单凭此单据取款并分红',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-03-04 09:29:41',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AI/" style="font-size: 1.05rem;">AI<sup>1</sup></a><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>4</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">10</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/Lab/" itemprop="url">Lab</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/BlockChain/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>BlockChain</span></a><a class="article-meta__tags" href="/tags/DeFi/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>DeFi</span></a></span></div></div><h1 class="post-title" itemprop="name headline">LiquidityPool学习day1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-03-02T07:20:58.005Z" title="Created 2026-03-02 15:20:58">2026-03-02</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-03-04T01:29:41.941Z" title="Updated 2026-03-04 09:29:41">2026-03-04</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">5.6k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>16min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/rashid.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/03/02/LiquidityPool/"><header><a class="post-meta-categories" href="/categories/Lab/" itemprop="url">Lab</a><a href="/tags/BlockChain/" tabindex="-1" itemprop="url">BlockChain</a><a href="/tags/DeFi/" tabindex="-1" itemprop="url">DeFi</a><h1 id="CrawlerTitle" itemprop="name headline">LiquidityPool学习day1</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-03-02T07:20:58.005Z" title="Created 2026-03-02 15:20:58">2026-03-02</time><time itemprop="dateCreated datePublished" datetime="2026-03-04T01:29:41.941Z" title="Updated 2026-03-04 09:29:41">2026-03-04</time></header><h1 id="1-Knife-edge-equilibria"><a href="#1-Knife-edge-equilibria" class="headerlink" title="1. Knife-edge equilibria"></a>1. Knife-edge equilibria</h1><hr>
+<p><strong>Knife-edge equilibria</strong>（直译为“刀刃上的均衡”）是经济学和系统科学中常用的一个比喻，用来描述一种<strong>极其不稳定、难以维持的平衡状态</strong>。</p>
+<p>在这种状态下，系统处于一种完美的平衡中，但<strong>任何微小的扰动、偏差或外部冲击</strong>都会导致系统彻底偏离原本的轨道，走向完全不同的结果（通常是极端的繁荣或崩溃），且很难自动恢复到原来的均衡点。</p>
+<p>可以用以下几个核心点来理解这个概念：</p>
+<h3 id="1-直观比喻"><a href="#1-直观比喻" class="headerlink" title="1. 直观比喻"></a>1. 直观比喻</h3><p>想象一把直立的剃刀，刀刃朝上，试图把一个球放在刀刃上。</p>
+<ul>
+<li><strong>物理原理</strong>：从数学上讲，球确实可以完美地放在刀刃上保持静止，这是一个“均衡点”。</li>
+<li><strong>现实情况</strong>：只要有极其微小的气流、桌子的轻微震动，或者球的重心偏离了哪怕一微米，球就会立刻掉下去，并且再也不会回到刀刃上。</li>
+<li><strong>这就是“刀刃上的均衡”</strong>：它在理论上是可能的，但在现实中几乎无法维持。</li>
+</ul>
+<h3 id="2-核心特征"><a href="#2-核心特征" class="headerlink" title="2. 核心特征"></a>2. 核心特征</h3><ul>
+<li><strong>高度敏感性</strong>：系统对初始条件、参数变化或外部冲击极其敏感。</li>
+<li><strong>临界点</strong>：存在一个极窄的“稳定点”，一旦偏离这个点，系统就会滑向截然不同的路径。</li>
+<li><strong>不可逆性</strong>：一旦偏离，通常无法通过微调回到原来的平衡点。</li>
+</ul>
+<h3 id="3-现实世界中的例子"><a href="#3-现实世界中的例子" class="headerlink" title="3. 现实世界中的例子"></a>3. 现实世界中的例子</h3><p><strong>① 宏观经济学：索洛增长模型中的“刀刃”</strong><br>在经济学中，最经典的例子是经济增长理论。</p>
+<ul>
+<li><strong>情景</strong>：假设一个国家的经济增长取决于技术进步、资本和劳动力。</li>
+<li><strong>刀刃状态</strong>：如果资本和产出以完全相同的速度增长，经济就能保持稳定增长（这是一个均衡）。</li>
+<li><strong>偏离的结果</strong>：如果资本增长的速度稍微快了一点，根据某些模型的假设，经济可能会陷入无效率的过度积累；如果资本增长的速度稍微慢了一点，经济可能会陷入停滞或衰退。除非参数被精确地设定在某个特定的值上，否则经济无法实现稳定增长。这种对参数精确性的极端要求被称为“刀刃条件”。</li>
+</ul>
+<p><strong>② 汇率制度</strong></p>
+<ul>
+<li><strong>情景</strong>：一个实行固定汇率制的国家。</li>
+<li><strong>刀刃状态</strong>：只要市场相信这个汇率是可持续的，汇率就能稳定维持。</li>
+<li><strong>偏离的结果</strong>：一旦有细微的迹象（如外汇储备轻微下降）让市场开始怀疑其维持能力，就会引发大规模投机攻击（抛售本币）。这种微小的偏离会自我强化，导致汇率瞬间崩溃（货币危机）。这种稳定的固定汇率制往往就处于刀刃上。</li>
+</ul>
+<p><strong>③ 社会与政治</strong></p>
+<ul>
+<li><strong>情景</strong>：一个多民族或多党派的社会，权力平衡极其微妙。</li>
+<li><strong>刀刃状态</strong>：社会和谐运行。</li>
+<li><strong>偏离的结果</strong>：一次小的选举舞弊传闻或一起小的民族冲突，如果恰好触动了这根敏感的神经，就可能迅速滑向内战或国家分裂。这种和平状态有时也被形容为“刀刃上的和平”。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>Knife-edge equilibria</strong> 并不是指一种罕见的、完美的状态，而是一种<strong>警示</strong>：当一个系统（无论是经济、生态还是社会）处于这种平衡时，它实际上是非常脆弱的。它在模型分析中常被用来揭示系统的临界点，并提醒决策者：试图让系统长期停留在这种状态是极其危险的，因为微小的误差就可能导致灾难性的后果。</p>
+<h1 id="2-Stackelberg博弈"><a href="#2-Stackelberg博弈" class="headerlink" title="2. Stackelberg博弈"></a>2. <strong>Stackelberg博弈</strong></h1><hr>
+<p><strong>Stackelberg博弈</strong>（斯坦克尔伯格博弈）是由德国经济学家海因里希·冯·斯坦克尔伯格在1934年提出的一个<strong>寡头市场模型</strong>。它是博弈论中一个非常重要的概念，主要描述的是<strong>不对称的竞争</strong>，即参与者之间存在<strong>行动顺序的差异</strong>。</p>
+<p>它的核心思想可以概括为：<strong>“领先一步”与“随后跟进”的博弈。</strong></p>
+<p>以下是对Stackelberg博弈的详细解读：</p>
+<h3 id="1-核心概念：领导者与追随者"><a href="#1-核心概念：领导者与追随者" class="headerlink" title="1. 核心概念：领导者与追随者"></a>1. 核心概念：领导者与追随者</h3><p>与古诺博弈（Cournot，双方同时行动）不同，Stackelberg博弈强调<strong>顺序</strong>。参与者被分为两类：</p>
+<ol>
+<li><strong>领导者</strong>：率先做出决策（如决定产量、价格或投资规模）。领导者知道追随者会观察自己的行动并做出反应，因此会在决策时<strong>策略性地</strong>将追随者的反应考虑在内。</li>
+<li><strong>追随者</strong>：在观察到领导者的决策后，再做出自己的最优反应。</li>
+</ol>
+<h3 id="2-一个简单的例子：两家矿泉水公司"><a href="#2-一个简单的例子：两家矿泉水公司" class="headerlink" title="2. 一个简单的例子：两家矿泉水公司"></a>2. 一个简单的例子：两家矿泉水公司</h3><p>假设市场上只有两家公司（A和B）生产同质矿泉水，决策变量是<strong>产量</strong>。</p>
+<ul>
+<li><p><strong>古诺博弈（同时行动）</strong>：<br>A和B都蒙着眼睛猜对方生产多少，然后同时决定自己的产量。双方势均力敌。</p>
+</li>
+<li><p><strong>Stackelberg博弈（顺序行动）</strong>：</p>
+<ol>
+<li><strong>领导者（假设是A）</strong>：先宣布：“我要生产100万瓶。”</li>
+<li><strong>追随者（B）</strong>：看到A的产量后，计算剩余的市场需求。为了利润最大化，B决定生产40万瓶（这是针对A&#x3D;100万的最优反应）。</li>
+<li><strong>结果</strong>：A因为先动，占据了更大的市场份额（100万 vs 40万），获得了更高的利润。</li>
+</ol>
+</li>
+</ul>
+<h3 id="3-求解方法：逆向归纳"><a href="#3-求解方法：逆向归纳" class="headerlink" title="3. 求解方法：逆向归纳"></a>3. 求解方法：逆向归纳</h3><p>求解Stackelberg博弈的标准方法是<strong>逆向归纳</strong>，也叫动态规划。即从最后一步往前推：</p>
+<ol>
+<li><strong>先分析追随者</strong>：追随者的决策函数是 ( q_2 &#x3D; f(q_1) )，即追随者的最优产量取决于领导者的产量。</li>
+<li><strong>再分析领导者</strong>：领导者在做决策时，知道自己一旦选了 ( q_1 )，就会导致 ( q_2 &#x3D; f(q_1) ) 的结果。因此，领导者会把 ( f(q_1) ) 代入自己的利润函数，选择一个让自己利润最大化的 ( q_1 )。</li>
+</ol>
+<h3 id="4-Stackelberg博弈的核心特征"><a href="#4-Stackelberg博弈的核心特征" class="headerlink" title="4. Stackelberg博弈的核心特征"></a>4. Stackelberg博弈的核心特征</h3><ul>
+<li><p><strong>先动优势</strong>：<br>在大多数产量竞争的模型中，领导者通常能获得比追随者更高的利润。因为领导者可以承诺一个较大的产量，迫使追随者只能选择较小的产量（否则市场会崩盘）。</p>
+</li>
+<li><p><strong>策略承诺</strong>：<br>领导者的优势在于其决策是<strong>可置信的承诺</strong>。如果A只是嘴上说说，B可能不信。但在Stackelberg博弈中，通常假设A的决策是<strong>不可逆转</strong>的（比如已经建好了大工厂），B只能接受现实。</p>
+</li>
+<li><p><strong>信息不对称</strong>：<br>追随者拥有更多信息（他看到了领导者的行动），但领导者拥有<strong>位置优势</strong>（他能预见未来）。</p>
+</li>
+</ul>
+<h3 id="5-与古诺博弈的区别"><a href="#5-与古诺博弈的区别" class="headerlink" title="5. 与古诺博弈的区别"></a>5. 与古诺博弈的区别</h3><table>
+<thead>
+<tr>
+<th align="left">特征</th>
+<th align="left">古诺博弈</th>
+<th align="left">Stackelberg博弈</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>行动顺序</strong></td>
+<td align="left">同时行动</td>
+<td align="left">顺序行动（领导者先动）</td>
+</tr>
+<tr>
+<td align="left"><strong>信息结构</strong></td>
+<td align="left">不了解对方的具体决策</td>
+<td align="left">追随者了解领导者的决策</td>
+</tr>
+<tr>
+<td align="left"><strong>市场总产量</strong></td>
+<td align="left">较低</td>
+<td align="left"><strong>较高</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>市场价格</strong></td>
+<td align="left">较高</td>
+<td align="left"><strong>较低</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>总福利</strong></td>
+<td align="left">较高</td>
+<td align="left"><strong>更高</strong>（因为产量更接近完全竞争）</td>
+</tr>
+</tbody></table>
+<h3 id="6-现实生活中的例子"><a href="#6-现实生活中的例子" class="headerlink" title="6. 现实生活中的例子"></a>6. 现实生活中的例子</h3><ul>
+<li><p><strong>技术创新</strong>：</p>
+<ul>
+<li><strong>领导者</strong>：苹果公司率先推出平板电脑iPad。它在设计时就考虑了后续竞争者（如三星、华为）会如何模仿或改进。</li>
+<li><strong>追随者</strong>：其他厂商看到iPad的成功后，推出类似产品，但为了抢占市场，可能会在价格或某些功能上做差异化。</li>
+</ul>
+</li>
+<li><p><strong>价格领导</strong>：<br>在某些行业（如银行业或航空业），通常由一家大公司（领导者）率先宣布调价，其他公司（追随者）随后跟进调整，以维持行业价格秩序。</p>
+</li>
+<li><p><strong>零售布局</strong>：<br>大型超市（如沃尔玛）先在一个地区开设大卖场（决定“产能”）。周边的小型便利店（追随者）在看到大超市的商品种类和价格后，再决定自己卖什么（比如主打生鲜或24小时服务）。</p>
+</li>
+</ul>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p><strong>Stackelberg博弈</strong>描述的是一种<strong>动态的、主从型的竞争关系</strong>。它揭示了一个深刻的道理：<strong>在特定的博弈中，行动的顺序本身就是一种权力。</strong> 率先行动并做出可信的承诺（如大规模投资），可以迫使竞争对手做出对自己有利的反应，从而将市场优势掌握在自己手中。</p>
+<h1 id="3-Convex-revenue-functions"><a href="#3-Convex-revenue-functions" class="headerlink" title="3.Convex revenue functions"></a>3.Convex revenue functions</h1><hr>
+<p><strong>Convex revenue functions</strong>（凸收益函数）是经济学、金融学以及运营管理中用来描述收益行为的一个数学概念。它描述了<strong>收益随着某个决策变量（如产量、销售量或努力程度）的增加而以递增的速度增长</strong>。</p>
+<p>为了深入理解这个概念，我们需要拆解 “Convex”（凸性）的含义，并将其置于收益函数的背景下。</p>
+<h3 id="1-核心定义：什么是凸性？"><a href="#1-核心定义：什么是凸性？" class="headerlink" title="1. 核心定义：什么是凸性？"></a>1. 核心定义：什么是凸性？</h3><p>在数学中，如果一个函数 ( f(x) ) 是凸函数，它通常满足以下几何或代数性质：</p>
+<ul>
+<li><strong>图形形状</strong>：函数的图像位于任意两点连线的<strong>下方</strong>（即形状是向下弯曲的，像字母 “U” 或碗状？—— 这里需要特别注意：在经济学中，我们通常所说的凸函数是指二阶导数大于0，即曲线是<strong>向上弯曲</strong>的，斜率越来越陡）。</li>
+<li><strong>斜率变化</strong>：函数的<strong>斜率（导数）是递增的</strong>。也就是说，随着 ( x ) 的增加，每增加一单位 ( x ) 所带来的 ( f(x) ) 增量越来越大。</li>
+</ul>
+<p>应用到收益函数上：</p>
+<ul>
+<li><strong>自变量 ( x )</strong>：通常是销售量、广告投入、努力程度或投资规模。</li>
+<li><strong>因变量 ( R(x) )</strong>：表示总收入。</li>
+</ul>
+<p><strong>结论</strong>：一个凸的收益函数意味着<strong>边际收益是递增的</strong>。即：你卖得越多，每多卖出一个单位产品所带来的额外收入不仅不会减少，反而会越来越多。</p>
+<h3 id="2-数学表达"><a href="#2-数学表达" class="headerlink" title="2. 数学表达"></a>2. 数学表达</h3><p>假设收益函数为 ( R(x) )，它相对于 ( x ) 是凸的，则满足：</p>
+<ol>
+<li><strong>二阶导数大于零</strong>：( R’’(x) &gt; 0 )</li>
+<li><strong>边际收益递增</strong>：( MR(x+1) &gt; MR(x) ) （边际收益随着销量增加而增加）</li>
+</ol>
+<h3 id="3-直观的经济直觉"><a href="#3-直观的经济直觉" class="headerlink" title="3. 直观的经济直觉"></a>3. 直观的经济直觉</h3><p>在传统的经济学教科书（如完全竞争市场）中，我们通常假设企业是价格接受者，收益函数是线性的（( R &#x3D; P \times Q )，P是常数），这既是凸函数也是凹函数（线性函数的二阶导数为0）。<br>在垄断市场中，为了将产品多卖出去，企业通常需要降价，因此收益函数往往是凹的（边际收益递减）。</p>
+<p>那么，在什么情况下会出现<strong>凸收益函数（边际收益递增）</strong>？</p>
+<p>这通常发生在存在<strong>正反馈</strong>或<strong>网络效应</strong>的市场中。</p>
+<h3 id="4-现实世界中的例子"><a href="#4-现实世界中的例子" class="headerlink" title="4. 现实世界中的例子"></a>4. 现实世界中的例子</h3><p><strong>① 网络效应（平台经济）</strong></p>
+<ul>
+<li><strong>情景</strong>：假设你是一个社交媒体平台的运营者，( x ) 是用户数量。</li>
+<li><strong>凸性表现</strong>：<ul>
+<li>当用户很少时（比如100人），新加入一个用户带来的广告收益可能只有1元。</li>
+<li>但当用户达到1亿人时，由于网络的密度和互动性，新加入一个用户不仅自己看广告，还能吸引更多人来互动，此时新用户带来的边际收益可能高达10元。</li>
+<li>因此，收益 ( R(x) ) 随着用户数 ( x ) 的增加而加速增长，形成凸函数。</li>
+</ul>
+</li>
+</ul>
+<p><strong>② 赢家通吃的竞赛</strong></p>
+<ul>
+<li><strong>情景</strong>：竞赛或研发投入。假设 ( x ) 是你投入的研发资金，( R(x) ) 是赢得大奖的概率乘以奖金。</li>
+<li><strong>凸性表现</strong>：<ul>
+<li>在竞赛中，如果你投入很少，可能根本赢不了（收益为0）。</li>
+<li>当你投入超过某个临界点（成为领先者）时，你赢得整个市场的概率急剧上升，收益瞬间放大。这种“阈值效应”也会导致收益函数在某些区间呈现凸性。</li>
+</ul>
+</li>
+</ul>
+<p><strong>③ 金融衍生品（期权）</strong></p>
+<ul>
+<li><strong>情景</strong>：你购买了一个看涨期权。( x ) 是标的资产（如股票）的价格。</li>
+<li><strong>凸性表现</strong>：<ul>
+<li>如果股票价格低于行权价，你的收益为0（固定）。</li>
+<li>一旦股票价格超过行权价，你的收益开始变为正，并且随着股价每上涨1元，你的收益也增加1元（线性）。虽然期权收益函数通常被称为是凸的，但在到期日它是分段线性的，而在到期前，其理论价格相对于标的资产价格是严格的凸函数。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-凸收益函数的决策含义"><a href="#5-凸收益函数的决策含义" class="headerlink" title="5. 凸收益函数的决策含义"></a>5. 凸收益函数的决策含义</h3><p>如果一个决策者面对的是凸收益函数，这会导致非常激进的行为策略：</p>
+<ul>
+<li><strong>极端化策略</strong>：因为边际收益递增，做一点点的尝试是低效的。最优策略往往是**“要么不做，要做就做最大”**。因为没有中间状态是最优的。</li>
+<li><strong>规模效应</strong>：凸收益函数是产生自然垄断或寡头垄断的数学基础。因为大企业的边际收益远高于小企业，市场最终会向头部玩家集中。</li>
+<li><strong>与刀刃均衡的关系</strong>：凸收益函数往往是导致“刀刃均衡”的原因之一。因为在凸收益的作用下，系统存在一个临界点：一旦超过临界点，收益会加速增长，从而脱离原来的均衡轨道。</li>
+</ul>
+<h3 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h3><ul>
+<li><strong>凹函数</strong>：边际收益递减（增长得越来越慢）—— 常见于传统实物商品市场（卖得越多，越难卖，越要降价）。</li>
+<li><strong>线性函数</strong>：边际收益不变（匀速增长）。</li>
+<li><strong>凸函数</strong>：边际收益递增（增长得越来越快）—— 常见于数字经济、网络平台和具有正反馈的领域。它描述了一种“强者恒强”的收益结构。</li>
+</ul>
+<h1 id="4-Cornut-and-Bertrand-competition"><a href="#4-Cornut-and-Bertrand-competition" class="headerlink" title="4.Cornut and Bertrand competition"></a>4.Cornut and Bertrand competition</h1><hr>
+<p><strong>Bertrand Competition（伯特兰竞争）</strong> 和 <strong>Cournot Competition（古诺竞争）</strong> 是产业组织理论中描述<strong>寡头垄断市场</strong>（少数几家大公司控制市场）的两个最基础、最经典的博弈模型。</p>
+<p>它们都试图解释当市场上只有少数几个卖家时，他们会如何行为以及市场会达到什么样的均衡。两者的核心区别在于<strong>企业决策的变量不同</strong>：</p>
+<ol>
+<li><strong>古诺竞争</strong>：企业决定<strong>生产多少</strong>（产量竞争）。</li>
+<li><strong>伯特兰竞争</strong>：企业决定<strong>定什么价</strong>（价格竞争）。</li>
+</ol>
+<p>正是这个关键差异，导致了截然不同的市场结果。</p>
+<hr>
+<h3 id="1-古诺竞争"><a href="#1-古诺竞争" class="headerlink" title="1. 古诺竞争"></a>1. 古诺竞争</h3><ul>
+<li><strong>提出者</strong>：奥古斯丁·古诺</li>
+<li><strong>决策变量</strong>：<strong>产量</strong></li>
+<li><strong>核心逻辑</strong>：每个企业根据对手可能生产的产量，来决定自己的产量，从而共同决定市场价格。</li>
+</ul>
+<h4 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h4><p>市场上只有两家公司（A和B）生产完全相同的矿泉水。</p>
+<ol>
+<li>它们同时决定生产多少瓶水。</li>
+<li>总产量决定了市场上的总供给，从而决定了水的价格（供给越多，价格越低）。</li>
+<li>A在决定产量时，会猜测B生产多少，然后选择一个能让自己利润最大化的产量（反应函数）。</li>
+<li>双方不断调整猜测，最终达到一个谁都不想单方面改变产量的状态——这就是<strong>古诺均衡</strong>。</li>
+</ol>
+<h4 id="关键结论"><a href="#关键结论" class="headerlink" title="关键结论"></a>关键结论</h4><ul>
+<li><strong>市场结果</strong>：价格高于完全竞争市场，但低于完全垄断市场；总产量低于完全竞争，但高于完全垄断。</li>
+<li><strong>特点</strong>：每个企业都有一定的市场势力，能赚取一定的经济利润，但不如垄断者那么多。</li>
+</ul>
+<hr>
+<h3 id="2-伯特兰竞争"><a href="#2-伯特兰竞争" class="headerlink" title="2. 伯特兰竞争"></a>2. 伯特兰竞争</h3><ul>
+<li><strong>提出者</strong>：约瑟夫·伯特兰</li>
+<li><strong>决策变量</strong>：<strong>价格</strong></li>
+<li><strong>核心逻辑</strong>：每个企业根据对手可能定的价格，来决定自己的价格，消费者从最低价那里购买。</li>
+</ul>
+<h4 id="核心思想-1"><a href="#核心思想-1" class="headerlink" title="核心思想"></a>核心思想</h4><p>同样是两家公司生产完全相同的矿泉水。</p>
+<ol>
+<li>它们同时宣布自己的<strong>价格</strong>。</li>
+<li>因为水是一样的，消费者都会去买价格低的那家。</li>
+<li>如果A定价5元，B为了抢走所有客户，会定价4.9元。</li>
+<li>A看到后，为了抢回客户，会再降价到4.8元。</li>
+<li>这种价格战会一直持续，直到价格降到等于<strong>成本</strong>为止。</li>
+</ol>
+<h4 id="关键结论-1"><a href="#关键结论-1" class="headerlink" title="关键结论"></a>关键结论</h4><ul>
+<li><strong>市场结果</strong>：价格等于边际成本（生产成本）。</li>
+<li><strong>特点</strong>：<strong>伯特兰悖论</strong>——即便市场上只有两家公司，只要它们进行价格竞争且产品同质，就能达到完全竞争市场的效果。企业没有利润（经济利润为零）。</li>
+</ul>
+<hr>
+<h3 id="3-核心区别对比表"><a href="#3-核心区别对比表" class="headerlink" title="3. 核心区别对比表"></a>3. 核心区别对比表</h3><table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">古诺竞争</th>
+<th align="left">伯特兰竞争</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>决策变量</strong></td>
+<td align="left"><strong>产量</strong></td>
+<td align="left"><strong>价格</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>均衡价格</strong></td>
+<td align="left">高于边际成本</td>
+<td align="left">等于边际成本</td>
+</tr>
+<tr>
+<td align="left"><strong>企业利润</strong></td>
+<td align="left">正的经济利润</td>
+<td align="left">零经济利润</td>
+</tr>
+<tr>
+<td align="left"><strong>产品性质</strong></td>
+<td align="left">通常假设同质</td>
+<td align="left">严格假设同质（否则结果不同）</td>
+</tr>
+<tr>
+<td align="left"><strong>核心过程</strong></td>
+<td align="left">调整产量直到市场出清</td>
+<td align="left">调整价格直到价格战结束</td>
+</tr>
+<tr>
+<td align="left"><strong>直观理解</strong></td>
+<td align="left">建工厂、定产能（慢变量）</td>
+<td align="left">定标签、打折促销（快变量）</td>
+</tr>
+</tbody></table>
+<h3 id="4-为什么会有这么大的差异？（产能约束的关键）"><a href="#4-为什么会有这么大的差异？（产能约束的关键）" class="headerlink" title="4. 为什么会有这么大的差异？（产能约束的关键）"></a>4. 为什么会有这么大的差异？（产能约束的关键）</h3><p>这个差异的核心在于企业对<strong>产能</strong>的假设。</p>
+<ul>
+<li><p><strong>古诺的世界</strong>：<br>企业一旦决定了产量，就不能轻易改变（比如工厂已经建好了，苹果摘下来不能放回去）。如果我把价格定得很低，但我的产量有限，我没法满足所有涌来的顾客。因此，企业倾向于用产量来竞争。</p>
+</li>
+<li><p><strong>伯特兰的世界</strong>：<br>假设企业有无限产能，可以满足整个市场的需求。只要你价格比我低一丁点，所有顾客都跑你那儿去了，我会一无所获。这迫使双方疯狂降价，直到成本价。</p>
+</li>
+</ul>
+<h3 id="5-现实生活中的例子"><a href="#5-现实生活中的例子" class="headerlink" title="5. 现实生活中的例子"></a>5. 现实生活中的例子</h3><h4 id="古诺竞争的例子：石油生产"><a href="#古诺竞争的例子：石油生产" class="headerlink" title="古诺竞争的例子：石油生产"></a>古诺竞争的例子：石油生产</h4><ul>
+<li><strong>场景</strong>：沙特阿拉伯、俄罗斯、美国（页岩油）。</li>
+<li><strong>为什么是古诺？</strong>：石油的生产取决于油田投资和钻井，产能建设周期长。一旦决定日产量1000万桶，短期内很难大幅改变。各国主要盯着对方的<strong>产量配额</strong>来决定自己的产量，从而影响全球油价。</li>
+</ul>
+<h4 id="伯特兰竞争的例子：电商平台"><a href="#伯特兰竞争的例子：电商平台" class="headerlink" title="伯特兰竞争的例子：电商平台"></a>伯特兰竞争的例子：电商平台</h4><ul>
+<li><strong>场景</strong>：京东、拼多多、天猫卖同一款品牌家电（如某品牌电视机）。</li>
+<li><strong>为什么是伯特兰？</strong>：只要鼠标一点，消费者就能看到全网价格，且商品完全一样（同质）。哪家便宜消费者就去哪家买。这导致了激烈的价格战，家电的零售利润率通常被压得很低，接近成本。</li>
+</ul>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ul>
+<li><strong>古诺竞争</strong>是关于<strong>产能和数量</strong>的博弈。它描述的是企业通过设定生产规模来竞争，结果导致价格高于成本，大家都有利可图。</li>
+<li><strong>伯特兰竞争</strong>是关于<strong>价格</strong>的博弈。它描述的是企业通过降价来抢生意，结果导致价格等于成本，谁也没赚到钱。</li>
+</ul>
+<p>在实际分析中，经济学家会根据行业特性选择模型：如果行业产能调整慢（如重工业），常用古诺模型；如果行业价格调整快且产能充足（如零售业），常用伯特兰模型。</p>
+<h1 id="5-LP-token"><a href="#5-LP-token" class="headerlink" title="5.LP token"></a>5.LP token</h1><hr>
+<p><strong>LP Token (Liquidity Provider Token)</strong>，中文常称为<strong>流动性提供者代币</strong>，是去中心化交易所（DEX，如 Uniswap, SushiSwap）中的一个核心概念。</p>
+<p>简单来说，它是<strong>你在流动性池（Pool）中存款的“凭证”或“收据”</strong>。</p>
+<h3 id="1-为什么需要-LP-Token？"><a href="#1-为什么需要-LP-Token？" class="headerlink" title="1. 为什么需要 LP Token？"></a>1. 为什么需要 LP Token？</h3><p>想象一个场景：</p>
+<ul>
+<li><strong>流动性池</strong>就像一个大水池，里面混着两种代币（比如 ETH 和 USDT）。</li>
+<li>**你（流动性提供者）**往这个池子里倒入了 10 个 ETH 和 20,000 个 USDT。</li>
+<li><strong>其他人</strong>也往里面倒入了不同数量的代币。</li>
+</ul>
+<p>当你以后想把钱取出来的时候，怎么证明这池子里<strong>有多少比例的水是属于你的</strong>？</p>
+<p>这时候，交易所（DEX）的智能合约就会发给你一种特殊的代币——<strong>LP Token</strong>。</p>
+<h3 id="2-它代表什么？"><a href="#2-它代表什么？" class="headerlink" title="2. 它代表什么？"></a>2. 它代表什么？</h3><ul>
+<li><strong>所有权证明</strong>：LP Token 代表了你在这个巨大的资金池中所占的<strong>份额（Share）</strong>。</li>
+<li><strong>如果你持有 10% 的 LP Token</strong>：意味着无论池子里现在的资金总量是多少，你都有权赎回池子总资金的 10%。</li>
+</ul>
+<h3 id="3-具体运作流程"><a href="#3-具体运作流程" class="headerlink" title="3. 具体运作流程"></a>3. 具体运作流程</h3><ol>
+<li><p><strong>存钱（Add Liquidity）</strong>：</p>
+<ul>
+<li>你向 ETH&#x2F;USDT 池子存入资金。</li>
+<li>合约确实收到了你的币。</li>
+<li>合约**铸造（Mint）**新的 LP Token 发送给你。</li>
+<li><em>比如：你存入了占池子 1% 的资金，你就会收到总 LP Token 供应量 1% 的新 Token。</em></li>
+</ul>
+</li>
+<li><p><strong>持有期间（Earning Fees）</strong>：</p>
+<ul>
+<li>交易者在这个池子里进行兑换（比如把 ETH 换成 USDT），需要支付<strong>交易手续费</strong>（通常是 0.3%）。</li>
+<li>这些手续费会直接留在池子里，导致池子里的资金总量变多了。</li>
+<li>因为你持有固定比例的 LP Token，池子变大了，你的那 1% 对应的价值也变大了。<strong>这就相当于你在赚利息。</strong></li>
+</ul>
+</li>
+<li><p><strong>取钱（Remove Liquidity）</strong>：</p>
+<ul>
+<li>你想退出了。你把手中的 LP Token 发回给合约。</li>
+<li>合约**销毁（Burn）**这些 LP Token。</li>
+<li>合约根据你销毁的份额，从池子里拿出对应比例的 ETH 和 USDT 还给你。</li>
+<li><em>注意：拿回来的两种币数量可能和你存进去时不一样（因为币价波动和有人交易），但总价值通常会包含赚取的手续费。</em></li>
+</ul>
+</li>
+</ol>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>在你的代码 <code>liquidity.js</code> 和 <code>mockState.js</code> 中：</p>
+<ul>
+<li><code>addLiquidity</code> 函数会计算你应该得到多少 LP Token，并在模拟数据库里增加你的 LP 余额。</li>
+<li><code>removeLiquidity</code> 函数会检查你有多少 LP Token，扣除它们，然后通过计算把你应得的原始代币（e.g., WBKC 和 E20C）还给你。</li>
+</ul>
+<p><strong>一句话：LP Token 就是你在 DEX 银行里的“定期存款单”，凭此单据取款并分红。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/03/02/LiquidityPool/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/03/02/LiquidityPool/')">LiquidityPool学习day1</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/03/02/LiquidityPool/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=LiquidityPool学习day1&amp;url=http://example.com/2026/03/02/LiquidityPool/&amp;pic=/cover/rashid.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/BlockChain/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>BlockChain<span class="tagsPageCount">2</span></a><a class="post-meta__box__tags" href="/tags/DeFi/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>DeFi<span class="tagsPageCount">1</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/blanka.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/02/15/%E9%85%8D%E7%BD%AEwhisperx%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B0%E8%AF%AD%E9%9F%B3%E8%BD%AC%E6%96%87%E5%AD%97%E8%BF%87%E7%A8%8B/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/blanka.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">配置whisperx开源项目实现语音转文字过程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/01/29/BrokerHub/" title="BrokerHub"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/mai.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-01-29</div><div class="title">BrokerHub</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Knife-edge-equilibria"><span class="toc-number">1.</span> <span class="toc-text">1. Knife-edge equilibria</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%9B%B4%E8%A7%82%E6%AF%94%E5%96%BB"><span class="toc-number">1.1.</span> <span class="toc-text">1. 直观比喻</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A0%B8%E5%BF%83%E7%89%B9%E5%BE%81"><span class="toc-number">1.2.</span> <span class="toc-text">2. 核心特征</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%8E%B0%E5%AE%9E%E4%B8%96%E7%95%8C%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">1.3.</span> <span class="toc-text">3. 现实世界中的例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Stackelberg%E5%8D%9A%E5%BC%88"><span class="toc-number">2.</span> <span class="toc-text">2. Stackelberg博弈</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%EF%BC%9A%E9%A2%86%E5%AF%BC%E8%80%85%E4%B8%8E%E8%BF%BD%E9%9A%8F%E8%80%85"><span class="toc-number">2.1.</span> <span class="toc-text">1. 核心概念：领导者与追随者</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E4%BE%8B%E5%AD%90%EF%BC%9A%E4%B8%A4%E5%AE%B6%E7%9F%BF%E6%B3%89%E6%B0%B4%E5%85%AC%E5%8F%B8"><span class="toc-number">2.2.</span> <span class="toc-text">2. 一个简单的例子：两家矿泉水公司</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%B1%82%E8%A7%A3%E6%96%B9%E6%B3%95%EF%BC%9A%E9%80%86%E5%90%91%E5%BD%92%E7%BA%B3"><span class="toc-number">2.3.</span> <span class="toc-text">3. 求解方法：逆向归纳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Stackelberg%E5%8D%9A%E5%BC%88%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E5%BE%81"><span class="toc-number">2.4.</span> <span class="toc-text">4. Stackelberg博弈的核心特征</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%B8%8E%E5%8F%A4%E8%AF%BA%E5%8D%9A%E5%BC%88%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">2.5.</span> <span class="toc-text">5. 与古诺博弈的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E7%8E%B0%E5%AE%9E%E7%94%9F%E6%B4%BB%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">2.6.</span> <span class="toc-text">6. 现实生活中的例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">2.7.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Convex-revenue-functions"><span class="toc-number">3.</span> <span class="toc-text">3.Convex revenue functions</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%A0%B8%E5%BF%83%E5%AE%9A%E4%B9%89%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E5%87%B8%E6%80%A7%EF%BC%9F"><span class="toc-number">3.1.</span> <span class="toc-text">1. 核心定义：什么是凸性？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%95%B0%E5%AD%A6%E8%A1%A8%E8%BE%BE"><span class="toc-number">3.2.</span> <span class="toc-text">2. 数学表达</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%9B%B4%E8%A7%82%E7%9A%84%E7%BB%8F%E6%B5%8E%E7%9B%B4%E8%A7%89"><span class="toc-number">3.3.</span> <span class="toc-text">3. 直观的经济直觉</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%8E%B0%E5%AE%9E%E4%B8%96%E7%95%8C%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">3.4.</span> <span class="toc-text">4. 现实世界中的例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%87%B8%E6%94%B6%E7%9B%8A%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%B3%E7%AD%96%E5%90%AB%E4%B9%89"><span class="toc-number">3.5.</span> <span class="toc-text">5. 凸收益函数的决策含义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%80%BB%E7%BB%93"><span class="toc-number">3.6.</span> <span class="toc-text">6. 总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Cornut-and-Bertrand-competition"><span class="toc-number">4.</span> <span class="toc-text">4.Cornut and Bertrand competition</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8F%A4%E8%AF%BA%E7%AB%9E%E4%BA%89"><span class="toc-number">4.1.</span> <span class="toc-text">1. 古诺竞争</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">4.1.1.</span> <span class="toc-text">核心思想</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%BB%93%E8%AE%BA"><span class="toc-number">4.1.2.</span> <span class="toc-text">关键结论</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BC%AF%E7%89%B9%E5%85%B0%E7%AB%9E%E4%BA%89"><span class="toc-number">4.2.</span> <span class="toc-text">2. 伯特兰竞争</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3-1"><span class="toc-number">4.2.1.</span> <span class="toc-text">核心思想</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%BB%93%E8%AE%BA-1"><span class="toc-number">4.2.2.</span> <span class="toc-text">关键结论</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="toc-number">4.3.</span> <span class="toc-text">3. 核心区别对比表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89%E8%BF%99%E4%B9%88%E5%A4%A7%E7%9A%84%E5%B7%AE%E5%BC%82%EF%BC%9F%EF%BC%88%E4%BA%A7%E8%83%BD%E7%BA%A6%E6%9D%9F%E7%9A%84%E5%85%B3%E9%94%AE%EF%BC%89"><span class="toc-number">4.4.</span> <span class="toc-text">4. 为什么会有这么大的差异？（产能约束的关键）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E7%8E%B0%E5%AE%9E%E7%94%9F%E6%B4%BB%E4%B8%AD%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">4.5.</span> <span class="toc-text">5. 现实生活中的例子</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%A4%E8%AF%BA%E7%AB%9E%E4%BA%89%E7%9A%84%E4%BE%8B%E5%AD%90%EF%BC%9A%E7%9F%B3%E6%B2%B9%E7%94%9F%E4%BA%A7"><span class="toc-number">4.5.1.</span> <span class="toc-text">古诺竞争的例子：石油生产</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%AF%E7%89%B9%E5%85%B0%E7%AB%9E%E4%BA%89%E7%9A%84%E4%BE%8B%E5%AD%90%EF%BC%9A%E7%94%B5%E5%95%86%E5%B9%B3%E5%8F%B0"><span class="toc-number">4.5.2.</span> <span class="toc-text">伯特兰竞争的例子：电商平台</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">4.6.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-LP-token"><span class="toc-number">5.</span> <span class="toc-text">5.LP token</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-LP-Token%EF%BC%9F"><span class="toc-number">5.1.</span> <span class="toc-text">1. 为什么需要 LP Token？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%83%E4%BB%A3%E8%A1%A8%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">5.2.</span> <span class="toc-text">2. 它代表什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B7%E4%BD%93%E8%BF%90%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">5.3.</span> <span class="toc-text">3. 具体运作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%80%BB%E7%BB%93"><span class="toc-number">5.4.</span> <span class="toc-text">4. 总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/02/LiquidityPool/" title="LiquidityPool学习day1"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/rashid.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="LiquidityPool学习day1"/></a><div class="content"><a class="title" href="/2026/03/02/LiquidityPool/" title="LiquidityPool学习day1">LiquidityPool学习day1</a><time datetime="2026-03-02T07:20:58.005Z" title="Created 2026-03-02 15:20:58">2026-03-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/15/%E9%85%8D%E7%BD%AEwhisperx%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B0%E8%AF%AD%E9%9F%B3%E8%BD%AC%E6%96%87%E5%AD%97%E8%BF%87%E7%A8%8B/" title="配置whisperx开源项目实现语音转文字过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/blanka.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="配置whisperx开源项目实现语音转文字过程"/></a><div class="content"><a class="title" href="/2026/02/15/%E9%85%8D%E7%BD%AEwhisperx%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B0%E8%AF%AD%E9%9F%B3%E8%BD%AC%E6%96%87%E5%AD%97%E8%BF%87%E7%A8%8B/" title="配置whisperx开源项目实现语音转文字过程">配置whisperx开源项目实现语音转文字过程</a><time datetime="2026-02-15T15:00:22.185Z" title="Created 2026-02-15 23:00:22">2026-02-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/13/%E5%A6%82%E4%BD%95%E6%8A%8Awallpaper%E7%9A%84%E5%A3%81%E7%BA%B8%E6%94%BE%E5%88%B0%E4%BD%A0%E7%9A%84Hexo%E5%8D%9A%E5%AE%A2%E4%B8%8A/" title="Hexo|提取Wallpaper Engine壁纸作为AnZhiYu主题首页动态封面"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/chunli.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo|提取Wallpaper Engine壁纸作为AnZhiYu主题首页动态封面"/></a><div class="content"><a class="title" href="/2026/02/13/%E5%A6%82%E4%BD%95%E6%8A%8Awallpaper%E7%9A%84%E5%A3%81%E7%BA%B8%E6%94%BE%E5%88%B0%E4%BD%A0%E7%9A%84Hexo%E5%8D%9A%E5%AE%A2%E4%B8%8A/" title="Hexo|提取Wallpaper Engine壁纸作为AnZhiYu主题首页动态封面">Hexo|提取Wallpaper Engine壁纸作为AnZhiYu主题首页动态封面</a><time datetime="2026-02-13T06:00:00.000Z" title="Created 2026-02-13 14:00:00">2026-02-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/11/AnZhiYu-About-Page-Interaction-Optimization/" title="Hexo|为关于页(About)注入更多交互灵魂"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/rashid.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo|为关于页(About)注入更多交互灵魂"/></a><div class="content"><a class="title" href="/2026/02/11/AnZhiYu-About-Page-Interaction-Optimization/" title="Hexo|为关于页(About)注入更多交互灵魂">Hexo|为关于页(About)注入更多交互灵魂</a><time datetime="2026-02-11T04:30:00.000Z" title="Created 2026-02-11 12:30:00">2026-02-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/11/AnZhiYu-About-Page-Upgrade/" title="Hexo|升级关于页(About)生涯卡片"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo|升级关于页(About)生涯卡片"/></a><div class="content"><a class="title" href="/2026/02/11/AnZhiYu-About-Page-Upgrade/" title="Hexo|升级关于页(About)生涯卡片">Hexo|升级关于页(About)生涯卡片</a><time datetime="2026-02-11T04:00:00.000Z" title="Created 2026-02-11 12:00:00">2026-02-11</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">8</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">3</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AI/" style="font-size: 0.88rem;">AI<sup>1</sup></a><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>4</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
