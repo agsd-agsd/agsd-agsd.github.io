@@ -1,0 +1,1143 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第 2 讲：BTC 密码学原理 | God Only Knows</title><meta name="keywords" content="BTC,Bitcoin,Cryptography"><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第 2 讲：BTC 密码学原理"><meta name="application-name" content="第 2 讲：BTC 密码学原理"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第 2 讲：BTC 密码学原理"><meta property="og:url" content="http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="第 2 讲：BTC 密码学原理1. 本节主线 比特币虽然常被称为“加密货币”，但它的交易内容并不是加密隐藏的，链上交易信息整体是公开的。 比特币主要使用密码学中的两个功能：哈希（hash） 和 数字签名（digital signature）。 哈希函数在比特币中不仅用于生成摘要，还支撑了 digit"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/jamie.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/jamie.png"><meta name="description" content="第 2 讲：BTC 密码学原理1. 本节主线 比特币虽然常被称为“加密货币”，但它的交易内容并不是加密隐藏的，链上交易信息整体是公开的。 比特币主要使用密码学中的两个功能：哈希（hash） 和 数字签名（digital signature）。 哈希函数在比特币中不仅用于生成摘要，还支撑了 digit"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第 2 讲：BTC 密码学原理',
+  postAI: '',
+  pageFillDescription: '第 2 讲：BTC 密码学原理, 1. 本节主线, 2. 核心概念速览, 3. 知识结构图, 4. 课程内容详解, 4.1 加密货币并不意味着交易内容被加密, 4.2 Cryptographic Hash Function 的基本作用, 4.3 Collision Resistance：不是没有碰撞而是难以人为制造碰撞, 4.3.1 什么是 hash collision？, 4.3.2 Collision Resistance 的作用：message digest, 4.3.3 文件校验的例子, 4.3.4 Collision Resistance 不能被数学证明, 4.4 Hiding：哈希值不应泄露输入信息, 4.4.1 Hiding 的含义, 4.4.2 Hiding 和 brute force 的关系, 4.5 Digital Commitment：电子版密封信封, 4.5.1 现实中的 sealed envelope, 4.5.2 用 hash 实现 digital commitment, 4.5.3 为什么要加 nonce？, 4.6 Puzzle Friendly：挖矿没有捷径, 4.6.1 Puzzle Friendly 的含义, 4.6.2 Puzzle Friendly 和比特币挖矿, 4.6.3 为什么这能成为 Proof of Work？, 4.7 SHA-256：比特币使用的哈希函数, 4.8 从中心化账户到账户密钥对, 4.8.1 中心化系统中的账户, 4.8.2 比特币中的账户创建, 4.9 对称加密与非对称加密, 4.9.1 Symmetric Encryption Algorithm, 4.9.2 Asymmetric Encryption Algorithm, 4.10 比特币中 public keyx2Fprivate key 主要用于签名, 4.10.1 签名要解决什么问题？, 4.10.2 签名和验证的流程, 4.11 为什么随机性非常重要？, 4.12 先 hash再签名, 5. 关键机制图解, 5.1 Digital Commitment 机制, 5.2 Proof of Work 挖矿机制, 5.3 数字签名验证交易, 6. 易混点与常见误解, 7. 课堂外补充理解, 7.1 Hash 的三个常见安全性质可以分层理解, 7.2 为什么签名通常签 hash而不是直接签原文？, 7.3 账户在比特币里不是由机构创建的, 8. 本节小结, 9. 自测问题, 1. 为什么说比特币虽然叫加密货币但交易内容并不是加密的？, 2. Collision resistance 是不是表示哈希碰撞不存在？, 3. Message digest 如何用于检测文件是否被篡改？, 4. Hiding 为什么要求输入空间足够大、分布足够均匀？, 5. Digital commitment 为什么要同时依赖 hiding 和 collision resistance？, 6. 比特币挖矿为什么可以被称为 proof of work？, 7. 为什么说 PoW 是 difficult to solve but easy to verify？, 8. 比特币中 private key 和 public key 分别起什么作用？第讲密码学原理本节主线比特币虽然常被称为加密货币但它的交易内容并不是加密隐藏的链上交易信息整体是公开的比特币主要使用密码学中的两个功能哈希和数字签名哈希函数在比特币中不仅用于生成摘要还支撑了和数字签名用于证明这笔交易确实由账户所有者发起从而解决去中心化系统中的账户授权问题本节的核心是理解比特币不是靠隐藏交易内容来保证安全而是靠哈希和签名来保证不可篡改难伪造易验证核心概念速览概念简要理解在本节中的作用密码学哈希函数把任意长度输入映射成固定长度输出比特币中用于摘要承诺挖矿难以人为找到两个不同输入使它们哈希值相同支撑防篡改和两个不同输入得到相同哈希值理论上必然存在但难以人为制造消息摘要即对消息取哈希得到的指纹用来检测消息是否被篡改从哈希值难以反推出原始输入支撑数字承诺类似电子版密封信封先公开承诺后公开内容防止事后篡改一次性随机数或可调随机值在和挖矿中用于增加随机性或试探哈希结果哈希结果不可预测只能不断尝试输入支撑比特币挖矿机制工作量证明通过找到满足条件的证明做过大量计算比特币使用的哈希函数公钥可以公开类似比特币账户地址用于验证签名私钥必须保密用于对交易签名证明账户控制权数字签名证明交易确实由私钥持有者发起良好的随机源生成密钥和签名时非常关键知识结构图密码学原理证明交易由账户所有者发起这张图展示了本节课的整体结构比特币使用密码学并不是为了加密隐藏交易而是分别用解决数据摘要承诺和挖矿问题用解决交易授权问题课程内容详解加密货币并不意味着交易内容被加密比特币常被称为中文通常译为加密货币但这里的加密容易造成误解在比特币系统中区块链上的交易内容是公开的账户地址是公开可见的转账金额也是公开可见的所有人都可以查看链上的交易记录因此比特币中的密码学主要不是用于隐藏交易内容而是用于解决两个问题如何保证数据不容易被篡改如何证明某笔交易确实由账户所有者发起对应的两个工具就是哈希数字签名的基本作用普通哈希函数在数据结构中很常见例如哈希表会把映射到某个位置密码学中的哈希函数要求更强它被称为它的基本形式可以写成其中是输入是哈希函数是哈希值哈希函数的输出长度通常是固定的例如的输出长度是本节重点讲了密码学哈希函数的三个性质前两个是密码学哈希函数的常见性质第三个是比特币挖矿中特别重要的性质不是没有碰撞而是难以人为制造碰撞什么是如果存在两个不同输入和满足那么就发生了即哈希碰撞需要注意哈希碰撞不是异常现象而是理论上必然存在的原因是输入空间可以非常大甚至可以认为是无限的输出空间是有限的例如只有种可能输出根据鸽巢原理足够多的输入必然会映射到相同输出所以不是说哈希碰撞不存在它真正的意思是没有高效方法可以人为找到两个不同输入使它们产生相同哈希值如果强行寻找当然可以使用也就是暴力枚举输入但对于级别的哈希值实际计算量极大在现实中不可行的作用可以用来生成比如有一个消息这个可以看成消息的指纹如果有人修改了消息内容变成通常会导致攻击者如果想偷偷修改消息又不被发现就必须找到一个使得而保证了这件事在现实中很难做到文件校验的例子假设你把一个大文件上传到云端上传前你先在本地保存它的哈希值之后你从云端下载文件再算一次如果两个哈希值相同就可以高度相信文件没有被篡改这里依赖的就是别人很难构造一个被篡改后的文件同时让它的哈希值和原文件完全一致不能被数学证明课程中特别强调没有哪个实际使用的哈希函数可以被严格数学证明为我们通常依赖的是长期实践经验很多密码学专家长期研究目前没有发现高效制造碰撞的方法因此认为该哈希函数在实践中是安全的但这种安全性可能会随时间变化例如曾经很流行但后来已经发现可以人为制造碰撞因此不再被认为安全哈希值不应泄露输入信息的含义指的是哈希计算是单向的从输入计算哈希值很容易但从反推出很难也就是说哈希值不应该泄露原始输入的有效信息不过这个性质成立需要两个前提输入空间足够大输入分布足够均匀如果输入空间太小就可以暴力枚举例如如果输入只是明天涨停的股票代码股票总数有限攻击者可以把所有可能股票都算一遍哈希然后和公开哈希值对比从而猜出原始内容和的关系不是说绝对无法反推而是说没有高效方法反推如果输入空间很小攻击者可以这样做所以的安全性依赖于猜不到如果原始输入本身很容易猜那么单独取哈希并不能保证隐藏性电子版密封信封现实中的课程用预测股票涨停的例子解释假设某人声称自己能预测明天哪只股票会涨停为了验证他的预测有两个要求他不能提前公开预测内容否则可能影响市场他也不能等结果出来后再随便编一个预测现实中可以用今天把预测写在纸上放进信封并封好交给第三方保管第二天再打开验证这保证了预测内容提前确定预测内容没有提前泄露预测内容不能事后篡改用实现电子世界中可以用哈希函数实现类似功能假设预测内容是今天先公布但不公布第二天再公布所有人都可以验证这里同时用到了两个性质哈希性质在中的作用公布哈希值时别人看不出原始内容之后不能随便换一个内容来匹配原哈希为什么要加如果的输入空间太小单纯公布并不安全例如预测内容只有几千只股票的可能性攻击者可以枚举所有股票算出每个哈希值然后反推出预测内容解决办法是拼接一个随机数其中是原始内容是随机数表示拼接这样整体输入变得更随机更难枚举之后公布时需要同时公布其他人验证这样既保留了承诺功能又增强了挖矿没有捷径的含义指的是哈希值事先不可预测给定一个输入你很难提前判断它的哈希值会落在哪里如果想找到一个满足特定条件的输入没有明显捷径只能不断尝试例如希望找到一个输入使得的前位都是由于哈希输出看起来近似随机你无法提前知道哪个更可能成功只能不断试和比特币挖矿比特币挖矿本质上就是找一个矿工把和中的其他信息放在一起取哈希要求结果满足其中是区块头是区块头中可以不断调整的字段是目标阈值表示这个区块满足挖矿难度要求矿工的工作就是不断尝试不同直到找到某个使得区块头哈希值落入目标范围为什么这能成为因为保证找到符合条件的很难没有比暴力尝试更好的捷径所以找到本身就说明矿工做了大量计算这就是的核心思想但是验证却很容易别人只需要拿到区块头和算一次哈希如果成立就说明这个合法所以的重要性质是求解很难验证很容易比特币使用的哈希函数比特币中使用的哈希函数是是的输出长度是在本节课语境中被认为满足其中支撑防篡改支撑支撑需要注意课程没有要求在这里深入的内部压缩函数或具体算法过程重点是理解它在比特币系统中的作用从中心化账户到账户密钥对中心化系统中的账户在银行这类中心化系统中开户通常需要带身份证件到银行办理手续由银行系统创建账户银行负责账户身份管理这是中心化账户管理方式比特币中的账户创建比特币是去中心化系统没有银行这样的中心机构给你开户在比特币中创建账户的方式是本地生成一对和这对密钥就代表一个账户可以粗略类比为比特币概念日常类比银行账号别人可以知道账户密码必须自己保管别人要给你转账需要知道你的或由它派生出的地址你要花费账户里的钱需要使用对交易进行签名对称加密与非对称加密最早的加密体系是即对称加密特点是加密和解密使用同一个例如要给发消息和事先共享一个密钥用这个密钥加密消息收到后用同一个密钥解密问题是密钥如何安全分发如果网络本身可能被窃听就不能直接把密钥明文发过去因此对称加密的一个难点是密钥分发为了解决密钥分发问题出现了即非对称加密它使用一对密钥在加密通信场景中用接收方加密用接收方解密可以公开只保存在接收方本地这就避免了双方必须提前秘密共享同一个密钥的问题比特币中主要用于签名课程中特别指出比特币的交易内容是公开的所以和在比特币中主要不是为了加密交易内容而是为了做签名要解决什么问题假设发布了一笔交易转给其他节点需要判断这笔交易真的是发起的吗如果没有签名攻击者可以伪造交易声称转给攻击者数字签名的作用就是防止这种冒名操作签名和验证的流程比特币交易签名的基本逻辑是然后其他人使用对应验证如果验证通过说明这笔交易确实由持有者签名交易内容没有被篡改签名者不能轻易否认自己签过这笔交易需要注意签名用验证签名用它们属于同一个用户为什么随机性非常重要比特币账户由本地生成的表示这引出一个问题如果两个人随机生成了相同的密钥对怎么办理论上确实存在这种可能但如果密钥空间足够大并且随机源足够好那么概率小到可以忽略但这里有一个关键前提也就是生成密钥时必须有良好的随机源如果随机源不好可能出现严重后果不同用户生成相同或相关的密钥攻击者能够猜测在某些签名算法中签名过程随机性不足可能泄露因此本节最后强调不仅生成密钥时需要好的随机源签名时也可能需要好的随机源只要泄露账户里的币就可能被转走先再签名课程最后提到比特币系统中通常不是直接对完整签名而是也就是先对取得到固定长度的再对进行签名这样做的直观原因是可以把任意长度压缩成固定长度摘要签名算法处理固定长度更方便和原强绑定一变也会变签名验证就无法通过关键机制图解机制承诺者公开环境验证者准备内容选择随机计算公开此时看不到之后公开和重新计算对比是否等于这个机制解决的是提前确定但暂不公开的问题保证公开时别人难以知道内容保证之后不能随意换内容挖矿机制准备设置计算否更换是找到合法区块广播区块其他节点验证一次这张图体现了的核心矿工需要不断尝试直到哈希值小于等于这个过程求解困难但其他节点验证时只需要算一次哈希因此验证成本很低数字签名验证交易账户所有者交易比特币网络节点构造交易内容用签名广播交易和用验证验证通过接受交易进入后续处理验证失败拒绝交易这张图说明的功能不是隐藏交易而是证明交易授权交易本身可以公开但只有持有者才能生成有效签名易混点与常见误解易混点正确理解加密货币是不是交易内容都被加密不是比特币交易内容整体公开加密主要指使用密码学机制保证安全性是不是表示不会发生碰撞不是碰撞理论上必然存在只是难以人为找到和哈希表冲突是不是一回事思路相似都是不同输入映射到同一输出但密码学关注的是攻击者能否高效制造碰撞是不是绝对无法反推输入不是若输入空间小或分布不均匀可以猜出来只对预测内容取就一定能隐藏预测吗不一定如果预测范围很小需要拼接增加随机性和是不是完全一样不是关注难以找两个相同哈希的输入关注难以提前预测哪个输入能落入目标范围挖矿是不是在解密不是挖矿是在不断尝试让的哈希值满足是不是用来签名的不是签名用验证签名用是不是可以发给别人验证绝对不应该一旦泄露账户资产就可能被转走比特币使用是为了加密交易金额吗不是主要是为了证明交易由账户所有者发起课堂外补充理解的三个常见安全性质可以分层理解本节重点讲了为了避免混淆可以这样理解性质关注的问题直观问题从输出能不能推出输入看到后能不能猜到能不能找到两个输入哈希值相同能不能找但能不能预测哪个输入会满足目标能不能不靠试错就找到合格它们都和哈希输出看起来随机有关但解决的问题不同为什么签名通常签而不是直接签原文直接对完整签名通常不方便因为可能很长格式也可能复杂先再签名有几个好处把任意长度变成固定长度签名算法只需要处理一旦被修改就会变化验证签名时可以重新计算检查签名是否匹配所以可以把理解为被签名的消息指纹账户在比特币里不是由机构创建的在银行系统中账户存在于银行数据库里由银行确认身份并分配账户在比特币中账户更像是谁拥有某个谁就控制对应资产所以比特币账户安全的核心不是平台帮你找回密码而是不能丢不能泄露随机源必须可靠这也解释了为什么去中心化系统中用户自主管理密钥非常重要本节小结比特币不是通过加密隐藏交易内容来保证安全链上交易信息是公开的比特币主要使用两个密码学工具和的支撑和防篡改的与结合可以实现的支撑使挖矿难求解易验证通过签名验证解决去中心化账户系统中的交易授权问题良好的随机源对密钥生成和签名过程非常关键随机性不足可能导致泄露自测问题为什么说比特币虽然叫加密货币但交易内容并不是加密的参考答案因为比特币链上的交易记录账户地址和转账金额都是公开可见的这里的加密主要指它使用了密码学工具如和而不是把交易内容隐藏起来是不是表示哈希碰撞不存在参考答案不是由于输入空间大于输出空间哈希碰撞理论上必然存在的意思是攻击者很难高效地人为找到一组碰撞输入如何用于检测文件是否被篡改参考答案上传文件前先保存文件的哈希值下载后重新计算哈希值如果两个哈希值一致就可以高度相信文件未被篡改如果不同则说明文件内容发生了变化为什么要求输入空间足够大分布足够均匀参考答案如果输入空间太小攻击者可以枚举所有可能输入逐个计算哈希值并对比目标哈希从而反推出原始输入输入分布不均匀时攻击者也可以优先猜高概率输入为什么要同时依赖和参考答案保证承诺公布时别人看不出原始内容保证承诺者之后不能换一个不同内容来匹配原来的哈希值比特币挖矿为什么可以被称为参考答案因为矿工必须不断尝试使的哈希值小于等于由于这个过程没有捷径找到合法就说明矿工做过大量计算为什么说是参考答案求解时需要不断尝试大量计算成本高但验证时只需要对给定算一次哈希并检查是否满足成本很低比特币中和分别起什么作用参考答案用于对交易签名证明账户所有者授权了这笔交易用于验证签名必须保密可以公开',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-30 16:40:23',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>5</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>5</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/blockchain/" itemprop="url">blockchain</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/BTC/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>BTC</span></a><a class="article-meta__tags" href="/tags/Bitcoin/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Bitcoin</span></a><a class="article-meta__tags" href="/tags/Cryptography/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Cryptography</span></a></span></div></div><h1 class="post-title" itemprop="name headline">第 2 讲：BTC 密码学原理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-05-30T08:08:45.000Z" title="Created 2026-05-30 16:08:45">2026-05-30</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-05-30T08:40:23.068Z" title="Updated 2026-05-30 16:40:23">2026-05-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">6.2k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>20min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/jamie.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/"><header><a class="post-meta-categories" href="/categories/blockchain/" itemprop="url">blockchain</a><a href="/tags/BTC/" tabindex="-1" itemprop="url">BTC</a><a href="/tags/Bitcoin/" tabindex="-1" itemprop="url">Bitcoin</a><a href="/tags/Cryptography/" tabindex="-1" itemprop="url">Cryptography</a><h1 id="CrawlerTitle" itemprop="name headline">第 2 讲：BTC 密码学原理</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-05-30T08:08:45.000Z" title="Created 2026-05-30 16:08:45">2026-05-30</time><time itemprop="dateCreated datePublished" datetime="2026-05-30T08:40:23.068Z" title="Updated 2026-05-30 16:40:23">2026-05-30</time></header><h1 id="第-2-讲：BTC-密码学原理"><a href="#第-2-讲：BTC-密码学原理" class="headerlink" title="第 2 讲：BTC 密码学原理"></a>第 2 讲：BTC 密码学原理</h1><h2 id="1-本节主线"><a href="#1-本节主线" class="headerlink" title="1. 本节主线"></a>1. 本节主线</h2><ol>
+<li>比特币虽然常被称为“加密货币”，但它的交易内容并不是加密隐藏的，链上交易信息整体是公开的。</li>
+<li>比特币主要使用密码学中的两个功能：<strong>哈希（hash）</strong> 和 <strong>数字签名（digital signature）</strong>。</li>
+<li>哈希函数在比特币中不仅用于生成摘要，还支撑了 <strong>digital commitment</strong> 和 <strong>proof of work</strong>。</li>
+<li>数字签名用于证明“这笔交易确实由账户所有者发起”，从而解决去中心化系统中的账户授权问题。</li>
+<li>本节的核心是理解：比特币不是靠隐藏交易内容来保证安全，而是靠哈希和签名来保证不可篡改、难伪造、易验证。</li>
+</ol>
+<hr>
+<h2 id="2-核心概念速览"><a href="#2-核心概念速览" class="headerlink" title="2. 核心概念速览"></a>2. 核心概念速览</h2><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>简要理解</th>
+<th>在本节中的作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>cryptographic hash function</td>
+<td>密码学哈希函数，把任意长度输入映射成固定长度输出</td>
+<td>比特币中用于摘要、承诺、挖矿</td>
+</tr>
+<tr>
+<td>collision resistance</td>
+<td>难以人为找到两个不同输入，使它们哈希值相同</td>
+<td>支撑防篡改和 message digest</td>
+</tr>
+<tr>
+<td>hash collision</td>
+<td>两个不同输入得到相同哈希值</td>
+<td>理论上必然存在，但难以人为制造</td>
+</tr>
+<tr>
+<td>message digest</td>
+<td>消息摘要，即对消息取哈希得到的“指纹”</td>
+<td>用来检测消息是否被篡改</td>
+</tr>
+<tr>
+<td>hiding</td>
+<td>从哈希值难以反推出原始输入</td>
+<td>支撑 digital commitment</td>
+</tr>
+<tr>
+<td>digital commitment</td>
+<td>数字承诺，类似电子版密封信封</td>
+<td>先公开承诺，后公开内容，防止事后篡改</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>一次性随机数或可调随机值</td>
+<td>在 commitment 和挖矿中用于增加随机性或试探哈希结果</td>
+</tr>
+<tr>
+<td>puzzle friendly</td>
+<td>哈希结果不可预测，只能不断尝试输入</td>
+<td>支撑比特币挖矿机制</td>
+</tr>
+<tr>
+<td>proof of work</td>
+<td>工作量证明</td>
+<td>通过找到满足条件的 nonce 证明做过大量计算</td>
+</tr>
+<tr>
+<td>SHA-256</td>
+<td>Secure Hash Algorithm 256-bit</td>
+<td>比特币使用的哈希函数</td>
+</tr>
+<tr>
+<td>public key</td>
+<td>公钥，可以公开</td>
+<td>类似比特币账户地址，用于验证签名</td>
+</tr>
+<tr>
+<td>private key</td>
+<td>私钥，必须保密</td>
+<td>用于对交易签名，证明账户控制权</td>
+</tr>
+<tr>
+<td>digital signature</td>
+<td>数字签名</td>
+<td>证明交易确实由私钥持有者发起</td>
+</tr>
+<tr>
+<td>good source of randomness</td>
+<td>良好的随机源</td>
+<td>生成密钥和签名时非常关键</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-知识结构图"><a href="#3-知识结构图" class="headerlink" title="3. 知识结构图"></a>3. 知识结构图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[BTC 密码学原理] --&gt; B[Hash]</span><br><span class="line">    A --&gt; C[Digital Signature]</span><br><span class="line"></span><br><span class="line">    B --&gt; B1[Collision Resistance]</span><br><span class="line">    B --&gt; B2[Hiding]</span><br><span class="line">    B --&gt; B3[Puzzle Friendly]</span><br><span class="line"></span><br><span class="line">    B1 --&gt; D1[Message Digest]</span><br><span class="line">    B2 --&gt; D2[Digital Commitment]</span><br><span class="line">    B3 --&gt; D3[Proof of Work]</span><br><span class="line"></span><br><span class="line">    C --&gt; C1[Public Key]</span><br><span class="line">    C --&gt; C2[Private Key]</span><br><span class="line">    C --&gt; C3[Sign and Verify]</span><br><span class="line"></span><br><span class="line">    C3 --&gt; E[证明交易由账户所有者发起]</span><br></pre></td></tr></table></figure>
+
+<p>这张图展示了本节课的整体结构：比特币使用密码学并不是为了“加密隐藏交易”，而是分别用 <strong>hash</strong> 解决数据摘要、承诺和挖矿问题，用 <strong>digital signature</strong> 解决交易授权问题。</p>
+<hr>
+<h2 id="4-课程内容详解"><a href="#4-课程内容详解" class="headerlink" title="4. 课程内容详解"></a>4. 课程内容详解</h2><h3 id="4-1-“加密货币”并不意味着交易内容被加密"><a href="#4-1-“加密货币”并不意味着交易内容被加密" class="headerlink" title="4.1 “加密货币”并不意味着交易内容被加密"></a>4.1 “加密货币”并不意味着交易内容被加密</h3><p>比特币常被称为 <strong>cryptocurrency</strong>，中文通常译为“加密货币”。但这里的“加密”容易造成误解。</p>
+<p>在比特币系统中：</p>
+<ul>
+<li>区块链上的交易内容是公开的；</li>
+<li>账户地址是公开可见的；</li>
+<li>转账金额也是公开可见的；</li>
+<li>所有人都可以查看链上的交易记录。</li>
+</ul>
+<p>因此，比特币中的密码学主要不是用于隐藏交易内容，而是用于解决两个问题：</p>
+<ol>
+<li><strong>如何保证数据不容易被篡改？</strong></li>
+<li><strong>如何证明某笔交易确实由账户所有者发起？</strong></li>
+</ol>
+<p>对应的两个工具就是：</p>
+<ul>
+<li>哈希（hash）</li>
+<li>数字签名（digital signature）</li>
+</ul>
+<hr>
+<h3 id="4-2-Cryptographic-Hash-Function-的基本作用"><a href="#4-2-Cryptographic-Hash-Function-的基本作用" class="headerlink" title="4.2 Cryptographic Hash Function 的基本作用"></a>4.2 Cryptographic Hash Function 的基本作用</h3><p>普通哈希函数在数据结构中很常见，例如哈希表会把 key 映射到某个位置。密码学中的哈希函数要求更强，它被称为 <strong>cryptographic hash function</strong>。</p>
+<p>它的基本形式可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">h = H(x)</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>x</code> 是输入；</li>
+<li><code>H</code> 是哈希函数；</li>
+<li><code>h</code> 是哈希值。</li>
+</ul>
+<p>哈希函数的输出长度通常是固定的。例如 SHA-256 的输出长度是 256 bit。</p>
+<p>本节重点讲了密码学哈希函数的三个性质：</p>
+<ol>
+<li><strong>collision resistance</strong></li>
+<li><strong>hiding</strong></li>
+<li><strong>puzzle friendly</strong></li>
+</ol>
+<p>前两个是密码学哈希函数的常见性质，第三个是比特币挖矿中特别重要的性质。</p>
+<hr>
+<h3 id="4-3-Collision-Resistance：不是没有碰撞，而是难以人为制造碰撞"><a href="#4-3-Collision-Resistance：不是没有碰撞，而是难以人为制造碰撞" class="headerlink" title="4.3 Collision Resistance：不是没有碰撞，而是难以人为制造碰撞"></a>4.3 Collision Resistance：不是没有碰撞，而是难以人为制造碰撞</h3><h4 id="4-3-1-什么是-hash-collision？"><a href="#4-3-1-什么是-hash-collision？" class="headerlink" title="4.3.1 什么是 hash collision？"></a>4.3.1 什么是 hash collision？</h4><p>如果存在两个不同输入 <code>x</code> 和 <code>y</code>，满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x ≠ y</span><br><span class="line">H(x) = H(y)</span><br></pre></td></tr></table></figure>
+
+<p>那么就发生了 <strong>hash collision</strong>，即哈希碰撞。</p>
+<p>需要注意：哈希碰撞不是异常现象，而是理论上必然存在的。</p>
+<p>原因是：</p>
+<ul>
+<li>输入空间可以非常大，甚至可以认为是无限的；</li>
+<li>输出空间是有限的，例如 SHA-256 只有 <code>2^256</code> 种可能输出；</li>
+<li>根据鸽巢原理，足够多的输入必然会映射到相同输出。</li>
+</ul>
+<p>所以，<strong>collision resistance 不是说哈希碰撞不存在</strong>。</p>
+<p>它真正的意思是：</p>
+<blockquote>
+<p>没有高效方法可以人为找到两个不同输入，使它们产生相同哈希值。</p>
+</blockquote>
+<p>如果强行寻找，当然可以使用 <strong>brute force</strong>，也就是暴力枚举输入。但对于 256 bit 级别的哈希值，实际计算量极大，在现实中不可行。</p>
+<h4 id="4-3-2-Collision-Resistance-的作用：message-digest"><a href="#4-3-2-Collision-Resistance-的作用：message-digest" class="headerlink" title="4.3.2 Collision Resistance 的作用：message digest"></a>4.3.2 Collision Resistance 的作用：message digest</h4><p>Collision resistance 可以用来生成 <strong>message digest</strong>。</p>
+<p>比如有一个消息 <code>m</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">digest = H(m)</span><br></pre></td></tr></table></figure>
+
+<p>这个 digest 可以看成消息的“指纹”。</p>
+<p>如果有人修改了消息内容，变成 <code>m&#39;</code>，通常会导致：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H(m&#x27;) ≠ H(m)</span><br></pre></td></tr></table></figure>
+
+<p>攻击者如果想偷偷修改消息，又不被发现，就必须找到一个 <code>m&#39;</code>，使得：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">m&#x27; ≠ m</span><br><span class="line">H(m&#x27;) = H(m)</span><br></pre></td></tr></table></figure>
+
+<p>而 collision resistance 保证了这件事在现实中很难做到。</p>
+<h4 id="4-3-3-文件校验的例子"><a href="#4-3-3-文件校验的例子" class="headerlink" title="4.3.3 文件校验的例子"></a>4.3.3 文件校验的例子</h4><p>假设你把一个大文件上传到云端。上传前，你先在本地保存它的哈希值：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">h_original = H(file)</span><br></pre></td></tr></table></figure>
+
+<p>之后你从云端下载文件，再算一次：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">h_downloaded = H(downloaded_file)</span><br></pre></td></tr></table></figure>
+
+<p>如果两个哈希值相同，就可以高度相信文件没有被篡改。</p>
+<p>这里依赖的就是 collision resistance：别人很难构造一个被篡改后的文件，同时让它的哈希值和原文件完全一致。</p>
+<h4 id="4-3-4-Collision-Resistance-不能被数学证明"><a href="#4-3-4-Collision-Resistance-不能被数学证明" class="headerlink" title="4.3.4 Collision Resistance 不能被数学证明"></a>4.3.4 Collision Resistance 不能被数学证明</h4><p>课程中特别强调：没有哪个实际使用的哈希函数可以被严格数学证明为 collision resistant。</p>
+<p>我们通常依赖的是长期实践经验：</p>
+<ul>
+<li>很多密码学专家长期研究；</li>
+<li>目前没有发现高效制造碰撞的方法；</li>
+<li>因此认为该哈希函数在实践中是安全的。</li>
+</ul>
+<p>但这种安全性可能会随时间变化。例如 <strong>MD5</strong> 曾经很流行，但后来已经发现可以人为制造碰撞，因此不再被认为安全。</p>
+<hr>
+<h3 id="4-4-Hiding：哈希值不应泄露输入信息"><a href="#4-4-Hiding：哈希值不应泄露输入信息" class="headerlink" title="4.4 Hiding：哈希值不应泄露输入信息"></a>4.4 Hiding：哈希值不应泄露输入信息</h3><h4 id="4-4-1-Hiding-的含义"><a href="#4-4-1-Hiding-的含义" class="headerlink" title="4.4.1 Hiding 的含义"></a>4.4.1 Hiding 的含义</h4><p><strong>Hiding</strong> 指的是哈希计算是单向的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x -&gt; H(x)</span><br></pre></td></tr></table></figure>
+
+<p>从输入 <code>x</code> 计算哈希值 <code>H(x)</code> 很容易，但从 <code>H(x)</code> 反推出 <code>x</code> 很难。</p>
+<p>也就是说，哈希值不应该泄露原始输入的有效信息。</p>
+<p>不过，这个性质成立需要两个前提：</p>
+<ol>
+<li>输入空间足够大；</li>
+<li>输入分布足够均匀。</li>
+</ol>
+<p>如果输入空间太小，就可以暴力枚举。</p>
+<p>例如，如果输入只是“明天涨停的股票代码”，股票总数有限，攻击者可以把所有可能股票都算一遍哈希，然后和公开哈希值对比，从而猜出原始内容。</p>
+<h4 id="4-4-2-Hiding-和-brute-force-的关系"><a href="#4-4-2-Hiding-和-brute-force-的关系" class="headerlink" title="4.4.2 Hiding 和 brute force 的关系"></a>4.4.2 Hiding 和 brute force 的关系</h4><p>Hiding 不是说绝对无法反推，而是说没有高效方法反推。</p>
+<p>如果输入空间很小，攻击者可以这样做：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for each possible x:</span><br><span class="line">    if H(x) == target_hash:</span><br><span class="line">        guess x</span><br></pre></td></tr></table></figure>
+
+<p>所以，hiding 的安全性依赖于“猜不到”。</p>
+<p>如果原始输入本身很容易猜，那么单独取哈希并不能保证隐藏性。</p>
+<hr>
+<h3 id="4-5-Digital-Commitment：电子版密封信封"><a href="#4-5-Digital-Commitment：电子版密封信封" class="headerlink" title="4.5 Digital Commitment：电子版密封信封"></a>4.5 Digital Commitment：电子版密封信封</h3><h4 id="4-5-1-现实中的-sealed-envelope"><a href="#4-5-1-现实中的-sealed-envelope" class="headerlink" title="4.5.1 现实中的 sealed envelope"></a>4.5.1 现实中的 sealed envelope</h4><p>课程用“预测股票涨停”的例子解释 <strong>digital commitment</strong>。</p>
+<p>假设某人声称自己能预测明天哪只股票会涨停。为了验证他的预测，有两个要求：</p>
+<ol>
+<li>他不能提前公开预测内容，否则可能影响市场；</li>
+<li>他也不能等结果出来后再随便编一个预测。</li>
+</ol>
+<p>现实中可以用 <strong>sealed envelope</strong>：</p>
+<ul>
+<li>今天把预测写在纸上；</li>
+<li>放进信封并封好；</li>
+<li>交给第三方保管；</li>
+<li>第二天再打开验证。</li>
+</ul>
+<p>这保证了：</p>
+<ul>
+<li>预测内容提前确定；</li>
+<li>预测内容没有提前泄露；</li>
+<li>预测内容不能事后篡改。</li>
+</ul>
+<h4 id="4-5-2-用-hash-实现-digital-commitment"><a href="#4-5-2-用-hash-实现-digital-commitment" class="headerlink" title="4.5.2 用 hash 实现 digital commitment"></a>4.5.2 用 hash 实现 digital commitment</h4><p>电子世界中，可以用哈希函数实现类似功能。</p>
+<p>假设预测内容是 <code>x</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">commitment = H(x)</span><br></pre></td></tr></table></figure>
+
+<p>今天先公布 <code>commitment</code>，但不公布 <code>x</code>。</p>
+<p>第二天再公布 <code>x</code>，所有人都可以验证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H(x) == commitment</span><br></pre></td></tr></table></figure>
+
+<p>这里同时用到了两个性质：</p>
+<table>
+<thead>
+<tr>
+<th>哈希性质</th>
+<th>在 digital commitment 中的作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>hiding</td>
+<td>公布哈希值时，别人看不出原始内容</td>
+</tr>
+<tr>
+<td>collision resistance</td>
+<td>之后不能随便换一个内容来匹配原哈希</td>
+</tr>
+</tbody></table>
+<h4 id="4-5-3-为什么要加-nonce？"><a href="#4-5-3-为什么要加-nonce？" class="headerlink" title="4.5.3 为什么要加 nonce？"></a>4.5.3 为什么要加 nonce？</h4><p>如果 <code>x</code> 的输入空间太小，单纯公布 <code>H(x)</code> 并不安全。</p>
+<p>例如，预测内容只有几千只股票的可能性，攻击者可以枚举所有股票，算出每个哈希值，然后反推出预测内容。</p>
+<p>解决办法是拼接一个随机数 <strong>nonce</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">commitment = H(x || nonce)</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>x</code> 是原始内容；</li>
+<li><code>nonce</code> 是随机数；</li>
+<li><code>||</code> 表示拼接。</li>
+</ul>
+<p>这样整体输入变得更随机、更难枚举。</p>
+<p>之后公布时，需要同时公布：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x, nonce</span><br></pre></td></tr></table></figure>
+
+<p>其他人验证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H(x || nonce) == commitment</span><br></pre></td></tr></table></figure>
+
+<p>这样既保留了承诺功能，又增强了 hiding。</p>
+<hr>
+<h3 id="4-6-Puzzle-Friendly：挖矿没有捷径"><a href="#4-6-Puzzle-Friendly：挖矿没有捷径" class="headerlink" title="4.6 Puzzle Friendly：挖矿没有捷径"></a>4.6 Puzzle Friendly：挖矿没有捷径</h3><h4 id="4-6-1-Puzzle-Friendly-的含义"><a href="#4-6-1-Puzzle-Friendly-的含义" class="headerlink" title="4.6.1 Puzzle Friendly 的含义"></a>4.6.1 Puzzle Friendly 的含义</h4><p><strong>Puzzle friendly</strong> 指的是：哈希值事先不可预测。</p>
+<p>给定一个输入，你很难提前判断它的哈希值会落在哪里。如果想找到一个满足特定条件的输入，没有明显捷径，只能不断尝试。</p>
+<p>例如，希望找到一个输入 <code>x</code>，使得：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H(x) 的前 k 位都是 0</span><br></pre></td></tr></table></figure>
+
+<p>由于哈希输出看起来近似随机，你无法提前知道哪个 <code>x</code> 更可能成功，只能不断试。</p>
+<h4 id="4-6-2-Puzzle-Friendly-和比特币挖矿"><a href="#4-6-2-Puzzle-Friendly-和比特币挖矿" class="headerlink" title="4.6.2 Puzzle Friendly 和比特币挖矿"></a>4.6.2 Puzzle Friendly 和比特币挖矿</h4><p>比特币挖矿本质上就是找一个 <strong>nonce</strong>。</p>
+<p>矿工把 nonce 和 block header 中的其他信息放在一起取哈希：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash = H(block header)</span><br></pre></td></tr></table></figure>
+
+<p>要求结果满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash &lt;= target</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>block header</code> 是区块头；</li>
+<li><code>nonce</code> 是区块头中可以不断调整的字段；</li>
+<li><code>target</code> 是目标阈值；</li>
+<li><code>hash &lt;= target</code> 表示这个区块满足挖矿难度要求。</li>
+</ul>
+<p>矿工的工作就是不断尝试不同 nonce：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nonce = 0, 1, 2, 3, ...</span><br></pre></td></tr></table></figure>
+
+<p>直到找到某个 nonce，使得区块头哈希值落入目标范围。</p>
+<h4 id="4-6-3-为什么这能成为-Proof-of-Work？"><a href="#4-6-3-为什么这能成为-Proof-of-Work？" class="headerlink" title="4.6.3 为什么这能成为 Proof of Work？"></a>4.6.3 为什么这能成为 Proof of Work？</h4><p>因为 puzzle friendly 保证：</p>
+<ul>
+<li>找到符合条件的 nonce 很难；</li>
+<li>没有比暴力尝试更好的捷径；</li>
+<li>所以找到 nonce 本身就说明矿工做了大量计算。</li>
+</ul>
+<p>这就是 <strong>proof of work</strong> 的核心思想。</p>
+<p>但是，验证却很容易。</p>
+<p>别人只需要拿到区块头和 nonce，算一次哈希：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">H(block header) &lt;= target ?</span><br></pre></td></tr></table></figure>
+
+<p>如果成立，就说明这个 nonce 合法。</p>
+<p>所以 PoW 的重要性质是：</p>
+<blockquote>
+<p>difficult to solve, but easy to verify<br>求解很难，验证很容易。</p>
+</blockquote>
+<hr>
+<h3 id="4-7-SHA-256：比特币使用的哈希函数"><a href="#4-7-SHA-256：比特币使用的哈希函数" class="headerlink" title="4.7 SHA-256：比特币使用的哈希函数"></a>4.7 SHA-256：比特币使用的哈希函数</h3><p>比特币中使用的哈希函数是 <strong>SHA-256</strong>。</p>
+<p>SHA 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Secure Hash Algorithm</span><br></pre></td></tr></table></figure>
+
+<p>SHA-256 的输出长度是 256 bit。</p>
+<p>在本节课语境中，SHA-256 被认为满足：</p>
+<ol>
+<li>collision resistance</li>
+<li>hiding</li>
+<li>puzzle friendly</li>
+</ol>
+<p>其中：</p>
+<ul>
+<li>collision resistance 支撑防篡改；</li>
+<li>hiding 支撑 digital commitment；</li>
+<li>puzzle friendly 支撑 proof of work。</li>
+</ul>
+<p>需要注意：课程没有要求在这里深入 SHA-256 的内部压缩函数或具体算法过程，重点是理解它在比特币系统中的作用。</p>
+<hr>
+<h3 id="4-8-从中心化账户到账户密钥对"><a href="#4-8-从中心化账户到账户密钥对" class="headerlink" title="4.8 从中心化账户到账户密钥对"></a>4.8 从中心化账户到账户密钥对</h3><h4 id="4-8-1-中心化系统中的账户"><a href="#4-8-1-中心化系统中的账户" class="headerlink" title="4.8.1 中心化系统中的账户"></a>4.8.1 中心化系统中的账户</h4><p>在银行这类中心化系统中，开户通常需要：</p>
+<ul>
+<li>带身份证件；</li>
+<li>到银行办理手续；</li>
+<li>由银行系统创建账户；</li>
+<li>银行负责账户身份管理。</li>
+</ul>
+<p>这是中心化账户管理方式。</p>
+<h4 id="4-8-2-比特币中的账户创建"><a href="#4-8-2-比特币中的账户创建" class="headerlink" title="4.8.2 比特币中的账户创建"></a>4.8.2 比特币中的账户创建</h4><p>比特币是去中心化系统，没有银行这样的中心机构给你开户。</p>
+<p>在比特币中，创建账户的方式是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">本地生成一对 public key 和 private key</span><br></pre></td></tr></table></figure>
+
+<p>这对密钥就代表一个账户。</p>
+<p>可以粗略类比为：</p>
+<table>
+<thead>
+<tr>
+<th>比特币概念</th>
+<th>日常类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>public key</td>
+<td>银行账号，别人可以知道</td>
+</tr>
+<tr>
+<td>private key</td>
+<td>账户密码，必须自己保管</td>
+</tr>
+</tbody></table>
+<p>别人要给你转账，需要知道你的 public key 或由它派生出的地址。</p>
+<p>你要花费账户里的钱，需要使用 private key 对交易进行签名。</p>
+<hr>
+<h3 id="4-9-对称加密与非对称加密"><a href="#4-9-对称加密与非对称加密" class="headerlink" title="4.9 对称加密与非对称加密"></a>4.9 对称加密与非对称加密</h3><h4 id="4-9-1-Symmetric-Encryption-Algorithm"><a href="#4-9-1-Symmetric-Encryption-Algorithm" class="headerlink" title="4.9.1 Symmetric Encryption Algorithm"></a>4.9.1 Symmetric Encryption Algorithm</h4><p>最早的加密体系是 <strong>symmetric encryption algorithm</strong>，即对称加密。</p>
+<p>特点是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">加密和解密使用同一个 key</span><br></pre></td></tr></table></figure>
+
+<p>例如，A 要给 B 发消息：</p>
+<ol>
+<li>A 和 B 事先共享一个密钥；</li>
+<li>A 用这个密钥加密消息；</li>
+<li>B 收到后用同一个密钥解密。</li>
+</ol>
+<p>问题是：密钥如何安全分发？</p>
+<p>如果网络本身可能被窃听，就不能直接把密钥明文发过去。因此，对称加密的一个难点是密钥分发。</p>
+<h4 id="4-9-2-Asymmetric-Encryption-Algorithm"><a href="#4-9-2-Asymmetric-Encryption-Algorithm" class="headerlink" title="4.9.2 Asymmetric Encryption Algorithm"></a>4.9.2 Asymmetric Encryption Algorithm</h4><p>为了解决密钥分发问题，出现了 <strong>asymmetric encryption algorithm</strong>，即非对称加密。</p>
+<p>它使用一对密钥：</p>
+<ul>
+<li>public key</li>
+<li>private key</li>
+</ul>
+<p>在加密通信场景中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">用接收方 public key 加密</span><br><span class="line">用接收方 private key 解密</span><br></pre></td></tr></table></figure>
+
+<p>public key 可以公开，private key 只保存在接收方本地。</p>
+<p>这就避免了双方必须提前秘密共享同一个密钥的问题。</p>
+<hr>
+<h3 id="4-10-比特币中-public-key-private-key-主要用于签名"><a href="#4-10-比特币中-public-key-private-key-主要用于签名" class="headerlink" title="4.10 比特币中 public key&#x2F;private key 主要用于签名"></a>4.10 比特币中 public key&#x2F;private key 主要用于签名</h3><p>课程中特别指出：比特币的交易内容是公开的，所以 public key 和 private key 在比特币中主要不是为了加密交易内容，而是为了做 <strong>digital signature</strong>。</p>
+<h4 id="4-10-1-签名要解决什么问题？"><a href="#4-10-1-签名要解决什么问题？" class="headerlink" title="4.10.1 签名要解决什么问题？"></a>4.10.1 签名要解决什么问题？</h4><p>假设 A 发布了一笔交易：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A 转 10 BTC 给 B</span><br></pre></td></tr></table></figure>
+
+<p>其他节点需要判断：</p>
+<blockquote>
+<p>这笔交易真的是 A 发起的吗？</p>
+</blockquote>
+<p>如果没有签名，攻击者可以伪造交易，声称：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A 转 10 BTC 给攻击者</span><br></pre></td></tr></table></figure>
+
+<p>数字签名的作用就是防止这种冒名操作。</p>
+<h4 id="4-10-2-签名和验证的流程"><a href="#4-10-2-签名和验证的流程" class="headerlink" title="4.10.2 签名和验证的流程"></a>4.10.2 签名和验证的流程</h4><p>比特币交易签名的基本逻辑是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">signature = Sign(private key, transaction)</span><br></pre></td></tr></table></figure>
+
+<p>然后其他人使用对应 public key 验证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Verify(public key, transaction, signature)</span><br></pre></td></tr></table></figure>
+
+<p>如果验证通过，说明：</p>
+<ol>
+<li>这笔交易确实由 private key 持有者签名；</li>
+<li>交易内容没有被篡改；</li>
+<li>签名者不能轻易否认自己签过这笔交易。</li>
+</ol>
+<p>需要注意：</p>
+<ul>
+<li><strong>签名用 private key</strong>；</li>
+<li><strong>验证签名用 public key</strong>；</li>
+<li>它们属于同一个用户。</li>
+</ul>
+<hr>
+<h3 id="4-11-为什么随机性非常重要？"><a href="#4-11-为什么随机性非常重要？" class="headerlink" title="4.11 为什么随机性非常重要？"></a>4.11 为什么随机性非常重要？</h3><p>比特币账户由本地生成的 public key&#x2F;private key pair 表示。</p>
+<p>这引出一个问题：</p>
+<blockquote>
+<p>如果两个人随机生成了相同的密钥对怎么办？</p>
+</blockquote>
+<p>理论上确实存在这种可能，但如果密钥空间足够大，并且随机源足够好，那么概率小到可以忽略。</p>
+<p>但这里有一个关键前提：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a good source of randomness</span><br></pre></td></tr></table></figure>
+
+<p>也就是生成密钥时必须有良好的随机源。</p>
+<p>如果随机源不好，可能出现严重后果：</p>
+<ol>
+<li>不同用户生成相同或相关的密钥；</li>
+<li>攻击者能够猜测 private key；</li>
+<li>在某些签名算法中，签名过程随机性不足可能泄露 private key。</li>
+</ol>
+<p>因此，本节最后强调：不仅生成密钥时需要好的随机源，签名时也可能需要好的随机源。只要 private key 泄露，账户里的币就可能被转走。</p>
+<hr>
+<h3 id="4-12-先-hash，再签名"><a href="#4-12-先-hash，再签名" class="headerlink" title="4.12 先 hash，再签名"></a>4.12 先 hash，再签名</h3><p>课程最后提到，比特币系统中通常不是直接对完整 message 签名，而是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">digest = H(message)</span><br><span class="line">signature = Sign(private key, digest)</span><br></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<ol>
+<li>先对 message 取 hash；</li>
+<li>得到固定长度的 digest；</li>
+<li>再对 digest 进行签名。</li>
+</ol>
+<p>这样做的直观原因是：</p>
+<ul>
+<li>hash 可以把任意长度 message 压缩成固定长度摘要；</li>
+<li>签名算法处理固定长度 digest 更方便；</li>
+<li>digest 和原 message 强绑定，message 一变，digest 也会变，签名验证就无法通过。</li>
+</ul>
+<hr>
+<h2 id="5-关键机制图解"><a href="#5-关键机制图解" class="headerlink" title="5. 关键机制图解"></a>5. 关键机制图解</h2><h3 id="5-1-Digital-Commitment-机制"><a href="#5-1-Digital-Commitment-机制" class="headerlink" title="5.1 Digital Commitment 机制"></a>5.1 Digital Commitment 机制</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant A as 承诺者</span><br><span class="line">    participant Public as 公开环境</span><br><span class="line">    participant V as 验证者</span><br><span class="line"></span><br><span class="line">    A-&gt;&gt;A: 准备内容 x</span><br><span class="line">    A-&gt;&gt;A: 选择随机 nonce</span><br><span class="line">    A-&gt;&gt;A: 计算 H(x || nonce)</span><br><span class="line">    A-&gt;&gt;Public: 公开 commitment</span><br><span class="line">    Note over Public: 此时看不到 x</span><br><span class="line">    A-&gt;&gt;Public: 之后公开 x 和 nonce</span><br><span class="line">    V-&gt;&gt;V: 重新计算 H(x || nonce)</span><br><span class="line">    V-&gt;&gt;Public: 对比是否等于 commitment</span><br></pre></td></tr></table></figure>
+
+<p>这个机制解决的是“提前确定但暂不公开”的问题。<br><strong>Hiding</strong> 保证公开 commitment 时别人难以知道内容，<strong>collision resistance</strong> 保证之后不能随意换内容。</p>
+<hr>
+<h3 id="5-2-Proof-of-Work-挖矿机制"><a href="#5-2-Proof-of-Work-挖矿机制" class="headerlink" title="5.2 Proof of Work 挖矿机制"></a>5.2 Proof of Work 挖矿机制</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[准备 block header] --&gt; B[设置 nonce]</span><br><span class="line">    B --&gt; C[计算 H(block header)]</span><br><span class="line">    C --&gt; D&#123;hash &lt;= target?&#125;</span><br><span class="line">    D -- 否 --&gt; E[更换 nonce]</span><br><span class="line">    E --&gt; C</span><br><span class="line">    D -- 是 --&gt; F[找到合法区块]</span><br><span class="line">    F --&gt; G[广播区块]</span><br><span class="line">    G --&gt; H[其他节点验证一次 hash]</span><br></pre></td></tr></table></figure>
+
+<p>这张图体现了 PoW 的核心：<br>矿工需要不断尝试 nonce，直到哈希值小于等于 target。这个过程求解困难，但其他节点验证时只需要算一次哈希，因此验证成本很低。</p>
+<hr>
+<h3 id="5-3-数字签名验证交易"><a href="#5-3-数字签名验证交易" class="headerlink" title="5.3 数字签名验证交易"></a>5.3 数字签名验证交易</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant User as 账户所有者</span><br><span class="line">    participant Tx as 交易</span><br><span class="line">    participant Network as 比特币网络节点</span><br><span class="line"></span><br><span class="line">    User-&gt;&gt;Tx: 构造交易内容</span><br><span class="line">    User-&gt;&gt;User: 用 private key 签名</span><br><span class="line">    User-&gt;&gt;Network: 广播交易和 signature</span><br><span class="line">    Network-&gt;&gt;Network: 用 public key 验证 signature</span><br><span class="line">    alt 验证通过</span><br><span class="line">        Network-&gt;&gt;Network: 接受交易进入后续处理</span><br><span class="line">    else 验证失败</span><br><span class="line">        Network-&gt;&gt;Network: 拒绝交易</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+
+<p>这张图说明 digital signature 的功能不是隐藏交易，而是证明交易授权。交易本身可以公开，但只有 private key 持有者才能生成有效签名。</p>
+<hr>
+<h2 id="6-易混点与常见误解"><a href="#6-易混点与常见误解" class="headerlink" title="6. 易混点与常见误解"></a>6. 易混点与常见误解</h2><table>
+<thead>
+<tr>
+<th>易混点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“加密货币”是不是交易内容都被加密？</td>
+<td>不是。比特币交易内容整体公开，“加密”主要指使用密码学机制保证安全性。</td>
+</tr>
+<tr>
+<td>collision resistance 是不是表示不会发生碰撞？</td>
+<td>不是。碰撞理论上必然存在，只是难以人为找到。</td>
+</tr>
+<tr>
+<td>hash collision 和哈希表冲突是不是一回事？</td>
+<td>思路相似，都是不同输入映射到同一输出；但密码学关注的是攻击者能否高效制造碰撞。</td>
+</tr>
+<tr>
+<td>hiding 是不是绝对无法反推输入？</td>
+<td>不是。若输入空间小或分布不均匀，可以 brute force 猜出来。</td>
+</tr>
+<tr>
+<td>只对预测内容取 hash 就一定能隐藏预测吗？</td>
+<td>不一定。如果预测范围很小，需要拼接 nonce 增加随机性。</td>
+</tr>
+<tr>
+<td>puzzle friendly 和 collision resistance 是不是完全一样？</td>
+<td>不是。collision resistance 关注难以找两个相同哈希的输入；puzzle friendly 关注难以提前预测哪个输入能落入目标范围。</td>
+</tr>
+<tr>
+<td>挖矿是不是在“解密”？</td>
+<td>不是。挖矿是在不断尝试 nonce，让 block header 的哈希值满足 target。</td>
+</tr>
+<tr>
+<td>public key 是不是用来签名的？</td>
+<td>不是。签名用 private key，验证签名用 public key。</td>
+</tr>
+<tr>
+<td>private key 是不是可以发给别人验证？</td>
+<td>绝对不应该。private key 一旦泄露，账户资产就可能被转走。</td>
+</tr>
+<tr>
+<td>比特币使用 public&#x2F;private key 是为了加密交易金额吗？</td>
+<td>不是。主要是为了 digital signature，证明交易由账户所有者发起。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="7-课堂外补充理解"><a href="#7-课堂外补充理解" class="headerlink" title="7. 课堂外补充理解"></a>7. 课堂外补充理解</h2><h3 id="7-1-Hash-的三个常见安全性质可以分层理解"><a href="#7-1-Hash-的三个常见安全性质可以分层理解" class="headerlink" title="7.1 Hash 的三个常见安全性质可以分层理解"></a>7.1 Hash 的三个常见安全性质可以分层理解</h3><p>本节重点讲了 collision resistance、hiding、puzzle friendly。为了避免混淆，可以这样理解：</p>
+<table>
+<thead>
+<tr>
+<th>性质</th>
+<th>关注的问题</th>
+<th>直观问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>hiding</td>
+<td>从输出能不能推出输入？</td>
+<td>看到 <code>H(x)</code> 后能不能猜到 <code>x</code>？</td>
+</tr>
+<tr>
+<td>collision resistance</td>
+<td>能不能找到两个输入哈希值相同？</td>
+<td>能不能找 <code>x ≠ y</code> 但 <code>H(x)=H(y)</code>？</td>
+</tr>
+<tr>
+<td>puzzle friendly</td>
+<td>能不能预测哪个输入会满足目标？</td>
+<td>能不能不靠试错就找到合格 nonce？</td>
+</tr>
+</tbody></table>
+<p>它们都和“哈希输出看起来随机”有关，但解决的问题不同。</p>
+<hr>
+<h3 id="7-2-为什么签名通常签-hash，而不是直接签原文？"><a href="#7-2-为什么签名通常签-hash，而不是直接签原文？" class="headerlink" title="7.2 为什么签名通常签 hash，而不是直接签原文？"></a>7.2 为什么签名通常签 hash，而不是直接签原文？</h3><p>直接对完整 message 签名通常不方便，因为 message 可能很长，格式也可能复杂。</p>
+<p>先 hash 再签名有几个好处：</p>
+<ol>
+<li>把任意长度 message 变成固定长度 digest；</li>
+<li>签名算法只需要处理 digest；</li>
+<li>message 一旦被修改，digest 就会变化；</li>
+<li>验证签名时可以重新计算 digest，检查签名是否匹配。</li>
+</ol>
+<p>所以可以把 digest 理解为“被签名的消息指纹”。</p>
+<hr>
+<h3 id="7-3-“账户”在比特币里不是由机构创建的"><a href="#7-3-“账户”在比特币里不是由机构创建的" class="headerlink" title="7.3 “账户”在比特币里不是由机构创建的"></a>7.3 “账户”在比特币里不是由机构创建的</h3><p>在银行系统中，账户存在于银行数据库里，由银行确认身份并分配账户。</p>
+<p>在比特币中，账户更像是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">谁拥有某个 private key，谁就控制对应资产</span><br></pre></td></tr></table></figure>
+
+<p>所以，比特币账户安全的核心不是“平台帮你找回密码”，而是：</p>
+<ul>
+<li>private key 不能丢；</li>
+<li>private key 不能泄露；</li>
+<li>随机源必须可靠。</li>
+</ul>
+<p>这也解释了为什么去中心化系统中，用户自主管理密钥非常重要。</p>
+<hr>
+<h2 id="8-本节小结"><a href="#8-本节小结" class="headerlink" title="8. 本节小结"></a>8. 本节小结</h2><ol>
+<li>比特币不是通过加密隐藏交易内容来保证安全，链上交易信息是公开的。</li>
+<li>比特币主要使用两个密码学工具：hash 和 digital signature。</li>
+<li>Hash 的 collision resistance 支撑 message digest 和防篡改。</li>
+<li>Hash 的 hiding 与 collision resistance 结合，可以实现 digital commitment。</li>
+<li>Hash 的 puzzle friendly 支撑 proof of work，使挖矿“难求解、易验证”。</li>
+<li>Digital signature 通过 private key 签名、public key 验证，解决去中心化账户系统中的交易授权问题。</li>
+<li>良好的随机源对密钥生成和签名过程非常关键，随机性不足可能导致 private key 泄露。</li>
+</ol>
+<hr>
+<h2 id="9-自测问题"><a href="#9-自测问题" class="headerlink" title="9. 自测问题"></a>9. 自测问题</h2><h3 id="1-为什么说比特币虽然叫“加密货币”，但交易内容并不是加密的？"><a href="#1-为什么说比特币虽然叫“加密货币”，但交易内容并不是加密的？" class="headerlink" title="1. 为什么说比特币虽然叫“加密货币”，但交易内容并不是加密的？"></a>1. 为什么说比特币虽然叫“加密货币”，但交易内容并不是加密的？</h3><p>参考答案：<br>因为比特币链上的交易记录、账户地址和转账金额都是公开可见的。这里的“加密”主要指它使用了密码学工具，如 hash 和 digital signature，而不是把交易内容隐藏起来。</p>
+<hr>
+<h3 id="2-Collision-resistance-是不是表示哈希碰撞不存在？"><a href="#2-Collision-resistance-是不是表示哈希碰撞不存在？" class="headerlink" title="2. Collision resistance 是不是表示哈希碰撞不存在？"></a>2. Collision resistance 是不是表示哈希碰撞不存在？</h3><p>参考答案：<br>不是。由于输入空间大于输出空间，哈希碰撞理论上必然存在。Collision resistance 的意思是：攻击者很难高效地人为找到一组碰撞输入。</p>
+<hr>
+<h3 id="3-Message-digest-如何用于检测文件是否被篡改？"><a href="#3-Message-digest-如何用于检测文件是否被篡改？" class="headerlink" title="3. Message digest 如何用于检测文件是否被篡改？"></a>3. Message digest 如何用于检测文件是否被篡改？</h3><p>参考答案：<br>上传文件前先保存文件的哈希值，下载后重新计算哈希值。如果两个哈希值一致，就可以高度相信文件未被篡改；如果不同，则说明文件内容发生了变化。</p>
+<hr>
+<h3 id="4-Hiding-为什么要求输入空间足够大、分布足够均匀？"><a href="#4-Hiding-为什么要求输入空间足够大、分布足够均匀？" class="headerlink" title="4. Hiding 为什么要求输入空间足够大、分布足够均匀？"></a>4. Hiding 为什么要求输入空间足够大、分布足够均匀？</h3><p>参考答案：<br>如果输入空间太小，攻击者可以枚举所有可能输入，逐个计算哈希值并对比目标哈希，从而反推出原始输入。输入分布不均匀时，攻击者也可以优先猜高概率输入。</p>
+<hr>
+<h3 id="5-Digital-commitment-为什么要同时依赖-hiding-和-collision-resistance？"><a href="#5-Digital-commitment-为什么要同时依赖-hiding-和-collision-resistance？" class="headerlink" title="5. Digital commitment 为什么要同时依赖 hiding 和 collision resistance？"></a>5. Digital commitment 为什么要同时依赖 hiding 和 collision resistance？</h3><p>参考答案：<br>Hiding 保证承诺公布时别人看不出原始内容；collision resistance 保证承诺者之后不能换一个不同内容来匹配原来的哈希值。</p>
+<hr>
+<h3 id="6-比特币挖矿为什么可以被称为-proof-of-work？"><a href="#6-比特币挖矿为什么可以被称为-proof-of-work？" class="headerlink" title="6. 比特币挖矿为什么可以被称为 proof of work？"></a>6. 比特币挖矿为什么可以被称为 proof of work？</h3><p>参考答案：<br>因为矿工必须不断尝试 nonce，使 block header 的哈希值小于等于 target。由于 puzzle friendly，这个过程没有捷径，找到合法 nonce 就说明矿工做过大量计算。</p>
+<hr>
+<h3 id="7-为什么说-PoW-是-difficult-to-solve-but-easy-to-verify？"><a href="#7-为什么说-PoW-是-difficult-to-solve-but-easy-to-verify？" class="headerlink" title="7. 为什么说 PoW 是 difficult to solve but easy to verify？"></a>7. 为什么说 PoW 是 difficult to solve but easy to verify？</h3><p>参考答案：<br>求解时需要不断尝试大量 nonce，计算成本高；但验证时只需要对给定 block header 算一次哈希并检查是否满足 target，成本很低。</p>
+<hr>
+<h3 id="8-比特币中-private-key-和-public-key-分别起什么作用？"><a href="#8-比特币中-private-key-和-public-key-分别起什么作用？" class="headerlink" title="8. 比特币中 private key 和 public key 分别起什么作用？"></a>8. 比特币中 private key 和 public key 分别起什么作用？</h3><p>参考答案：<br>Private key 用于对交易签名，证明账户所有者授权了这笔交易；public key 用于验证签名。Private key 必须保密，public key 可以公开。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/')">第 2 讲：BTC 密码学原理</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第 2 讲：BTC 密码学原理&amp;url=http://example.com/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/&amp;pic=/cover/jamie.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/BTC/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>BTC<span class="tagsPageCount">5</span></a><a class="post-meta__box__tags" href="/tags/Bitcoin/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Bitcoin<span class="tagsPageCount">5</span></a><a class="post-meta__box__tags" href="/tags/Cryptography/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Cryptography<span class="tagsPageCount">1</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/juri.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/05/13/%E6%88%91%E7%9A%84%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0ai%E8%BE%93%E5%87%BA%E8%A7%84%E8%8C%83%E6%8C%87%E5%8D%97/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/aki.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">我的日常学习ai输出规范指南</div></div></a></div><div class="next-post pull-right"><a href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/zangief.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">第 3 讲：BTC 数据结构</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/" title="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 4 讲：BTC 协议（二）：共识问题与投票方案的局限</div></div></a></div><div><a href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="第 3 讲：BTC 数据结构"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/zangief.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 3 讲：BTC 数据结构</div></div></a></div><div><a href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE1/" title="第 4 讲：BTC 协议（一）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 4 讲：BTC 协议（一）</div></div></a></div><div><a href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/" title="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC-2-%E8%AE%B2%EF%BC%9ABTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">第 2 讲：BTC 密码学原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%9C%AC%E8%8A%82%E4%B8%BB%E7%BA%BF"><span class="toc-number">1.1.</span> <span class="toc-text">1. 本节主线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E9%80%9F%E8%A7%88"><span class="toc-number">1.2.</span> <span class="toc-text">2. 核心概念速览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%9F%A5%E8%AF%86%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="toc-number">1.3.</span> <span class="toc-text">3. 知识结构图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AF%BE%E7%A8%8B%E5%86%85%E5%AE%B9%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.4.</span> <span class="toc-text">4. 课程内容详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E2%80%9C%E5%8A%A0%E5%AF%86%E8%B4%A7%E5%B8%81%E2%80%9D%E5%B9%B6%E4%B8%8D%E6%84%8F%E5%91%B3%E7%9D%80%E4%BA%A4%E6%98%93%E5%86%85%E5%AE%B9%E8%A2%AB%E5%8A%A0%E5%AF%86"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 “加密货币”并不意味着交易内容被加密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Cryptographic-Hash-Function-%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%9C%E7%94%A8"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 Cryptographic Hash Function 的基本作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Collision-Resistance%EF%BC%9A%E4%B8%8D%E6%98%AF%E6%B2%A1%E6%9C%89%E7%A2%B0%E6%92%9E%EF%BC%8C%E8%80%8C%E6%98%AF%E9%9A%BE%E4%BB%A5%E4%BA%BA%E4%B8%BA%E5%88%B6%E9%80%A0%E7%A2%B0%E6%92%9E"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 Collision Resistance：不是没有碰撞，而是难以人为制造碰撞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-1-%E4%BB%80%E4%B9%88%E6%98%AF-hash-collision%EF%BC%9F"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">4.3.1 什么是 hash collision？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-2-Collision-Resistance-%E7%9A%84%E4%BD%9C%E7%94%A8%EF%BC%9Amessage-digest"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">4.3.2 Collision Resistance 的作用：message digest</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-3-%E6%96%87%E4%BB%B6%E6%A0%A1%E9%AA%8C%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">4.3.3 文件校验的例子</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-4-Collision-Resistance-%E4%B8%8D%E8%83%BD%E8%A2%AB%E6%95%B0%E5%AD%A6%E8%AF%81%E6%98%8E"><span class="toc-number">1.4.3.4.</span> <span class="toc-text">4.3.4 Collision Resistance 不能被数学证明</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-Hiding%EF%BC%9A%E5%93%88%E5%B8%8C%E5%80%BC%E4%B8%8D%E5%BA%94%E6%B3%84%E9%9C%B2%E8%BE%93%E5%85%A5%E4%BF%A1%E6%81%AF"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.4 Hiding：哈希值不应泄露输入信息</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4-1-Hiding-%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-number">1.4.4.1.</span> <span class="toc-text">4.4.1 Hiding 的含义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4-2-Hiding-%E5%92%8C-brute-force-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.4.4.2.</span> <span class="toc-text">4.4.2 Hiding 和 brute force 的关系</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-Digital-Commitment%EF%BC%9A%E7%94%B5%E5%AD%90%E7%89%88%E5%AF%86%E5%B0%81%E4%BF%A1%E5%B0%81"><span class="toc-number">1.4.5.</span> <span class="toc-text">4.5 Digital Commitment：电子版密封信封</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-5-1-%E7%8E%B0%E5%AE%9E%E4%B8%AD%E7%9A%84-sealed-envelope"><span class="toc-number">1.4.5.1.</span> <span class="toc-text">4.5.1 现实中的 sealed envelope</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-5-2-%E7%94%A8-hash-%E5%AE%9E%E7%8E%B0-digital-commitment"><span class="toc-number">1.4.5.2.</span> <span class="toc-text">4.5.2 用 hash 实现 digital commitment</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-5-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%8A%A0-nonce%EF%BC%9F"><span class="toc-number">1.4.5.3.</span> <span class="toc-text">4.5.3 为什么要加 nonce？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-Puzzle-Friendly%EF%BC%9A%E6%8C%96%E7%9F%BF%E6%B2%A1%E6%9C%89%E6%8D%B7%E5%BE%84"><span class="toc-number">1.4.6.</span> <span class="toc-text">4.6 Puzzle Friendly：挖矿没有捷径</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-1-Puzzle-Friendly-%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-number">1.4.6.1.</span> <span class="toc-text">4.6.1 Puzzle Friendly 的含义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-2-Puzzle-Friendly-%E5%92%8C%E6%AF%94%E7%89%B9%E5%B8%81%E6%8C%96%E7%9F%BF"><span class="toc-number">1.4.6.2.</span> <span class="toc-text">4.6.2 Puzzle Friendly 和比特币挖矿</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E8%83%BD%E6%88%90%E4%B8%BA-Proof-of-Work%EF%BC%9F"><span class="toc-number">1.4.6.3.</span> <span class="toc-text">4.6.3 为什么这能成为 Proof of Work？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-7-SHA-256%EF%BC%9A%E6%AF%94%E7%89%B9%E5%B8%81%E4%BD%BF%E7%94%A8%E7%9A%84%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0"><span class="toc-number">1.4.7.</span> <span class="toc-text">4.7 SHA-256：比特币使用的哈希函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-8-%E4%BB%8E%E4%B8%AD%E5%BF%83%E5%8C%96%E8%B4%A6%E6%88%B7%E5%88%B0%E8%B4%A6%E6%88%B7%E5%AF%86%E9%92%A5%E5%AF%B9"><span class="toc-number">1.4.8.</span> <span class="toc-text">4.8 从中心化账户到账户密钥对</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-8-1-%E4%B8%AD%E5%BF%83%E5%8C%96%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%B4%A6%E6%88%B7"><span class="toc-number">1.4.8.1.</span> <span class="toc-text">4.8.1 中心化系统中的账户</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-8-2-%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%AD%E7%9A%84%E8%B4%A6%E6%88%B7%E5%88%9B%E5%BB%BA"><span class="toc-number">1.4.8.2.</span> <span class="toc-text">4.8.2 比特币中的账户创建</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-9-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E4%B8%8E%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86"><span class="toc-number">1.4.9.</span> <span class="toc-text">4.9 对称加密与非对称加密</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-9-1-Symmetric-Encryption-Algorithm"><span class="toc-number">1.4.9.1.</span> <span class="toc-text">4.9.1 Symmetric Encryption Algorithm</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-9-2-Asymmetric-Encryption-Algorithm"><span class="toc-number">1.4.9.2.</span> <span class="toc-text">4.9.2 Asymmetric Encryption Algorithm</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-10-%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%AD-public-key-private-key-%E4%B8%BB%E8%A6%81%E7%94%A8%E4%BA%8E%E7%AD%BE%E5%90%8D"><span class="toc-number">1.4.10.</span> <span class="toc-text">4.10 比特币中 public key&#x2F;private key 主要用于签名</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-10-1-%E7%AD%BE%E5%90%8D%E8%A6%81%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-number">1.4.10.1.</span> <span class="toc-text">4.10.1 签名要解决什么问题？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-10-2-%E7%AD%BE%E5%90%8D%E5%92%8C%E9%AA%8C%E8%AF%81%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="toc-number">1.4.10.2.</span> <span class="toc-text">4.10.2 签名和验证的流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-11-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9A%8F%E6%9C%BA%E6%80%A7%E9%9D%9E%E5%B8%B8%E9%87%8D%E8%A6%81%EF%BC%9F"><span class="toc-number">1.4.11.</span> <span class="toc-text">4.11 为什么随机性非常重要？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-12-%E5%85%88-hash%EF%BC%8C%E5%86%8D%E7%AD%BE%E5%90%8D"><span class="toc-number">1.4.12.</span> <span class="toc-text">4.12 先 hash，再签名</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6%E5%9B%BE%E8%A7%A3"><span class="toc-number">1.5.</span> <span class="toc-text">5. 关键机制图解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Digital-Commitment-%E6%9C%BA%E5%88%B6"><span class="toc-number">1.5.1.</span> <span class="toc-text">5.1 Digital Commitment 机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Proof-of-Work-%E6%8C%96%E7%9F%BF%E6%9C%BA%E5%88%B6"><span class="toc-number">1.5.2.</span> <span class="toc-text">5.2 Proof of Work 挖矿机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81%E4%BA%A4%E6%98%93"><span class="toc-number">1.5.3.</span> <span class="toc-text">5.3 数字签名验证交易</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%98%93%E6%B7%B7%E7%82%B9%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%AF%AF%E8%A7%A3"><span class="toc-number">1.6.</span> <span class="toc-text">6. 易混点与常见误解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E8%AF%BE%E5%A0%82%E5%A4%96%E8%A1%A5%E5%85%85%E7%90%86%E8%A7%A3"><span class="toc-number">1.7.</span> <span class="toc-text">7. 课堂外补充理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-Hash-%E7%9A%84%E4%B8%89%E4%B8%AA%E5%B8%B8%E8%A7%81%E5%AE%89%E5%85%A8%E6%80%A7%E8%B4%A8%E5%8F%AF%E4%BB%A5%E5%88%86%E5%B1%82%E7%90%86%E8%A7%A3"><span class="toc-number">1.7.1.</span> <span class="toc-text">7.1 Hash 的三个常见安全性质可以分层理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%AD%BE%E5%90%8D%E9%80%9A%E5%B8%B8%E7%AD%BE-hash%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E7%AD%BE%E5%8E%9F%E6%96%87%EF%BC%9F"><span class="toc-number">1.7.2.</span> <span class="toc-text">7.2 为什么签名通常签 hash，而不是直接签原文？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E2%80%9C%E8%B4%A6%E6%88%B7%E2%80%9D%E5%9C%A8%E6%AF%94%E7%89%B9%E5%B8%81%E9%87%8C%E4%B8%8D%E6%98%AF%E7%94%B1%E6%9C%BA%E6%9E%84%E5%88%9B%E5%BB%BA%E7%9A%84"><span class="toc-number">1.7.3.</span> <span class="toc-text">7.3 “账户”在比特币里不是由机构创建的</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%9C%AC%E8%8A%82%E5%B0%8F%E7%BB%93"><span class="toc-number">1.8.</span> <span class="toc-text">8. 本节小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E8%87%AA%E6%B5%8B%E9%97%AE%E9%A2%98"><span class="toc-number">1.9.</span> <span class="toc-text">9. 自测问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AF%B4%E6%AF%94%E7%89%B9%E5%B8%81%E8%99%BD%E7%84%B6%E5%8F%AB%E2%80%9C%E5%8A%A0%E5%AF%86%E8%B4%A7%E5%B8%81%E2%80%9D%EF%BC%8C%E4%BD%86%E4%BA%A4%E6%98%93%E5%86%85%E5%AE%B9%E5%B9%B6%E4%B8%8D%E6%98%AF%E5%8A%A0%E5%AF%86%E7%9A%84%EF%BC%9F"><span class="toc-number">1.9.1.</span> <span class="toc-text">1. 为什么说比特币虽然叫“加密货币”，但交易内容并不是加密的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Collision-resistance-%E6%98%AF%E4%B8%8D%E6%98%AF%E8%A1%A8%E7%A4%BA%E5%93%88%E5%B8%8C%E7%A2%B0%E6%92%9E%E4%B8%8D%E5%AD%98%E5%9C%A8%EF%BC%9F"><span class="toc-number">1.9.2.</span> <span class="toc-text">2. Collision resistance 是不是表示哈希碰撞不存在？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Message-digest-%E5%A6%82%E4%BD%95%E7%94%A8%E4%BA%8E%E6%A3%80%E6%B5%8B%E6%96%87%E4%BB%B6%E6%98%AF%E5%90%A6%E8%A2%AB%E7%AF%A1%E6%94%B9%EF%BC%9F"><span class="toc-number">1.9.3.</span> <span class="toc-text">3. Message digest 如何用于检测文件是否被篡改？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Hiding-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%B1%82%E8%BE%93%E5%85%A5%E7%A9%BA%E9%97%B4%E8%B6%B3%E5%A4%9F%E5%A4%A7%E3%80%81%E5%88%86%E5%B8%83%E8%B6%B3%E5%A4%9F%E5%9D%87%E5%8C%80%EF%BC%9F"><span class="toc-number">1.9.4.</span> <span class="toc-text">4. Hiding 为什么要求输入空间足够大、分布足够均匀？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Digital-commitment-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%90%8C%E6%97%B6%E4%BE%9D%E8%B5%96-hiding-%E5%92%8C-collision-resistance%EF%BC%9F"><span class="toc-number">1.9.5.</span> <span class="toc-text">5. Digital commitment 为什么要同时依赖 hiding 和 collision resistance？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%AF%94%E7%89%B9%E5%B8%81%E6%8C%96%E7%9F%BF%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AF%E4%BB%A5%E8%A2%AB%E7%A7%B0%E4%B8%BA-proof-of-work%EF%BC%9F"><span class="toc-number">1.9.6.</span> <span class="toc-text">6. 比特币挖矿为什么可以被称为 proof of work？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AF%B4-PoW-%E6%98%AF-difficult-to-solve-but-easy-to-verify%EF%BC%9F"><span class="toc-number">1.9.7.</span> <span class="toc-text">7. 为什么说 PoW 是 difficult to solve but easy to verify？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%AD-private-key-%E5%92%8C-public-key-%E5%88%86%E5%88%AB%E8%B5%B7%E4%BB%80%E4%B9%88%E4%BD%9C%E7%94%A8%EF%BC%9F"><span class="toc-number">1.9.8.</span> <span class="toc-text">8. 比特币中 private key 和 public key 分别起什么作用？</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/" title="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"/></a><div class="content"><a class="title" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/" title="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励">第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励</a><time datetime="2026-05-30T08:36:18.000Z" title="Created 2026-05-30 16:36:18">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/" title="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限"/></a><div class="content"><a class="title" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/" title="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限">第 4 讲：BTC 协议（二）：共识问题与投票方案的局限</a><time datetime="2026-05-30T08:33:55.000Z" title="Created 2026-05-30 16:33:55">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE1/" title="第 4 讲：BTC 协议（一）"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 讲：BTC 协议（一）"/></a><div class="content"><a class="title" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE1/" title="第 4 讲：BTC 协议（一）">第 4 讲：BTC 协议（一）</a><time datetime="2026-05-30T08:26:01.000Z" title="Created 2026-05-30 16:26:01">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="第 3 讲：BTC 数据结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/zangief.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 讲：BTC 数据结构"/></a><div class="content"><a class="title" href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="第 3 讲：BTC 数据结构">第 3 讲：BTC 数据结构</a><time datetime="2026-05-30T08:08:49.000Z" title="Created 2026-05-30 16:08:49">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/" title="第 2 讲：BTC 密码学原理"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 讲：BTC 密码学原理"/></a><div class="content"><a class="title" href="/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/" title="第 2 讲：BTC 密码学原理">第 2 讲：BTC 密码学原理</a><time datetime="2026-05-30T08:08:45.000Z" title="Created 2026-05-30 16:08:45">2026-05-30</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">19</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">6</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>5</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>5</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

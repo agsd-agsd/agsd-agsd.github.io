@@ -1,0 +1,890 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励 | God Only Knows</title><meta name="keywords" content="BTC,Bitcoin,ProofOfWork"><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"><meta name="application-name" content="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"><meta property="og:url" content="http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="来源依据：课程文字稿《04-BTC-协议3》；笔记结构与写作规范参考《00笔记生成指南》 第 4 讲：BTC 协议（三）——PoW 共识、分叉与挖矿奖励1. 本节主线 比特币不是按“账户数量”投票，而是按计算力投票。 节点通过不断尝试 nonce 来求解 computational puzzle，从"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/juri.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/juri.png"><meta name="description" content="来源依据：课程文字稿《04-BTC-协议3》；笔记结构与写作规范参考《00笔记生成指南》 第 4 讲：BTC 协议（三）——PoW 共识、分叉与挖矿奖励1. 本节主线 比特币不是按“账户数量”投票，而是按计算力投票。 节点通过不断尝试 nonce 来求解 computational puzzle，从"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励',
+  postAI: '',
+  pageFillDescription: '第 4 讲：BTC 协议（三）——PoW 共识、分叉与挖矿奖励, 1. 本节主线, 2. 核心概念速览, 3. 知识结构图, 4. 课程内容详解, 4.1 比特币不是按账户投票而是按算力投票, 4.2 记账权如何获得：尝试 nonce, 4.3 其他节点如何验证新区块, 4.4 为什么合法区块也可能不被接受, 4.5 double spending 的判断依赖所在分支, 4.6 正常情况下也会产生分叉, 4.7 implicit consent：如何表达我认可这个区块, 4.8 临时分叉如何被解决, 4.9 出块奖励：为什么矿工愿意消耗算力, 4.10 出块奖励减半, 4.11 orphan block 中的奖励为什么通常没用, 4.12 比特币共识到底在共识什么, 4.13 挖矿的含义, 5. 关键机制图解, 5.1 挖矿与区块验证流程, 5.2 正常分叉与最长合法链选择, 5.3 出块奖励与 coinbase transaction, 6. 易混点与常见误解, 7. 课堂外补充理解, 7.1 为什么 PoW 可以缓解 Sybil attack, 7.2 为什么挖矿结果具有概率性, 7.3 为什么最长合法链能稳定账本, 8. 本节小结, 9. 自测问题, 1. 比特币为什么不采用一个账户一票的机制？, 2. 矿工如何获得记账权？, 3. 其他节点收到新区块后主要验证什么？, 4. 为什么一个交易合法的区块也可能不被接受？, 5. 正常情况下为什么也会出现分叉？, 6. 什么是 implicit consent？, 7. orphan block 中的出块奖励为什么通常不能用？, 8. 比特币共识机制要取得的共识到底是什么？来源依据课程文字稿协议笔记结构与写作规范参考笔记生成指南第讲协议三共识分叉与挖矿奖励本节主线比特币不是按账户数量投票而是按计算力投票节点通过不断尝试来求解从而争夺记账权一个区块即使交易和区块头本身都合法也不一定会被接受它还必须扩展在最长合法链上分叉可能来自攻击也可能来自两个矿工几乎同时挖出区块出块奖励和是比特币发行新币的唯一方式也是矿工参与挖矿的重要激励比特币共识要达成的不是谁说了算而是所有诚实节点对去中心化账本内容达成一致核心概念速览概念简要理解在本节中的作用记账权向比特币账本写入下一个区块的权利只有成功挖矿的节点才能发布新区块区块头中的随机数字段矿工不断尝试不同寻找满足难度要求的哈希需要大量尝试才能解出的计算难题用来让记账权与算力挂钩区块头包含前一区块哈希等信息节点验证区块合法性时首先检查它目标阈值的压缩编码表示当前挖矿难度对应的目标范围最长合法链被诚实节点接受并继续扩展的最长有效分支决定哪个分叉成为主链通过在链中间插入分叉来试图回滚已有交易的攻击说明区块内容合法不等于应该被接受临时性分叉两个矿工几乎同时挖出区块导致的等长分叉正常情况下可能出现最终由最长合法链规则解决隐式认可节点继续沿某个区块扩展就表示认可该区块被主链抛弃的分叉区块其中的出块奖励通常无法真正使用出块奖励成功挖出区块后获得的新发行激励矿工消耗算力争夺记账权铸币交易比特币系统中新币发行的唯一方式单位时间内尝试哈希计算的能力决定节点获得记账权的概率权重女巫攻击即创建大量虚假身份操纵投票通过按算力投票削弱虚假身份的作用挖矿通过求解难题争夺记账权是比特币共识机制的核心过程知识结构图比特币共识问题谁能写入账本账本内容如何一致争夺记账权尝试满足目标阈值发布新区块验证区块验证验证交易合法性是否扩展最长合法链接受并继续扩展拒绝或成为出块奖励新发行这张图说明比特币共识机制围绕两个问题展开第一谁有资格写账本答案是成功求解难题的矿工第二写出来的账本如何被全网接受答案是新区块不仅要内容合法还要扩展在最长合法链上课程内容详解比特币不是按账户投票而是按算力投票在去中心化系统中一个核心问题是如果没有中心服务器谁来决定账本的下一页写什么直观想法是投票但如果按账户数投票就会遇到攻击者可以低成本创建大量账户让自己看起来拥有很多投票权比特币的解决方法是不按账户数量投票而按计算力投票也就是说一个节点能获得多少话语权不取决于它创建了多少个账号而取决于它每秒能尝试多少次哈希计算这个能力称为如果某个节点的算力是另一个节点的倍那么它成功获得记账权的概率也大约是后者的倍这里的关键思想是身份可以低成本复制但算力不能低成本复制所以机制用物理计算资源取代了虚拟身份数量降低了女巫攻击的威胁记账权如何获得尝试每个节点都可以在本地组装一个候选区块把自己认为合法的交易放入中然后构造对应的中有一个字段叫矿工会不断尝试不同的计算整个区块头的哈希值看它是否满足协议规定的目标阈值其中是区块头的哈希结果是当前难度对应的目标阈值是这个目标阈值在区块头中的压缩编码如果某个节点找到了合适的使得区块头哈希小于等于目标阈值那么它就获得了记账权可以向网络发布这个新区块其他节点如何验证新区块矿工发布新区块后其他节点不会盲目接受而是要验证它验证主要包括三层验证区块头是否符合要求是否符合当前协议难度是否真的让区块头哈希满足目标阈值前一区块哈希是否正确指向某个已有区块验证区块体中的交易是否合法每笔交易是否有合法签名输入的币是否以前没有被花过是否存在验证它是否应该被接入主链即使区块头和交易都合法也要看它是不是扩展最长合法链第三点是本节非常重要的地方区块内容合法不等于这个区块一定会被诚实节点接受为什么合法区块也可能不被接受假设有一个新区块它的区块头合法里面的交易也都合法但是它不是接在当前最长链末尾而是插入到了链中间的某个位置形成了一个分叉这时它可能试图回滚已经发生的交易例如主链上已经记录了的转账攻击者又在较早位置分出一条支链在这条支链上攻击者把同一笔币转回给自己从这条支链自身来看这笔交易可能并不构成但从全局效果看它试图推翻主链上已经发生的交易这就是的基本思想所以比特币节点不仅看交易本身是否合法还要看新区块是否在扩展当前被认可的最长合法链的判断依赖所在分支判断一笔交易是否是不是把所有分叉上的所有交易混在一起检查而是看这笔交易所在的链分支具体来说要检查从当前交易所在区块往前追溯到这笔币的来源之间这个币有没有在同一条分支上被花过如果在当前分支上没有被花过那么从这个分支内部看它可以是合法交易这就解释了为什么攻击者能构造出一个局部合法的分叉因为在攻击者自己的分支上这笔币可能没有被重复花费但是比特币协议不会因为某条分支内部合法就接受它诚实节点最终接受的是最长合法链正常情况下也会产生分叉分叉不一定都是攻击正常情况下如果两个矿工几乎同时找到合法它们都可以发布新区块这时网络中会出现两个等长分叉一些节点先收到区块于是先接受另一些节点先收到区块于是先接受因为网络传播有延迟不同节点收到消息的顺序可能不同在两个分叉等长时比特币协议默认节点接受自己最早收到的那个区块并沿着它继续挖矿如何表达我认可这个区块比特币中没有一个中心化投票按钮说我同意这个区块节点对某个区块的认可是通过行为表达的如果一个节点在某个区块后面继续扩展新区块就表示它认可这个区块这叫即隐式认可例如如果矿工在后面继续挖出那么它实际上是在表达我认可从到这条链并愿意在它后面继续写账本临时分叉如何被解决当两个分叉等长时它们会暂时并存之后哪个分叉先被挖出下一个区块哪个分叉就变得更长例如当分支先得到新区块后成为最长合法链诚实节点会切换到这条链上继续扩展被抛弃的就成为这里要注意一个分叉能否胜出与算力有关也与随机性有关算力更强的一方更有可能先挖出下一个区块但不是绝对保证本质上仍然有概率性出块奖励为什么矿工愿意消耗算力挖矿需要消耗大量计算资源和电力矿工之所以愿意这样做是因为成功获得记账权可以获得奖励这份奖励主要来自是一种特殊交易它不需要指明币的来源它可以凭空产生一定数量的新它只能由成功挖出区块的矿工写入自己发布的区块中它是比特币系统发行新币的唯一方式普通交易只是把已有从一个账户转移到另一个账户不会创造新的即使用法币购买本质上也只是别人把已有转给你并没有产生新币出块奖励减半课程中提到比特币刚上线时每个区块的出块奖励是协议规定每经过个区块出块奖励减半课程这里是在讲比特币协议的发行机制随着时间推移每个区块能新发行的数量逐渐减少注意课程中提到的现在是属于课程录制时的语境复习本节时重点不是记某个时间点的当前奖励而是理解比特币通过固定规则控制新币发行而不是由中心机构临时决定发行多少中的奖励为什么通常没用如果一个矿工在某个分叉上挖出了区块并在里面写入了但这个分叉最后没有成为最长合法链那么这个区块就会变成这时该区块里的出块奖励通常无法真正使用原因是比特币节点验证交易时会根据最长合法链来判断账本状态如果某个奖励只存在于被抛弃的短分叉上那么大多数诚实节点不会承认这笔奖励所以矿工不只是要挖出合法区块还希望自己的区块最终留在主链上比特币共识到底在共识什么比特币共识不是简单地共识谁是矿工也不是共识谁的账户多它真正要共识的是去中心化账本的内容换句话说全网诚实节点最终要对哪些交易已经发生哪些属于谁达成一致而账本内容由谁写入答案是成功求解难题获得记账权的节点这就是为什么说比特币共识是按算力投票能否获得记账权取决于能否找到合法找到合法的概率取决于越高获得记账权的概率越高创建更多账户并不能提高挖矿的含义是对比特币争夺记账权过程的形象比喻它类似淘金搜索空间很大找到合法结果的概率很小需要不断尝试一旦成功就能获得较高奖励在比特币中矿工不是在物理上挖黄金而是在哈希空间中寻找满足难度目标的所以挖到矿本质上就是找到了一个让区块头哈希满足目标阈值的从而获得了发布新区块和领取出块奖励的资格关键机制图解挖矿与区块验证流程矿工收集交易组装候选区块构造不断尝试否是获得记账权广播新区块其他节点验证合法否拒绝区块是交易合法否是扩展最长合法链否不作为主链接受是接受并继续扩展这张图展示了共识的完整主干矿工先通过不断尝试来争夺记账权其他节点收到区块后要同时验证区块头交易内容和它是否扩展最长合法链正常分叉与最长合法链选择已有主链末端矿工挖出区块矿工挖出区块部分节点沿挖矿部分节点沿挖矿先挖出新区块分支变成最长合法链分支成为这张图说明正常网络延迟会导致临时性分叉等长分叉出现后节点通常先接受自己最早收到的区块随后先被继续扩展的分支成为最长合法链另一条分支被抛弃出块奖励与矿工成功挖出区块获得发布区块资格在区块中加入发行新的区块留在最长合法链上是奖励被网络承认否区块成为奖励通常无法使用这张图强调出块奖励不是只要写进区块就一定有效只有区块最终处于最长合法链上其中的才会被诚实节点承认易混点与常见误解易混点正确理解区块里的交易都合法所以一定会被接受不一定区块还必须扩展最长合法链插入链中间的合法区块可能是分叉攻击的一部分是全网所有分叉一起检查不是判断时要看交易所在分支中该币是否被重复花费最长链就是区块数量最多的任意链更准确地说是最长合法链非法交易非法区块头的链不会被诚实节点接受分叉一定是攻击不一定两个矿工几乎同时挖出区块也会导致正常的临时性分叉接受区块就是显式投票同意比特币采用节点继续沿某区块扩展就表示认可它矿工挖出区块后奖励一定归自己不一定如果区块后来变成其中的奖励通常不会被主链接受创建更多账户可以提高投票权在中不行投票权来自不是账户数量挖矿是在挖真实的币挖矿是求解哈希难题新通过发行课堂外补充理解为什么可以缓解在普通投票系统中如果没有身份认证一个人可以创建大量虚假身份从而操纵投票结果但是在中投票权不是身份数量而是算力假设攻击者有一台机器创建个账户机器每秒能算次哈希创建个账户机器每秒仍然只能算次哈希账户数量变多并不会让它尝试的速度变快所以把制造身份的问题转换成投入计算资源的问题攻击者要提高影响力就必须投入真实算力而不能只靠复制账号为什么挖矿结果具有概率性哈希函数的输出看起来近似随机矿工尝试不同时无法提前知道哪个会成功只能不断试因此挖矿像抽奖越高单位时间内抽奖次数越多抽奖次数越多中奖概率越高但某一次具体是谁先中奖仍然有随机性这就是为什么课程中说分叉竞争时算力强的一方更有可能胜出但算力较弱的一方也可能因为运气好先挖出下一个区块为什么最长合法链能稳定账本如果所有诚实节点都遵循最长合法链规则那么网络会逐渐收敛到同一条链上临时分叉刚出现时不同节点可能选择不同分支但一旦某个分支先被继续扩展它就会更长其他诚实节点会转向这条更长的合法链这使得比特币账本不需要中心服务器也能逐渐形成一致状态本节小结比特币通过机制争夺记账权本质是按算力投票而不是按账户数量投票矿工通过不断尝试寻找使区块头哈希满足目标阈值的结果其他节点收到新区块后需要验证区块头交易合法性以及它是否扩展最长合法链区块内容合法不代表一定会被接受如果它试图插入链中间并回滚交易就可能构成正常网络延迟也可能导致临时分叉最终由最长合法链规则解决是比特币发行新币的唯一方式出块奖励是矿工参与挖矿的重要激励中的奖励通常无法使用因为它不在被大多数诚实节点接受的主链上比特币共识最终要达成一致的是去中心化账本的内容自测问题比特币为什么不采用一个账户一票的机制参考答案因为账户可以低成本大量创建会导致比特币改用按算力投票账户数量不会直接增加获得记账权的概率矿工如何获得记账权参考答案矿工组装候选区块然后不断尝试不同如果某个使矿工就获得记账权可以发布新区块其他节点收到新区块后主要验证什么参考答案主要验证三类内容区块头是否合法交易是否有合法签名且没有以及该区块是否扩展最长合法链为什么一个交易合法的区块也可能不被接受参考答案因为它可能没有接在最长合法链后面而是插入链中间形成分叉试图回滚已经发生的交易比特币要求接受扩展最长合法链的区块正常情况下为什么也会出现分叉参考答案两个矿工可能几乎同时找到合法并广播区块由于网络传播延迟不同节点可能先收到不同区块于是暂时沿不同分支扩展什么是参考答案节点不需要显式投票如果它沿着某个区块继续挖矿扩展新区块就表示它认可该区块中的出块奖励为什么通常不能用参考答案因为该区块不在最终被接受的最长合法链上诚实节点不会承认短分叉中的账本状态所以其中的奖励也通常无效比特币共识机制要取得的共识到底是什么参考答案是去中心化账本的内容即哪些交易被确认哪些属于谁决定谁有机会写入账本最长合法链规则决定哪些写入最终被接受',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-05-30 16:40:23',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>5</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>5</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/blockchain/" itemprop="url">blockchain</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/BTC/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>BTC</span></a><a class="article-meta__tags" href="/tags/Bitcoin/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Bitcoin</span></a><a class="article-meta__tags" href="/tags/ProofOfWork/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>ProofOfWork</span></a></span></div></div><h1 class="post-title" itemprop="name headline">第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-05-30T08:36:18.000Z" title="Created 2026-05-30 16:36:18">2026-05-30</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-05-30T08:40:23.073Z" title="Updated 2026-05-30 16:40:23">2026-05-30</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">5.6k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>17min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/juri.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/"><header><a class="post-meta-categories" href="/categories/blockchain/" itemprop="url">blockchain</a><a href="/tags/BTC/" tabindex="-1" itemprop="url">BTC</a><a href="/tags/Bitcoin/" tabindex="-1" itemprop="url">Bitcoin</a><a href="/tags/ProofOfWork/" tabindex="-1" itemprop="url">ProofOfWork</a><h1 id="CrawlerTitle" itemprop="name headline">第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-05-30T08:36:18.000Z" title="Created 2026-05-30 16:36:18">2026-05-30</time><time itemprop="dateCreated datePublished" datetime="2026-05-30T08:40:23.073Z" title="Updated 2026-05-30 16:40:23">2026-05-30</time></header><p>来源依据：课程文字稿《04-BTC-协议3》；笔记结构与写作规范参考《00笔记生成指南》</p>
+<h1 id="第-4-讲：BTC-协议（三）——PoW-共识、分叉与挖矿奖励"><a href="#第-4-讲：BTC-协议（三）——PoW-共识、分叉与挖矿奖励" class="headerlink" title="第 4 讲：BTC 协议（三）——PoW 共识、分叉与挖矿奖励"></a>第 4 讲：BTC 协议（三）——PoW 共识、分叉与挖矿奖励</h1><h2 id="1-本节主线"><a href="#1-本节主线" class="headerlink" title="1. 本节主线"></a>1. 本节主线</h2><ol>
+<li>比特币不是按“账户数量”投票，而是按<strong>计算力</strong>投票。</li>
+<li>节点通过不断尝试 <code>nonce</code> 来求解 <code>computational puzzle</code>，从而争夺记账权。</li>
+<li>一个区块即使交易和区块头本身都合法，也不一定会被接受；它还必须扩展在<strong>最长合法链</strong>上。</li>
+<li>分叉可能来自攻击，也可能来自两个矿工几乎同时挖出区块。</li>
+<li>出块奖励和 <code>coinbase transaction</code> 是比特币发行新币的唯一方式，也是矿工参与挖矿的重要激励。</li>
+<li>比特币共识要达成的不是“谁说了算”，而是所有诚实节点对<strong>去中心化账本内容</strong>达成一致。</li>
+</ol>
+<h2 id="2-核心概念速览"><a href="#2-核心概念速览" class="headerlink" title="2. 核心概念速览"></a>2. 核心概念速览</h2><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>简要理解</th>
+<th>在本节中的作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>记账权</td>
+<td>向比特币账本写入下一个区块的权利</td>
+<td>只有成功挖矿的节点才能发布新区块</td>
+</tr>
+<tr>
+<td><code>nonce</code></td>
+<td>区块头中的随机数字段</td>
+<td>矿工不断尝试不同 <code>nonce</code>，寻找满足难度要求的哈希</td>
+</tr>
+<tr>
+<td><code>computational puzzle</code></td>
+<td>需要大量尝试才能解出的计算难题</td>
+<td>用来让记账权与算力挂钩</td>
+</tr>
+<tr>
+<td><code>block header</code></td>
+<td>区块头，包含前一区块哈希、Merkle root、<code>nonce</code>、<code>nBits</code> 等信息</td>
+<td>节点验证区块合法性时首先检查它</td>
+</tr>
+<tr>
+<td><code>nBits</code></td>
+<td>目标阈值的压缩编码</td>
+<td>表示当前挖矿难度对应的目标范围</td>
+</tr>
+<tr>
+<td>最长合法链</td>
+<td>被诚实节点接受并继续扩展的最长有效分支</td>
+<td>决定哪个分叉成为主链</td>
+</tr>
+<tr>
+<td><code>forking attack</code></td>
+<td>通过在链中间插入分叉来试图回滚已有交易的攻击</td>
+<td>说明“区块内容合法”不等于“应该被接受”</td>
+</tr>
+<tr>
+<td>临时性分叉</td>
+<td>两个矿工几乎同时挖出区块导致的等长分叉</td>
+<td>正常情况下可能出现，最终由最长合法链规则解决</td>
+</tr>
+<tr>
+<td><code>implicit consent</code></td>
+<td>隐式认可</td>
+<td>节点继续沿某个区块扩展，就表示认可该区块</td>
+</tr>
+<tr>
+<td><code>orphan block</code></td>
+<td>被主链抛弃的分叉区块</td>
+<td>其中的出块奖励通常无法真正使用</td>
+</tr>
+<tr>
+<td>出块奖励</td>
+<td>成功挖出区块后获得的新发行 BTC</td>
+<td>激励矿工消耗算力争夺记账权</td>
+</tr>
+<tr>
+<td><code>coinbase transaction</code></td>
+<td>铸币交易</td>
+<td>比特币系统中新币发行的唯一方式</td>
+</tr>
+<tr>
+<td><code>hash rate</code></td>
+<td>单位时间内尝试哈希计算的能力</td>
+<td>决定节点获得记账权的概率权重</td>
+</tr>
+<tr>
+<td><code>Sybil attack</code></td>
+<td>女巫攻击，即创建大量虚假身份操纵投票</td>
+<td>PoW 通过“按算力投票”削弱虚假身份的作用</td>
+</tr>
+<tr>
+<td>挖矿（<code>mining</code>）</td>
+<td>通过求解 PoW 难题争夺记账权</td>
+<td>是比特币共识机制的核心过程</td>
+</tr>
+</tbody></table>
+<h2 id="3-知识结构图"><a href="#3-知识结构图" class="headerlink" title="3. 知识结构图"></a>3. 知识结构图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[比特币共识问题] --&gt; B[谁能写入账本]</span><br><span class="line">    A --&gt; C[账本内容如何一致]</span><br><span class="line"></span><br><span class="line">    B --&gt; D[争夺记账权]</span><br><span class="line">    D --&gt; E[尝试 nonce]</span><br><span class="line">    E --&gt; F[满足目标阈值]</span><br><span class="line">    F --&gt; G[发布新区块]</span><br><span class="line"></span><br><span class="line">    C --&gt; H[验证区块]</span><br><span class="line">    H --&gt; I[验证 block header]</span><br><span class="line">    H --&gt; J[验证交易合法性]</span><br><span class="line">    H --&gt; K[是否扩展最长合法链]</span><br><span class="line"></span><br><span class="line">    K --&gt; L[接受并继续扩展]</span><br><span class="line">    K --&gt; M[拒绝或成为 orphan block]</span><br><span class="line"></span><br><span class="line">    D --&gt; N[出块奖励]</span><br><span class="line">    N --&gt; O[coinbase transaction]</span><br><span class="line">    O --&gt; P[新 BTC 发行]</span><br></pre></td></tr></table></figure>
+
+<p>这张图说明：比特币共识机制围绕两个问题展开。第一，谁有资格写账本？答案是成功求解 PoW 难题的矿工。第二，写出来的账本如何被全网接受？答案是新区块不仅要内容合法，还要扩展在最长合法链上。</p>
+<h2 id="4-课程内容详解"><a href="#4-课程内容详解" class="headerlink" title="4. 课程内容详解"></a>4. 课程内容详解</h2><h3 id="4-1-比特币不是按账户投票，而是按算力投票"><a href="#4-1-比特币不是按账户投票，而是按算力投票" class="headerlink" title="4.1 比特币不是按账户投票，而是按算力投票"></a>4.1 比特币不是按账户投票，而是按算力投票</h3><p>在去中心化系统中，一个核心问题是：如果没有中心服务器，谁来决定账本的下一页写什么？</p>
+<p>直观想法是“投票”。但如果按账户数投票，就会遇到 <code>Sybil attack</code>：攻击者可以低成本创建大量账户，让自己看起来拥有很多投票权。</p>
+<p>比特币的解决方法是：<strong>不按账户数量投票，而按计算力投票。</strong></p>
+<p>也就是说，一个节点能获得多少“话语权”，不取决于它创建了多少个账号，而取决于它每秒能尝试多少次哈希计算。这个能力称为 <code>hash rate</code>。</p>
+<p>如果某个节点的算力是另一个节点的 10 倍，那么它成功获得记账权的概率也大约是后者的 10 倍。</p>
+<p>这里的关键思想是：</p>
+<blockquote>
+<p>身份可以低成本复制，但算力不能低成本复制。</p>
+</blockquote>
+<p>所以，PoW 机制用物理计算资源取代了虚拟身份数量，降低了女巫攻击的威胁。</p>
+<h3 id="4-2-记账权如何获得：尝试-nonce"><a href="#4-2-记账权如何获得：尝试-nonce" class="headerlink" title="4.2 记账权如何获得：尝试 nonce"></a>4.2 记账权如何获得：尝试 <code>nonce</code></h3><p>每个节点都可以在本地组装一个候选区块，把自己认为合法的交易放入 <code>block body</code> 中，然后构造对应的 <code>block header</code>。</p>
+<p><code>block header</code> 中有一个字段叫 <code>nonce</code>。矿工会不断尝试不同的 <code>nonce</code>，计算整个区块头的哈希值，看它是否满足协议规定的目标阈值：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hash(block header) &lt;= target</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>Hash(block header)</code> 是区块头的哈希结果；</li>
+<li><code>target</code> 是当前难度对应的目标阈值；</li>
+<li><code>nBits</code> 是这个目标阈值在区块头中的压缩编码。</li>
+</ul>
+<p>如果某个节点找到了合适的 <code>nonce</code>，使得区块头哈希小于等于目标阈值，那么它就获得了记账权，可以向网络发布这个新区块。</p>
+<h3 id="4-3-其他节点如何验证新区块"><a href="#4-3-其他节点如何验证新区块" class="headerlink" title="4.3 其他节点如何验证新区块"></a>4.3 其他节点如何验证新区块</h3><p>矿工发布新区块后，其他节点不会盲目接受，而是要验证它。</p>
+<p>验证主要包括三层：</p>
+<ol>
+<li><p><strong>验证区块头是否符合要求</strong></p>
+<ul>
+<li><code>nBits</code> 是否符合当前协议难度；</li>
+<li><code>nonce</code> 是否真的让区块头哈希满足目标阈值；</li>
+<li>前一区块哈希是否正确指向某个已有区块。</li>
+</ul>
+</li>
+<li><p><strong>验证区块体中的交易是否合法</strong></p>
+<ul>
+<li>每笔交易是否有合法签名；</li>
+<li>输入的币是否以前没有被花过；</li>
+<li>是否存在 double spending。</li>
+</ul>
+</li>
+<li><p><strong>验证它是否应该被接入主链</strong></p>
+<ul>
+<li>即使区块头和交易都合法，也要看它是不是扩展最长合法链。</li>
+</ul>
+</li>
+</ol>
+<p>第三点是本节非常重要的地方：<br><strong>区块内容合法，不等于这个区块一定会被诚实节点接受。</strong></p>
+<h3 id="4-4-为什么“合法区块”也可能不被接受"><a href="#4-4-为什么“合法区块”也可能不被接受" class="headerlink" title="4.4 为什么“合法区块”也可能不被接受"></a>4.4 为什么“合法区块”也可能不被接受</h3><p>假设有一个新区块，它的区块头合法，里面的交易也都合法。但是它不是接在当前最长链末尾，而是插入到了链中间的某个位置，形成了一个分叉。</p>
+<p>这时它可能试图回滚已经发生的交易。</p>
+<p>例如：</p>
+<ol>
+<li>主链上已经记录了 <code>A -&gt; B</code> 的转账；</li>
+<li>攻击者又在较早位置分出一条支链；</li>
+<li>在这条支链上，攻击者把同一笔币转回给自己；</li>
+<li>从这条支链自身来看，这笔交易可能并不构成 double spending；</li>
+<li>但从全局效果看，它试图推翻主链上已经发生的交易。</li>
+</ol>
+<p>这就是 <code>forking attack</code> 的基本思想。</p>
+<p>所以，比特币节点不仅看交易本身是否合法，还要看新区块是否在扩展当前被认可的最长合法链。</p>
+<h3 id="4-5-double-spending-的判断依赖所在分支"><a href="#4-5-double-spending-的判断依赖所在分支" class="headerlink" title="4.5 double spending 的判断依赖所在分支"></a>4.5 double spending 的判断依赖所在分支</h3><p>判断一笔交易是否是 double spending，不是把所有分叉上的所有交易混在一起检查，而是看这笔交易所在的链分支。</p>
+<p>具体来说，要检查：</p>
+<blockquote>
+<p>从当前交易所在区块往前追溯，到这笔币的来源之间，这个币有没有在同一条分支上被花过。</p>
+</blockquote>
+<p>如果在当前分支上没有被花过，那么从这个分支内部看，它可以是合法交易。</p>
+<p>这就解释了为什么攻击者能构造出一个“局部合法”的分叉：<br>因为在攻击者自己的分支上，这笔币可能没有被重复花费。</p>
+<p>但是，比特币协议不会因为某条分支内部合法就接受它。诚实节点最终接受的是最长合法链。</p>
+<h3 id="4-6-正常情况下也会产生分叉"><a href="#4-6-正常情况下也会产生分叉" class="headerlink" title="4.6 正常情况下也会产生分叉"></a>4.6 正常情况下也会产生分叉</h3><p>分叉不一定都是攻击。正常情况下，如果两个矿工几乎同时找到合法 <code>nonce</code>，它们都可以发布新区块。</p>
+<p>这时网络中会出现两个等长分叉：</p>
+<ul>
+<li>一些节点先收到区块 A，于是先接受 A；</li>
+<li>另一些节点先收到区块 B，于是先接受 B。</li>
+</ul>
+<p>因为网络传播有延迟，不同节点收到消息的顺序可能不同。</p>
+<p>在两个分叉等长时，比特币协议默认节点接受自己最早收到的那个区块，并沿着它继续挖矿。</p>
+<h3 id="4-7-implicit-consent：如何表达“我认可这个区块”"><a href="#4-7-implicit-consent：如何表达“我认可这个区块”" class="headerlink" title="4.7 implicit consent：如何表达“我认可这个区块”"></a>4.7 <code>implicit consent</code>：如何表达“我认可这个区块”</h3><p>比特币中没有一个中心化投票按钮说“我同意这个区块”。节点对某个区块的认可，是通过行为表达的。</p>
+<p>如果一个节点在某个区块后面继续扩展新区块，就表示它认可这个区块。</p>
+<p>这叫 <code>implicit consent</code>，即隐式认可。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A -&gt; B -&gt; C</span><br></pre></td></tr></table></figure>
+
+<p>如果矿工在 <code>C</code> 后面继续挖出 <code>D</code>，那么它实际上是在表达：</p>
+<blockquote>
+<p>我认可从 A 到 C 这条链，并愿意在它后面继续写账本。</p>
+</blockquote>
+<h3 id="4-8-临时分叉如何被解决"><a href="#4-8-临时分叉如何被解决" class="headerlink" title="4.8 临时分叉如何被解决"></a>4.8 临时分叉如何被解决</h3><p>当两个分叉等长时，它们会暂时并存。之后，哪个分叉先被挖出下一个区块，哪个分叉就变得更长。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">        -&gt; B1</span><br><span class="line">A -----</span><br><span class="line">        -&gt; B2 -&gt; C2</span><br></pre></td></tr></table></figure>
+
+<p>当 <code>B2</code> 分支先得到新区块 <code>C2</code> 后，<code>A -&gt; B2 -&gt; C2</code> 成为最长合法链。诚实节点会切换到这条链上继续扩展。</p>
+<p>被抛弃的 <code>B1</code> 就成为 <code>orphan block</code>。</p>
+<p>这里要注意：<br>一个分叉能否胜出，与算力有关，也与随机性有关。算力更强的一方更有可能先挖出下一个区块，但不是绝对保证。PoW 本质上仍然有概率性。</p>
+<h3 id="4-9-出块奖励：为什么矿工愿意消耗算力"><a href="#4-9-出块奖励：为什么矿工愿意消耗算力" class="headerlink" title="4.9 出块奖励：为什么矿工愿意消耗算力"></a>4.9 出块奖励：为什么矿工愿意消耗算力</h3><p>挖矿需要消耗大量计算资源和电力。矿工之所以愿意这样做，是因为成功获得记账权可以获得奖励。</p>
+<p>这份奖励主要来自 <code>coinbase transaction</code>。</p>
+<p><code>coinbase transaction</code> 是一种特殊交易：</p>
+<ul>
+<li>它不需要指明币的来源；</li>
+<li>它可以凭空产生一定数量的新 BTC；</li>
+<li>它只能由成功挖出区块的矿工写入自己发布的区块中；</li>
+<li>它是比特币系统发行新币的唯一方式。</li>
+</ul>
+<p>普通交易只是把已有 BTC 从一个账户转移到另一个账户，不会创造新的 BTC。即使用法币购买 BTC，本质上也只是别人把已有 BTC 转给你，并没有产生新币。</p>
+<h3 id="4-10-出块奖励减半"><a href="#4-10-出块奖励减半" class="headerlink" title="4.10 出块奖励减半"></a>4.10 出块奖励减半</h3><p>课程中提到，比特币刚上线时，每个区块的出块奖励是 50 BTC。协议规定，每经过 210000 个区块，出块奖励减半：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">50 BTC -&gt; 25 BTC -&gt; 12.5 BTC -&gt; ...</span><br></pre></td></tr></table></figure>
+
+<p>课程这里是在讲比特币协议的发行机制：<br>随着时间推移，每个区块能新发行的 BTC 数量逐渐减少。</p>
+<p>注意：课程中提到的“现在是 12.5 BTC”属于课程录制时的语境。复习本节时，重点不是记某个时间点的当前奖励，而是理解：</p>
+<blockquote>
+<p>比特币通过固定规则控制新币发行，而不是由中心机构临时决定发行多少。</p>
+</blockquote>
+<h3 id="4-11-orphan-block-中的奖励为什么通常没用"><a href="#4-11-orphan-block-中的奖励为什么通常没用" class="headerlink" title="4.11 orphan block 中的奖励为什么通常没用"></a>4.11 <code>orphan block</code> 中的奖励为什么通常没用</h3><p>如果一个矿工在某个分叉上挖出了区块，并在里面写入了 <code>coinbase transaction</code>，但这个分叉最后没有成为最长合法链，那么这个区块就会变成 <code>orphan block</code>。</p>
+<p>这时，该区块里的出块奖励通常无法真正使用。</p>
+<p>原因是：<br>比特币节点验证交易时，会根据最长合法链来判断账本状态。如果某个奖励只存在于被抛弃的短分叉上，那么大多数诚实节点不会承认这笔奖励。</p>
+<p>所以，矿工不只是要挖出合法区块，还希望自己的区块最终留在主链上。</p>
+<h3 id="4-12-比特币共识到底在共识什么"><a href="#4-12-比特币共识到底在共识什么" class="headerlink" title="4.12 比特币共识到底在共识什么"></a>4.12 比特币共识到底在共识什么</h3><p>比特币共识不是简单地共识“谁是矿工”，也不是共识“谁的账户多”。</p>
+<p>它真正要共识的是：</p>
+<blockquote>
+<p>去中心化账本的内容。</p>
+</blockquote>
+<p>换句话说，全网诚实节点最终要对“哪些交易已经发生、哪些 BTC 属于谁”达成一致。</p>
+<p>而账本内容由谁写入？</p>
+<p>答案是：<br>成功求解 PoW 难题、获得记账权的节点。</p>
+<p>这就是为什么说比特币共识是“按算力投票”：</p>
+<ul>
+<li>能否获得记账权，取决于能否找到合法 <code>nonce</code>；</li>
+<li>找到合法 <code>nonce</code> 的概率，取决于 <code>hash rate</code>；</li>
+<li><code>hash rate</code> 越高，获得记账权的概率越高；</li>
+<li>创建更多账户并不能提高 <code>hash rate</code>。</li>
+</ul>
+<h3 id="4-13-挖矿的含义"><a href="#4-13-挖矿的含义" class="headerlink" title="4.13 挖矿的含义"></a>4.13 挖矿的含义</h3><p><code>mining</code> 是对比特币争夺记账权过程的形象比喻。</p>
+<p>它类似淘金：</p>
+<ul>
+<li>搜索空间很大；</li>
+<li>找到合法结果的概率很小；</li>
+<li>需要不断尝试；</li>
+<li>一旦成功，就能获得较高奖励。</li>
+</ul>
+<p>在比特币中，矿工不是在物理上挖黄金，而是在哈希空间中寻找满足难度目标的 <code>nonce</code>。</p>
+<p>所以，“挖到矿”本质上就是：</p>
+<blockquote>
+<p>找到了一个让区块头哈希满足目标阈值的 <code>nonce</code>，从而获得了发布新区块和领取出块奖励的资格。</p>
+</blockquote>
+<h2 id="5-关键机制图解"><a href="#5-关键机制图解" class="headerlink" title="5. 关键机制图解"></a>5. 关键机制图解</h2><h3 id="5-1-挖矿与区块验证流程"><a href="#5-1-挖矿与区块验证流程" class="headerlink" title="5.1 挖矿与区块验证流程"></a>5.1 挖矿与区块验证流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[矿工收集交易] --&gt; B[组装候选区块]</span><br><span class="line">    B --&gt; C[构造 block header]</span><br><span class="line">    C --&gt; D[不断尝试 nonce]</span><br><span class="line">    D --&gt; E&#123;Hash &lt;= target?&#125;</span><br><span class="line"></span><br><span class="line">    E -- 否 --&gt; D</span><br><span class="line">    E -- 是 --&gt; F[获得记账权]</span><br><span class="line">    F --&gt; G[广播新区块]</span><br><span class="line"></span><br><span class="line">    G --&gt; H[其他节点验证]</span><br><span class="line">    H --&gt; I&#123;block header 合法?&#125;</span><br><span class="line">    I -- 否 --&gt; X[拒绝区块]</span><br><span class="line">    I -- 是 --&gt; J&#123;交易合法?&#125;</span><br><span class="line">    J -- 否 --&gt; X</span><br><span class="line">    J -- 是 --&gt; K&#123;扩展最长合法链?&#125;</span><br><span class="line">    K -- 否 --&gt; Y[不作为主链接受]</span><br><span class="line">    K -- 是 --&gt; Z[接受并继续扩展]</span><br></pre></td></tr></table></figure>
+
+<p>这张图展示了 PoW 共识的完整主干。矿工先通过不断尝试 <code>nonce</code> 来争夺记账权；其他节点收到区块后，要同时验证区块头、交易内容和它是否扩展最长合法链。</p>
+<h3 id="5-2-正常分叉与最长合法链选择"><a href="#5-2-正常分叉与最长合法链选择" class="headerlink" title="5.2 正常分叉与最长合法链选择"></a>5.2 正常分叉与最长合法链选择</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[已有主链末端] --&gt; B1[矿工1挖出区块 B1]</span><br><span class="line">    A --&gt; B2[矿工2挖出区块 B2]</span><br><span class="line"></span><br><span class="line">    B1 --&gt; C1[部分节点沿 B1 挖矿]</span><br><span class="line">    B2 --&gt; C2[部分节点沿 B2 挖矿]</span><br><span class="line"></span><br><span class="line">    C2 --&gt; D2[先挖出新区块]</span><br><span class="line">    D2 --&gt; E[B2 分支变成最长合法链]</span><br><span class="line">    C1 --&gt; F[B1 分支成为 orphan block]</span><br></pre></td></tr></table></figure>
+
+<p>这张图说明，正常网络延迟会导致临时性分叉。等长分叉出现后，节点通常先接受自己最早收到的区块。随后，先被继续扩展的分支成为最长合法链，另一条分支被抛弃。</p>
+<h3 id="5-3-出块奖励与-coinbase-transaction"><a href="#5-3-出块奖励与-coinbase-transaction" class="headerlink" title="5.3 出块奖励与 coinbase transaction"></a>5.3 出块奖励与 <code>coinbase transaction</code></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    A[矿工成功挖出区块] --&gt; B[获得发布区块资格]</span><br><span class="line">    B --&gt; C[在区块中加入 coinbase transaction]</span><br><span class="line">    C --&gt; D[发行新的 BTC]</span><br><span class="line">    D --&gt; E&#123;区块留在最长合法链上?&#125;</span><br><span class="line">    E -- 是 --&gt; F[奖励被网络承认]</span><br><span class="line">    E -- 否 --&gt; G[区块成为 orphan block]</span><br><span class="line">    G --&gt; H[奖励通常无法使用]</span><br></pre></td></tr></table></figure>
+
+<p>这张图强调：出块奖励不是只要写进区块就一定有效。只有区块最终处于最长合法链上，其中的 <code>coinbase transaction</code> 才会被诚实节点承认。</p>
+<h2 id="6-易混点与常见误解"><a href="#6-易混点与常见误解" class="headerlink" title="6. 易混点与常见误解"></a>6. 易混点与常见误解</h2><table>
+<thead>
+<tr>
+<th>易混点</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“区块里的交易都合法，所以一定会被接受”</td>
+<td>不一定。区块还必须扩展最长合法链。插入链中间的合法区块可能是分叉攻击的一部分。</td>
+</tr>
+<tr>
+<td>“double spending 是全网所有分叉一起检查”</td>
+<td>不是。判断 double spending 时，要看交易所在分支中该币是否被重复花费。</td>
+</tr>
+<tr>
+<td>“最长链就是区块数量最多的任意链”</td>
+<td>更准确地说，是最长合法链。非法交易、非法区块头的链不会被诚实节点接受。</td>
+</tr>
+<tr>
+<td>“分叉一定是攻击”</td>
+<td>不一定。两个矿工几乎同时挖出区块，也会导致正常的临时性分叉。</td>
+</tr>
+<tr>
+<td>“接受区块就是显式投票同意”</td>
+<td>比特币采用 <code>implicit consent</code>。节点继续沿某区块扩展，就表示认可它。</td>
+</tr>
+<tr>
+<td>“矿工挖出区块后奖励一定归自己”</td>
+<td>不一定。如果区块后来变成 <code>orphan block</code>，其中的奖励通常不会被主链接受。</td>
+</tr>
+<tr>
+<td>“创建更多账户可以提高投票权”</td>
+<td>在 PoW 中不行。投票权来自 <code>hash rate</code>，不是账户数量。</td>
+</tr>
+<tr>
+<td>“挖矿是在挖真实的币”</td>
+<td>挖矿是求解哈希难题。新 BTC 通过 <code>coinbase transaction</code> 发行。</td>
+</tr>
+</tbody></table>
+<h2 id="7-课堂外补充理解"><a href="#7-课堂外补充理解" class="headerlink" title="7. 课堂外补充理解"></a>7. 课堂外补充理解</h2><h3 id="7-1-为什么-PoW-可以缓解-Sybil-attack"><a href="#7-1-为什么-PoW-可以缓解-Sybil-attack" class="headerlink" title="7.1 为什么 PoW 可以缓解 Sybil attack"></a>7.1 为什么 PoW 可以缓解 <code>Sybil attack</code></h3><p>在普通投票系统中，如果没有身份认证，一个人可以创建大量虚假身份，从而操纵投票结果。</p>
+<p>但是在 PoW 中，投票权不是身份数量，而是算力。</p>
+<p>假设攻击者有一台机器：</p>
+<ul>
+<li>创建 1 个账户，机器每秒能算 100 次哈希；</li>
+<li>创建 10000 个账户，机器每秒仍然只能算 100 次哈希。</li>
+</ul>
+<p>账户数量变多，并不会让它尝试 <code>nonce</code> 的速度变快。</p>
+<p>所以，PoW 把“制造身份”的问题转换成“投入计算资源”的问题。攻击者要提高影响力，就必须投入真实算力，而不能只靠复制账号。</p>
+<h3 id="7-2-为什么挖矿结果具有概率性"><a href="#7-2-为什么挖矿结果具有概率性" class="headerlink" title="7.2 为什么挖矿结果具有概率性"></a>7.2 为什么挖矿结果具有概率性</h3><p>哈希函数的输出看起来近似随机。矿工尝试不同 <code>nonce</code> 时，无法提前知道哪个 <code>nonce</code> 会成功，只能不断试。</p>
+<p>因此，挖矿像抽奖：</p>
+<ul>
+<li><code>hash rate</code> 越高，单位时间内抽奖次数越多；</li>
+<li>抽奖次数越多，中奖概率越高；</li>
+<li>但某一次具体是谁先中奖，仍然有随机性。</li>
+</ul>
+<p>这就是为什么课程中说，分叉竞争时算力强的一方更有可能胜出，但算力较弱的一方也可能因为运气好先挖出下一个区块。</p>
+<h3 id="7-3-为什么“最长合法链”能稳定账本"><a href="#7-3-为什么“最长合法链”能稳定账本" class="headerlink" title="7.3 为什么“最长合法链”能稳定账本"></a>7.3 为什么“最长合法链”能稳定账本</h3><p>如果所有诚实节点都遵循最长合法链规则，那么网络会逐渐收敛到同一条链上。</p>
+<p>临时分叉刚出现时，不同节点可能选择不同分支；但一旦某个分支先被继续扩展，它就会更长，其他诚实节点会转向这条更长的合法链。</p>
+<p>这使得比特币账本不需要中心服务器，也能逐渐形成一致状态。</p>
+<h2 id="8-本节小结"><a href="#8-本节小结" class="headerlink" title="8. 本节小结"></a>8. 本节小结</h2><ol>
+<li>比特币通过 PoW 机制争夺记账权，本质是按算力投票，而不是按账户数量投票。</li>
+<li>矿工通过不断尝试 <code>nonce</code>，寻找使区块头哈希满足目标阈值的结果。</li>
+<li>其他节点收到新区块后，需要验证区块头、交易合法性，以及它是否扩展最长合法链。</li>
+<li>区块内容合法不代表一定会被接受；如果它试图插入链中间并回滚交易，就可能构成 <code>forking attack</code>。</li>
+<li>正常网络延迟也可能导致临时分叉，最终由最长合法链规则解决。</li>
+<li><code>coinbase transaction</code> 是比特币发行新币的唯一方式，出块奖励是矿工参与挖矿的重要激励。</li>
+<li><code>orphan block</code> 中的奖励通常无法使用，因为它不在被大多数诚实节点接受的主链上。</li>
+<li>比特币共识最终要达成一致的是去中心化账本的内容。</li>
+</ol>
+<h2 id="9-自测问题"><a href="#9-自测问题" class="headerlink" title="9. 自测问题"></a>9. 自测问题</h2><h3 id="1-比特币为什么不采用“一个账户一票”的机制？"><a href="#1-比特币为什么不采用“一个账户一票”的机制？" class="headerlink" title="1. 比特币为什么不采用“一个账户一票”的机制？"></a>1. 比特币为什么不采用“一个账户一票”的机制？</h3><p>参考答案：<br>因为账户可以低成本大量创建，会导致 <code>Sybil attack</code>。比特币改用按算力投票，账户数量不会直接增加获得记账权的概率。</p>
+<h3 id="2-矿工如何获得记账权？"><a href="#2-矿工如何获得记账权？" class="headerlink" title="2. 矿工如何获得记账权？"></a>2. 矿工如何获得记账权？</h3><p>参考答案：<br>矿工组装候选区块，然后不断尝试不同 <code>nonce</code>。如果某个 <code>nonce</code> 使 <code>Hash(block header) &lt;= target</code>，矿工就获得记账权，可以发布新区块。</p>
+<h3 id="3-其他节点收到新区块后主要验证什么？"><a href="#3-其他节点收到新区块后主要验证什么？" class="headerlink" title="3. 其他节点收到新区块后主要验证什么？"></a>3. 其他节点收到新区块后主要验证什么？</h3><p>参考答案：<br>主要验证三类内容：区块头是否合法，交易是否有合法签名且没有 double spending，以及该区块是否扩展最长合法链。</p>
+<h3 id="4-为什么一个交易合法的区块也可能不被接受？"><a href="#4-为什么一个交易合法的区块也可能不被接受？" class="headerlink" title="4. 为什么一个交易合法的区块也可能不被接受？"></a>4. 为什么一个交易合法的区块也可能不被接受？</h3><p>参考答案：<br>因为它可能没有接在最长合法链后面，而是插入链中间形成分叉，试图回滚已经发生的交易。比特币要求接受扩展最长合法链的区块。</p>
+<h3 id="5-正常情况下为什么也会出现分叉？"><a href="#5-正常情况下为什么也会出现分叉？" class="headerlink" title="5. 正常情况下为什么也会出现分叉？"></a>5. 正常情况下为什么也会出现分叉？</h3><p>参考答案：<br>两个矿工可能几乎同时找到合法 <code>nonce</code> 并广播区块。由于网络传播延迟，不同节点可能先收到不同区块，于是暂时沿不同分支扩展。</p>
+<h3 id="6-什么是-implicit-consent？"><a href="#6-什么是-implicit-consent？" class="headerlink" title="6. 什么是 implicit consent？"></a>6. 什么是 <code>implicit consent</code>？</h3><p>参考答案：<br>节点不需要显式投票。如果它沿着某个区块继续挖矿、扩展新区块，就表示它认可该区块。</p>
+<h3 id="7-orphan-block-中的出块奖励为什么通常不能用？"><a href="#7-orphan-block-中的出块奖励为什么通常不能用？" class="headerlink" title="7. orphan block 中的出块奖励为什么通常不能用？"></a>7. <code>orphan block</code> 中的出块奖励为什么通常不能用？</h3><p>参考答案：<br>因为该区块不在最终被接受的最长合法链上。诚实节点不会承认短分叉中的账本状态，所以其中的 <code>coinbase transaction</code> 奖励也通常无效。</p>
+<h3 id="8-比特币共识机制要取得的共识到底是什么？"><a href="#8-比特币共识机制要取得的共识到底是什么？" class="headerlink" title="8. 比特币共识机制要取得的共识到底是什么？"></a>8. 比特币共识机制要取得的共识到底是什么？</h3><p>参考答案：<br>是去中心化账本的内容，即哪些交易被确认、哪些 BTC 属于谁。PoW 决定谁有机会写入账本，最长合法链规则决定哪些写入最终被接受。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/')">第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励&amp;url=http://example.com/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/&amp;pic=/cover/juri.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/BTC/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>BTC<span class="tagsPageCount">5</span></a><a class="post-meta__box__tags" href="/tags/Bitcoin/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Bitcoin<span class="tagsPageCount">5</span></a><a class="post-meta__box__tags" href="/tags/ProofOfWork/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>ProofOfWork<span class="tagsPageCount">1</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/juri.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第 4 讲：BTC 协议（二）：共识问题与投票方案的局限</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/" title="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 4 讲：BTC 协议（二）：共识问题与投票方案的局限</div></div></a></div><div><a href="/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/" title="第 2 讲：BTC 密码学原理"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 2 讲：BTC 密码学原理</div></div></a></div><div><a href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="第 3 讲：BTC 数据结构"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/zangief.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 3 讲：BTC 数据结构</div></div></a></div><div><a href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE1/" title="第 4 讲：BTC 协议（一）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2026-05-30</div><div class="title">第 4 讲：BTC 协议（一）</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC-4-%E8%AE%B2%EF%BC%9ABTC-%E5%8D%8F%E8%AE%AE%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94PoW-%E5%85%B1%E8%AF%86%E3%80%81%E5%88%86%E5%8F%89%E4%B8%8E%E6%8C%96%E7%9F%BF%E5%A5%96%E5%8A%B1"><span class="toc-number">1.</span> <span class="toc-text">第 4 讲：BTC 协议（三）——PoW 共识、分叉与挖矿奖励</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%9C%AC%E8%8A%82%E4%B8%BB%E7%BA%BF"><span class="toc-number">1.1.</span> <span class="toc-text">1. 本节主线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E9%80%9F%E8%A7%88"><span class="toc-number">1.2.</span> <span class="toc-text">2. 核心概念速览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%9F%A5%E8%AF%86%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="toc-number">1.3.</span> <span class="toc-text">3. 知识结构图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AF%BE%E7%A8%8B%E5%86%85%E5%AE%B9%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.4.</span> <span class="toc-text">4. 课程内容详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%8D%E6%98%AF%E6%8C%89%E8%B4%A6%E6%88%B7%E6%8A%95%E7%A5%A8%EF%BC%8C%E8%80%8C%E6%98%AF%E6%8C%89%E7%AE%97%E5%8A%9B%E6%8A%95%E7%A5%A8"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 比特币不是按账户投票，而是按算力投票</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E8%AE%B0%E8%B4%A6%E6%9D%83%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%EF%BC%9A%E5%B0%9D%E8%AF%95-nonce"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 记账权如何获得：尝试 nonce</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E5%85%B6%E4%BB%96%E8%8A%82%E7%82%B9%E5%A6%82%E4%BD%95%E9%AA%8C%E8%AF%81%E6%96%B0%E5%8C%BA%E5%9D%97"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 其他节点如何验证新区块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9C%E5%90%88%E6%B3%95%E5%8C%BA%E5%9D%97%E2%80%9D%E4%B9%9F%E5%8F%AF%E8%83%BD%E4%B8%8D%E8%A2%AB%E6%8E%A5%E5%8F%97"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.4 为什么“合法区块”也可能不被接受</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-double-spending-%E7%9A%84%E5%88%A4%E6%96%AD%E4%BE%9D%E8%B5%96%E6%89%80%E5%9C%A8%E5%88%86%E6%94%AF"><span class="toc-number">1.4.5.</span> <span class="toc-text">4.5 double spending 的判断依赖所在分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-%E6%AD%A3%E5%B8%B8%E6%83%85%E5%86%B5%E4%B8%8B%E4%B9%9F%E4%BC%9A%E4%BA%A7%E7%94%9F%E5%88%86%E5%8F%89"><span class="toc-number">1.4.6.</span> <span class="toc-text">4.6 正常情况下也会产生分叉</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-7-implicit-consent%EF%BC%9A%E5%A6%82%E4%BD%95%E8%A1%A8%E8%BE%BE%E2%80%9C%E6%88%91%E8%AE%A4%E5%8F%AF%E8%BF%99%E4%B8%AA%E5%8C%BA%E5%9D%97%E2%80%9D"><span class="toc-number">1.4.7.</span> <span class="toc-text">4.7 implicit consent：如何表达“我认可这个区块”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-8-%E4%B8%B4%E6%97%B6%E5%88%86%E5%8F%89%E5%A6%82%E4%BD%95%E8%A2%AB%E8%A7%A3%E5%86%B3"><span class="toc-number">1.4.8.</span> <span class="toc-text">4.8 临时分叉如何被解决</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-9-%E5%87%BA%E5%9D%97%E5%A5%96%E5%8A%B1%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9F%BF%E5%B7%A5%E6%84%BF%E6%84%8F%E6%B6%88%E8%80%97%E7%AE%97%E5%8A%9B"><span class="toc-number">1.4.9.</span> <span class="toc-text">4.9 出块奖励：为什么矿工愿意消耗算力</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-10-%E5%87%BA%E5%9D%97%E5%A5%96%E5%8A%B1%E5%87%8F%E5%8D%8A"><span class="toc-number">1.4.10.</span> <span class="toc-text">4.10 出块奖励减半</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-11-orphan-block-%E4%B8%AD%E7%9A%84%E5%A5%96%E5%8A%B1%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%9A%E5%B8%B8%E6%B2%A1%E7%94%A8"><span class="toc-number">1.4.11.</span> <span class="toc-text">4.11 orphan block 中的奖励为什么通常没用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-12-%E6%AF%94%E7%89%B9%E5%B8%81%E5%85%B1%E8%AF%86%E5%88%B0%E5%BA%95%E5%9C%A8%E5%85%B1%E8%AF%86%E4%BB%80%E4%B9%88"><span class="toc-number">1.4.12.</span> <span class="toc-text">4.12 比特币共识到底在共识什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-13-%E6%8C%96%E7%9F%BF%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-number">1.4.13.</span> <span class="toc-text">4.13 挖矿的含义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6%E5%9B%BE%E8%A7%A3"><span class="toc-number">1.5.</span> <span class="toc-text">5. 关键机制图解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%8C%96%E7%9F%BF%E4%B8%8E%E5%8C%BA%E5%9D%97%E9%AA%8C%E8%AF%81%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.1.</span> <span class="toc-text">5.1 挖矿与区块验证流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E6%AD%A3%E5%B8%B8%E5%88%86%E5%8F%89%E4%B8%8E%E6%9C%80%E9%95%BF%E5%90%88%E6%B3%95%E9%93%BE%E9%80%89%E6%8B%A9"><span class="toc-number">1.5.2.</span> <span class="toc-text">5.2 正常分叉与最长合法链选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E5%87%BA%E5%9D%97%E5%A5%96%E5%8A%B1%E4%B8%8E-coinbase-transaction"><span class="toc-number">1.5.3.</span> <span class="toc-text">5.3 出块奖励与 coinbase transaction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%98%93%E6%B7%B7%E7%82%B9%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%AF%AF%E8%A7%A3"><span class="toc-number">1.6.</span> <span class="toc-text">6. 易混点与常见误解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E8%AF%BE%E5%A0%82%E5%A4%96%E8%A1%A5%E5%85%85%E7%90%86%E8%A7%A3"><span class="toc-number">1.7.</span> <span class="toc-text">7. 课堂外补充理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E4%B8%BA%E4%BB%80%E4%B9%88-PoW-%E5%8F%AF%E4%BB%A5%E7%BC%93%E8%A7%A3-Sybil-attack"><span class="toc-number">1.7.1.</span> <span class="toc-text">7.1 为什么 PoW 可以缓解 Sybil attack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%8C%96%E7%9F%BF%E7%BB%93%E6%9E%9C%E5%85%B7%E6%9C%89%E6%A6%82%E7%8E%87%E6%80%A7"><span class="toc-number">1.7.2.</span> <span class="toc-text">7.2 为什么挖矿结果具有概率性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9C%E6%9C%80%E9%95%BF%E5%90%88%E6%B3%95%E9%93%BE%E2%80%9D%E8%83%BD%E7%A8%B3%E5%AE%9A%E8%B4%A6%E6%9C%AC"><span class="toc-number">1.7.3.</span> <span class="toc-text">7.3 为什么“最长合法链”能稳定账本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%9C%AC%E8%8A%82%E5%B0%8F%E7%BB%93"><span class="toc-number">1.8.</span> <span class="toc-text">8. 本节小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E8%87%AA%E6%B5%8B%E9%97%AE%E9%A2%98"><span class="toc-number">1.9.</span> <span class="toc-text">9. 自测问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E9%87%87%E7%94%A8%E2%80%9C%E4%B8%80%E4%B8%AA%E8%B4%A6%E6%88%B7%E4%B8%80%E7%A5%A8%E2%80%9D%E7%9A%84%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="toc-number">1.9.1.</span> <span class="toc-text">1. 比特币为什么不采用“一个账户一票”的机制？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%9F%BF%E5%B7%A5%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%E8%AE%B0%E8%B4%A6%E6%9D%83%EF%BC%9F"><span class="toc-number">1.9.2.</span> <span class="toc-text">2. 矿工如何获得记账权？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B6%E4%BB%96%E8%8A%82%E7%82%B9%E6%94%B6%E5%88%B0%E6%96%B0%E5%8C%BA%E5%9D%97%E5%90%8E%E4%B8%BB%E8%A6%81%E9%AA%8C%E8%AF%81%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.9.3.</span> <span class="toc-text">3. 其他节点收到新区块后主要验证什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%80%E4%B8%AA%E4%BA%A4%E6%98%93%E5%90%88%E6%B3%95%E7%9A%84%E5%8C%BA%E5%9D%97%E4%B9%9F%E5%8F%AF%E8%83%BD%E4%B8%8D%E8%A2%AB%E6%8E%A5%E5%8F%97%EF%BC%9F"><span class="toc-number">1.9.4.</span> <span class="toc-text">4. 为什么一个交易合法的区块也可能不被接受？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%AD%A3%E5%B8%B8%E6%83%85%E5%86%B5%E4%B8%8B%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B9%9F%E4%BC%9A%E5%87%BA%E7%8E%B0%E5%88%86%E5%8F%89%EF%BC%9F"><span class="toc-number">1.9.5.</span> <span class="toc-text">5. 正常情况下为什么也会出现分叉？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E4%BB%80%E4%B9%88%E6%98%AF-implicit-consent%EF%BC%9F"><span class="toc-number">1.9.6.</span> <span class="toc-text">6. 什么是 implicit consent？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-orphan-block-%E4%B8%AD%E7%9A%84%E5%87%BA%E5%9D%97%E5%A5%96%E5%8A%B1%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%9A%E5%B8%B8%E4%B8%8D%E8%83%BD%E7%94%A8%EF%BC%9F"><span class="toc-number">1.9.7.</span> <span class="toc-text">7. orphan block 中的出块奖励为什么通常不能用？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E6%AF%94%E7%89%B9%E5%B8%81%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E8%A6%81%E5%8F%96%E5%BE%97%E7%9A%84%E5%85%B1%E8%AF%86%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.9.8.</span> <span class="toc-text">8. 比特币共识机制要取得的共识到底是什么？</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/" title="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励"/></a><div class="content"><a class="title" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE3/" title="第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励">第 4 讲：BTC 协议（三）：PoW 共识、分叉与挖矿奖励</a><time datetime="2026-05-30T08:36:18.000Z" title="Created 2026-05-30 16:36:18">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/" title="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限"/></a><div class="content"><a class="title" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE2/" title="第 4 讲：BTC 协议（二）：共识问题与投票方案的局限">第 4 讲：BTC 协议（二）：共识问题与投票方案的局限</a><time datetime="2026-05-30T08:33:55.000Z" title="Created 2026-05-30 16:33:55">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE1/" title="第 4 讲：BTC 协议（一）"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 讲：BTC 协议（一）"/></a><div class="content"><a class="title" href="/2026/05/30/04-BTC-%E5%8D%8F%E8%AE%AE1/" title="第 4 讲：BTC 协议（一）">第 4 讲：BTC 协议（一）</a><time datetime="2026-05-30T08:26:01.000Z" title="Created 2026-05-30 16:26:01">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="第 3 讲：BTC 数据结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/zangief.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 讲：BTC 数据结构"/></a><div class="content"><a class="title" href="/2026/05/30/03-BTC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" title="第 3 讲：BTC 数据结构">第 3 讲：BTC 数据结构</a><time datetime="2026-05-30T08:08:49.000Z" title="Created 2026-05-30 16:08:49">2026-05-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/" title="第 2 讲：BTC 密码学原理"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 讲：BTC 密码学原理"/></a><div class="content"><a class="title" href="/2026/05/30/02-BTC-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%8E%9F%E7%90%86/" title="第 2 讲：BTC 密码学原理">第 2 讲：BTC 密码学原理</a><time datetime="2026-05-30T08:08:45.000Z" title="Created 2026-05-30 16:08:45">2026-05-30</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">19</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">6</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>5</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>5</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
