@@ -1,0 +1,1398 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第10讲 进程与线程II | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第10讲 进程与线程II"><meta name="application-name" content="第10讲 进程与线程II"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第10讲 进程与线程II"><meta property="og:url" content="http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="进程与线程 II：线程模型、TCB&amp;#x2F;TLS 与纤程协程的完整理解本文根据《第10讲 进程与线程II.md》的对话内容整理而成，目标是把原始问答重构为一篇可独立阅读、可复习、可维护的正式学习文档。  引言：本讲的核心问题“进程与线程 I”主要解释进程：程序如何变成进程，操作系统如何用 PCB"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/juri.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/juri.png"><meta name="description" content="进程与线程 II：线程模型、TCB&amp;#x2F;TLS 与纤程协程的完整理解本文根据《第10讲 进程与线程II.md》的对话内容整理而成，目标是把原始问答重构为一篇可独立阅读、可复习、可维护的正式学习文档。  引言：本讲的核心问题“进程与线程 I”主要解释进程：程序如何变成进程，操作系统如何用 PCB"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第10讲 进程与线程II',
+  postAI: '',
+  pageFillDescription: '进程与线程 II：线程模型、TCBx2FTLS 与纤程协程的完整理解, 引言：本讲的核心问题, 1. 为什么需要线程, 2. 线程和进程的基本区别, 3. 共享地址空间不等于所有变量都共享, 3.1 普通全局变量：通常共享, 3.2 栈变量：每个线程天然独有, 3.3 TLS 变量：形式像全局变量但每个线程有一份, 4. 用户态线程和内核态线程, 4.1 内核态线程, 4.2 用户态线程, 4.3 二者对比, 5. 三种线程模型中的对是什么意思, 6. 多对一模型, 7. 一对一模型, 8. 多对多模型, 9. TCB：线程控制块, 10. TLS：线程本地存储, 11. pthread 的基本操作, 11.1 pthread_create：创建线程, 11.2 pthread_join：等待线程结束, 11.3 pthread_exit：线程主动退出, 11.4 pthread_yield：主动让出 CPU, 12. join 放在哪里：串行还是并行, 13. 线程上下文切换, 13.1 第一步：进入内核态并保存上下文, 13.2 第二步：切换页表和内核栈, 13.3 第三步：恢复上下文并返回用户态, 14. 一对一线程模型的局限, 15. 纤程：用户态管理的轻量执行流, 16. ucontext：用户态上下文切换, 17. 协程：语言级轻量执行流, 18. Go 协程：goroutine, 19. 核心概念总表, 20. 本讲最重要的结论, 结论进程与线程线程模型与纤程协程的完整理解本文根据第讲进程与线程的对话内容整理而成目标是把原始问答重构为一篇可独立阅读可复习可维护的正式学习文档引言本讲的核心问题进程与线程主要解释进程程序如何变成进程操作系统如何用管理进程以及如何构成进程生命周期进程与线程的主线则进一步推进进程太重所以引入线程内核线程仍然有开销所以进一步引入用户态线程纤程和协程本讲要解决的核心问题不是线程是什么这一句定义而是以下几个问题为什么进程内部还需要线程线程和进程到底共享什么独占什么用户态线程和内核态线程如何区分多对一一对一多对多模型中的对到底是什么意思和分别解决什么问题的创建等待退出和让出如何理解线程上下文切换到底发生了什么纤程和协程为什么比线程更轻量整节课的逻辑可以概括为进程太重线程进程内更轻量的执行流内核线程仍有创建与切换开销用户态线程纤程协程由用户态或语言运行时调度的轻量执行流为什么需要线程进程是操作系统管理程序运行的基本抽象但进程本身比较重一个进程不仅包含执行状态还包含代码数据堆栈页表文件描述符地址空间等资源创建一个进程意味着操作系统要准备一整套运行环境这带来三个问题第一创建进程开销大如果一个任务很短却每次都创建一个新进程创建和销毁本身就会变成明显负担第二进程间通信开销大不同进程拥有不同地址空间彼此不能直接访问对方的数据如果要交互通常需要安全但比同一地址空间内的变量访问函数调用要重得多第三单个进程内部需要多个执行流例如浏览器可能同时需要处理页面渲染网络请求音频播放用户输入和脚本执行如果一个进程内部只有一个执行流这些任务就只能排队执行因此操作系统引入线程线程是进程内部更轻量的执行流线程让一个进程内部可以同时存在多个执行路径它们共享进程提供的资源但各自拥有自己的运行状态线程和进程的基本区别可以用一句话区分进程和线程进程是资源分配单位线程是调度和执行单位进程像一家公司拥有办公楼资产文件和制度线程像公司里的员工每个员工有自己的工作状态和执行路线但共享公司的资源对比项进程线程基本角色资源分配单位执行与调度单位地址空间进程之间通常独立同一进程内线程共享创建开销较大较小通信方式较重共享内存较轻隔离性强弱崩溃影响通常影响本进程一个线程出错可能带崩整个进程调度早期可作为调度单位现代系统主要调度线程线程自己的内容主要包括程序计数器寄存器状态用户栈内核栈线程状态线程优先级调度相关信息线程共享的内容主要包括代码段数据段堆区域文件描述符进程级资源同一个虚拟地址空间因此多线程的本质是多个执行流共享同一套进程资源但每个执行流有自己的运行现场共享地址空间不等于所有变量都共享一个容易误解的点是既然同一进程内多个线程共享地址空间那是不是所有变量都共享答案是否定的更准确地说多线程共享同一个虚拟地址空间但并不意味着所有变量实例都只有一份多线程中的变量可以分成三类普通全局变量通常共享例如多个线程访问的是同一个如果多个线程同时执行就可能发生数据竞争因为通常不是一个原子操作而可能被拆成读取变量加一写回变量多个线程交错执行时可能造成更新丢失栈变量每个线程天然独有例如如果多个线程都执行每个线程都有自己的用户栈所以每个线程都有自己的这些变量名字一样但位于不同线程的栈上不是同一个内存位置变量形式像全局变量但每个线程有一份例如这类变量看起来像全局变量但每个线程都有自己的副本可以理解为线程的区线程的区线程的区代码里都写但不同线程访问的是自己区中的所以更精确的结论是同一进程内的多线程共享地址空间普通全局变量和堆对象通常共享每个线程的栈变量天然独立被声明为的变量虽然形式上像全局变量但每个线程有自己的副本用户态线程和内核态线程线程可以按照是否由内核直接管理分成两类内核态线程用户态线程这里的内核态线程并不是说这个线程永远运行在内核态用户态线程也不是说它只能执行普通用户代码真正的区分点是谁知道它谁管理它谁调度它内核态线程内核态线程是由操作系统内核创建记录调度和切换的线程它的特点是内核知道它的存在内核调度器可以直接调度它它通常有对应的内核数据结构它可以被分配到不同核心上运行创建和切换通常涉及内核开销相对更大例如在主流实现中创建的通常对应一个内核调度实体这个线程执行用户函数时当然是在用户态运行但它背后的调度对象由内核管理因此内核态线程的重点不是它运行的代码位置而是它是否是内核可见内核可调度的对象用户态线程用户态线程是由用户态线程库或语言运行时管理的轻量执行流内核通常不知道每一个用户态线程的存在它的特点是内核不直接知道它用户态运行时或线程库管理它用户态调度器负责切换它切换通常不需要进入内核创建和切换开销较小是否能利用多核取决于它映射到底层几个内核线程上可以用下面的结构理解内核眼中一个内核线程用户态运行时眼中上轮流运行内核只看见但用户态运行时知道自己内部还有多个用户态执行流二者对比对比项用户态线程内核态线程内核是否直接可见通常不可见可见谁创建用户态线程库语言运行时操作系统内核谁调度用户态调度器内核调度器切换是否进入内核通常不需要通常需要切换开销小较大多核并行能力取决于映射到几个内核线程可以直接被内核分配到多核阻塞影响一个底层内核线程阻塞可能影响其上多个用户线程一个线程阻塞通常不影响其他内核线程典型例子协程运行时内部任务背后的核心结论是用户态线程和内核态线程的区别不在于代码是否运行在用户态而在于线程由谁管理谁调度内核是否看得见三种线程模型中的对是什么意思线程模型中的多对一一对一多对多讨论的是用户态线程和内核态线程之间的映射关系这里的对可以理解为上层用户态执行流如何借助下层内核调度实体获得执行机会用户态线程本身不能直接占用真正能被操作系统调度到上执行的是内核态线程因此用户态线程必须映射或挂靠到某个内核线程上才能真正运行可以把用户态线程理解为任务把内核态线程理解为跑道模型类比多对一很多任务共用一条跑道一对一一个任务配一条跑道多对多很多任务共用多条跑道多对一模型多对一模型是多个用户态线程映射到一个内核态线程用户态内核态在这个模型中内核只知道一个内核线程不知道用户态内部还有它的优点是用户态线程创建快用户态切换快不需要频繁进入内核内核管理简单它的缺点也很明显不能真正利用多核一个底层内核线程阻塞可能影响其上的所有用户态线程可扩展性较差最直白地说多对一模型中用户态觉得我有很多线程但内核觉得你只有一个线程一对一模型一对一模型是一个用户态线程对应一个内核态线程用户态内核态在这个模型中每个用户态线程都有一个对应的内核线程内核能看见每个线程也能分别调度它们它的优点是可以利用多核一个线程阻塞不一定阻塞其他线程调度由内核统一管理更符合现代操作系统的调度机制它的缺点是内核线程数量可能很多创建销毁切换都有内核开销大量短命线程会造成明显负担等主流系统通常采用一对一模型最直白地说一对一模型中用户态觉得我有几个线程内核也基本觉得你有几个线程多对多模型多对多模型是个用户态线程映射到个内核态线程通常用户态内核态它试图同时解决多对一和一对一的问题相比多对一它可以利用多个内核线程从而更好地利用多核相比一对一它不要求每个用户态线程都对应一个内核线程可以减少内核线程数量它的优点是能利用多核能控制内核线程数量适合大量用户态执行流理论上更加灵活它的缺点是管理复杂用户态调度器和内核调度器需要配合实现难度高最直白地说多对多模型中用户态线程很多但真正交给内核调度的线程数量被控制住线程控制块之前学习进程时有即对应地线程也有即用于保存线程相关信息例如线程线程状态线程优先级寄存器上下文栈指针信息调度相关信息如果说是进程的档案袋那么就是线程的档案袋在线程模型中可能分成内核态部分和用户态部分部分作用内核态由内核维护支持调度上下文切换内核栈等用户态由线程库维护保存结构用户栈等在中进程和线程在内核层面都可以看作常用同一种核心数据结构表示它们的差别主要不在于是不是而在于共享资源的程度不同可以概括为内核中进程和线程都可被看作调度实体线程与进程的差异主要体现在地址空间文件表等资源是否共享线程本地存储是即线程本地存储它解决的问题是多线程共享地址空间但有些变量需要每个线程各自拥有一份普通全局变量默认共享如果线程修改它线程也能看到但有些变量虽然写起来像全局变量却不应该被所有线程共享例如如果多个线程同时调用系统库函数出错每个线程都应该看到自己的错误码而不是互相覆盖因此需要它表示每个线程都有自己的的访问通常可以通过或特定线程寄存器完成寻址方式可以理解为线程本地区域基地址变量偏移量所以的关键不是变量名不同而是同一个变量名在不同线程中对应不同的存储实例的基本操作是线程库常见操作包括创建线程典型形式如下它的作用是创建一个新线程并让新线程从指定函数开始执行在一对一模型下往往涉及两层工作层次工作内核态创建对应内核线程准备内核栈加入调度系统应用态创建结构准备用户栈建立因此虽然比进程轻但并不是没有成本等待线程结束典型形式如下它的作用是等待指定线程结束获取该线程的返回值回收相关线程资源可以把它理解为分出一条执行流等这条执行流结束因此有点像的逆向操作是分出去是等回来线程主动退出典型形式如下它让当前线程退出并可以提供返回值这个返回值可以被其他线程通过获取主动让出的含义是当前线程主动暂停让调度器有机会运行其他线程它不是结束线程而是当前线程说我现在可以先不运行可以给其他线程放在哪里串行还是并行线程题里一个高频考点是的位置如果写成这基本不是并行执行因为每创建一个线程主线程马上等待它结束执行顺序近似为完成完成完成如果每个线程执行那么结果通常稳定为后后后但如果写成这时三个线程可能并行执行由于不是原子操作最终结果不一定可靠循环次数越大数据竞争越容易表现出来核心判断方法是创建一个就立刻基本串行先全部再全部可能并行需要考虑数据竞争线程上下文切换线程上下文切换是本讲较硬的部分它回答的是如何从线程切换到线程并让从上次暂停的位置继续执行线程上下文通常包括通用寄存器程序计数器用户栈指针内核栈指针状态寄存器页表相关寄存器其他体系结构相关状态以一对一线程模型为例线程是内核调度对象因此线程切换通常需要进入内核整体流程可以分为三步进入内核态并保存当前线程上下文切换页表和内核栈恢复目标线程上下文并返回用户态第一步进入内核态并保存上下文线程正在用户态执行时可能因为以下原因进入内核时钟中断系统调用异常缺页事件进入内核后硬件通常会自动保存一部分状态例如用户态状态用户栈与内核栈切换相关信息然后内核软件继续保存通用寄存器等状态到线程的内核栈或中第二步切换页表和内核栈调度器选择线程后内核需要切换到的运行环境这一步包括切换地址空间或页表找到线程的找到线程的内核栈修改内核栈指针切换到的内核栈这里有一个非常重要的理解切换内核栈可以看作线程切换的分界点原因是切换内核栈之后接下来恢复上下文时恢复代码会从目标线程的内核栈中取出之前保存的上下文也就是说从此刻开始内核虽然还在执行同一段切换代码但它已经站在的执行现场上继续恢复了第三步恢复上下文并返回用户态内核从线程的保存区域中恢复通用寄存器用户栈指针程序计数器状态其他必要状态最后执行返回用户态的指令此时回到线程的用户态执行位置像是从上次被暂停的地方继续运行可以用一条链路表示线程用户栈线程内核栈线程内核栈线程用户栈这说明线程上下文切换不仅是保存和恢复寄存器还涉及权限级别栈页表调度实体等多个层面的切换一对一线程模型的局限一对一线程模型是主流系统常用模型但它并不完美它的主要问题有两个第一内核调度器不了解应用内部逻辑例如生产者消费者模型中生产者刚生产完数据后消费者最好马上运行但内核调度器未必知道这种应用级关系因此不一定做出最符合业务逻辑的调度选择第二短命线程开销太大如果一个请求只需要亚毫秒级时间但每个请求都创建一个内核线程那么创建销毁和上下文切换的成本可能超过任务本身因此需要更轻量更接近用户态逻辑的执行流这就引出了纤程和协程纤程用户态管理的轻量执行流纤程可以理解为用户态管理的轻量级线程它不单独对应一个内核线程一个内核线程上可以运行多个纤程内核眼中可能只有一个内核线程但用户态运行时眼中有纤程纤程的优点包括不需要创建新的内核线程创建开销小切换不需要进入内核上下文切换快用户态可以自主调度更适合短任务和高并发场景但它也有限制内核不能直接调度每个纤程如果底层内核线程阻塞其上的纤程可能受到影响是否能利用多核取决于运行时如何映射到底层内核线程可以对比如下对象谁管理切换是否进内核能否被内核直接调度内核线程操作系统通常需要可以纤程用户态库运行时通常不需要不可以协程编程语言运行时通常不需要不可以直接调度用户态上下文切换中曾提供相关接口用于保存和切换用户态上下文常见接口包括接口作用保存当前上下文切换到指定上下文创建新的上下文每个可以看成一个用户态执行流的上下文经典例子输出是原因如下第一次执行保存当前上下文此时进入打印第一句调用执行使回到之前保存的上下文程序像是再次从返回但此时所以进入打印第二句这个例子说明用户态上下文切换可以让程序跳回一个先前保存的执行现场但全局状态的变化仍然保留协程语言级轻量执行流协程和纤程非常接近但使用语境略有不同纤程偏操作系统或运行时概念协程偏编程语言概念协程通常由语言运行时管理常见于等语言或标准中协程常见状态包括新生运行暂停终止协程的核心操作是操作含义主动暂停把控制权交出去恢复执行从暂停位置继续协程的优势在于创建轻量切换轻量适合大量并发任务可以由语言运行时根据应用逻辑调度不必每个任务都对应一个内核线程协程语言使用关键字启动这表示启动一个轻量执行流由运行时管理典型网络服务器例子如下每来一个连接就启动一个处理如果使用传统内核线程每个请求一个线程开销可能很大则可以由运行时把大量轻量任务映射到较少的内核线程上适合高并发网络服务因此可以看作一种语言运行时管理的轻量执行流它不是简单等同于内核线程而是由调度和管理核心概念总表概念核心含义谁管理是否共享地址空间开销进程资源分配单位内核进程间通常不共享最大线程进程内执行流内核线程库同进程线程共享中等用户态线程用户态管理的执行流用户态库运行时通常共享小内核态线程内核调度实体内核取决于所属进程中等纤程用户态轻量线程用户态库运行时通常共享小协程语言级轻量执行流语言运行时通常共享小线程控制块内核线程库不适用用于管理线程线程本地存储运行时编译器系统支持每线程一份变量实例用于隔离线程变量本讲最重要的结论本讲可以压缩成以下几句话进程是资源分配单位线程是执行和调度单位线程比进程轻因为同一进程内线程共享代码数据堆和地址空间多线程共享地址空间但不代表所有变量都共享每个线程有自己的栈寄存器上下文和让某些看似全局的变量变成每个线程一份用户态线程和内核态线程的区别在于谁管理谁调度内核是否看得见线程模型中的对表示用户态线程和内核态线程之间的映射关系多对一切换快但难以利用多核一对一能利用多核但内核开销大多对多理论灵活但实现复杂的分出执行流等待执行流结束线程上下文切换的关键步骤是保存当前上下文切换内核栈和页表恢复目标上下文纤程和协程通过用户态调度降低切换成本适合大量短任务和高并发场景结论进程与线程的中心思想是执行流的层层轻量化最初操作系统用进程管理程序运行但进程太重于是引入线程线程共享进程资源只保留独立执行所需的最小运行状态随后内核线程虽然能利用多核但创建和切换仍有成本于是用户态线程纤程和协程继续把调度权上移到用户态或语言运行时这条主线可以总结为进程拥有资源线程共享资源并执行代码用户态线程纤程协程更轻量地组织大量执行流真正理解本讲的关键不是背下每个名词而是抓住三个层次资源层次进程提供地址空间代码数据堆和文件等资源执行层次线程在进程资源之上独立执行拥有自己的栈和上下文调度层次内核线程由操作系统调度用户态线程纤程和协程由用户态运行时调度把这三个层次区分清楚用户态线程内核态线程三种线程模型上下文切换纤程和协程就能连成一套完整机制',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-11 10:51:43',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">23</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">第10讲 进程与线程II</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:43.000Z" title="Created 2026-06-11 10:51:43">2026-06-11</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:43.616Z" title="Updated 2026-06-11 10:51:43">2026-06-11</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">7k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>21min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/juri.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/"><header><h1 id="CrawlerTitle" itemprop="name headline">第10讲 进程与线程II</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:43.000Z" title="Created 2026-06-11 10:51:43">2026-06-11</time><time itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:43.616Z" title="Updated 2026-06-11 10:51:43">2026-06-11</time></header><h1 id="进程与线程-II：线程模型、TCB-TLS-与纤程协程的完整理解"><a href="#进程与线程-II：线程模型、TCB-TLS-与纤程协程的完整理解" class="headerlink" title="进程与线程 II：线程模型、TCB&#x2F;TLS 与纤程协程的完整理解"></a>进程与线程 II：线程模型、TCB&#x2F;TLS 与纤程协程的完整理解</h1><p>本文根据《第10讲 进程与线程II.md》的对话内容整理而成，目标是把原始问答重构为一篇可独立阅读、可复习、可维护的正式学习文档。</p>
+<hr>
+<h2 id="引言：本讲的核心问题"><a href="#引言：本讲的核心问题" class="headerlink" title="引言：本讲的核心问题"></a>引言：本讲的核心问题</h2><p>“进程与线程 I”主要解释进程：程序如何变成进程，操作系统如何用 PCB 管理进程，以及 <code>fork</code>、<code>exec</code>、<code>wait</code>、<code>exit</code> 如何构成进程生命周期。</p>
+<p>“进程与线程 II”的主线则进一步推进：</p>
+<blockquote>
+<p>进程太重，所以引入线程；内核线程仍然有开销，所以进一步引入用户态线程、纤程和协程。</p>
+</blockquote>
+<p>本讲要解决的核心问题不是“线程是什么”这一句定义，而是以下几个问题：</p>
+<ol>
+<li>为什么进程内部还需要线程？</li>
+<li>线程和进程到底共享什么、独占什么？</li>
+<li>用户态线程和内核态线程如何区分？</li>
+<li>多对一、一对一、多对多模型中的“对”到底是什么意思？</li>
+<li>TCB 和 TLS 分别解决什么问题？</li>
+<li>pthread 的创建、等待、退出和让出 CPU 如何理解？</li>
+<li>线程上下文切换到底发生了什么？</li>
+<li>纤程和协程为什么比线程更轻量？</li>
+</ol>
+<p>整节课的逻辑可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">进程太重</span><br><span class="line">  ↓</span><br><span class="line">线程：进程内更轻量的执行流</span><br><span class="line">  ↓</span><br><span class="line">内核线程仍有创建与切换开销</span><br><span class="line">  ↓</span><br><span class="line">用户态线程 / 纤程 / 协程：由用户态或语言运行时调度的轻量执行流</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1-为什么需要线程"><a href="#1-为什么需要线程" class="headerlink" title="1. 为什么需要线程"></a>1. 为什么需要线程</h2><p>进程是操作系统管理程序运行的基本抽象，但进程本身比较重。一个进程不仅包含执行状态，还包含代码、数据、堆、栈、页表、文件描述符、地址空间等资源。创建一个进程，意味着操作系统要准备一整套运行环境。</p>
+<p>这带来三个问题。</p>
+<p>第一，创建进程开销大。<br>如果一个任务很短，却每次都创建一个新进程，创建和销毁本身就会变成明显负担。</p>
+<p>第二，进程间通信开销大。<br>不同进程拥有不同地址空间，彼此不能直接访问对方的数据。如果要交互，通常需要 IPC。IPC 安全，但比同一地址空间内的变量访问、函数调用要重得多。</p>
+<p>第三，单个进程内部需要多个执行流。<br>例如浏览器可能同时需要处理页面渲染、网络请求、音频播放、用户输入和脚本执行。如果一个进程内部只有一个执行流，这些任务就只能排队执行。</p>
+<p>因此，操作系统引入线程：</p>
+<blockquote>
+<p>线程是进程内部更轻量的执行流。</p>
+</blockquote>
+<p>线程让一个进程内部可以同时存在多个执行路径。它们共享进程提供的资源，但各自拥有自己的运行状态。</p>
+<hr>
+<h2 id="2-线程和进程的基本区别"><a href="#2-线程和进程的基本区别" class="headerlink" title="2. 线程和进程的基本区别"></a>2. 线程和进程的基本区别</h2><p>可以用一句话区分进程和线程：</p>
+<blockquote>
+<p>进程是资源分配单位，线程是 CPU 调度和执行单位。</p>
+</blockquote>
+<p>进程像一家公司，拥有办公楼、资产、文件和制度；线程像公司里的员工，每个员工有自己的工作状态和执行路线，但共享公司的资源。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基本角色</td>
+<td>资源分配单位</td>
+<td>执行与调度单位</td>
+</tr>
+<tr>
+<td>地址空间</td>
+<td>进程之间通常独立</td>
+<td>同一进程内线程共享</td>
+</tr>
+<tr>
+<td>创建开销</td>
+<td>较大</td>
+<td>较小</td>
+</tr>
+<tr>
+<td>通信方式</td>
+<td>IPC，较重</td>
+<td>共享内存，较轻</td>
+</tr>
+<tr>
+<td>隔离性</td>
+<td>强</td>
+<td>弱</td>
+</tr>
+<tr>
+<td>崩溃影响</td>
+<td>通常影响本进程</td>
+<td>一个线程出错可能带崩整个进程</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>早期可作为调度单位</td>
+<td>现代系统主要调度线程</td>
+</tr>
+</tbody></table>
+<p>线程自己的内容主要包括：</p>
+<ul>
+<li>程序计数器 PC；</li>
+<li>寄存器状态；</li>
+<li>用户栈；</li>
+<li>内核栈；</li>
+<li>线程状态；</li>
+<li>线程优先级；</li>
+<li>调度相关信息。</li>
+</ul>
+<p>线程共享的内容主要包括：</p>
+<ul>
+<li>代码段；</li>
+<li>数据段；</li>
+<li>堆；</li>
+<li><code>mmap</code> 区域；</li>
+<li>文件描述符；</li>
+<li>进程级资源；</li>
+<li>同一个虚拟地址空间。</li>
+</ul>
+<p>因此，多线程的本质是：</p>
+<blockquote>
+<p>多个执行流共享同一套进程资源，但每个执行流有自己的运行现场。</p>
+</blockquote>
+<hr>
+<h2 id="3-“共享地址空间”不等于“所有变量都共享”"><a href="#3-“共享地址空间”不等于“所有变量都共享”" class="headerlink" title="3. “共享地址空间”不等于“所有变量都共享”"></a>3. “共享地址空间”不等于“所有变量都共享”</h2><p>一个容易误解的点是：既然同一进程内多个线程共享地址空间，那是不是所有变量都共享？</p>
+<p>答案是否定的。</p>
+<p>更准确地说：</p>
+<blockquote>
+<p>多线程共享同一个虚拟地址空间，但并不意味着所有变量实例都只有一份。</p>
+</blockquote>
+<p>多线程中的变量可以分成三类。</p>
+<h3 id="3-1-普通全局变量：通常共享"><a href="#3-1-普通全局变量：通常共享" class="headerlink" title="3.1 普通全局变量：通常共享"></a>3.1 普通全局变量：通常共享</h3><p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> global_count = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>多个线程访问的是同一个 <code>global_count</code>。如果多个线程同时执行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global_count++;</span><br></pre></td></tr></table></figure>
+
+<p>就可能发生数据竞争。因为 <code>++</code> 通常不是一个原子操作，而可能被拆成：</p>
+<ol>
+<li>读取变量；</li>
+<li>加一；</li>
+<li>写回变量。</li>
+</ol>
+<p>多个线程交错执行时，可能造成更新丢失。</p>
+<hr>
+<h3 id="3-2-栈变量：每个线程天然独有"><a href="#3-2-栈变量：每个线程天然独有" class="headerlink" title="3.2 栈变量：每个线程天然独有"></a>3.2 栈变量：每个线程天然独有</h3><p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *<span class="title function_">func</span><span class="params">(<span class="type">void</span> *arg)</span> &#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line">    x++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果多个线程都执行 <code>func</code>，每个线程都有自己的用户栈，所以每个线程都有自己的 <code>x</code>。这些变量名字一样，但位于不同线程的栈上，不是同一个内存位置。</p>
+<hr>
+<h3 id="3-3-TLS-变量：形式像全局变量，但每个线程有一份"><a href="#3-3-TLS-变量：形式像全局变量，但每个线程有一份" class="headerlink" title="3.3 TLS 变量：形式像全局变量，但每个线程有一份"></a>3.3 TLS 变量：形式像全局变量，但每个线程有一份</h3><p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__thread <span class="type">int</span> id;</span><br></pre></td></tr></table></figure>
+
+<p>这类变量看起来像全局变量，但每个线程都有自己的副本。</p>
+<p>可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">线程 1 的 TLS 区：id = 1</span><br><span class="line">线程 2 的 TLS 区：id = 2</span><br><span class="line">线程 3 的 TLS 区：id = 3</span><br></pre></td></tr></table></figure>
+
+<p>代码里都写 <code>id</code>，但不同线程访问的是自己 TLS 区中的 <code>id</code>。</p>
+<p>所以更精确的结论是：</p>
+<blockquote>
+<p>同一进程内的多线程共享地址空间；普通全局变量和堆对象通常共享；每个线程的栈变量天然独立；被声明为 TLS 的变量虽然形式上像全局变量，但每个线程有自己的副本。</p>
+</blockquote>
+<hr>
+<h2 id="4-用户态线程和内核态线程"><a href="#4-用户态线程和内核态线程" class="headerlink" title="4. 用户态线程和内核态线程"></a>4. 用户态线程和内核态线程</h2><p>线程可以按照“是否由内核直接管理”分成两类：</p>
+<ol>
+<li>内核态线程；</li>
+<li>用户态线程。</li>
+</ol>
+<p>这里的“内核态线程”并不是说这个线程永远运行在内核态；“用户态线程”也不是说它只能执行普通用户代码。真正的区分点是：</p>
+<blockquote>
+<p>谁知道它，谁管理它，谁调度它。</p>
+</blockquote>
+<hr>
+<h3 id="4-1-内核态线程"><a href="#4-1-内核态线程" class="headerlink" title="4.1 内核态线程"></a>4.1 内核态线程</h3><p>内核态线程是由操作系统内核创建、记录、调度和切换的线程。</p>
+<p>它的特点是：</p>
+<ul>
+<li>内核知道它的存在；</li>
+<li>内核调度器可以直接调度它；</li>
+<li>它通常有对应的内核数据结构；</li>
+<li>它可以被分配到不同 CPU 核心上运行；</li>
+<li>创建和切换通常涉及内核，开销相对更大。</li>
+</ul>
+<p>例如，在主流 Linux 实现中，<code>pthread_create</code> 创建的 pthread 通常对应一个内核调度实体。这个线程执行用户函数时当然是在用户态运行，但它背后的调度对象由内核管理。</p>
+<p>因此，“内核态线程”的重点不是它运行的代码位置，而是它是否是内核可见、内核可调度的对象。</p>
+<hr>
+<h3 id="4-2-用户态线程"><a href="#4-2-用户态线程" class="headerlink" title="4.2 用户态线程"></a>4.2 用户态线程</h3><p>用户态线程是由用户态线程库或语言运行时管理的轻量执行流。内核通常不知道每一个用户态线程的存在。</p>
+<p>它的特点是：</p>
+<ul>
+<li>内核不直接知道它；</li>
+<li>用户态运行时或线程库管理它；</li>
+<li>用户态调度器负责切换它；</li>
+<li>切换通常不需要进入内核；</li>
+<li>创建和切换开销较小；</li>
+<li>是否能利用多核，取决于它映射到底层几个内核线程上。</li>
+</ul>
+<p>可以用下面的结构理解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">内核眼中：</span><br><span class="line">    一个内核线程 K</span><br><span class="line"></span><br><span class="line">用户态运行时眼中：</span><br><span class="line">    K 上轮流运行 u1、u2、u3、u4</span><br></pre></td></tr></table></figure>
+
+<p>内核只看见 <code>K</code>，但用户态运行时知道自己内部还有多个用户态执行流。</p>
+<hr>
+<h3 id="4-3-二者对比"><a href="#4-3-二者对比" class="headerlink" title="4.3 二者对比"></a>4.3 二者对比</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>用户态线程</th>
+<th>内核态线程</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内核是否直接可见</td>
+<td>通常不可见</td>
+<td>可见</td>
+</tr>
+<tr>
+<td>谁创建</td>
+<td>用户态线程库 &#x2F; 语言运行时</td>
+<td>操作系统内核</td>
+</tr>
+<tr>
+<td>谁调度</td>
+<td>用户态调度器</td>
+<td>内核调度器</td>
+</tr>
+<tr>
+<td>切换是否进入内核</td>
+<td>通常不需要</td>
+<td>通常需要</td>
+</tr>
+<tr>
+<td>切换开销</td>
+<td>小</td>
+<td>较大</td>
+</tr>
+<tr>
+<td>多核并行能力</td>
+<td>取决于映射到几个内核线程</td>
+<td>可以直接被内核分配到多核</td>
+</tr>
+<tr>
+<td>阻塞影响</td>
+<td>一个底层内核线程阻塞可能影响其上多个用户线程</td>
+<td>一个线程阻塞通常不影响其他内核线程</td>
+</tr>
+<tr>
+<td>典型例子</td>
+<td>ucontext、fiber、协程运行时内部任务</td>
+<td>pthread 背后的 Linux task</td>
+</tr>
+</tbody></table>
+<p>核心结论是：</p>
+<blockquote>
+<p>用户态线程和内核态线程的区别，不在于代码是否运行在用户态，而在于线程由谁管理、谁调度、内核是否看得见。</p>
+</blockquote>
+<hr>
+<h2 id="5-三种线程模型中的“对”是什么意思"><a href="#5-三种线程模型中的“对”是什么意思" class="headerlink" title="5. 三种线程模型中的“对”是什么意思"></a>5. 三种线程模型中的“对”是什么意思</h2><p>线程模型中的“多对一”“一对一”“多对多”，讨论的是：</p>
+<blockquote>
+<p>用户态线程和内核态线程之间的映射关系。</p>
+</blockquote>
+<p>这里的“对”可以理解为：</p>
+<blockquote>
+<p>上层用户态执行流，如何借助下层内核调度实体获得 CPU 执行机会。</p>
+</blockquote>
+<p>用户态线程本身不能直接占用 CPU。真正能被操作系统调度到 CPU 上执行的是内核态线程。因此，用户态线程必须映射或挂靠到某个内核线程上，才能真正运行。</p>
+<p>可以把用户态线程理解为“任务”，把内核态线程理解为“跑道”：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多对一</td>
+<td>很多任务共用一条跑道</td>
+</tr>
+<tr>
+<td>一对一</td>
+<td>一个任务配一条跑道</td>
+</tr>
+<tr>
+<td>多对多</td>
+<td>很多任务共用多条跑道</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="6-多对一模型"><a href="#6-多对一模型" class="headerlink" title="6. 多对一模型"></a>6. 多对一模型</h2><p>多对一模型是：</p>
+<blockquote>
+<p>多个用户态线程映射到一个内核态线程。</p>
+</blockquote>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户态： u1   u2   u3   u4</span><br><span class="line">          \   |    |   /</span><br><span class="line">内核态：        K1</span><br></pre></td></tr></table></figure>
+
+<p>在这个模型中，内核只知道一个内核线程 <code>K1</code>，不知道用户态内部还有 <code>u1</code>、<code>u2</code>、<code>u3</code>、<code>u4</code>。</p>
+<p>它的优点是：</p>
+<ul>
+<li>用户态线程创建快；</li>
+<li>用户态切换快；</li>
+<li>不需要频繁进入内核；</li>
+<li>内核管理简单。</li>
+</ul>
+<p>它的缺点也很明显：</p>
+<ul>
+<li>不能真正利用多核；</li>
+<li>一个底层内核线程阻塞，可能影响其上的所有用户态线程；</li>
+<li>可扩展性较差。</li>
+</ul>
+<p>最直白地说：</p>
+<blockquote>
+<p>多对一模型中，用户态觉得“我有很多线程”，但内核觉得“你只有一个线程”。</p>
+</blockquote>
+<hr>
+<h2 id="7-一对一模型"><a href="#7-一对一模型" class="headerlink" title="7. 一对一模型"></a>7. 一对一模型</h2><p>一对一模型是：</p>
+<blockquote>
+<p>一个用户态线程对应一个内核态线程。</p>
+</blockquote>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户态： u1   u2   u3</span><br><span class="line">          |    |    |</span><br><span class="line">内核态： K1   K2   K3</span><br></pre></td></tr></table></figure>
+
+<p>在这个模型中，每个用户态线程都有一个对应的内核线程。内核能看见每个线程，也能分别调度它们。</p>
+<p>它的优点是：</p>
+<ul>
+<li>可以利用多核；</li>
+<li>一个线程阻塞，不一定阻塞其他线程；</li>
+<li>调度由内核统一管理；</li>
+<li>更符合现代操作系统的调度机制。</li>
+</ul>
+<p>它的缺点是：</p>
+<ul>
+<li>内核线程数量可能很多；</li>
+<li>创建、销毁、切换都有内核开销；</li>
+<li>大量短命线程会造成明显负担。</li>
+</ul>
+<p>Linux、Windows、macOS 等主流系统通常采用一对一模型。</p>
+<p>最直白地说：</p>
+<blockquote>
+<p>一对一模型中，用户态觉得“我有几个线程”，内核也基本觉得“你有几个线程”。</p>
+</blockquote>
+<hr>
+<h2 id="8-多对多模型"><a href="#8-多对多模型" class="headerlink" title="8. 多对多模型"></a>8. 多对多模型</h2><p>多对多模型是：</p>
+<blockquote>
+<p>N 个用户态线程映射到 M 个内核态线程，通常 N &gt; M。</p>
+</blockquote>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户态： u1   u2   u3   u4   u5   u6</span><br><span class="line">          \   |   /      \   |   /</span><br><span class="line">内核态：       K1            K2</span><br></pre></td></tr></table></figure>
+
+<p>它试图同时解决多对一和一对一的问题。</p>
+<p>相比多对一，它可以利用多个内核线程，从而更好地利用多核。<br>相比一对一，它不要求每个用户态线程都对应一个内核线程，可以减少内核线程数量。</p>
+<p>它的优点是：</p>
+<ul>
+<li>能利用多核；</li>
+<li>能控制内核线程数量；</li>
+<li>适合大量用户态执行流；</li>
+<li>理论上更加灵活。</li>
+</ul>
+<p>它的缺点是：</p>
+<ul>
+<li>管理复杂；</li>
+<li>用户态调度器和内核调度器需要配合；</li>
+<li>实现难度高。</li>
+</ul>
+<p>最直白地说：</p>
+<blockquote>
+<p>多对多模型中，用户态线程很多，但真正交给内核调度的线程数量被控制住。</p>
+</blockquote>
+<hr>
+<h2 id="9-TCB：线程控制块"><a href="#9-TCB：线程控制块" class="headerlink" title="9. TCB：线程控制块"></a>9. TCB：线程控制块</h2><p>之前学习进程时，有 PCB，即 Process Control Block。对应地，线程也有 TCB，即 Thread Control Block。</p>
+<p>TCB 用于保存线程相关信息，例如：</p>
+<ul>
+<li>线程 ID；</li>
+<li>线程状态；</li>
+<li>线程优先级；</li>
+<li>寄存器上下文；</li>
+<li>栈指针；</li>
+<li>TLS 信息；</li>
+<li>调度相关信息。</li>
+</ul>
+<p>如果说 PCB 是进程的“档案袋”，那么 TCB 就是线程的“档案袋”。</p>
+<p>在线程模型中，TCB 可能分成内核态部分和用户态部分：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内核态 TCB</td>
+<td>由内核维护，支持调度、上下文切换、内核栈等</td>
+</tr>
+<tr>
+<td>用户态 TCB</td>
+<td>由线程库维护，保存 pthread 结构、用户栈、TLS 等</td>
+</tr>
+</tbody></table>
+<p>在 Linux 中，进程和线程在内核层面都可以看作 task，常用同一种核心数据结构表示。它们的差别主要不在于“是不是 task”，而在于共享资源的程度不同。</p>
+<p>可以概括为：</p>
+<blockquote>
+<p>Linux 内核中，进程和线程都可被看作调度实体；线程与进程的差异主要体现在地址空间、文件表等资源是否共享。</p>
+</blockquote>
+<hr>
+<h2 id="10-TLS：线程本地存储"><a href="#10-TLS：线程本地存储" class="headerlink" title="10. TLS：线程本地存储"></a>10. TLS：线程本地存储</h2><p>TLS 是 Thread Local Storage，即线程本地存储。它解决的问题是：</p>
+<blockquote>
+<p>多线程共享地址空间，但有些变量需要每个线程各自拥有一份。</p>
+</blockquote>
+<p>普通全局变量默认共享：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> global_id;</span><br></pre></td></tr></table></figure>
+
+<p>如果线程 1 修改它，线程 2 也能看到。</p>
+<p>但有些变量虽然写起来像全局变量，却不应该被所有线程共享。例如 <code>errno</code>。如果多个线程同时调用系统库函数出错，每个线程都应该看到自己的错误码，而不是互相覆盖。</p>
+<p>因此需要 TLS：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__thread <span class="type">int</span> id;</span><br></pre></td></tr></table></figure>
+
+<p>它表示每个线程都有自己的 <code>id</code>。</p>
+<p>TLS 的访问通常可以通过 TCB 或特定线程寄存器完成，寻址方式可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">线程本地区域基地址 + 变量偏移量</span><br></pre></td></tr></table></figure>
+
+<p>所以，TLS 的关键不是“变量名不同”，而是：</p>
+<blockquote>
+<p>同一个变量名，在不同线程中对应不同的存储实例。</p>
+</blockquote>
+<hr>
+<h2 id="11-pthread-的基本操作"><a href="#11-pthread-的基本操作" class="headerlink" title="11. pthread 的基本操作"></a>11. pthread 的基本操作</h2><p>pthread 是 POSIX 线程库，常见操作包括：</p>
+<ol>
+<li><code>pthread_create</code></li>
+<li><code>pthread_join</code></li>
+<li><code>pthread_exit</code></li>
+<li><code>pthread_yield</code></li>
+</ol>
+<hr>
+<h3 id="11-1-pthread-create：创建线程"><a href="#11-1-pthread-create：创建线程" class="headerlink" title="11.1 pthread_create：创建线程"></a>11.1 pthread_create：创建线程</h3><p>典型形式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pthread_create(&amp;thread, <span class="literal">NULL</span>, function, arg);</span><br></pre></td></tr></table></figure>
+
+<p>它的作用是创建一个新线程，并让新线程从指定函数开始执行。</p>
+<p>在一对一模型下，<code>pthread_create</code> 往往涉及两层工作：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>工作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内核态</td>
+<td>创建对应内核线程，准备内核栈，加入调度系统</td>
+</tr>
+<tr>
+<td>应用态</td>
+<td>创建 pthread 结构，准备用户栈，建立 TLS</td>
+</tr>
+</tbody></table>
+<p>因此，pthread 虽然比进程轻，但并不是没有成本。</p>
+<hr>
+<h3 id="11-2-pthread-join：等待线程结束"><a href="#11-2-pthread-join：等待线程结束" class="headerlink" title="11.2 pthread_join：等待线程结束"></a>11.2 pthread_join：等待线程结束</h3><p>典型形式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pthread_join(thread, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>它的作用是：</p>
+<ul>
+<li>等待指定线程结束；</li>
+<li>获取该线程的返回值；</li>
+<li>回收相关线程资源。</li>
+</ul>
+<p>可以把它理解为：</p>
+<blockquote>
+<p><code>pthread_create</code> 分出一条执行流，<code>pthread_join</code> 等这条执行流结束。</p>
+</blockquote>
+<p>因此，<code>join</code> 有点像 <code>fork</code> 的逆向操作：<code>fork/create</code> 是分出去，<code>join</code> 是等回来。</p>
+<hr>
+<h3 id="11-3-pthread-exit：线程主动退出"><a href="#11-3-pthread-exit：线程主动退出" class="headerlink" title="11.3 pthread_exit：线程主动退出"></a>11.3 pthread_exit：线程主动退出</h3><p>典型形式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pthread_exit(retval);</span><br></pre></td></tr></table></figure>
+
+<p>它让当前线程退出，并可以提供返回值。这个返回值可以被其他线程通过 <code>pthread_join</code> 获取。</p>
+<hr>
+<h3 id="11-4-pthread-yield：主动让出-CPU"><a href="#11-4-pthread-yield：主动让出-CPU" class="headerlink" title="11.4 pthread_yield：主动让出 CPU"></a>11.4 pthread_yield：主动让出 CPU</h3><p><code>pthread_yield</code> 的含义是：</p>
+<blockquote>
+<p>当前线程主动暂停，让调度器有机会运行其他线程。</p>
+</blockquote>
+<p>它不是结束线程，而是当前线程说：“我现在可以先不运行，CPU 可以给其他线程。”</p>
+<hr>
+<h2 id="12-join-放在哪里：串行还是并行"><a href="#12-join-放在哪里：串行还是并行" class="headerlink" title="12. join 放在哪里：串行还是并行"></a>12. join 放在哪里：串行还是并行</h2><p>线程题里，一个高频考点是 <code>join</code> 的位置。</p>
+<p>如果写成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pthread_create(&amp;p1, <span class="literal">NULL</span>, mythread, <span class="literal">NULL</span>);</span><br><span class="line">pthread_join(p1, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">pthread_create(&amp;p2, <span class="literal">NULL</span>, mythread, <span class="literal">NULL</span>);</span><br><span class="line">pthread_join(p2, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">pthread_create(&amp;p3, <span class="literal">NULL</span>, mythread, <span class="literal">NULL</span>);</span><br><span class="line">pthread_join(p3, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这基本不是并行执行。因为每创建一个线程，主线程马上等待它结束。执行顺序近似为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p1 完成</span><br><span class="line">p2 完成</span><br><span class="line">p3 完成</span><br></pre></td></tr></table></figure>
+
+<p>如果每个线程执行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">200</span>; i++) &#123;</span><br><span class="line">    balance++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么结果通常稳定为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p1 后 balance = 200</span><br><span class="line">p2 后 balance = 400</span><br><span class="line">p3 后 balance = 600</span><br><span class="line">Final Balance = 600</span><br></pre></td></tr></table></figure>
+
+<p>但如果写成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pthread_create(&amp;p1, <span class="literal">NULL</span>, mythread, <span class="literal">NULL</span>);</span><br><span class="line">pthread_create(&amp;p2, <span class="literal">NULL</span>, mythread, <span class="literal">NULL</span>);</span><br><span class="line">pthread_create(&amp;p3, <span class="literal">NULL</span>, mythread, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">pthread_join(p1, <span class="literal">NULL</span>);</span><br><span class="line">pthread_join(p2, <span class="literal">NULL</span>);</span><br><span class="line">pthread_join(p3, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这时三个线程可能并行执行。由于 <code>balance++</code> 不是原子操作，最终结果不一定可靠。循环次数越大，数据竞争越容易表现出来。</p>
+<p>核心判断方法是：</p>
+<blockquote>
+<p>创建一个就立刻 join：基本串行。<br>先全部 create，再全部 join：可能并行，需要考虑数据竞争。</p>
+</blockquote>
+<hr>
+<h2 id="13-线程上下文切换"><a href="#13-线程上下文切换" class="headerlink" title="13. 线程上下文切换"></a>13. 线程上下文切换</h2><p>线程上下文切换是本讲较硬的部分。它回答的是：</p>
+<blockquote>
+<p>CPU 如何从线程 A 切换到线程 B，并让 B 从上次暂停的位置继续执行？</p>
+</blockquote>
+<p>线程上下文通常包括：</p>
+<ul>
+<li>通用寄存器；</li>
+<li>程序计数器 PC；</li>
+<li>用户栈指针；</li>
+<li>内核栈指针；</li>
+<li>CPU 状态寄存器；</li>
+<li>页表相关寄存器；</li>
+<li>其他体系结构相关状态。</li>
+</ul>
+<p>以一对一线程模型为例，线程是内核调度对象，因此线程切换通常需要进入内核。</p>
+<p>整体流程可以分为三步：</p>
+<ol>
+<li>进入内核态并保存当前线程上下文；</li>
+<li>切换页表和内核栈；</li>
+<li>恢复目标线程上下文并返回用户态。</li>
+</ol>
+<hr>
+<h3 id="13-1-第一步：进入内核态并保存上下文"><a href="#13-1-第一步：进入内核态并保存上下文" class="headerlink" title="13.1 第一步：进入内核态并保存上下文"></a>13.1 第一步：进入内核态并保存上下文</h3><p>线程 A 正在用户态执行时，可能因为以下原因进入内核：</p>
+<ul>
+<li>时钟中断；</li>
+<li>系统调用；</li>
+<li>异常；</li>
+<li>缺页；</li>
+<li>I&#x2F;O 事件。</li>
+</ul>
+<p>进入内核后，硬件通常会自动保存一部分状态，例如：</p>
+<ul>
+<li>用户态 PC；</li>
+<li>CPU 状态；</li>
+<li>用户栈与内核栈切换相关信息。</li>
+</ul>
+<p>然后，内核软件继续保存通用寄存器等状态到线程 A 的内核栈或 TCB 中。</p>
+<hr>
+<h3 id="13-2-第二步：切换页表和内核栈"><a href="#13-2-第二步：切换页表和内核栈" class="headerlink" title="13.2 第二步：切换页表和内核栈"></a>13.2 第二步：切换页表和内核栈</h3><p>调度器选择线程 B 后，内核需要切换到 B 的运行环境。</p>
+<p>这一步包括：</p>
+<ul>
+<li>切换地址空间或页表；</li>
+<li>找到线程 B 的 TCB；</li>
+<li>找到线程 B 的内核栈；</li>
+<li>修改内核栈指针，切换到 B 的内核栈。</li>
+</ul>
+<p>这里有一个非常重要的理解：</p>
+<blockquote>
+<p>切换内核栈可以看作线程切换的分界点。</p>
+</blockquote>
+<p>原因是：切换内核栈之后，接下来恢复上下文时，恢复代码会从目标线程 B 的内核栈中取出 B 之前保存的上下文。也就是说，从此刻开始，内核虽然还在执行同一段切换代码，但它已经站在 B 的执行现场上继续恢复了。</p>
+<hr>
+<h3 id="13-3-第三步：恢复上下文并返回用户态"><a href="#13-3-第三步：恢复上下文并返回用户态" class="headerlink" title="13.3 第三步：恢复上下文并返回用户态"></a>13.3 第三步：恢复上下文并返回用户态</h3><p>内核从线程 B 的保存区域中恢复：</p>
+<ul>
+<li>通用寄存器；</li>
+<li>用户栈指针；</li>
+<li>程序计数器；</li>
+<li>CPU 状态；</li>
+<li>其他必要状态。</li>
+</ul>
+<p>最后执行返回用户态的指令。此时 CPU 回到线程 B 的用户态执行位置，B 像是从上次被暂停的地方继续运行。</p>
+<p>可以用一条链路表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">线程 A 用户栈</span><br><span class="line">  ↓</span><br><span class="line">线程 A 内核栈</span><br><span class="line">  ↓</span><br><span class="line">线程 B 内核栈</span><br><span class="line">  ↓</span><br><span class="line">线程 B 用户栈</span><br></pre></td></tr></table></figure>
+
+<p>这说明线程上下文切换不仅是“保存和恢复寄存器”，还涉及权限级别、栈、页表、调度实体等多个层面的切换。</p>
+<hr>
+<h2 id="14-一对一线程模型的局限"><a href="#14-一对一线程模型的局限" class="headerlink" title="14. 一对一线程模型的局限"></a>14. 一对一线程模型的局限</h2><p>一对一线程模型是主流系统常用模型，但它并不完美。</p>
+<p>它的主要问题有两个。</p>
+<p>第一，内核调度器不了解应用内部逻辑。<br>例如生产者-消费者模型中，生产者刚生产完数据后，消费者最好马上运行。但内核调度器未必知道这种应用级关系，因此不一定做出最符合业务逻辑的调度选择。</p>
+<p>第二，短命线程开销太大。<br>如果一个 Web 请求只需要亚毫秒级时间，但每个请求都创建一个内核线程，那么创建、销毁和上下文切换的成本可能超过任务本身。</p>
+<p>因此，需要更轻量、更接近用户态逻辑的执行流，这就引出了纤程和协程。</p>
+<hr>
+<h2 id="15-纤程：用户态管理的轻量执行流"><a href="#15-纤程：用户态管理的轻量执行流" class="headerlink" title="15. 纤程：用户态管理的轻量执行流"></a>15. 纤程：用户态管理的轻量执行流</h2><p>纤程可以理解为：</p>
+<blockquote>
+<p>用户态管理的轻量级线程。</p>
+</blockquote>
+<p>它不单独对应一个内核线程。一个内核线程上可以运行多个纤程。</p>
+<p>内核眼中可能只有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一个内核线程 K</span><br></pre></td></tr></table></figure>
+
+<p>但用户态运行时眼中有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">纤程 f1、f2、f3、f4</span><br></pre></td></tr></table></figure>
+
+<p>纤程的优点包括：</p>
+<ul>
+<li>不需要创建新的内核线程；</li>
+<li>创建开销小；</li>
+<li>切换不需要进入内核；</li>
+<li>上下文切换快；</li>
+<li>用户态可以自主调度；</li>
+<li>更适合短任务和高并发场景。</li>
+</ul>
+<p>但它也有限制：</p>
+<ul>
+<li>内核不能直接调度每个纤程；</li>
+<li>如果底层内核线程阻塞，其上的纤程可能受到影响；</li>
+<li>是否能利用多核，取决于运行时如何映射到底层内核线程。</li>
+</ul>
+<p>可以对比如下：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>谁管理</th>
+<th>切换是否进内核</th>
+<th>能否被内核直接调度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内核线程</td>
+<td>操作系统</td>
+<td>通常需要</td>
+<td>可以</td>
+</tr>
+<tr>
+<td>纤程</td>
+<td>用户态库 &#x2F; 运行时</td>
+<td>通常不需要</td>
+<td>不可以</td>
+</tr>
+<tr>
+<td>协程</td>
+<td>编程语言运行时</td>
+<td>通常不需要</td>
+<td>不可以直接调度</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="16-ucontext：用户态上下文切换"><a href="#16-ucontext：用户态上下文切换" class="headerlink" title="16. ucontext：用户态上下文切换"></a>16. ucontext：用户态上下文切换</h2><p>Linux 中曾提供 <code>ucontext</code> 相关接口，用于保存和切换用户态上下文。常见接口包括：</p>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getcontext</code></td>
+<td>保存当前上下文</td>
+</tr>
+<tr>
+<td><code>setcontext</code></td>
+<td>切换到指定上下文</td>
+</tr>
+<tr>
+<td><code>makecontext</code></td>
+<td>创建新的上下文</td>
+</tr>
+</tbody></table>
+<p>每个 <code>ucontext</code> 可以看成一个用户态执行流的上下文。</p>
+<p>经典例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="type">ucontext_t</span> context, *cp = &amp;context;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    x++;</span><br><span class="line">    setcontext(cp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    getcontext(cp);</span><br><span class="line">    <span class="keyword">if</span> (!x) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;getcontext has been called\n&quot;</span>);</span><br><span class="line">        func();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;setcontext has been called\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">getcontext has been called</span><br><span class="line">setcontext has been called</span><br></pre></td></tr></table></figure>
+
+<p>原因如下：</p>
+<ol>
+<li>第一次执行 <code>getcontext(cp)</code>，保存当前上下文。</li>
+<li>此时 <code>x = 0</code>，进入 <code>if</code>，打印第一句。</li>
+<li>调用 <code>func()</code>，执行 <code>x++</code>，使 <code>x = 1</code>。</li>
+<li><code>setcontext(cp)</code> 回到之前保存的上下文。</li>
+<li>程序像是再次从 <code>getcontext(cp)</code> 返回。</li>
+<li>但此时 <code>x = 1</code>，所以进入 <code>else</code>，打印第二句。</li>
+</ol>
+<p>这个例子说明：</p>
+<blockquote>
+<p>用户态上下文切换可以让程序跳回一个先前保存的执行现场，但全局状态的变化仍然保留。</p>
+</blockquote>
+<hr>
+<h2 id="17-协程：语言级轻量执行流"><a href="#17-协程：语言级轻量执行流" class="headerlink" title="17. 协程：语言级轻量执行流"></a>17. 协程：语言级轻量执行流</h2><p>协程和纤程非常接近，但使用语境略有不同：</p>
+<ul>
+<li>纤程偏操作系统或运行时概念；</li>
+<li>协程偏编程语言概念。</li>
+</ul>
+<p>协程通常由语言运行时管理，常见于 Go、Python、Lua、C++20 等语言或标准中。</p>
+<p>协程常见状态包括：</p>
+<ul>
+<li>新生；</li>
+<li>运行；</li>
+<li>暂停；</li>
+<li>终止。</li>
+</ul>
+<p>协程的核心操作是：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>yield</code></td>
+<td>主动暂停，把控制权交出去</td>
+</tr>
+<tr>
+<td><code>resume</code></td>
+<td>恢复执行，从暂停位置继续</td>
+</tr>
+</tbody></table>
+<p>协程的优势在于：</p>
+<ul>
+<li>创建轻量；</li>
+<li>切换轻量；</li>
+<li>适合大量并发任务；</li>
+<li>可以由语言运行时根据应用逻辑调度；</li>
+<li>不必每个任务都对应一个内核线程。</li>
+</ul>
+<hr>
+<h2 id="18-Go-协程：goroutine"><a href="#18-Go-协程：goroutine" class="headerlink" title="18. Go 协程：goroutine"></a>18. Go 协程：goroutine</h2><p>Go 语言使用 <code>go</code> 关键字启动 goroutine：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> asyncTask()</span><br></pre></td></tr></table></figure>
+
+<p>这表示启动一个轻量执行流，由 Go 运行时管理。</p>
+<p>典型网络服务器例子如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handler</span><span class="params">(c net.Conn)</span></span> &#123;</span><br><span class="line">    c.Write([]<span class="type">byte</span>(<span class="string">&quot;ok&quot;</span>))</span><br><span class="line">    c.Close()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    l, _ := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;:8000&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        c, _ := l.Accept()</span><br><span class="line">        <span class="keyword">go</span> handler(c)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每来一个连接，就启动一个 goroutine 处理。</p>
+<p>如果使用传统内核线程，每个请求一个线程，开销可能很大。goroutine 则可以由 Go 运行时把大量轻量任务映射到较少的内核线程上，适合高并发网络服务。</p>
+<p>因此，goroutine 可以看作一种语言运行时管理的轻量执行流。它不是简单等同于内核线程，而是由 Go runtime 调度和管理。</p>
+<hr>
+<h2 id="19-核心概念总表"><a href="#19-核心概念总表" class="headerlink" title="19. 核心概念总表"></a>19. 核心概念总表</h2><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>核心含义</th>
+<th>谁管理</th>
+<th>是否共享地址空间</th>
+<th>开销</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>进程</td>
+<td>资源分配单位</td>
+<td>内核</td>
+<td>进程间通常不共享</td>
+<td>最大</td>
+</tr>
+<tr>
+<td>线程</td>
+<td>进程内执行流</td>
+<td>内核 &#x2F; 线程库</td>
+<td>同进程线程共享</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>用户态线程</td>
+<td>用户态管理的执行流</td>
+<td>用户态库 &#x2F; 运行时</td>
+<td>通常共享</td>
+<td>小</td>
+</tr>
+<tr>
+<td>内核态线程</td>
+<td>内核调度实体</td>
+<td>内核</td>
+<td>取决于所属进程</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>纤程</td>
+<td>用户态轻量线程</td>
+<td>用户态库 &#x2F; 运行时</td>
+<td>通常共享</td>
+<td>小</td>
+</tr>
+<tr>
+<td>协程</td>
+<td>语言级轻量执行流</td>
+<td>语言运行时</td>
+<td>通常共享</td>
+<td>小</td>
+</tr>
+<tr>
+<td>TCB</td>
+<td>线程控制块</td>
+<td>内核 &#x2F; 线程库</td>
+<td>不适用</td>
+<td>用于管理线程</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td>线程本地存储</td>
+<td>运行时 &#x2F; 编译器 &#x2F; 系统支持</td>
+<td>每线程一份变量实例</td>
+<td>用于隔离线程变量</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="20-本讲最重要的结论"><a href="#20-本讲最重要的结论" class="headerlink" title="20. 本讲最重要的结论"></a>20. 本讲最重要的结论</h2><p>本讲可以压缩成以下几句话：</p>
+<ol>
+<li>进程是资源分配单位，线程是 CPU 执行和调度单位。</li>
+<li>线程比进程轻，因为同一进程内线程共享代码、数据、堆和地址空间。</li>
+<li>多线程共享地址空间，但不代表所有变量都共享。</li>
+<li>每个线程有自己的栈、寄存器上下文和 TCB。</li>
+<li>TLS 让某些看似全局的变量变成每个线程一份。</li>
+<li>用户态线程和内核态线程的区别在于谁管理、谁调度、内核是否看得见。</li>
+<li>线程模型中的“对”表示用户态线程和内核态线程之间的映射关系。</li>
+<li>多对一切换快但难以利用多核；一对一能利用多核但内核开销大；多对多理论灵活但实现复杂。</li>
+<li>pthread 的 <code>create</code> 分出执行流，<code>join</code> 等待执行流结束。</li>
+<li>线程上下文切换的关键步骤是保存当前上下文、切换内核栈和页表、恢复目标上下文。</li>
+<li>纤程和协程通过用户态调度降低切换成本，适合大量短任务和高并发场景。</li>
+</ol>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>“进程与线程 II”的中心思想是执行流的层层轻量化。</p>
+<p>最初，操作系统用进程管理程序运行。但进程太重，于是引入线程：线程共享进程资源，只保留独立执行所需的最小运行状态。随后，内核线程虽然能利用多核，但创建和切换仍有成本，于是用户态线程、纤程和协程继续把调度权上移到用户态或语言运行时。</p>
+<p>这条主线可以总结为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">进程：拥有资源</span><br><span class="line">线程：共享资源并执行代码</span><br><span class="line">用户态线程 / 纤程 / 协程：更轻量地组织大量执行流</span><br></pre></td></tr></table></figure>
+
+<p>真正理解本讲的关键，不是背下每个名词，而是抓住三个层次：</p>
+<ol>
+<li><strong>资源层次</strong>：进程提供地址空间、代码、数据、堆和文件等资源。</li>
+<li><strong>执行层次</strong>：线程在进程资源之上独立执行，拥有自己的栈和上下文。</li>
+<li><strong>调度层次</strong>：内核线程由操作系统调度，用户态线程、纤程和协程由用户态运行时调度。</li>
+</ol>
+<p>把这三个层次区分清楚，用户态线程、内核态线程、三种线程模型、TCB、TLS、pthread、上下文切换、纤程和协程就能连成一套完整机制。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/')">第10讲 进程与线程II</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第10讲 进程与线程II&amp;url=http://example.com/2026/06/11/%E7%AC%AC10%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BII/&amp;pic=/cover/juri.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/11/%E7%AC%AC9%E8%AE%B2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8BI/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/manon.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第9讲 进程与线程I</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/11/%E7%AC%AC11%E8%AE%B2-%E8%B0%83%E5%BA%A6I/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jp.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">第11讲 调度I</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B-II%EF%BC%9A%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E3%80%81TCB-TLS-%E4%B8%8E%E7%BA%A4%E7%A8%8B%E5%8D%8F%E7%A8%8B%E7%9A%84%E5%AE%8C%E6%95%B4%E7%90%86%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">进程与线程 II：线程模型、TCB&#x2F;TLS 与纤程协程的完整理解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E6%9C%AC%E8%AE%B2%E7%9A%84%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-number">1.1.</span> <span class="toc-text">引言：本讲的核心问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">1. 为什么需要线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%BA%BF%E7%A8%8B%E5%92%8C%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8C%BA%E5%88%AB"><span class="toc-number">1.3.</span> <span class="toc-text">2. 线程和进程的基本区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E2%80%9C%E5%85%B1%E4%BA%AB%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E2%80%9D%E4%B8%8D%E7%AD%89%E4%BA%8E%E2%80%9C%E6%89%80%E6%9C%89%E5%8F%98%E9%87%8F%E9%83%BD%E5%85%B1%E4%BA%AB%E2%80%9D"><span class="toc-number">1.4.</span> <span class="toc-text">3. “共享地址空间”不等于“所有变量都共享”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%99%AE%E9%80%9A%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%EF%BC%9A%E9%80%9A%E5%B8%B8%E5%85%B1%E4%BA%AB"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1 普通全局变量：通常共享</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%A0%88%E5%8F%98%E9%87%8F%EF%BC%9A%E6%AF%8F%E4%B8%AA%E7%BA%BF%E7%A8%8B%E5%A4%A9%E7%84%B6%E7%8B%AC%E6%9C%89"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2 栈变量：每个线程天然独有</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-TLS-%E5%8F%98%E9%87%8F%EF%BC%9A%E5%BD%A2%E5%BC%8F%E5%83%8F%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%EF%BC%8C%E4%BD%86%E6%AF%8F%E4%B8%AA%E7%BA%BF%E7%A8%8B%E6%9C%89%E4%B8%80%E4%BB%BD"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.3 TLS 变量：形式像全局变量，但每个线程有一份</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%94%A8%E6%88%B7%E6%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%86%85%E6%A0%B8%E6%80%81%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.5.</span> <span class="toc-text">4. 用户态线程和内核态线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%86%85%E6%A0%B8%E6%80%81%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1 内核态线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%94%A8%E6%88%B7%E6%80%81%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2 用户态线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E4%BA%8C%E8%80%85%E5%AF%B9%E6%AF%94"><span class="toc-number">1.5.3.</span> <span class="toc-text">4.3 二者对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%B8%89%E7%A7%8D%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B8%AD%E7%9A%84%E2%80%9C%E5%AF%B9%E2%80%9D%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D"><span class="toc-number">1.6.</span> <span class="toc-text">5. 三种线程模型中的“对”是什么意思</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%A4%9A%E5%AF%B9%E4%B8%80%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.7.</span> <span class="toc-text">6. 多对一模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E4%B8%80%E5%AF%B9%E4%B8%80%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.8.</span> <span class="toc-text">7. 一对一模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%A4%9A%E5%AF%B9%E5%A4%9A%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.9.</span> <span class="toc-text">8. 多对多模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-TCB%EF%BC%9A%E7%BA%BF%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%9D%97"><span class="toc-number">1.10.</span> <span class="toc-text">9. TCB：线程控制块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-TLS%EF%BC%9A%E7%BA%BF%E7%A8%8B%E6%9C%AC%E5%9C%B0%E5%AD%98%E5%82%A8"><span class="toc-number">1.11.</span> <span class="toc-text">10. TLS：线程本地存储</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-pthread-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-number">1.12.</span> <span class="toc-text">11. pthread 的基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-pthread-create%EF%BC%9A%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.12.1.</span> <span class="toc-text">11.1 pthread_create：创建线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-pthread-join%EF%BC%9A%E7%AD%89%E5%BE%85%E7%BA%BF%E7%A8%8B%E7%BB%93%E6%9D%9F"><span class="toc-number">1.12.2.</span> <span class="toc-text">11.2 pthread_join：等待线程结束</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-pthread-exit%EF%BC%9A%E7%BA%BF%E7%A8%8B%E4%B8%BB%E5%8A%A8%E9%80%80%E5%87%BA"><span class="toc-number">1.12.3.</span> <span class="toc-text">11.3 pthread_exit：线程主动退出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-pthread-yield%EF%BC%9A%E4%B8%BB%E5%8A%A8%E8%AE%A9%E5%87%BA-CPU"><span class="toc-number">1.12.4.</span> <span class="toc-text">11.4 pthread_yield：主动让出 CPU</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-join-%E6%94%BE%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9A%E4%B8%B2%E8%A1%8C%E8%BF%98%E6%98%AF%E5%B9%B6%E8%A1%8C"><span class="toc-number">1.13.</span> <span class="toc-text">12. join 放在哪里：串行还是并行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E7%BA%BF%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="toc-number">1.14.</span> <span class="toc-text">13. 线程上下文切换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E8%BF%9B%E5%85%A5%E5%86%85%E6%A0%B8%E6%80%81%E5%B9%B6%E4%BF%9D%E5%AD%98%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-number">1.14.1.</span> <span class="toc-text">13.1 第一步：进入内核态并保存上下文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%88%87%E6%8D%A2%E9%A1%B5%E8%A1%A8%E5%92%8C%E5%86%85%E6%A0%B8%E6%A0%88"><span class="toc-number">1.14.2.</span> <span class="toc-text">13.2 第二步：切换页表和内核栈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E6%81%A2%E5%A4%8D%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B9%B6%E8%BF%94%E5%9B%9E%E7%94%A8%E6%88%B7%E6%80%81"><span class="toc-number">1.14.3.</span> <span class="toc-text">13.3 第三步：恢复上下文并返回用户态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E4%B8%80%E5%AF%B9%E4%B8%80%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%B1%80%E9%99%90"><span class="toc-number">1.15.</span> <span class="toc-text">14. 一对一线程模型的局限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E7%BA%A4%E7%A8%8B%EF%BC%9A%E7%94%A8%E6%88%B7%E6%80%81%E7%AE%A1%E7%90%86%E7%9A%84%E8%BD%BB%E9%87%8F%E6%89%A7%E8%A1%8C%E6%B5%81"><span class="toc-number">1.16.</span> <span class="toc-text">15. 纤程：用户态管理的轻量执行流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-ucontext%EF%BC%9A%E7%94%A8%E6%88%B7%E6%80%81%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="toc-number">1.17.</span> <span class="toc-text">16. ucontext：用户态上下文切换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-%E5%8D%8F%E7%A8%8B%EF%BC%9A%E8%AF%AD%E8%A8%80%E7%BA%A7%E8%BD%BB%E9%87%8F%E6%89%A7%E8%A1%8C%E6%B5%81"><span class="toc-number">1.18.</span> <span class="toc-text">17. 协程：语言级轻量执行流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-Go-%E5%8D%8F%E7%A8%8B%EF%BC%9Agoroutine"><span class="toc-number">1.19.</span> <span class="toc-text">18. Go 协程：goroutine</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#19-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E6%80%BB%E8%A1%A8"><span class="toc-number">1.20.</span> <span class="toc-text">19. 核心概念总表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-%E6%9C%AC%E8%AE%B2%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E7%BB%93%E8%AE%BA"><span class="toc-number">1.21.</span> <span class="toc-text">20. 本讲最重要的结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.22.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC18%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8II/" title="第18讲 多核与多处理器II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ken.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第18讲 多核与多处理器II"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC18%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8II/" title="第18讲 多核与多处理器II">第18讲 多核与多处理器II</a><time datetime="2026-06-11T02:52:20.000Z" title="Created 2026-06-11 10:52:20">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC17%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8I/" title="第17讲 多核与多处理器I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第17讲 多核与多处理器I"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC17%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8I/" title="第17讲 多核与多处理器I">第17讲 多核与多处理器I</a><time datetime="2026-06-11T02:52:14.000Z" title="Created 2026-06-11 10:52:14">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC16%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADIII/" title="第16讲 同步原语III"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第16讲 同步原语III"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC16%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADIII/" title="第16讲 同步原语III">第16讲 同步原语III</a><time datetime="2026-06-11T02:52:09.000Z" title="Created 2026-06-11 10:52:09">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC15%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADII/" title="第15讲 同步原语II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第15讲 同步原语II"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC15%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADII/" title="第15讲 同步原语II">第15讲 同步原语II</a><time datetime="2026-06-11T02:52:05.000Z" title="Created 2026-06-11 10:52:05">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC14%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADI/" title="第14讲 同步原语I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/mai.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第14讲 同步原语I"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC14%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADI/" title="第14讲 同步原语I">第14讲 同步原语I</a><time datetime="2026-06-11T02:52:01.000Z" title="Created 2026-06-11 10:52:01">2026-06-11</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">42</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

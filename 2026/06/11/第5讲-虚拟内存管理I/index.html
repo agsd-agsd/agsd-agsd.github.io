@@ -1,0 +1,1069 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第5讲 虚拟内存管理I | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第5讲 虚拟内存管理I"><meta name="application-name" content="第5讲 虚拟内存管理I"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第5讲 虚拟内存管理I"><meta property="og:url" content="http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="虚拟内存管理 I：从地址隔离到页表翻译虚拟内存管理的第一层问题，并不是“物理内存不够时怎么办”，而是“程序为什么不能直接使用物理地址”。现代操作系统让每个进程运行在自己的虚拟地址空间中，程序看到的是虚拟地址，真正访问内存时再由硬件和操作系统配合，把虚拟地址翻译成物理地址。 这套机制的核心由四个部分组"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/juri.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/juri.png"><meta name="description" content="虚拟内存管理 I：从地址隔离到页表翻译虚拟内存管理的第一层问题，并不是“物理内存不够时怎么办”，而是“程序为什么不能直接使用物理地址”。现代操作系统让每个进程运行在自己的虚拟地址空间中，程序看到的是虚拟地址，真正访问内存时再由硬件和操作系统配合，把虚拟地址翻译成物理地址。 这套机制的核心由四个部分组"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第5讲 虚拟内存管理I',
+  postAI: '',
+  pageFillDescription: '虚拟内存管理 I：从地址隔离到页表翻译, ❗ 核心结论： 虚拟内存不是单纯为了扩大内存而是为了给每个进程提供独立、受保护、可管理的地址空间。, 1. 为什么不能直接使用物理地址, ❗ 本节核心结论： 程序不应直接使用物理地址因为物理地址暴露真实内存布局并削弱进程隔离与系统管理能力。, 2. 虚拟地址与地址翻译, ❗ 本节核心结论： 地址翻译是硬件与操作系统合作完成的：操作系统建立规则MMU 在访存路径上使用规则。, 3. 虚拟地址不是全局地址, ❗ 本节核心结论： 虚拟地址只有在特定进程地址空间中才有意义；单独知道别人的虚拟地址并不能访问别人的物理内存。, 4. 分段机制：直观但会产生外部碎片, ❗ 本节核心结论： 分段的抽象很直观但不定长段容易造成外部碎片因此现代系统更依赖分页机制。, 5. 分页机制：页号翻译偏移不变, ❗ 本节核心结论： 页表保存的是虚拟页号 → 物理页号不是逐字节的虚拟地址 → 物理地址；页内偏移保持不变。, 6. 单级页表为什么会太大, 6.1 32 位地址空间示例, 6.2 64 位地址空间示例, ❗ 本节核心结论： 单级页表的空间浪费来自覆盖整个虚拟地址空间；64 位地址空间下这种设计会导致页表规模不可接受。, 7. 多级页表：用更多查询步骤换更少空间, ❗ 本节核心结论： 多级页表通过允许地址空间中存在空洞来节省空间但代价是一次地址翻译可能需要多次查表。, 8. AArch64 四级页表：9 + 9 + 9 + 9 + 12, ❗ 本节核心结论： 在 4KB 页、48 位有效虚拟地址下AArch64 四级页表的地址拆分规律是 9 + 9 + 9 + 9 + 12。, 9. 页表项不仅保存物理页号, ❗ 本节核心结论： 页表项既表达地址映射也表达访问权限、执行控制和内存属性；页表同时承担翻译与保护功能。, 10. 页表使能：从物理寻址到虚拟寻址, ❗ 本节核心结论： 页表只有在硬件控制位开启后才参与访存路径；开启后CPU 发出的地址会经过 MMU 翻译。, 11. TLB：让多级页表重新变快, ❗ 本节核心结论： TLB 是页表查询结果的缓存它利用程序访问局部性减少多级页表查询次数。, 12. 进程切换、TLB 刷新与 ASID, ❗ 本节核心结论： ASID 让 TLB 项带上地址空间身份避免不同进程的相同虚拟页号发生混淆。, 13. MMU、操作系统、页表和 TLB 的职责边界, ❗ 本节核心结论： 操作系统负责构造地址空间MMU 负责执行翻译TLB 负责缓存结果；三者分工不能混淆。, 14. 常见误区集中澄清, 14.1 虚拟内存不是只为了解决内存不够, 14.2 页表不是保存每个虚拟地址到物理地址, 14.3 知道别人的虚拟地址没有直接意义, 14.4 多级页表不是 MMU 创建的, 14.5 TLB 不是另一张完整页表, ❗ 本节核心结论： 理解虚拟内存的关键是把地址空间上下文、页表映射、硬件翻译、缓存加速四件事分清楚。, 15. 复习清单, 结论虚拟内存管理从地址隔离到页表翻译虚拟内存管理的第一层问题并不是物理内存不够时怎么办而是程序为什么不能直接使用物理地址现代操作系统让每个进程运行在自己的虚拟地址空间中程序看到的是虚拟地址真正访问内存时再由硬件和操作系统配合把虚拟地址翻译成物理地址这套机制的核心由四个部分组成操作系统建立和维护地址翻译规则页表或段表保存虚拟地址空间到物理内存的映射关系在访存时执行地址翻译缓存近期翻译结果降低查页表的成本核心结论虚拟内存不是单纯为了扩大内存而是为了给每个进程提供独立受保护可管理的地址空间为什么不能直接使用物理地址物理内存就是机器上真实存在的内存条程序代码程序数据操作系统代码和操作系统数据最终都必须位于物理内存中才能访问在早期单程序环境中物理内存可以简单划分为物理内存操作系统一个应用程序但在多程序系统中多个应用会同时驻留在内存中物理内存操作系统应用应用应用如果应用程序直接使用物理地址会带来几个问题缺乏隔离一个程序可能访问或破坏另一个程序的数据加载位置不稳定程序被加载到哪里取决于当时物理内存的空闲情况暴露真实内存布局程序能够感知甚至推断系统和其他程序的位置管理困难操作系统难以灵活移动共享或保护内存区域因此虚拟内存首先解决的是地址抽象和隔离问题程序使用虚拟地址物理地址由系统在背后管理本节核心结论程序不应直接使用物理地址因为物理地址暴露真实内存布局并削弱进程隔离与系统管理能力虚拟地址与地址翻译虚拟内存抽象下程序中看到的地址通常不是物理地址例如程序打印出的指针值本质上属于当前进程的虚拟地址空间一次普通内存访问可以概括为发出虚拟地址地址翻译得到物理地址访问物理内存这张图强调程序并不是直接拿物理地址访问内存而是先经过的地址翻译各组件的职责可以概括为组件主要职责执行指令并发出虚拟地址根据当前地址翻译规则把虚拟地址翻译为物理地址操作系统创建维护切换段表或页表页表页表保存映射关系缓存近期翻译结果这里最重要的边界是操作系统负责建表负责查表并不会凭空创造映射关系它只是使用当前进程对应的翻译规则本节核心结论地址翻译是硬件与操作系统合作完成的操作系统建立规则在访存路径上使用规则虚拟地址不是全局地址一个常见误区是如果程序知道程序的虚拟地址是否就能拿这个地址去查的段表或页表从而得到的物理地址答案是正常情况下不能原因在于虚拟地址不是全局地址虚拟地址必须绑定到当前是哪一个进程当前使用哪一张地址翻译表这个上下文中才有意义例如同样的虚拟地址在两个进程中可能对应不同物理地址进程虚拟地址物理地址进程虚拟地址物理地址当进程正在运行时使用的是进程的段表或页表即使知道中存在某个虚拟地址自己访问这个数值时硬件也会按照的地址空间进行翻译而不是按照的地址空间进行翻译因此虚拟内存隔离的关键不是别人不知道你的虚拟地址而是别人不能使用你的地址翻译规则别人不能随便读取你的段表或页表程序运行时只使用当前上下文绑定的翻译表本节核心结论虚拟地址只有在特定进程地址空间中才有意义单独知道别人的虚拟地址并不能访问别人的物理内存分段机制直观但会产生外部碎片分段机制是一种较早较直观的虚拟内存组织方式它把虚拟地址空间分成若干不定长段例如代码段数据段堆段栈段分段机制下虚拟地址可以理解为虚拟地址段号段内偏移段表中保存段号物理起始地址段长度若某段物理起始地址为段内偏移为则物理地址为分段的优点是符合程序结构直觉代码数据堆栈本来就像不同区域但它的主要问题是外部碎片因为段的大小不固定物理内存可能变成段空洞段空洞段这些空洞加起来可能很大但单个空洞不够大时新段仍然无法放入这就是分段机制在内存利用率上的局限机制管理单位地址结构优点主要问题分段不定长段段号段内偏移符合程序结构外部碎片分页固定大小页虚拟页号页内偏移管理规整减少外部碎片需要页表和地址翻译本节核心结论分段的抽象很直观但不定长段容易造成外部碎片因此现代系统更依赖分页机制分页机制页号翻译偏移不变分页机制把虚拟内存和物理内存都切成固定大小的块虚拟地址空间中的块称为虚拟页物理内存中的块称为物理页常见页大小是分页下虚拟地址被拆成虚拟地址虚拟页号页内偏移页表记录虚拟页号物理页号翻译完成后物理地址为物理地址物理页号同一个页内偏移这里最关键的是地址翻译只改变页号不改变页内偏移例如假设页大小是即虚拟地址可以拆成虚拟页号页内偏移如果页表中有映射虚拟页号物理页号那么物理地址就是页表并不是为每一个字节单独记录映射而是为每个虚拟页记录它对应的物理页页内第个字节映射后仍然是物理页内第个字节本节核心结论页表保存的是虚拟页号物理页号不是逐字节的虚拟地址物理地址页内偏移保持不变单级页表为什么会太大单级页表可以想象成一个巨大数组每个虚拟页号对应一个页表项它的空间计算公式是页表大小虚拟页数量每个页表项大小其中虚拟页数量虚拟地址空间大小页大小因此页表大小虚拟地址空间大小页大小页表项大小位地址空间示例设定虚拟地址空间位即字节页大小即字节页表项大小字节则虚拟页数量为页表大小为一个进程一张页表在位系统中还勉强可以接受位地址空间示例设定虚拟地址空间位即字节页大小即字节页表项大小字节则虚拟页数量为页表大小为换算为这个规模显然不可接受问题的根源在于单级页表需要为整个虚拟地址空间中的每个虚拟页准备页表项即使绝大多数虚拟地址根本没有被使用本节核心结论单级页表的空间浪费来自覆盖整个虚拟地址空间位地址空间下这种设计会导致页表规模不可接受多级页表用更多查询步骤换更少空间多级页表的基本思想是不要为根本没有使用的虚拟地址区域分配页表单级页表像一个巨大数组虚拟页号页表项多级页表更像一棵按需展开的树页表页表空洞不分配下级页表页表空洞不分配下级页表页表物理页这张图说明如果某个地址区域没有被使用对应的下级页表可以不存在从而节省空间多级页表的代价是翻译变慢如果没有地址翻译可能需要逐级访问多张页表最后才能得到物理页号因此多级页表体现的是一个典型权衡方案空间开销翻译速度核心特点单级页表大查一次表较直接为整个虚拟地址空间建表多级页表小可能多次查表只为使用到的区域分配下级页表多级页表不是自动创建的它由操作系统在进程创建程序加载或内存分配时按需创建和维护的职责是在运行时按照页表结构逐级查询本节核心结论多级页表通过允许地址空间中存在空洞来节省空间但代价是一次地址翻译可能需要多次查表四级页表以的常见设定为例页大小页内偏移位数位有效虚拟地址位因此位虚拟地址位虚拟页号位页内偏移位虚拟页号被分成级索引所以地址结构可以写成虚拟页号虚拟页号虚拟页号虚拟页号页内偏移位位位位位每一级位可以索引也就是说每一级页表最多有个页表项四级页表的翻译过程可以概括为虚拟地址拆分为指向页表用第个位索引用第个位索引用第个位索引用第个位索引得到物理页号物理页号页内偏移物理地址这张图强调四级页表并不是四种不同地址而是把虚拟页号分成四段逐层缩小搜索范围最后找到物理页号本节核心结论在页位有效虚拟地址下四级页表的地址拆分规律是页表项不仅保存物理页号页表项的核心内容是物理页号但它通常不只保存物理页号它还包含权限和状态信息常见字段包括字段作用位表示页表项是否有效位控制读写权限位控制用户态是否禁止执行位控制内核态是否禁止执行位可用于记录页面是否被访问指示内存类型如普通内存或设备内存因此页表不只是地址翻译表也是保护机制的一部分在查页表时不仅要得到物理页号还可能检查当前访问是否合法当页表项无效权限不足或执行控制不允许时不应简单返回物理地址而应触发异常让操作系统处理本节核心结论页表项既表达地址映射也表达访问权限执行控制和内存属性页表同时承担翻译与保护功能页表使能从物理寻址到虚拟寻址刚启动时系统通常处于较原始的物理寻址阶段操作系统或底层系统软件初始化页表后会配置控制寄存器使地址翻译生效典型例子包括架构控制方式设置的位设置的位可以简化理解为页表未使能发出的地址直接当作物理地址页表已使能发出的地址先经翻译再访问物理内存这说明虚拟内存不是只存在于软件概念中它需要硬件控制位和页表基地址寄存器共同支持本节核心结论页表只有在硬件控制位开启后才参与访存路径开启后发出的地址会经过翻译让多级页表重新变快多级页表节省空间但也增加了地址翻译成本若每次访问内存都要查四级页表那么一次普通访存可能变成查页表查页表查页表查页表真正访问数据为降低这个成本内部提供它缓存的是近期使用过的地址翻译结果虚拟页号物理页号地址翻译过程可以概括为虚拟地址命中是直接得到物理页号否执行多级页表查询把结果填入拼接页内偏移有效的原因是程序访问内存具有局部性局部性含义例子时间局部性刚访问过的地址之后很可能再次访问循环中反复访问同一变量空间局部性访问某地址后附近地址也很可能被访问顺序遍历数组例如连续访问数组时多个元素可能位于同一页内只要这一页的映射已经在中访问同页其他元素时就可以复用同一条翻译结果本节核心结论是页表查询结果的缓存它利用程序访问局部性减少多级页表查询次数进程切换刷新与缓存的是虚拟页号到物理页号的映射但不同进程有不同页表可能出现进程虚拟页物理页进程虚拟页物理页如果进程切换后仍错误复用旧进程的项就会把的映射用于造成严重错误最直接的解决方式是每次进程切换都刷新但这会丢失缓存性能较差更好的办法是给项加入地址空间标签例如使用项可理解为虚拟页号物理页号这样即使两个进程都有虚拟页也能区分虚拟页物理页虚拟页物理页的意义是把当前属于哪个地址空间这个上下文显式加入项从而减少不必要的全量刷新本节核心结论让项带上地址空间身份避免不同进程的相同虚拟页号发生混淆操作系统页表和的职责边界虚拟内存管理容易混淆的地方是把谁建立规则和谁使用规则混为一谈可以用下表区分角色做什么不做什么操作系统创建页表分配页表页填写设置权限切换页表不在每次普通访存时手动翻译地址根据当前页表和执行地址翻译与权限检查不自行决定哪些虚拟页应映射到哪些物理页缓存近期翻译结果不替代页表作为权威映射来源执行指令并发起访存不直接理解进程隔离策略多级页表的创建流程可以简化为需要映射某个虚拟地址检查项不存在分配页表存在检查项不存在分配页表存在检查项不存在分配页表存在填写最终页表项写入物理页号与权限位这张图说明多级页表由操作系统按需创建程序运行时只是沿着已经建立好的结构查找本节核心结论操作系统负责构造地址空间负责执行翻译负责缓存结果三者分工不能混淆常见误区集中澄清虚拟内存不是只为了解决内存不够虚拟内存更基础的目标是隔离保护和地址空间独立扩大可用内存只是虚拟内存体系中更后续的一部分主题页表不是保存每个虚拟地址到物理地址分页以页为单位管理内存页表保存的是虚拟页号物理页号页内偏移直接保留知道别人的虚拟地址没有直接意义虚拟地址必须绑定进程地址空间进程知道进程的虚拟地址并不代表能让使用的页表多级页表不是创建的多级页表由操作系统创建和维护的职责是读取页表并执行地址翻译不是另一张完整页表是缓存不是权威数据结构未命中时仍需要查询页表本节核心结论理解虚拟内存的关键是把地址空间上下文页表映射硬件翻译缓存加速四件事分清楚复习清单学完虚拟内存管理后应能回答以下问题为什么应用程序不应该直接使用物理地址虚拟地址和物理地址分别是什么为什么虚拟地址必须绑定进程地址空间分段机制的地址结构是什么分段为什么会产生外部碎片分页机制下虚拟地址由哪两部分组成页表保存的到底是什么映射为什么页内偏移在地址翻译后保持不变单级页表大小如何计算为什么位系统不能简单使用完整单级页表多级页表为什么能节省空间四级页表中分别表示什么页表项除了物理页号还可能保存哪些控制信息在地址翻译中负责什么操作系统在页表管理中负责什么缓存的是什么为什么程序局部性会提高的有效性为什么能减少进程切换时的刷新开销结论虚拟内存管理的核心链条可以压缩为一句话程序使用虚拟地址操作系统为每个进程建立独立的地址翻译规则根据当前规则把虚拟地址翻译为物理地址多级页表节省页表空间缓存翻译结果以降低查表成本因此虚拟内存不是单个机制而是一组机制的组合分段和分页解决地址组织问题页表解决映射保存问题多级页表解决空间开销问题解决翻译速度问题解决多进程上下文切换中的缓存混淆问题真正掌握这一节关键不在于死记每个字段而在于形成一个稳定直觉程序运行在虚拟地址世界中物理内存由操作系统和硬件共同隐藏翻译和保护',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-11 10:51:18',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">23</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">第5讲 虚拟内存管理I</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:18.000Z" title="Created 2026-06-11 10:51:18">2026-06-11</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:18.909Z" title="Updated 2026-06-11 10:51:18">2026-06-11</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">5.4k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>17min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/juri.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/"><header><h1 id="CrawlerTitle" itemprop="name headline">第5讲 虚拟内存管理I</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:18.000Z" title="Created 2026-06-11 10:51:18">2026-06-11</time><time itemprop="dateCreated datePublished" datetime="2026-06-11T02:51:18.909Z" title="Updated 2026-06-11 10:51:18">2026-06-11</time></header><h1 id="虚拟内存管理-I：从地址隔离到页表翻译"><a href="#虚拟内存管理-I：从地址隔离到页表翻译" class="headerlink" title="虚拟内存管理 I：从地址隔离到页表翻译"></a>虚拟内存管理 I：从地址隔离到页表翻译</h1><p>虚拟内存管理的第一层问题，并不是“物理内存不够时怎么办”，而是“程序为什么不能直接使用物理地址”。现代操作系统让每个进程运行在自己的虚拟地址空间中，程序看到的是虚拟地址，真正访问内存时再由硬件和操作系统配合，把虚拟地址翻译成物理地址。</p>
+<p>这套机制的核心由四个部分组成：</p>
+<ul>
+<li><strong>操作系统</strong>：建立和维护地址翻译规则。</li>
+<li><strong>页表或段表</strong>：保存虚拟地址空间到物理内存的映射关系。</li>
+<li><strong>MMU</strong>：在 CPU 访存时执行地址翻译。</li>
+<li><strong>TLB</strong>：缓存近期翻译结果，降低查页表的成本。</li>
+</ul>
+<hr>
+<h2 id="❗-核心结论：-虚拟内存不是单纯为了“扩大内存”，而是为了给每个进程提供独立、受保护、可管理的地址空间。"><a href="#❗-核心结论：-虚拟内存不是单纯为了“扩大内存”，而是为了给每个进程提供独立、受保护、可管理的地址空间。" class="headerlink" title="❗ 核心结论： 虚拟内存不是单纯为了“扩大内存”，而是为了给每个进程提供独立、受保护、可管理的地址空间。"></a><strong>❗ 核心结论：</strong> 虚拟内存不是单纯为了“扩大内存”，而是为了给每个进程提供独立、受保护、可管理的地址空间。</h2><h2 id="1-为什么不能直接使用物理地址"><a href="#1-为什么不能直接使用物理地址" class="headerlink" title="1. 为什么不能直接使用物理地址"></a>1. 为什么不能直接使用物理地址</h2><p>物理内存就是机器上真实存在的内存条。程序代码、程序数据、操作系统代码和操作系统数据，最终都必须位于物理内存中，CPU 才能访问。</p>
+<p>在早期单程序环境中，物理内存可以简单划分为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">物理内存</span><br><span class="line">├── 操作系统</span><br><span class="line">└── 一个应用程序</span><br></pre></td></tr></table></figure>
+
+<p>但在多程序系统中，多个应用会同时驻留在内存中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">物理内存</span><br><span class="line">├── 操作系统</span><br><span class="line">├── 应用 A</span><br><span class="line">├── 应用 B</span><br><span class="line">└── 应用 C</span><br></pre></td></tr></table></figure>
+
+<p>如果应用程序直接使用物理地址，会带来几个问题：</p>
+<ul>
+<li><strong>缺乏隔离</strong>：一个程序可能访问或破坏另一个程序的数据。</li>
+<li><strong>加载位置不稳定</strong>：程序被加载到哪里取决于当时物理内存的空闲情况。</li>
+<li><strong>暴露真实内存布局</strong>：程序能够感知甚至推断系统和其他程序的位置。</li>
+<li><strong>管理困难</strong>：操作系统难以灵活移动、共享或保护内存区域。</li>
+</ul>
+<p>因此，虚拟内存首先解决的是地址抽象和隔离问题。程序使用虚拟地址，物理地址由系统在背后管理。</p>
+<hr>
+<h2 id="❗-本节核心结论：-程序不应直接使用物理地址，因为物理地址暴露真实内存布局，并削弱进程隔离与系统管理能力。"><a href="#❗-本节核心结论：-程序不应直接使用物理地址，因为物理地址暴露真实内存布局，并削弱进程隔离与系统管理能力。" class="headerlink" title="❗ 本节核心结论： 程序不应直接使用物理地址，因为物理地址暴露真实内存布局，并削弱进程隔离与系统管理能力。"></a><strong>❗ 本节核心结论：</strong> 程序不应直接使用物理地址，因为物理地址暴露真实内存布局，并削弱进程隔离与系统管理能力。</h2><h2 id="2-虚拟地址与地址翻译"><a href="#2-虚拟地址与地址翻译" class="headerlink" title="2. 虚拟地址与地址翻译"></a>2. 虚拟地址与地址翻译</h2><p>虚拟内存抽象下，程序中看到的地址通常不是物理地址。例如程序打印出的指针值，本质上属于当前进程的虚拟地址空间。</p>
+<p>一次普通内存访问可以概括为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    CPU[CPU 发出虚拟地址] --&gt; MMU[MMU 地址翻译]
+    MMU --&gt; PA[得到物理地址]
+    PA --&gt; MEM[访问物理内存]
+  </pre></div>
+
+<p>这张图强调：程序并不是直接拿物理地址访问内存，而是先经过 MMU 的地址翻译。</p>
+<p>各组件的职责可以概括为：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>主要职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU</td>
+<td>执行指令，并发出虚拟地址</td>
+</tr>
+<tr>
+<td>MMU</td>
+<td>根据当前地址翻译规则，把虚拟地址翻译为物理地址</td>
+</tr>
+<tr>
+<td>操作系统</td>
+<td>创建、维护、切换段表或页表</td>
+</tr>
+<tr>
+<td>页表&#x2F;TLB</td>
+<td>页表保存映射关系，TLB 缓存近期翻译结果</td>
+</tr>
+</tbody></table>
+<p>这里最重要的边界是：<strong>操作系统负责建表，MMU 负责查表。</strong> MMU 并不会凭空创造映射关系，它只是使用当前进程对应的翻译规则。</p>
+<hr>
+<h2 id="❗-本节核心结论：-地址翻译是硬件与操作系统合作完成的：操作系统建立规则，MMU-在访存路径上使用规则。"><a href="#❗-本节核心结论：-地址翻译是硬件与操作系统合作完成的：操作系统建立规则，MMU-在访存路径上使用规则。" class="headerlink" title="❗ 本节核心结论： 地址翻译是硬件与操作系统合作完成的：操作系统建立规则，MMU 在访存路径上使用规则。"></a><strong>❗ 本节核心结论：</strong> 地址翻译是硬件与操作系统合作完成的：操作系统建立规则，MMU 在访存路径上使用规则。</h2><h2 id="3-虚拟地址不是全局地址"><a href="#3-虚拟地址不是全局地址" class="headerlink" title="3. 虚拟地址不是全局地址"></a>3. 虚拟地址不是全局地址</h2><p>一个常见误区是：如果程序 A 知道程序 B 的虚拟地址，是否就能拿这个地址去查 B 的段表或页表，从而得到 B 的物理地址？</p>
+<p>答案是：正常情况下不能。</p>
+<p>原因在于虚拟地址不是全局地址。虚拟地址必须绑定到“当前是哪一个进程、当前使用哪一张地址翻译表”这个上下文中才有意义。</p>
+<p>例如，同样的虚拟地址在两个进程中可能对应不同物理地址：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">进程 A：虚拟地址 0x400000 → 物理地址 X</span><br><span class="line">进程 B：虚拟地址 0x400000 → 物理地址 Y</span><br></pre></td></tr></table></figure>
+
+<p>当进程 A 正在运行时，MMU 使用的是进程 A 的段表或页表。即使 A 知道 B 中存在某个虚拟地址，A 自己访问这个数值时，硬件也会按照 A 的地址空间进行翻译，而不是按照 B 的地址空间进行翻译。</p>
+<p>因此，虚拟内存隔离的关键不是“别人不知道你的虚拟地址”，而是：</p>
+<ul>
+<li>别人不能使用你的地址翻译规则。</li>
+<li>别人不能随便读取你的段表或页表。</li>
+<li>程序运行时，MMU 只使用当前上下文绑定的翻译表。</li>
+</ul>
+<hr>
+<h2 id="❗-本节核心结论：-虚拟地址只有在特定进程地址空间中才有意义；单独知道别人的虚拟地址，并不能访问别人的物理内存。"><a href="#❗-本节核心结论：-虚拟地址只有在特定进程地址空间中才有意义；单独知道别人的虚拟地址，并不能访问别人的物理内存。" class="headerlink" title="❗ 本节核心结论： 虚拟地址只有在特定进程地址空间中才有意义；单独知道别人的虚拟地址，并不能访问别人的物理内存。"></a><strong>❗ 本节核心结论：</strong> 虚拟地址只有在特定进程地址空间中才有意义；单独知道别人的虚拟地址，并不能访问别人的物理内存。</h2><h2 id="4-分段机制：直观但会产生外部碎片"><a href="#4-分段机制：直观但会产生外部碎片" class="headerlink" title="4. 分段机制：直观但会产生外部碎片"></a>4. 分段机制：直观但会产生外部碎片</h2><p>分段机制是一种较早、较直观的虚拟内存组织方式。它把虚拟地址空间分成若干不定长段，例如：</p>
+<ul>
+<li>代码段</li>
+<li>数据段</li>
+<li>堆段</li>
+<li>栈段</li>
+</ul>
+<p>分段机制下，虚拟地址可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟地址 = 段号 + 段内偏移</span><br></pre></td></tr></table></figure>
+
+<p>段表中保存：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">段号 → 物理起始地址 + 段长度</span><br></pre></td></tr></table></figure>
+
+<p>若某段物理起始地址为 <code>0x500000</code>，段内偏移为 <code>0x350</code>，则物理地址为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x500000 + 0x350 = 0x500350</span><br></pre></td></tr></table></figure>
+
+<p>分段的优点是符合程序结构直觉：代码、数据、堆、栈本来就像不同区域。但它的主要问题是<strong>外部碎片</strong>。</p>
+<p>因为段的大小不固定，物理内存可能变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[段1][空洞][段3][空洞][段2]</span><br></pre></td></tr></table></figure>
+
+<p>这些空洞加起来可能很大，但单个空洞不够大时，新段仍然无法放入。这就是分段机制在内存利用率上的局限。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>管理单位</th>
+<th>地址结构</th>
+<th>优点</th>
+<th>主要问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分段</td>
+<td>不定长段</td>
+<td>段号 + 段内偏移</td>
+<td>符合程序结构</td>
+<td>外部碎片</td>
+</tr>
+<tr>
+<td>分页</td>
+<td>固定大小页</td>
+<td>虚拟页号 + 页内偏移</td>
+<td>管理规整，减少外部碎片</td>
+<td>需要页表和地址翻译</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：-分段的抽象很直观，但不定长段容易造成外部碎片，因此现代系统更依赖分页机制。"><a href="#❗-本节核心结论：-分段的抽象很直观，但不定长段容易造成外部碎片，因此现代系统更依赖分页机制。" class="headerlink" title="❗ 本节核心结论： 分段的抽象很直观，但不定长段容易造成外部碎片，因此现代系统更依赖分页机制。"></a><strong>❗ 本节核心结论：</strong> 分段的抽象很直观，但不定长段容易造成外部碎片，因此现代系统更依赖分页机制。</h2><h2 id="5-分页机制：页号翻译，偏移不变"><a href="#5-分页机制：页号翻译，偏移不变" class="headerlink" title="5. 分页机制：页号翻译，偏移不变"></a>5. 分页机制：页号翻译，偏移不变</h2><p>分页机制把虚拟内存和物理内存都切成固定大小的块：</p>
+<ul>
+<li>虚拟地址空间中的块称为<strong>虚拟页</strong>。</li>
+<li>物理内存中的块称为<strong>物理页</strong>。</li>
+<li>常见页大小是 4KB。</li>
+</ul>
+<p>分页下，虚拟地址被拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟地址 = 虚拟页号 + 页内偏移</span><br></pre></td></tr></table></figure>
+
+<p>页表记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟页号 → 物理页号</span><br></pre></td></tr></table></figure>
+
+<p>翻译完成后，物理地址为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">物理地址 = 物理页号 + 同一个页内偏移</span><br></pre></td></tr></table></figure>
+
+<p>这里最关键的是：<strong>地址翻译只改变页号，不改变页内偏移。</strong></p>
+<p>例如，假设页大小是 4KB，即 <code>0x1000</code>。虚拟地址：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x12345</span><br></pre></td></tr></table></figure>
+
+<p>可以拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">虚拟页号 = 0x12</span><br><span class="line">页内偏移 = 0x345</span><br></pre></td></tr></table></figure>
+
+<p>如果页表中有映射：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟页号 0x12 → 物理页号 0xABC</span><br></pre></td></tr></table></figure>
+
+<p>那么物理地址就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xABC000 + 0x345 = 0xABC345</span><br></pre></td></tr></table></figure>
+
+<p>页表并不是为每一个字节单独记录映射，而是为每个虚拟页记录它对应的物理页。页内第 837 个字节，映射后仍然是物理页内第 837 个字节。</p>
+<hr>
+<h2 id="❗-本节核心结论：-页表保存的是“虚拟页号-→-物理页号”，不是逐字节的“虚拟地址-→-物理地址”；页内偏移保持不变。"><a href="#❗-本节核心结论：-页表保存的是“虚拟页号-→-物理页号”，不是逐字节的“虚拟地址-→-物理地址”；页内偏移保持不变。" class="headerlink" title="❗ 本节核心结论： 页表保存的是“虚拟页号 → 物理页号”，不是逐字节的“虚拟地址 → 物理地址”；页内偏移保持不变。"></a><strong>❗ 本节核心结论：</strong> 页表保存的是“虚拟页号 → 物理页号”，不是逐字节的“虚拟地址 → 物理地址”；页内偏移保持不变。</h2><h2 id="6-单级页表为什么会太大"><a href="#6-单级页表为什么会太大" class="headerlink" title="6. 单级页表为什么会太大"></a>6. 单级页表为什么会太大</h2><p>单级页表可以想象成一个巨大数组：每个虚拟页号对应一个页表项。</p>
+<p>它的空间计算公式是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">页表大小 = 虚拟页数量 × 每个页表项大小</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟页数量 = 虚拟地址空间大小 / 页大小</span><br></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">页表大小 = 虚拟地址空间大小 / 页大小 × 页表项大小</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-1-32-位地址空间示例"><a href="#6-1-32-位地址空间示例" class="headerlink" title="6.1 32 位地址空间示例"></a>6.1 32 位地址空间示例</h3><p>设定：</p>
+<ul>
+<li>虚拟地址空间：32 位，即 <code>2^32</code> 字节。</li>
+<li>页大小：4KB，即 <code>2^12</code> 字节。</li>
+<li>页表项大小：4 字节。</li>
+</ul>
+<p>则虚拟页数量为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^32 / 2^12 = 2^20</span><br></pre></td></tr></table></figure>
+
+<p>页表大小为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^20 × 4B = 2^22B = 4MB</span><br></pre></td></tr></table></figure>
+
+<p>一个进程一张 4MB 页表，在 32 位系统中还勉强可以接受。</p>
+<h3 id="6-2-64-位地址空间示例"><a href="#6-2-64-位地址空间示例" class="headerlink" title="6.2 64 位地址空间示例"></a>6.2 64 位地址空间示例</h3><p>设定：</p>
+<ul>
+<li>虚拟地址空间：64 位，即 <code>2^64</code> 字节。</li>
+<li>页大小：4KB，即 <code>2^12</code> 字节。</li>
+<li>页表项大小：8 字节。</li>
+</ul>
+<p>则虚拟页数量为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^64 / 2^12 = 2^52</span><br></pre></td></tr></table></figure>
+
+<p>页表大小为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^52 × 8B = 2^55B</span><br></pre></td></tr></table></figure>
+
+<p>换算为 GB：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^55 / 2^30 = 2^25GB = 33,554,432GB</span><br></pre></td></tr></table></figure>
+
+<p>这个规模显然不可接受。问题的根源在于：单级页表需要为整个虚拟地址空间中的每个虚拟页准备页表项，即使绝大多数虚拟地址根本没有被使用。</p>
+<hr>
+<h2 id="❗-本节核心结论：-单级页表的空间浪费来自“覆盖整个虚拟地址空间”；64-位地址空间下，这种设计会导致页表规模不可接受。"><a href="#❗-本节核心结论：-单级页表的空间浪费来自“覆盖整个虚拟地址空间”；64-位地址空间下，这种设计会导致页表规模不可接受。" class="headerlink" title="❗ 本节核心结论： 单级页表的空间浪费来自“覆盖整个虚拟地址空间”；64 位地址空间下，这种设计会导致页表规模不可接受。"></a><strong>❗ 本节核心结论：</strong> 单级页表的空间浪费来自“覆盖整个虚拟地址空间”；64 位地址空间下，这种设计会导致页表规模不可接受。</h2><h2 id="7-多级页表：用更多查询步骤换更少空间"><a href="#7-多级页表：用更多查询步骤换更少空间" class="headerlink" title="7. 多级页表：用更多查询步骤换更少空间"></a>7. 多级页表：用更多查询步骤换更少空间</h2><p>多级页表的基本思想是：<strong>不要为根本没有使用的虚拟地址区域分配页表。</strong></p>
+<p>单级页表像一个巨大数组：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟页号 → 页表项</span><br></pre></td></tr></table></figure>
+
+<p>多级页表更像一棵按需展开的树：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    L0[L0 页表] --&gt; L1a[L1 页表]
+    L0 --&gt; Hole1[空洞：不分配下级页表]
+    L1a --&gt; L2a[L2 页表]
+    L1a --&gt; Hole2[空洞：不分配下级页表]
+    L2a --&gt; L3a[L3 页表]
+    L3a --&gt; P[物理页]
+  </pre></div>
+
+<p>这张图说明：如果某个地址区域没有被使用，对应的下级页表可以不存在，从而节省空间。</p>
+<p>多级页表的代价是翻译变慢。如果没有 TLB，地址翻译可能需要逐级访问多张页表，最后才能得到物理页号。</p>
+<p>因此，多级页表体现的是一个典型权衡：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th align="right">空间开销</th>
+<th align="right">翻译速度</th>
+<th>核心特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单级页表</td>
+<td align="right">大</td>
+<td align="right">查一次表较直接</td>
+<td>为整个虚拟地址空间建表</td>
+</tr>
+<tr>
+<td>多级页表</td>
+<td align="right">小</td>
+<td align="right">可能多次查表</td>
+<td>只为使用到的区域分配下级页表</td>
+</tr>
+</tbody></table>
+<p>多级页表不是 MMU 自动创建的。它由操作系统在进程创建、程序加载或内存分配时按需创建和维护。MMU 的职责是在运行时按照页表结构逐级查询。</p>
+<hr>
+<h2 id="❗-本节核心结论：-多级页表通过允许地址空间中存在“空洞”来节省空间，但代价是一次地址翻译可能需要多次查表。"><a href="#❗-本节核心结论：-多级页表通过允许地址空间中存在“空洞”来节省空间，但代价是一次地址翻译可能需要多次查表。" class="headerlink" title="❗ 本节核心结论： 多级页表通过允许地址空间中存在“空洞”来节省空间，但代价是一次地址翻译可能需要多次查表。"></a><strong>❗ 本节核心结论：</strong> 多级页表通过允许地址空间中存在“空洞”来节省空间，但代价是一次地址翻译可能需要多次查表。</h2><h2 id="8-AArch64-四级页表：9-9-9-9-12"><a href="#8-AArch64-四级页表：9-9-9-9-12" class="headerlink" title="8. AArch64 四级页表：9 + 9 + 9 + 9 + 12"></a>8. AArch64 四级页表：9 + 9 + 9 + 9 + 12</h2><p>以 AArch64 的常见设定为例：</p>
+<ul>
+<li>页大小：4KB。</li>
+<li>页内偏移位数：<code>log2(4KB) = 12</code> 位。</li>
+<li>有效虚拟地址：48 位。</li>
+</ul>
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">48 位虚拟地址 = 36 位虚拟页号 + 12 位页内偏移</span><br></pre></td></tr></table></figure>
+
+<p>36 位虚拟页号被分成 4 级索引：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">36 = 9 + 9 + 9 + 9</span><br></pre></td></tr></table></figure>
+
+<p>所以地址结构可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">虚拟页号_0 | 虚拟页号_1 | 虚拟页号_2 | 虚拟页号_3 | 页内偏移</span><br><span class="line">    9 位         9 位         9 位         9 位        12 位</span><br></pre></td></tr></table></figure>
+
+<p>每一级 9 位，可以索引：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^9 = 512</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，每一级页表最多有 512 个页表项。</p>
+<p>AArch64 四级页表的翻译过程可以概括为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    VA[虚拟地址] --&gt; Split[拆分为 9+9+9+9+12]
+    Split --&gt; TTBR[TTBR0_EL1 指向 L0 页表]
+    TTBR --&gt; L0[用第 1 个 9 位索引 L0]
+    L0 --&gt; L1[用第 2 个 9 位索引 L1]
+    L1 --&gt; L2[用第 3 个 9 位索引 L2]
+    L2 --&gt; L3[用第 4 个 9 位索引 L3]
+    L3 --&gt; PPN[得到物理页号]
+    PPN --&gt; PA[物理页号 + 页内偏移 &#x3D; 物理地址]
+  </pre></div>
+
+<p>这张图强调：四级页表并不是四种不同地址，而是把虚拟页号分成四段，逐层缩小搜索范围，最后找到物理页号。</p>
+<hr>
+<h2 id="❗-本节核心结论：-在-4KB-页、48-位有效虚拟地址下，AArch64-四级页表的地址拆分规律是-9-9-9-9-12。"><a href="#❗-本节核心结论：-在-4KB-页、48-位有效虚拟地址下，AArch64-四级页表的地址拆分规律是-9-9-9-9-12。" class="headerlink" title="❗ 本节核心结论： 在 4KB 页、48 位有效虚拟地址下，AArch64 四级页表的地址拆分规律是 9 + 9 + 9 + 9 + 12。"></a><strong>❗ 本节核心结论：</strong> 在 4KB 页、48 位有效虚拟地址下，AArch64 四级页表的地址拆分规律是 <code>9 + 9 + 9 + 9 + 12</code>。</h2><h2 id="9-页表项不仅保存物理页号"><a href="#9-页表项不仅保存物理页号" class="headerlink" title="9. 页表项不仅保存物理页号"></a>9. 页表项不仅保存物理页号</h2><p>页表项的核心内容是物理页号，但它通常不只保存物理页号。它还包含权限和状态信息。</p>
+<p>常见字段包括：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>valid 位</td>
+<td>表示页表项是否有效</td>
+</tr>
+<tr>
+<td>AP 位</td>
+<td>控制读写权限</td>
+</tr>
+<tr>
+<td>XN 位</td>
+<td>控制用户态是否禁止执行</td>
+</tr>
+<tr>
+<td>PXN 位</td>
+<td>控制内核态是否禁止执行</td>
+</tr>
+<tr>
+<td>AF 位</td>
+<td>Access Flag，可用于记录页面是否被访问</td>
+</tr>
+<tr>
+<td>AttrIndx</td>
+<td>指示内存类型，如普通内存或设备内存</td>
+</tr>
+</tbody></table>
+<p>因此，页表不只是“地址翻译表”，也是保护机制的一部分。MMU 在查页表时，不仅要得到物理页号，还可能检查当前访问是否合法。</p>
+<p>当页表项无效、权限不足或执行控制不允许时，MMU 不应简单返回物理地址，而应触发异常，让操作系统处理。</p>
+<hr>
+<h2 id="❗-本节核心结论：-页表项既表达地址映射，也表达访问权限、执行控制和内存属性；页表同时承担翻译与保护功能。"><a href="#❗-本节核心结论：-页表项既表达地址映射，也表达访问权限、执行控制和内存属性；页表同时承担翻译与保护功能。" class="headerlink" title="❗ 本节核心结论： 页表项既表达地址映射，也表达访问权限、执行控制和内存属性；页表同时承担翻译与保护功能。"></a><strong>❗ 本节核心结论：</strong> 页表项既表达地址映射，也表达访问权限、执行控制和内存属性；页表同时承担翻译与保护功能。</h2><h2 id="10-页表使能：从物理寻址到虚拟寻址"><a href="#10-页表使能：从物理寻址到虚拟寻址" class="headerlink" title="10. 页表使能：从物理寻址到虚拟寻址"></a>10. 页表使能：从物理寻址到虚拟寻址</h2><p>CPU 刚启动时，系统通常处于较原始的物理寻址阶段。操作系统或底层系统软件初始化页表后，会配置控制寄存器，使地址翻译生效。</p>
+<p>典型例子包括：</p>
+<table>
+<thead>
+<tr>
+<th>架构</th>
+<th>控制方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AArch64</td>
+<td>设置 <code>SCTLR_EL1</code> 的 <code>M</code> 位</td>
+</tr>
+<tr>
+<td>x86_64</td>
+<td>设置 <code>CR0</code> 的 <code>PG</code> 位</td>
+</tr>
+</tbody></table>
+<p>可以简化理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">页表未使能：CPU 发出的地址直接当作物理地址</span><br><span class="line">页表已使能：CPU 发出的地址先经 MMU 翻译，再访问物理内存</span><br></pre></td></tr></table></figure>
+
+<p>这说明虚拟内存不是只存在于软件概念中，它需要硬件控制位和页表基地址寄存器共同支持。</p>
+<hr>
+<h2 id="❗-本节核心结论：-页表只有在硬件控制位开启后才参与访存路径；开启后，CPU-发出的地址会经过-MMU-翻译。"><a href="#❗-本节核心结论：-页表只有在硬件控制位开启后才参与访存路径；开启后，CPU-发出的地址会经过-MMU-翻译。" class="headerlink" title="❗ 本节核心结论： 页表只有在硬件控制位开启后才参与访存路径；开启后，CPU 发出的地址会经过 MMU 翻译。"></a><strong>❗ 本节核心结论：</strong> 页表只有在硬件控制位开启后才参与访存路径；开启后，CPU 发出的地址会经过 MMU 翻译。</h2><h2 id="11-TLB：让多级页表重新变快"><a href="#11-TLB：让多级页表重新变快" class="headerlink" title="11. TLB：让多级页表重新变快"></a>11. TLB：让多级页表重新变快</h2><p>多级页表节省空间，但也增加了地址翻译成本。若每次访问内存都要查四级页表，那么一次普通访存可能变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">查 L0 页表</span><br><span class="line">查 L1 页表</span><br><span class="line">查 L2 页表</span><br><span class="line">查 L3 页表</span><br><span class="line">真正访问数据</span><br></pre></td></tr></table></figure>
+
+<p>为降低这个成本，CPU 内部提供 TLB：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TLB = Translation Lookaside Buffer</span><br></pre></td></tr></table></figure>
+
+<p>它缓存的是近期使用过的地址翻译结果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">虚拟页号 → 物理页号</span><br></pre></td></tr></table></figure>
+
+<p>地址翻译过程可以概括为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    VA[虚拟地址] --&gt; TLB{TLB 命中?}
+    TLB -- 是 --&gt; PPN[直接得到物理页号]
+    TLB -- 否 --&gt; WALK[执行多级页表查询]
+    WALK --&gt; FILL[把结果填入 TLB]
+    FILL --&gt; PPN
+    PPN --&gt; PA[拼接页内偏移]
+  </pre></div>
+
+<p>TLB 有效的原因是程序访问内存具有局部性：</p>
+<table>
+<thead>
+<tr>
+<th>局部性</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时间局部性</td>
+<td>刚访问过的地址，之后很可能再次访问</td>
+<td>循环中反复访问同一变量</td>
+</tr>
+<tr>
+<td>空间局部性</td>
+<td>访问某地址后，附近地址也很可能被访问</td>
+<td>顺序遍历数组</td>
+</tr>
+</tbody></table>
+<p>例如连续访问数组 <code>a[i]</code> 时，多个元素可能位于同一页内。只要这一页的映射已经在 TLB 中，访问同页其他元素时就可以复用同一条翻译结果。</p>
+<hr>
+<h2 id="❗-本节核心结论：-TLB-是页表查询结果的缓存，它利用程序访问局部性减少多级页表查询次数。"><a href="#❗-本节核心结论：-TLB-是页表查询结果的缓存，它利用程序访问局部性减少多级页表查询次数。" class="headerlink" title="❗ 本节核心结论： TLB 是页表查询结果的缓存，它利用程序访问局部性减少多级页表查询次数。"></a><strong>❗ 本节核心结论：</strong> TLB 是页表查询结果的缓存，它利用程序访问局部性减少多级页表查询次数。</h2><h2 id="12-进程切换、TLB-刷新与-ASID"><a href="#12-进程切换、TLB-刷新与-ASID" class="headerlink" title="12. 进程切换、TLB 刷新与 ASID"></a>12. 进程切换、TLB 刷新与 ASID</h2><p>TLB 缓存的是虚拟页号到物理页号的映射。但不同进程有不同页表，可能出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">进程 A：虚拟页 0 → 物理页 1</span><br><span class="line">进程 B：虚拟页 0 → 物理页 9</span><br></pre></td></tr></table></figure>
+
+<p>如果进程切换后仍错误复用旧进程的 TLB 项，就会把 A 的映射用于 B，造成严重错误。</p>
+<p>最直接的解决方式是：每次进程切换都刷新 TLB。但这会丢失缓存，性能较差。</p>
+<p>更好的办法是给 TLB 项加入地址空间标签。例如 AArch64 使用 ASID：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ASID = Address Space ID</span><br></pre></td></tr></table></figure>
+
+<p>TLB 项可理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ASID + 虚拟页号 → 物理页号</span><br></pre></td></tr></table></figure>
+
+<p>这样，即使两个进程都有虚拟页 0，也能区分：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ASID 1 + 虚拟页 0 → 物理页 1</span><br><span class="line">ASID 5 + 虚拟页 0 → 物理页 9</span><br></pre></td></tr></table></figure>
+
+<p>ASID 的意义是：把“当前属于哪个地址空间”这个上下文显式加入 TLB 项，从而减少不必要的全量刷新。</p>
+<hr>
+<h2 id="❗-本节核心结论：-ASID-让-TLB-项带上地址空间身份，避免不同进程的相同虚拟页号发生混淆。"><a href="#❗-本节核心结论：-ASID-让-TLB-项带上地址空间身份，避免不同进程的相同虚拟页号发生混淆。" class="headerlink" title="❗ 本节核心结论： ASID 让 TLB 项带上地址空间身份，避免不同进程的相同虚拟页号发生混淆。"></a><strong>❗ 本节核心结论：</strong> ASID 让 TLB 项带上地址空间身份，避免不同进程的相同虚拟页号发生混淆。</h2><h2 id="13-MMU、操作系统、页表和-TLB-的职责边界"><a href="#13-MMU、操作系统、页表和-TLB-的职责边界" class="headerlink" title="13. MMU、操作系统、页表和 TLB 的职责边界"></a>13. MMU、操作系统、页表和 TLB 的职责边界</h2><p>虚拟内存管理容易混淆的地方，是把“谁建立规则”和“谁使用规则”混为一谈。可以用下表区分：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>做什么</th>
+<th>不做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作系统</td>
+<td>创建页表、分配页表页、填写 PTE、设置权限、切换页表</td>
+<td>不在每次普通访存时手动翻译地址</td>
+</tr>
+<tr>
+<td>MMU</td>
+<td>根据当前页表和 TLB 执行地址翻译与权限检查</td>
+<td>不自行决定哪些虚拟页应映射到哪些物理页</td>
+</tr>
+<tr>
+<td>TLB</td>
+<td>缓存近期翻译结果</td>
+<td>不替代页表作为权威映射来源</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>执行指令并发起访存</td>
+<td>不直接理解进程隔离策略</td>
+</tr>
+</tbody></table>
+<p>多级页表的创建流程可以简化为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    Need[需要映射某个虚拟地址] --&gt; Check0[检查 L0 项]
+    Check0 --&gt;|不存在| Alloc1[分配 L1 页表]
+    Check0 --&gt;|存在| Check1[检查 L1 项]
+    Alloc1 --&gt; Check1
+    Check1 --&gt;|不存在| Alloc2[分配 L2 页表]
+    Check1 --&gt;|存在| Check2[检查 L2 项]
+    Alloc2 --&gt; Check2
+    Check2 --&gt;|不存在| Alloc3[分配 L3 页表]
+    Check2 --&gt;|存在| Fill[填写最终页表项]
+    Alloc3 --&gt; Fill
+    Fill --&gt; Done[写入物理页号与权限位]
+  </pre></div>
+
+<p>这张图说明：多级页表由操作系统按需创建；程序运行时，MMU 只是沿着已经建立好的结构查找。</p>
+<hr>
+<h2 id="❗-本节核心结论：-操作系统负责构造地址空间，MMU-负责执行翻译，TLB-负责缓存结果；三者分工不能混淆。"><a href="#❗-本节核心结论：-操作系统负责构造地址空间，MMU-负责执行翻译，TLB-负责缓存结果；三者分工不能混淆。" class="headerlink" title="❗ 本节核心结论： 操作系统负责构造地址空间，MMU 负责执行翻译，TLB 负责缓存结果；三者分工不能混淆。"></a><strong>❗ 本节核心结论：</strong> 操作系统负责构造地址空间，MMU 负责执行翻译，TLB 负责缓存结果；三者分工不能混淆。</h2><h2 id="14-常见误区集中澄清"><a href="#14-常见误区集中澄清" class="headerlink" title="14. 常见误区集中澄清"></a>14. 常见误区集中澄清</h2><h3 id="14-1-虚拟内存不是只为了解决“内存不够”"><a href="#14-1-虚拟内存不是只为了解决“内存不够”" class="headerlink" title="14.1 虚拟内存不是只为了解决“内存不够”"></a>14.1 虚拟内存不是只为了解决“内存不够”</h3><p>虚拟内存更基础的目标是隔离、保护和地址空间独立。扩大可用内存只是虚拟内存体系中更后续的一部分主题。</p>
+<h3 id="14-2-页表不是保存“每个虚拟地址到物理地址”"><a href="#14-2-页表不是保存“每个虚拟地址到物理地址”" class="headerlink" title="14.2 页表不是保存“每个虚拟地址到物理地址”"></a>14.2 页表不是保存“每个虚拟地址到物理地址”</h3><p>分页以页为单位管理内存。页表保存的是“虚拟页号 → 物理页号”，页内偏移直接保留。</p>
+<h3 id="14-3-知道别人的虚拟地址没有直接意义"><a href="#14-3-知道别人的虚拟地址没有直接意义" class="headerlink" title="14.3 知道别人的虚拟地址没有直接意义"></a>14.3 知道别人的虚拟地址没有直接意义</h3><p>虚拟地址必须绑定进程地址空间。进程 A 知道进程 B 的虚拟地址，并不代表 A 能让 MMU 使用 B 的页表。</p>
+<h3 id="14-4-多级页表不是-MMU-创建的"><a href="#14-4-多级页表不是-MMU-创建的" class="headerlink" title="14.4 多级页表不是 MMU 创建的"></a>14.4 多级页表不是 MMU 创建的</h3><p>多级页表由操作系统创建和维护。MMU 的职责是读取页表并执行地址翻译。</p>
+<h3 id="14-5-TLB-不是另一张完整页表"><a href="#14-5-TLB-不是另一张完整页表" class="headerlink" title="14.5 TLB 不是另一张完整页表"></a>14.5 TLB 不是另一张完整页表</h3><p>TLB 是缓存，不是权威数据结构。TLB 未命中时仍需要查询页表。</p>
+<hr>
+<h2 id="❗-本节核心结论：-理解虚拟内存的关键，是把“地址空间上下文、页表映射、硬件翻译、缓存加速”四件事分清楚。"><a href="#❗-本节核心结论：-理解虚拟内存的关键，是把“地址空间上下文、页表映射、硬件翻译、缓存加速”四件事分清楚。" class="headerlink" title="❗ 本节核心结论： 理解虚拟内存的关键，是把“地址空间上下文、页表映射、硬件翻译、缓存加速”四件事分清楚。"></a><strong>❗ 本节核心结论：</strong> 理解虚拟内存的关键，是把“地址空间上下文、页表映射、硬件翻译、缓存加速”四件事分清楚。</h2><h2 id="15-复习清单"><a href="#15-复习清单" class="headerlink" title="15. 复习清单"></a>15. 复习清单</h2><p>学完《虚拟内存管理 I》后，应能回答以下问题：</p>
+<ol>
+<li>为什么应用程序不应该直接使用物理地址？</li>
+<li>虚拟地址和物理地址分别是什么？</li>
+<li>为什么虚拟地址必须绑定进程地址空间？</li>
+<li>分段机制的地址结构是什么？</li>
+<li>分段为什么会产生外部碎片？</li>
+<li>分页机制下，虚拟地址由哪两部分组成？</li>
+<li>页表保存的到底是什么映射？</li>
+<li>为什么页内偏移在地址翻译后保持不变？</li>
+<li>单级页表大小如何计算？</li>
+<li>为什么 64 位系统不能简单使用完整单级页表？</li>
+<li>多级页表为什么能节省空间？</li>
+<li>AArch64 四级页表中 <code>9 + 9 + 9 + 9 + 12</code> 分别表示什么？</li>
+<li>页表项除了物理页号，还可能保存哪些控制信息？</li>
+<li>MMU 在地址翻译中负责什么？</li>
+<li>操作系统在页表管理中负责什么？</li>
+<li>TLB 缓存的是什么？</li>
+<li>为什么程序局部性会提高 TLB 的有效性？</li>
+<li>ASID 为什么能减少进程切换时的 TLB 刷新开销？</li>
+</ol>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>《虚拟内存管理 I》的核心链条可以压缩为一句话：</p>
+<p><strong>程序使用虚拟地址；操作系统为每个进程建立独立的地址翻译规则；MMU 根据当前规则把虚拟地址翻译为物理地址；多级页表节省页表空间；TLB 缓存翻译结果以降低查表成本。</strong></p>
+<p>因此，虚拟内存不是单个机制，而是一组机制的组合。分段和分页解决地址组织问题，页表解决映射保存问题，多级页表解决空间开销问题，TLB 解决翻译速度问题，ASID 解决多进程上下文切换中的缓存混淆问题。</p>
+<p>真正掌握这一节，关键不在于死记每个字段，而在于形成一个稳定直觉：<strong>程序运行在虚拟地址世界中，物理内存由操作系统和硬件共同隐藏、翻译和保护。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/')">第5讲 虚拟内存管理I</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第5讲 虚拟内存管理I&amp;url=http://example.com/2026/06/11/%E7%AC%AC5%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86I/&amp;pic=/cover/juri.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/11/%E7%AC%AC2%E8%AE%B2-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/alex.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第2讲 操作系统结构</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/11/%E7%AC%AC6%E8%AE%B2-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86II/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/marisa.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">第6讲 虚拟内存管理II</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-I%EF%BC%9A%E4%BB%8E%E5%9C%B0%E5%9D%80%E9%9A%94%E7%A6%BB%E5%88%B0%E9%A1%B5%E8%A1%A8%E7%BF%BB%E8%AF%91"><span class="toc-number">1.</span> <span class="toc-text">虚拟内存管理 I：从地址隔离到页表翻译</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E4%B8%8D%E6%98%AF%E5%8D%95%E7%BA%AF%E4%B8%BA%E4%BA%86%E2%80%9C%E6%89%A9%E5%A4%A7%E5%86%85%E5%AD%98%E2%80%9D%EF%BC%8C%E8%80%8C%E6%98%AF%E4%B8%BA%E4%BA%86%E7%BB%99%E6%AF%8F%E4%B8%AA%E8%BF%9B%E7%A8%8B%E6%8F%90%E4%BE%9B%E7%8B%AC%E7%AB%8B%E3%80%81%E5%8F%97%E4%BF%9D%E6%8A%A4%E3%80%81%E5%8F%AF%E7%AE%A1%E7%90%86%E7%9A%84%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E3%80%82"><span class="toc-number">1.1.</span> <span class="toc-text">❗ 核心结论： 虚拟内存不是单纯为了“扩大内存”，而是为了给每个进程提供独立、受保护、可管理的地址空间。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80"><span class="toc-number">1.2.</span> <span class="toc-text">1. 为什么不能直接使用物理地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E7%A8%8B%E5%BA%8F%E4%B8%8D%E5%BA%94%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%EF%BC%8C%E5%9B%A0%E4%B8%BA%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%E6%9A%B4%E9%9C%B2%E7%9C%9F%E5%AE%9E%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%EF%BC%8C%E5%B9%B6%E5%89%8A%E5%BC%B1%E8%BF%9B%E7%A8%8B%E9%9A%94%E7%A6%BB%E4%B8%8E%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E8%83%BD%E5%8A%9B%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">❗ 本节核心结论： 程序不应直接使用物理地址，因为物理地址暴露真实内存布局，并削弱进程隔离与系统管理能力。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E4%B8%8E%E5%9C%B0%E5%9D%80%E7%BF%BB%E8%AF%91"><span class="toc-number">1.4.</span> <span class="toc-text">2. 虚拟地址与地址翻译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%9C%B0%E5%9D%80%E7%BF%BB%E8%AF%91%E6%98%AF%E7%A1%AC%E4%BB%B6%E4%B8%8E%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%90%88%E4%BD%9C%E5%AE%8C%E6%88%90%E7%9A%84%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%BB%BA%E7%AB%8B%E8%A7%84%E5%88%99%EF%BC%8CMMU-%E5%9C%A8%E8%AE%BF%E5%AD%98%E8%B7%AF%E5%BE%84%E4%B8%8A%E4%BD%BF%E7%94%A8%E8%A7%84%E5%88%99%E3%80%82"><span class="toc-number">1.5.</span> <span class="toc-text">❗ 本节核心结论： 地址翻译是硬件与操作系统合作完成的：操作系统建立规则，MMU 在访存路径上使用规则。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E4%B8%8D%E6%98%AF%E5%85%A8%E5%B1%80%E5%9C%B0%E5%9D%80"><span class="toc-number">1.6.</span> <span class="toc-text">3. 虚拟地址不是全局地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E5%8F%AA%E6%9C%89%E5%9C%A8%E7%89%B9%E5%AE%9A%E8%BF%9B%E7%A8%8B%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E4%B8%AD%E6%89%8D%E6%9C%89%E6%84%8F%E4%B9%89%EF%BC%9B%E5%8D%95%E7%8B%AC%E7%9F%A5%E9%81%93%E5%88%AB%E4%BA%BA%E7%9A%84%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%EF%BC%8C%E5%B9%B6%E4%B8%8D%E8%83%BD%E8%AE%BF%E9%97%AE%E5%88%AB%E4%BA%BA%E7%9A%84%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E3%80%82"><span class="toc-number">1.7.</span> <span class="toc-text">❗ 本节核心结论： 虚拟地址只有在特定进程地址空间中才有意义；单独知道别人的虚拟地址，并不能访问别人的物理内存。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6%EF%BC%9A%E7%9B%B4%E8%A7%82%E4%BD%86%E4%BC%9A%E4%BA%A7%E7%94%9F%E5%A4%96%E9%83%A8%E7%A2%8E%E7%89%87"><span class="toc-number">1.8.</span> <span class="toc-text">4. 分段机制：直观但会产生外部碎片</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%88%86%E6%AE%B5%E7%9A%84%E6%8A%BD%E8%B1%A1%E5%BE%88%E7%9B%B4%E8%A7%82%EF%BC%8C%E4%BD%86%E4%B8%8D%E5%AE%9A%E9%95%BF%E6%AE%B5%E5%AE%B9%E6%98%93%E9%80%A0%E6%88%90%E5%A4%96%E9%83%A8%E7%A2%8E%E7%89%87%EF%BC%8C%E5%9B%A0%E6%AD%A4%E7%8E%B0%E4%BB%A3%E7%B3%BB%E7%BB%9F%E6%9B%B4%E4%BE%9D%E8%B5%96%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6%E3%80%82"><span class="toc-number">1.9.</span> <span class="toc-text">❗ 本节核心结论： 分段的抽象很直观，但不定长段容易造成外部碎片，因此现代系统更依赖分页机制。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6%EF%BC%9A%E9%A1%B5%E5%8F%B7%E7%BF%BB%E8%AF%91%EF%BC%8C%E5%81%8F%E7%A7%BB%E4%B8%8D%E5%8F%98"><span class="toc-number">1.10.</span> <span class="toc-text">5. 分页机制：页号翻译，偏移不变</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E9%A1%B5%E8%A1%A8%E4%BF%9D%E5%AD%98%E7%9A%84%E6%98%AF%E2%80%9C%E8%99%9A%E6%8B%9F%E9%A1%B5%E5%8F%B7-%E2%86%92-%E7%89%A9%E7%90%86%E9%A1%B5%E5%8F%B7%E2%80%9D%EF%BC%8C%E4%B8%8D%E6%98%AF%E9%80%90%E5%AD%97%E8%8A%82%E7%9A%84%E2%80%9C%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80-%E2%86%92-%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%E2%80%9D%EF%BC%9B%E9%A1%B5%E5%86%85%E5%81%8F%E7%A7%BB%E4%BF%9D%E6%8C%81%E4%B8%8D%E5%8F%98%E3%80%82"><span class="toc-number">1.11.</span> <span class="toc-text">❗ 本节核心结论： 页表保存的是“虚拟页号 → 物理页号”，不是逐字节的“虚拟地址 → 物理地址”；页内偏移保持不变。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%8D%95%E7%BA%A7%E9%A1%B5%E8%A1%A8%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%A4%AA%E5%A4%A7"><span class="toc-number">1.12.</span> <span class="toc-text">6. 单级页表为什么会太大</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-32-%E4%BD%8D%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.12.1.</span> <span class="toc-text">6.1 32 位地址空间示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-64-%E4%BD%8D%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.12.2.</span> <span class="toc-text">6.2 64 位地址空间示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%8D%95%E7%BA%A7%E9%A1%B5%E8%A1%A8%E7%9A%84%E7%A9%BA%E9%97%B4%E6%B5%AA%E8%B4%B9%E6%9D%A5%E8%87%AA%E2%80%9C%E8%A6%86%E7%9B%96%E6%95%B4%E4%B8%AA%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E2%80%9D%EF%BC%9B64-%E4%BD%8D%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E4%B8%8B%EF%BC%8C%E8%BF%99%E7%A7%8D%E8%AE%BE%E8%AE%A1%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%A1%B5%E8%A1%A8%E8%A7%84%E6%A8%A1%E4%B8%8D%E5%8F%AF%E6%8E%A5%E5%8F%97%E3%80%82"><span class="toc-number">1.13.</span> <span class="toc-text">❗ 本节核心结论： 单级页表的空间浪费来自“覆盖整个虚拟地址空间”；64 位地址空间下，这种设计会导致页表规模不可接受。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8%EF%BC%9A%E7%94%A8%E6%9B%B4%E5%A4%9A%E6%9F%A5%E8%AF%A2%E6%AD%A5%E9%AA%A4%E6%8D%A2%E6%9B%B4%E5%B0%91%E7%A9%BA%E9%97%B4"><span class="toc-number">1.14.</span> <span class="toc-text">7. 多级页表：用更多查询步骤换更少空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8%E9%80%9A%E8%BF%87%E5%85%81%E8%AE%B8%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E4%B8%AD%E5%AD%98%E5%9C%A8%E2%80%9C%E7%A9%BA%E6%B4%9E%E2%80%9D%E6%9D%A5%E8%8A%82%E7%9C%81%E7%A9%BA%E9%97%B4%EF%BC%8C%E4%BD%86%E4%BB%A3%E4%BB%B7%E6%98%AF%E4%B8%80%E6%AC%A1%E5%9C%B0%E5%9D%80%E7%BF%BB%E8%AF%91%E5%8F%AF%E8%83%BD%E9%9C%80%E8%A6%81%E5%A4%9A%E6%AC%A1%E6%9F%A5%E8%A1%A8%E3%80%82"><span class="toc-number">1.15.</span> <span class="toc-text">❗ 本节核心结论： 多级页表通过允许地址空间中存在“空洞”来节省空间，但代价是一次地址翻译可能需要多次查表。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-AArch64-%E5%9B%9B%E7%BA%A7%E9%A1%B5%E8%A1%A8%EF%BC%9A9-9-9-9-12"><span class="toc-number">1.16.</span> <span class="toc-text">8. AArch64 四级页表：9 + 9 + 9 + 9 + 12</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%9C%A8-4KB-%E9%A1%B5%E3%80%8148-%E4%BD%8D%E6%9C%89%E6%95%88%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E4%B8%8B%EF%BC%8CAArch64-%E5%9B%9B%E7%BA%A7%E9%A1%B5%E8%A1%A8%E7%9A%84%E5%9C%B0%E5%9D%80%E6%8B%86%E5%88%86%E8%A7%84%E5%BE%8B%E6%98%AF-9-9-9-9-12%E3%80%82"><span class="toc-number">1.17.</span> <span class="toc-text">❗ 本节核心结论： 在 4KB 页、48 位有效虚拟地址下，AArch64 四级页表的地址拆分规律是 9 + 9 + 9 + 9 + 12。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E9%A1%B5%E8%A1%A8%E9%A1%B9%E4%B8%8D%E4%BB%85%E4%BF%9D%E5%AD%98%E7%89%A9%E7%90%86%E9%A1%B5%E5%8F%B7"><span class="toc-number">1.18.</span> <span class="toc-text">9. 页表项不仅保存物理页号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E9%A1%B5%E8%A1%A8%E9%A1%B9%E6%97%A2%E8%A1%A8%E8%BE%BE%E5%9C%B0%E5%9D%80%E6%98%A0%E5%B0%84%EF%BC%8C%E4%B9%9F%E8%A1%A8%E8%BE%BE%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E3%80%81%E6%89%A7%E8%A1%8C%E6%8E%A7%E5%88%B6%E5%92%8C%E5%86%85%E5%AD%98%E5%B1%9E%E6%80%A7%EF%BC%9B%E9%A1%B5%E8%A1%A8%E5%90%8C%E6%97%B6%E6%89%BF%E6%8B%85%E7%BF%BB%E8%AF%91%E4%B8%8E%E4%BF%9D%E6%8A%A4%E5%8A%9F%E8%83%BD%E3%80%82"><span class="toc-number">1.19.</span> <span class="toc-text">❗ 本节核心结论： 页表项既表达地址映射，也表达访问权限、执行控制和内存属性；页表同时承担翻译与保护功能。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E9%A1%B5%E8%A1%A8%E4%BD%BF%E8%83%BD%EF%BC%9A%E4%BB%8E%E7%89%A9%E7%90%86%E5%AF%BB%E5%9D%80%E5%88%B0%E8%99%9A%E6%8B%9F%E5%AF%BB%E5%9D%80"><span class="toc-number">1.20.</span> <span class="toc-text">10. 页表使能：从物理寻址到虚拟寻址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E9%A1%B5%E8%A1%A8%E5%8F%AA%E6%9C%89%E5%9C%A8%E7%A1%AC%E4%BB%B6%E6%8E%A7%E5%88%B6%E4%BD%8D%E5%BC%80%E5%90%AF%E5%90%8E%E6%89%8D%E5%8F%82%E4%B8%8E%E8%AE%BF%E5%AD%98%E8%B7%AF%E5%BE%84%EF%BC%9B%E5%BC%80%E5%90%AF%E5%90%8E%EF%BC%8CCPU-%E5%8F%91%E5%87%BA%E7%9A%84%E5%9C%B0%E5%9D%80%E4%BC%9A%E7%BB%8F%E8%BF%87-MMU-%E7%BF%BB%E8%AF%91%E3%80%82"><span class="toc-number">1.21.</span> <span class="toc-text">❗ 本节核心结论： 页表只有在硬件控制位开启后才参与访存路径；开启后，CPU 发出的地址会经过 MMU 翻译。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-TLB%EF%BC%9A%E8%AE%A9%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8%E9%87%8D%E6%96%B0%E5%8F%98%E5%BF%AB"><span class="toc-number">1.22.</span> <span class="toc-text">11. TLB：让多级页表重新变快</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-TLB-%E6%98%AF%E9%A1%B5%E8%A1%A8%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C%E7%9A%84%E7%BC%93%E5%AD%98%EF%BC%8C%E5%AE%83%E5%88%A9%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%AE%BF%E9%97%AE%E5%B1%80%E9%83%A8%E6%80%A7%E5%87%8F%E5%B0%91%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8%E6%9F%A5%E8%AF%A2%E6%AC%A1%E6%95%B0%E3%80%82"><span class="toc-number">1.23.</span> <span class="toc-text">❗ 本节核心结论： TLB 是页表查询结果的缓存，它利用程序访问局部性减少多级页表查询次数。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2%E3%80%81TLB-%E5%88%B7%E6%96%B0%E4%B8%8E-ASID"><span class="toc-number">1.24.</span> <span class="toc-text">12. 进程切换、TLB 刷新与 ASID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-ASID-%E8%AE%A9-TLB-%E9%A1%B9%E5%B8%A6%E4%B8%8A%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E8%BA%AB%E4%BB%BD%EF%BC%8C%E9%81%BF%E5%85%8D%E4%B8%8D%E5%90%8C%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%9B%B8%E5%90%8C%E8%99%9A%E6%8B%9F%E9%A1%B5%E5%8F%B7%E5%8F%91%E7%94%9F%E6%B7%B7%E6%B7%86%E3%80%82"><span class="toc-number">1.25.</span> <span class="toc-text">❗ 本节核心结论： ASID 让 TLB 项带上地址空间身份，避免不同进程的相同虚拟页号发生混淆。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-MMU%E3%80%81%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E3%80%81%E9%A1%B5%E8%A1%A8%E5%92%8C-TLB-%E7%9A%84%E8%81%8C%E8%B4%A3%E8%BE%B9%E7%95%8C"><span class="toc-number">1.26.</span> <span class="toc-text">13. MMU、操作系统、页表和 TLB 的职责边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%B4%9F%E8%B4%A3%E6%9E%84%E9%80%A0%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%EF%BC%8CMMU-%E8%B4%9F%E8%B4%A3%E6%89%A7%E8%A1%8C%E7%BF%BB%E8%AF%91%EF%BC%8CTLB-%E8%B4%9F%E8%B4%A3%E7%BC%93%E5%AD%98%E7%BB%93%E6%9E%9C%EF%BC%9B%E4%B8%89%E8%80%85%E5%88%86%E5%B7%A5%E4%B8%8D%E8%83%BD%E6%B7%B7%E6%B7%86%E3%80%82"><span class="toc-number">1.27.</span> <span class="toc-text">❗ 本节核心结论： 操作系统负责构造地址空间，MMU 负责执行翻译，TLB 负责缓存结果；三者分工不能混淆。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA%E9%9B%86%E4%B8%AD%E6%BE%84%E6%B8%85"><span class="toc-number">1.28.</span> <span class="toc-text">14. 常见误区集中澄清</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E4%B8%8D%E6%98%AF%E5%8F%AA%E4%B8%BA%E4%BA%86%E8%A7%A3%E5%86%B3%E2%80%9C%E5%86%85%E5%AD%98%E4%B8%8D%E5%A4%9F%E2%80%9D"><span class="toc-number">1.28.1.</span> <span class="toc-text">14.1 虚拟内存不是只为了解决“内存不够”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-%E9%A1%B5%E8%A1%A8%E4%B8%8D%E6%98%AF%E4%BF%9D%E5%AD%98%E2%80%9C%E6%AF%8F%E4%B8%AA%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E5%88%B0%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%E2%80%9D"><span class="toc-number">1.28.2.</span> <span class="toc-text">14.2 页表不是保存“每个虚拟地址到物理地址”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E7%9F%A5%E9%81%93%E5%88%AB%E4%BA%BA%E7%9A%84%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E6%B2%A1%E6%9C%89%E7%9B%B4%E6%8E%A5%E6%84%8F%E4%B9%89"><span class="toc-number">1.28.3.</span> <span class="toc-text">14.3 知道别人的虚拟地址没有直接意义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8%E4%B8%8D%E6%98%AF-MMU-%E5%88%9B%E5%BB%BA%E7%9A%84"><span class="toc-number">1.28.4.</span> <span class="toc-text">14.4 多级页表不是 MMU 创建的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-5-TLB-%E4%B8%8D%E6%98%AF%E5%8F%A6%E4%B8%80%E5%BC%A0%E5%AE%8C%E6%95%B4%E9%A1%B5%E8%A1%A8"><span class="toc-number">1.28.5.</span> <span class="toc-text">14.5 TLB 不是另一张完整页表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E7%90%86%E8%A7%A3%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9A%84%E5%85%B3%E9%94%AE%EF%BC%8C%E6%98%AF%E6%8A%8A%E2%80%9C%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E4%B8%8A%E4%B8%8B%E6%96%87%E3%80%81%E9%A1%B5%E8%A1%A8%E6%98%A0%E5%B0%84%E3%80%81%E7%A1%AC%E4%BB%B6%E7%BF%BB%E8%AF%91%E3%80%81%E7%BC%93%E5%AD%98%E5%8A%A0%E9%80%9F%E2%80%9D%E5%9B%9B%E4%BB%B6%E4%BA%8B%E5%88%86%E6%B8%85%E6%A5%9A%E3%80%82"><span class="toc-number">1.29.</span> <span class="toc-text">❗ 本节核心结论： 理解虚拟内存的关键，是把“地址空间上下文、页表映射、硬件翻译、缓存加速”四件事分清楚。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E5%A4%8D%E4%B9%A0%E6%B8%85%E5%8D%95"><span class="toc-number">1.30.</span> <span class="toc-text">15. 复习清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.31.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC18%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8II/" title="第18讲 多核与多处理器II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ken.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第18讲 多核与多处理器II"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC18%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8II/" title="第18讲 多核与多处理器II">第18讲 多核与多处理器II</a><time datetime="2026-06-11T02:52:20.000Z" title="Created 2026-06-11 10:52:20">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC17%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8I/" title="第17讲 多核与多处理器I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第17讲 多核与多处理器I"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC17%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8I/" title="第17讲 多核与多处理器I">第17讲 多核与多处理器I</a><time datetime="2026-06-11T02:52:14.000Z" title="Created 2026-06-11 10:52:14">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC16%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADIII/" title="第16讲 同步原语III"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第16讲 同步原语III"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC16%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADIII/" title="第16讲 同步原语III">第16讲 同步原语III</a><time datetime="2026-06-11T02:52:09.000Z" title="Created 2026-06-11 10:52:09">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC15%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADII/" title="第15讲 同步原语II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第15讲 同步原语II"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC15%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADII/" title="第15讲 同步原语II">第15讲 同步原语II</a><time datetime="2026-06-11T02:52:05.000Z" title="Created 2026-06-11 10:52:05">2026-06-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/11/%E7%AC%AC14%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADI/" title="第14讲 同步原语I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/mai.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第14讲 同步原语I"/></a><div class="content"><a class="title" href="/2026/06/11/%E7%AC%AC14%E8%AE%B2-%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%ADI/" title="第14讲 同步原语I">第14讲 同步原语I</a><time datetime="2026-06-11T02:52:01.000Z" title="Created 2026-06-11 10:52:01">2026-06-11</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">42</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
