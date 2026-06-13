@@ -1,0 +1,1222 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><meta name="application-name" content="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><meta property="og:url" content="http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南这份课件主体内容是传输层中的 TCP。如果前几节 rdt、GBN、SR 讨论的是“可靠传输的原理模型”，这一节就是把这些思想落到真实 Internet 传输层协议 TCP 上。 TCP 要解决的问题是：  在 IP 本身不可靠的基础"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/blanka.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/blanka.png"><meta name="description" content="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南这份课件主体内容是传输层中的 TCP。如果前几节 rdt、GBN、SR 讨论的是“可靠传输的原理模型”，这一节就是把这些思想落到真实 Internet 传输层协议 TCP 上。 TCP 要解决的问题是：  在 IP 本身不可靠的基础"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南',
+  postAI: '',
+  pageFillDescription: 'Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南, 0. 本节核心主线, ❗ 本节核心结论：TCP 不是让网络层变可靠而是在端系统之间维护序号、ACK、窗口、定时器、连接状态等机制把不可靠的 IP 服务包装成可靠字节流。, 1. TCP 的整体特性, 1.1 TCP 是字节流不是报文流, ❗ 本节核心结论：TCP 不承诺你 send 几次对方就 recv 几次；TCP 只承诺字节按序、可靠地进入接收方字节流。, 2. TCP Segment 结构, 2.1 TCP 序号不是第几个 segment, ❗ 本节核心结论：TCP 的序号按字节计数。一个 segment 携带多少字节下一个序号就增加多少。, 3. Sequence Number 与 ACK Number, 3.1 Sequence Number, 3.2 ACK Number, 3.3 TCP 使用累计确认, ❗ 本节核心结论：TCP 的 ACK Number 表示下一个期待的字节编号而不是最后收到的字节编号。, 4. RTT 与超时机制, 4.1 RTT, 4.2 SampleRTT, 4.3 EstimatedRTT, 4.4 DevRTT 与 TimeoutInterval, ❗ 本节核心结论：TimeoutInterval 不能简单等于 EstimatedRTT；它必须考虑 RTT 波动否则会频繁误判丢包。, 5. TCP 可靠数据传输, 5.1 TCP 像 GBN 还是 SR？, 6. 快速重传 Fast Retransmit, 6.1 什么是重复 ACK？, 6.2 为什么 3 个重复 ACK 触发快速重传？, ❗ 本节核心结论：重复 ACK 不是确认了更多数据而是在反复提示我还在等同一个缺口。, 7. TCP 流量控制 Flow Control, 7.1 为什么需要流量控制？, 7.2 rwnd 的作用, 7.3 流量控制 vs 拥塞控制, ❗ 本节核心结论：流量控制管的是接收方吃不吃得下；拥塞控制管的是网络扛不扛得住。, 8. TCP 连接管理, 9. 为什么两次握手不够？, 9.1 问题一：half-open connection, 9.2 问题二：old duplicate data 被误认为新数据, ❗ 本节核心结论：两次握手的问题不在于正常情况不能建立连接而在于遇到旧报文、延迟、重传时服务器可能误建连接、误收旧数据。, 10. TCP 三次握手, 10.1 第一次握手：Client 发 SYN, 10.2 第二次握手：Server 发 SYNACK, 10.3 第三次握手：Client 确认 Server 的初始序号, ❗ 本节核心结论：三次握手不是形式主义而是为了让双方都确认对方的初始序号从而避免半连接和旧数据误收。, 11. 三次握手如何缓解两次握手的问题？, 11.1 缓解 half-open connection, 11.2 缓解 old duplicate data, 12. TCP 连接关闭, ❗ 本节核心结论：TCP 连接关闭是双向的。每一方都要分别关闭自己的发送方向所以通常需要 FIN 和 ACK 的交换。, 13. 重要对比表, 13.1 SEQ vs ACK, 13.2 超时重传 vs 快速重传, 13.3 流量控制 vs 可靠传输, 14. 易混点整理, 14.1 TCP 的 ACK 不是我收到了这个编号, 14.2 TCP 的序号不是报文段编号, 14.3 累计确认不是选择确认, 14.4 快速重传不是 timeout, 14.5 流量控制不是拥塞控制, 14.6 三次握手不是多发一次而已, 15. 自测题：暂不附答案, 最终总结可靠传输流量控制与连接管理学习指南这份课件主体内容是传输层中的如果前几节讨论的是可靠传输的原理模型这一节就是把这些思想落到真实传输层协议上要解决的问题是在本身不可靠的基础上如何为应用进程提供一种可靠按序面向连接可控速率的字节流传输服务本节核心主线的核心能力可以压缩成一条链不可靠维护连接状态用字节序号标识数据位置用累计确认连续字节用估计设置超时用重传和快速重传恢复丢包用做流量控制用三次握手管理连接本节核心结论不是让网络层变可靠而是在端系统之间维护序号窗口定时器连接状态等机制把不可靠的服务包装成可靠字节流的整体特性是传输控制协议它的典型特征包括特征含义面向连接通信前要建立连接通信后要释放连接可靠传输丢失的数据可以被检测并重传按序交付应用层看到的是按序字节流字节流服务不保留应用层边界全双工双方可以同时发送和接收流量控制避免发送方淹没接收方拥塞控制避免发送方压垮网络后续章节重点讲是字节流不是报文流这是最重要的概念之一面向的是应用层调用两次接收方不一定对应两次应用层一次发送的大数据也可能被拆成多个所以可靠的是字节流顺序不是应用层报文边界本节核心结论不承诺你几次对方就几次只承诺字节按序可靠地进入接收方字节流结构传输的基本单位是它由首部和应用层数据组成关键字段如下字段作用标识两端应用进程本中第一个数据字节的编号期望收到的下一个字节编号接收方还能接收多少字节检测是否损坏建立连接关闭连接异常重置连接序号不是第几个的是字节序号不是序号假设一个的携带字节数据那么下一个的序号通常是而不是本节核心结论的序号按字节计数一个携带多少字节下一个序号就增加多少与的表示本中第一个数据字节在整个字节流中的编号例如表示这个的第一个数据字节编号是的表示接收方期望收到的下一个字节编号例如不是说我收到了第号字节而是说之前的字节我已经按序收到了我现在期待从开始的字节使用累计确认的是累计确认的含义是之前的连续字节都已经按序收到下一个期待的字节是所以不是单独确认某个而是确认一段连续字节流本节核心结论的表示下一个期待的字节编号而不是最后收到的字节编号与超时机制需要判断等多久还没收到才认为可能丢包需要重传这个等待时间不能随便定太短会导致过早重传太长会导致恢复丢包太慢全称是往返时间在中它大致表示一个发出对应返回中间经历的时间是某一次实际测量值发出到收到对应的时间但重传过的通常不用于测量因为发送方无法判断对应的是原始还是重传不会只用一次直接决定超时而是使用指数加权移动平均课件中常用这表示新样本有影响但不会完全覆盖历史估计与只知道平均还不够因为网络延迟会波动用估计的波动程度并设置也就是说超时时间平均估计安全余量本节核心结论不能简单等于它必须考虑波动否则会频繁误判丢包可靠数据传输在的不可靠服务上实现可靠传输主要依靠简化版发送方主要处理三类事件事件发送方动作应用层交来数据创建填入发送给必要时启动定时器重传最早未确认重新启动定时器收到如果确认了新数据移动若仍有未确认数据则重启定时器否则停止定时器像还是不能简单等同于或它混合了二者思想机制表现更像谁累计确认定时器通常使用单个重传定时器超时重传重传最早未确认更接近的选择性思想乱序段处理标准不强制必须缓存或丢弃取决于实现所以更准确的说法是借鉴了的累计确认和定时器思想也借鉴了的选择性重传倾向但它不是二者的简单复制快速重传什么是重复如果接收方一直发送同一个说明它一直在等待同一个字节位置的数据例如接收方期待字节但后面收到了从开始的数据由于缺少开始的那一段它会反复发送这些就是为什么个重复触发快速重传如果发送方收到个重复通常意味着接收方收到了后续多个但中间某个缺失这时不必等可以提前重传缺失快速重传的价值是不用等超时提前恢复可能丢失的数据本节核心结论重复不是确认了更多数据而是在反复提示我还在等同一个缺口流量控制流量控制解决的问题是发送方不要发得太快避免接收方溢出注意流量控制保护的是接收方不是网络为什么需要流量控制接收方收到后数据会进入接收缓冲区应用程序再从中读取数据如果放入的速度应用程序读取的速度接收缓冲区就可能被撑爆的作用接收方通过首部中的字段告诉发送方我现在还有多少空闲接收缓冲区发送方要保证未确认的字节数这样可以避免发送方发送过多数据导致接收方缓存溢出流量控制拥塞控制对比项流量控制拥塞控制保护对象接收方网络主要问题接收方应用读得慢不够路由器链路网络路径负载过高典型信号丢包超时重复拥塞窗口控制目的不淹没接收方不压垮网络本节核心结论流量控制管的是接收方吃不吃得下拥塞控制管的是网络扛不扛得住连接管理是面向连接的协议传输数据前需要建立连接结束后需要关闭连接但这个连接不是物理线路而是两端主机维护的一组状态初始序号当前发送序号当前确认号接收窗口发送窗口定时器连接状态为什么两次握手不够两次握手正常情况下看似能工作但问题出现在真实网络会有延迟重传乱序旧报文残留双方无法直接看见对方状态两次握手的根本问题是可能过早进入状态问题一假设旧的连接请求在网络中延迟很久后才到达服务器时间线如下曾经发送连接后来已经结束已经不想建立这条连接某个旧的现在才到达误以为这是新的连接请求回复进入实际上没有这条连接结果认为连接建立了并没有这个连接这就是半连接本质原因是两次握手中没有确认是否真的收到了自己的响应也没有确认现在是否仍然愿意建立连接问题二被误认为新数据更严重的是旧数据也可能被误收假设旧连接中有这条连接已经结束但网络中残留了旧的和旧的之后旧的延迟到达误以为是新连接请求进入连接状态旧的也延迟到达发现数据序号正好符合这个假连接把旧数据当成新数据接收结果就是旧连接的数据被误认为当前新连接的数据本节核心结论两次握手的问题不在于正常情况不能建立连接而在于遇到旧报文延迟重传时服务器可能误建连接误收旧数据三次握手三次握手的目标是让双方都确认对方活着并且双方都确认对方选择的初始序号流程如下第一次握手发含义想建立连接选择初始序号后续发送的数据会从附近开始为什么是因为本身会消耗一个序号第二次握手发这一步有两层含义第一层表示我收到了你的确认你的初始序号我期待你下一个序号是第二层表示我也同意建立连接我选择自己的初始序号所以第二次握手是和合在一起通常叫第三次握手确认的初始序号含义我收到了你的确认你的初始序号我期待你下一个序号是这一步非常关键没有第三次握手不知道是否真的收到了自己的也就是说不知道是否已经知道服务器端初始序号三次握手完成后双方状态如下确认内容是否完成知道活着是知道活着是确认的初始序号是确认的初始序号是本节核心结论三次握手不是形式主义而是为了让双方都确认对方的初始序号从而避免半连接和旧数据误收三次握手如何缓解两次握手的问题缓解如果一个旧延迟到达可能回复但在三次握手中不会仅凭自己发出就确认连接稳定建立它还要等的第三次如果根本没有这条连接就不会返回正确的第三次因此不会最终完成这个连接缓解三次握手还配合变化的初始序号使用新连接不会简单沿用旧连接的序号范围这样旧数据即使后来到达也很难刚好落入当前连接的合法接收窗口所以三次握手解决问题靠两点双方都确认对方的初始序号每次连接使用变化的初始序号减少旧数据被误收的可能连接关闭是全双工连接所以两端可以分别关闭自己这一侧一方关闭发送方向时会发送对方收到后回复之后对方也可以发送自己的原发送方再可以理解为我不再发数据了但我仍然可以接收你发来的数据你也不发了以后再关闭另一半本节核心结论连接关闭是双向的每一方都要分别关闭自己的发送方向所以通常需要和的交换重要对比表对比项中文序号确认号表示谁的数据本方发送的数据对方发送的数据含义本首字节编号期待收到的下一个字节编号是否按字节计数是是常见误解以为是第几个以为是最后收到的字节编号超时重传快速重传对比项超时重传快速重传触发条件定时器超时收到个重复反应速度较慢较快依据时间接收方重复说明什么长时间没有确认后续段到了但中间有缺口重传对象最早未确认段推测丢失的段流量控制可靠传输对比项可靠传输流量控制解决什么丢包乱序重复接收方溢出核心机制关注对象数据是否正确到达接收方是否接得住典型问题丢失丢失应用层读取太慢易混点整理的不是我收到了这个编号表示我期待下一个收到编号为的字节它实际确认的是之前的连续字节的序号不是报文段编号按字节编号而不是按编号累计确认不是选择确认累计只能说明某个位置之前的连续字节都收到了它不能直接表达后面的某几个乱序我也收到了快速重传不是快速重传由个重复触发不是由定时器超时触发流量控制不是拥塞控制流量控制保护接收方拥塞控制保护网络三次握手不是多发一次而已三次握手的关键是确认的初始序号确认的初始序号这让双方连接状态同步降低半连接和旧数据误收风险自测题暂不附答案为什么说是面向连接的这个连接是物理连接吗为什么说提供的是字节流服务而不是报文服务的表示什么为什么不是编号的准确含义是什么为什么说使用的是是怎么测量的为什么重传过的通常不用于测量为什么不用单次直接代替为什么要加上超时时间设置过短和过长分别有什么问题简化版发送方主要处理哪三类事件超时后重传的是所有未确认段还是最早未确认段什么是重复为什么重复可以暗示某个丢失快速重传为什么通常等待个重复而不是个的作用是什么发送方如何根据限制发送流量控制和拥塞控制的区别是什么两次握手为什么可能造成旧的为什么可能在两次握手机制下被错误接收三次握手中分别完成了什么确认关闭连接时为什么双方要分别关闭自己这一侧连接为什么说同时借鉴了和的一些思想最终总结的核心是在不可靠服务之上通过一整套端系统机制向应用层提供可靠按序面向连接的字节流服务本节最重要的几个判断是是字节流协议不是报文流协议的是字节编号不是编号的表示下一个期待的字节编号使用累计确认估计和决定重传时机快速重传通过重复提前发现缺口用于流量控制防止接收方溢出三次握手用于确认双方初始序号避免半连接和旧数据误收连接关闭是双向的两端分别关闭自己的发送方向最终核心结论的本质不是可靠地发送一个个包而是在不可靠网络之上为应用层构造一条可靠按序全双工受控速率的字节流通道',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-13 20:36:44',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">28</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:44.000Z" title="Created 2026-06-13 20:36:44">2026-06-13</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:44.107Z" title="Updated 2026-06-13 20:36:44">2026-06-13</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">4.7k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>15min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/blanka.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:44.000Z" title="Created 2026-06-13 20:36:44">2026-06-13</time><time itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:44.107Z" title="Updated 2026-06-13 20:36:44">2026-06-13</time></header><h1 id="Chapter-3-4：TCP-可靠传输、流量控制与连接管理学习指南"><a href="#Chapter-3-4：TCP-可靠传输、流量控制与连接管理学习指南" class="headerlink" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"></a>Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</h1><p>这份课件主体内容是传输层中的 <strong>TCP</strong>。如果前几节 rdt、GBN、SR 讨论的是“可靠传输的原理模型”，这一节就是把这些思想落到真实 Internet 传输层协议 TCP 上。</p>
+<p>TCP 要解决的问题是：</p>
+<blockquote>
+<p>在 IP 本身不可靠的基础上，如何为应用进程提供一种可靠、按序、面向连接、可控速率的字节流传输服务？</p>
+</blockquote>
+<hr>
+<h2 id="0-本节核心主线"><a href="#0-本节核心主线" class="headerlink" title="0. 本节核心主线"></a>0. 本节核心主线</h2><p>TCP 的核心能力可以压缩成一条链：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[IP 不可靠] --&gt; B[TCP 维护连接状态]
+    B --&gt; C[用字节序号标识数据位置]
+    C --&gt; D[用累计 ACK 确认连续字节]
+    D --&gt; E[用 RTT 估计设置超时]
+    E --&gt; F[用重传和快速重传恢复丢包]
+    F --&gt; G[用 rwnd 做流量控制]
+    G --&gt; H[用三次握手&#x2F;FIN 管理连接]
+  </pre></div>
+
+<hr>
+<h2 id="❗-本节核心结论：TCP-不是让网络层变可靠，而是在端系统之间维护序号、ACK、窗口、定时器、连接状态等机制，把不可靠的-IP-服务包装成可靠字节流。"><a href="#❗-本节核心结论：TCP-不是让网络层变可靠，而是在端系统之间维护序号、ACK、窗口、定时器、连接状态等机制，把不可靠的-IP-服务包装成可靠字节流。" class="headerlink" title="❗ 本节核心结论：TCP 不是让网络层变可靠，而是在端系统之间维护序号、ACK、窗口、定时器、连接状态等机制，把不可靠的 IP 服务包装成可靠字节流。"></a><strong>❗ 本节核心结论：</strong><br>TCP 不是让网络层变可靠，而是在端系统之间维护序号、ACK、窗口、定时器、连接状态等机制，把不可靠的 IP 服务包装成可靠字节流。</h2><h2 id="1-TCP-的整体特性"><a href="#1-TCP-的整体特性" class="headerlink" title="1. TCP 的整体特性"></a>1. TCP 的整体特性</h2><p>TCP 是 <strong>Transmission Control Protocol</strong>，传输控制协议。</p>
+<p>它的典型特征包括：</p>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>面向连接</td>
+<td>通信前要建立连接，通信后要释放连接</td>
+</tr>
+<tr>
+<td>可靠传输</td>
+<td>丢失的数据可以被检测并重传</td>
+</tr>
+<tr>
+<td>按序交付</td>
+<td>应用层看到的是按序字节流</td>
+</tr>
+<tr>
+<td>字节流服务</td>
+<td>TCP 不保留应用层 message 边界</td>
+</tr>
+<tr>
+<td>全双工</td>
+<td>双方可以同时发送和接收</td>
+</tr>
+<tr>
+<td>流量控制</td>
+<td>避免发送方淹没接收方</td>
+</tr>
+<tr>
+<td>拥塞控制</td>
+<td>避免发送方压垮网络，后续章节重点讲</td>
+</tr>
+</tbody></table>
+<h3 id="1-1-TCP-是字节流，不是报文流"><a href="#1-1-TCP-是字节流，不是报文流" class="headerlink" title="1.1 TCP 是字节流，不是报文流"></a>1.1 TCP 是字节流，不是报文流</h3><p>这是最重要的概念之一。</p>
+<p>TCP 面向的是 <strong>byte stream</strong>。应用层调用两次 <code>send()</code>，接收方不一定对应两次 <code>recv()</code>；应用层一次发送的大数据，也可能被 TCP 拆成多个 segment。</p>
+<p>所以：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TCP 可靠的是字节流顺序，不是应用层报文边界。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：TCP-不承诺“你-send-几次，对方就-recv-几次”；TCP-只承诺字节按序、可靠地进入接收方字节流。"><a href="#❗-本节核心结论：TCP-不承诺“你-send-几次，对方就-recv-几次”；TCP-只承诺字节按序、可靠地进入接收方字节流。" class="headerlink" title="❗ 本节核心结论：TCP 不承诺“你 send 几次，对方就 recv 几次”；TCP 只承诺字节按序、可靠地进入接收方字节流。"></a><strong>❗ 本节核心结论：</strong><br>TCP 不承诺“你 send 几次，对方就 recv 几次”；TCP 只承诺字节按序、可靠地进入接收方字节流。</h2><h2 id="2-TCP-Segment-结构"><a href="#2-TCP-Segment-结构" class="headerlink" title="2. TCP Segment 结构"></a>2. TCP Segment 结构</h2><p>TCP 传输的基本单位是 <strong>TCP segment</strong>。它由 TCP 首部和应用层数据组成。</p>
+<p>关键字段如下：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Source Port &#x2F; Dest Port</td>
+<td>标识两端应用进程</td>
+</tr>
+<tr>
+<td>Sequence Number</td>
+<td>本 segment 中第一个数据字节的编号</td>
+</tr>
+<tr>
+<td>Acknowledgement Number</td>
+<td>期望收到的下一个字节编号</td>
+</tr>
+<tr>
+<td>Receive Window, <code>rwnd</code></td>
+<td>接收方还能接收多少字节</td>
+</tr>
+<tr>
+<td>Checksum</td>
+<td>检测 TCP segment 是否损坏</td>
+</tr>
+<tr>
+<td>SYN</td>
+<td>建立连接</td>
+</tr>
+<tr>
+<td>FIN</td>
+<td>关闭连接</td>
+</tr>
+<tr>
+<td>RST</td>
+<td>异常重置连接</td>
+</tr>
+</tbody></table>
+<h3 id="2-1-TCP-序号不是“第几个-segment”"><a href="#2-1-TCP-序号不是“第几个-segment”" class="headerlink" title="2.1 TCP 序号不是“第几个 segment”"></a>2.1 TCP 序号不是“第几个 segment”</h3><p>TCP 的 sequence number 是 <strong>字节序号</strong>，不是 segment 序号。</p>
+<p>假设一个 segment 的 <code>Seq = 1000</code>，携带 500 字节数据，那么下一个 segment 的序号通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Seq = 1500</span><br></pre></td></tr></table></figure>
+
+<p>而不是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Seq = 1001</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：TCP-的序号按字节计数。一个-segment-携带多少字节，下一个序号就增加多少。"><a href="#❗-本节核心结论：TCP-的序号按字节计数。一个-segment-携带多少字节，下一个序号就增加多少。" class="headerlink" title="❗ 本节核心结论：TCP 的序号按字节计数。一个 segment 携带多少字节，下一个序号就增加多少。"></a><strong>❗ 本节核心结论：</strong><br>TCP 的序号按字节计数。一个 segment 携带多少字节，下一个序号就增加多少。</h2><h2 id="3-Sequence-Number-与-ACK-Number"><a href="#3-Sequence-Number-与-ACK-Number" class="headerlink" title="3. Sequence Number 与 ACK Number"></a>3. Sequence Number 与 ACK Number</h2><h3 id="3-1-Sequence-Number"><a href="#3-1-Sequence-Number" class="headerlink" title="3.1 Sequence Number"></a>3.1 Sequence Number</h3><p>TCP 的 sequence number 表示：</p>
+<blockquote>
+<p>本 segment 中第一个数据字节在整个字节流中的编号。</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Seq = 42</span><br></pre></td></tr></table></figure>
+
+<p>表示这个 segment 的第一个数据字节编号是 42。</p>
+<h3 id="3-2-ACK-Number"><a href="#3-2-ACK-Number" class="headerlink" title="3.2 ACK Number"></a>3.2 ACK Number</h3><p>TCP 的 acknowledgement number 表示：</p>
+<blockquote>
+<p>接收方期望收到的下一个字节编号。</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACK = 100</span><br></pre></td></tr></table></figure>
+
+<p>不是说“我收到了第 100 号字节”，而是说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">100 之前的字节我已经按序收到了；</span><br><span class="line">我现在期待从 100 开始的字节。</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-TCP-使用累计确认"><a href="#3-3-TCP-使用累计确认" class="headerlink" title="3.3 TCP 使用累计确认"></a>3.3 TCP 使用累计确认</h3><p>TCP 的 ACK 是 <strong>cumulative ACK，累计确认</strong>。</p>
+<p><code>ACK = n</code> 的含义是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">n 之前的连续字节都已经按序收到；</span><br><span class="line">下一个期待的字节是 n。</span><br></pre></td></tr></table></figure>
+
+<p>所以 ACK 不是单独确认某个 segment，而是确认一段连续字节流。</p>
+<hr>
+<h2 id="❗-本节核心结论：TCP-的-ACK-Number-表示“下一个期待的字节编号”，而不是“最后收到的字节编号”。"><a href="#❗-本节核心结论：TCP-的-ACK-Number-表示“下一个期待的字节编号”，而不是“最后收到的字节编号”。" class="headerlink" title="❗ 本节核心结论：TCP 的 ACK Number 表示“下一个期待的字节编号”，而不是“最后收到的字节编号”。"></a><strong>❗ 本节核心结论：</strong><br>TCP 的 ACK Number 表示“下一个期待的字节编号”，而不是“最后收到的字节编号”。</h2><h2 id="4-RTT-与超时机制"><a href="#4-RTT-与超时机制" class="headerlink" title="4. RTT 与超时机制"></a>4. RTT 与超时机制</h2><p>TCP 需要判断：</p>
+<blockquote>
+<p>等多久还没收到 ACK，才认为可能丢包，需要重传？</p>
+</blockquote>
+<p>这个等待时间不能随便定。太短会导致过早重传，太长会导致恢复丢包太慢。</p>
+<h2 id="4-1-RTT"><a href="#4-1-RTT" class="headerlink" title="4.1 RTT"></a>4.1 RTT</h2><p>RTT 全称是 <strong>Round-Trip Time</strong>，往返时间。</p>
+<p>在 TCP 中，它大致表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">一个 segment 发出</span><br><span class="line">↓</span><br><span class="line">对应 ACK 返回</span><br><span class="line">↓</span><br><span class="line">中间经历的时间</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-SampleRTT"><a href="#4-2-SampleRTT" class="headerlink" title="4.2 SampleRTT"></a>4.2 SampleRTT</h2><p><code>SampleRTT</code> 是某一次实际测量值：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SampleRTT = segment 发出到收到对应 ACK 的时间</span><br></pre></td></tr></table></figure>
+
+<p>但重传过的 segment 通常不用于 SampleRTT 测量，因为发送方无法判断 ACK 对应的是原始 segment 还是重传 segment。</p>
+<h2 id="4-3-EstimatedRTT"><a href="#4-3-EstimatedRTT" class="headerlink" title="4.3 EstimatedRTT"></a>4.3 EstimatedRTT</h2><p>TCP 不会只用一次 SampleRTT 直接决定超时，而是使用指数加权移动平均：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EstimatedRTT = (1 - α) * EstimatedRTT + α * SampleRTT</span><br></pre></td></tr></table></figure>
+
+<p>课件中常用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">α = 0.125</span><br></pre></td></tr></table></figure>
+
+<p>这表示：新样本有影响，但不会完全覆盖历史估计。</p>
+<h2 id="4-4-DevRTT-与-TimeoutInterval"><a href="#4-4-DevRTT-与-TimeoutInterval" class="headerlink" title="4.4 DevRTT 与 TimeoutInterval"></a>4.4 DevRTT 与 TimeoutInterval</h2><p>只知道平均 RTT 还不够，因为网络延迟会波动。</p>
+<p>TCP 用 <code>DevRTT</code> 估计 RTT 的波动程度，并设置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TimeoutInterval = EstimatedRTT + 4 * DevRTT</span><br></pre></td></tr></table></figure>
+
+<p>也就是说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">超时时间 = 平均 RTT 估计 + 安全余量</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：TimeoutInterval-不能简单等于-EstimatedRTT；它必须考虑-RTT-波动，否则会频繁误判丢包。"><a href="#❗-本节核心结论：TimeoutInterval-不能简单等于-EstimatedRTT；它必须考虑-RTT-波动，否则会频繁误判丢包。" class="headerlink" title="❗ 本节核心结论：TimeoutInterval 不能简单等于 EstimatedRTT；它必须考虑 RTT 波动，否则会频繁误判丢包。"></a><strong>❗ 本节核心结论：</strong><br>TimeoutInterval 不能简单等于 EstimatedRTT；它必须考虑 RTT 波动，否则会频繁误判丢包。</h2><h2 id="5-TCP-可靠数据传输"><a href="#5-TCP-可靠数据传输" class="headerlink" title="5. TCP 可靠数据传输"></a>5. TCP 可靠数据传输</h2><p>TCP 在 IP 的不可靠服务上实现可靠传输，主要依靠：</p>
+<ul>
+<li>sequence number；</li>
+<li>cumulative ACK；</li>
+<li>timeout；</li>
+<li>retransmission；</li>
+<li>duplicate ACK；</li>
+<li>fast retransmit。</li>
+</ul>
+<p>简化版 TCP 发送方主要处理三类事件：</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>发送方动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用层交来数据</td>
+<td>创建 segment，填入 <code>NextSeqNum</code>，发送给 IP，必要时启动定时器</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>重传最早未确认 segment，重新启动定时器</td>
+</tr>
+<tr>
+<td>收到 ACK</td>
+<td>如果 ACK 确认了新数据，移动 <code>SendBase</code>；若仍有未确认数据则重启定时器，否则停止定时器</td>
+</tr>
+</tbody></table>
+<h3 id="5-1-TCP-像-GBN-还是-SR？"><a href="#5-1-TCP-像-GBN-还是-SR？" class="headerlink" title="5.1 TCP 像 GBN 还是 SR？"></a>5.1 TCP 像 GBN 还是 SR？</h3><p>TCP 不能简单等同于 GBN 或 SR，它混合了二者思想。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>TCP 表现</th>
+<th>更像谁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACK</td>
+<td>累计确认</td>
+<td>GBN</td>
+</tr>
+<tr>
+<td>定时器</td>
+<td>通常使用单个重传定时器</td>
+<td>GBN</td>
+</tr>
+<tr>
+<td>超时重传</td>
+<td>重传最早未确认 segment</td>
+<td>更接近 SR 的选择性思想</td>
+</tr>
+<tr>
+<td>乱序段处理</td>
+<td>标准不强制必须缓存或丢弃</td>
+<td>取决于实现</td>
+</tr>
+</tbody></table>
+<p>所以更准确的说法是：</p>
+<blockquote>
+<p>TCP 借鉴了 GBN 的累计确认和定时器思想，也借鉴了 SR 的选择性重传倾向，但它不是二者的简单复制。</p>
+</blockquote>
+<hr>
+<h2 id="6-快速重传-Fast-Retransmit"><a href="#6-快速重传-Fast-Retransmit" class="headerlink" title="6. 快速重传 Fast Retransmit"></a>6. 快速重传 Fast Retransmit</h2><h3 id="6-1-什么是重复-ACK？"><a href="#6-1-什么是重复-ACK？" class="headerlink" title="6.1 什么是重复 ACK？"></a>6.1 什么是重复 ACK？</h3><p>如果接收方一直发送同一个 ACK，说明它一直在等待同一个字节位置的数据。</p>
+<p>例如接收方期待字节 100，但后面收到了从 120、140、160 开始的数据。由于缺少 100 开始的那一段，它会反复发送：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ACK = 100</span><br><span class="line">ACK = 100</span><br><span class="line">ACK = 100</span><br><span class="line">ACK = 100</span><br></pre></td></tr></table></figure>
+
+<p>这些就是 duplicate ACK。</p>
+<h3 id="6-2-为什么-3-个重复-ACK-触发快速重传？"><a href="#6-2-为什么-3-个重复-ACK-触发快速重传？" class="headerlink" title="6.2 为什么 3 个重复 ACK 触发快速重传？"></a>6.2 为什么 3 个重复 ACK 触发快速重传？</h3><p>如果发送方收到 3 个重复 ACK，通常意味着：</p>
+<blockquote>
+<p>接收方收到了后续多个 segment，但中间某个 segment 缺失。</p>
+</blockquote>
+<p>这时不必等 timeout，可以提前重传缺失 segment。</p>
+<p>快速重传的价值是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">不用等超时，提前恢复可能丢失的数据。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：重复-ACK-不是确认了更多数据，而是在反复提示“我还在等同一个缺口”。"><a href="#❗-本节核心结论：重复-ACK-不是确认了更多数据，而是在反复提示“我还在等同一个缺口”。" class="headerlink" title="❗ 本节核心结论：重复 ACK 不是确认了更多数据，而是在反复提示“我还在等同一个缺口”。"></a><strong>❗ 本节核心结论：</strong><br>重复 ACK 不是确认了更多数据，而是在反复提示“我还在等同一个缺口”。</h2><h2 id="7-TCP-流量控制-Flow-Control"><a href="#7-TCP-流量控制-Flow-Control" class="headerlink" title="7. TCP 流量控制 Flow Control"></a>7. TCP 流量控制 Flow Control</h2><p>流量控制解决的问题是：</p>
+<blockquote>
+<p>发送方不要发得太快，避免接收方 buffer 溢出。</p>
+</blockquote>
+<p>注意，流量控制保护的是 <strong>接收方</strong>，不是网络。</p>
+<h3 id="7-1-为什么需要流量控制？"><a href="#7-1-为什么需要流量控制？" class="headerlink" title="7.1 为什么需要流量控制？"></a>7.1 为什么需要流量控制？</h3><p>接收方收到 TCP segment 后，数据会进入接收缓冲区。应用程序再从 socket buffer 中读取数据。</p>
+<p>如果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TCP 放入 buffer 的速度 &gt; 应用程序读取 buffer 的速度</span><br></pre></td></tr></table></figure>
+
+<p>接收缓冲区就可能被撑爆。</p>
+<h3 id="7-2-rwnd-的作用"><a href="#7-2-rwnd-的作用" class="headerlink" title="7.2 rwnd 的作用"></a>7.2 rwnd 的作用</h3><p>接收方通过 TCP 首部中的 <code>rwnd</code> 字段告诉发送方：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我现在还有多少空闲接收缓冲区。</span><br></pre></td></tr></table></figure>
+
+<p>发送方要保证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">未确认的 in-flight 字节数 ≤ rwnd</span><br></pre></td></tr></table></figure>
+
+<p>这样可以避免发送方发送过多数据，导致接收方缓存溢出。</p>
+<h2 id="7-3-流量控制-vs-拥塞控制"><a href="#7-3-流量控制-vs-拥塞控制" class="headerlink" title="7.3 流量控制 vs 拥塞控制"></a>7.3 流量控制 vs 拥塞控制</h2><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>流量控制</th>
+<th>拥塞控制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>保护对象</td>
+<td>接收方</td>
+<td>网络</td>
+</tr>
+<tr>
+<td>主要问题</td>
+<td>接收方应用读得慢，buffer 不够</td>
+<td>路由器、链路、网络路径负载过高</td>
+</tr>
+<tr>
+<td>典型信号</td>
+<td><code>rwnd</code></td>
+<td>丢包、超时、重复 ACK、拥塞窗口</td>
+</tr>
+<tr>
+<td>控制目的</td>
+<td>不淹没接收方</td>
+<td>不压垮网络</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：流量控制管的是“接收方吃不吃得下”；拥塞控制管的是“网络扛不扛得住”。"><a href="#❗-本节核心结论：流量控制管的是“接收方吃不吃得下”；拥塞控制管的是“网络扛不扛得住”。" class="headerlink" title="❗ 本节核心结论：流量控制管的是“接收方吃不吃得下”；拥塞控制管的是“网络扛不扛得住”。"></a><strong>❗ 本节核心结论：</strong><br>流量控制管的是“接收方吃不吃得下”；拥塞控制管的是“网络扛不扛得住”。</h2><h2 id="8-TCP-连接管理"><a href="#8-TCP-连接管理" class="headerlink" title="8. TCP 连接管理"></a>8. TCP 连接管理</h2><p>TCP 是面向连接的协议。传输数据前需要建立连接，结束后需要关闭连接。</p>
+<p>但这个连接不是物理线路，而是两端主机维护的一组状态：</p>
+<ul>
+<li>初始序号；</li>
+<li>当前发送序号；</li>
+<li>当前确认号；</li>
+<li>接收窗口；</li>
+<li>发送窗口；</li>
+<li>定时器；</li>
+<li>连接状态。</li>
+</ul>
+<h2 id="9-为什么两次握手不够？"><a href="#9-为什么两次握手不够？" class="headerlink" title="9. 为什么两次握手不够？"></a>9. 为什么两次握手不够？</h2><p>两次握手正常情况下看似能工作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Client → Server: req_conn(x)</span><br><span class="line">Server → Client: acc_conn(x)</span><br></pre></td></tr></table></figure>
+
+<p>但问题出现在真实网络会有：</p>
+<ul>
+<li>延迟；</li>
+<li>重传；</li>
+<li>乱序；</li>
+<li>旧报文残留；</li>
+<li>双方无法直接看见对方状态。</li>
+</ul>
+<p>两次握手的根本问题是：</p>
+<blockquote>
+<p>Server 可能过早进入 ESTABLISHED 状态。</p>
+</blockquote>
+<h3 id="9-1-问题一：half-open-connection"><a href="#9-1-问题一：half-open-connection" class="headerlink" title="9.1 问题一：half-open connection"></a>9.1 问题一：half-open connection</h3><p>假设旧的连接请求 <code>req_conn(x)</code> 在网络中延迟很久后才到达服务器。</p>
+<p>时间线如下：</p>
+<ol>
+<li>Client 曾经发送 <code>req_conn(x)</code>；</li>
+<li>连接后来已经结束；</li>
+<li>Client 已经不想建立这条连接；</li>
+<li>某个旧的 <code>req_conn(x)</code> 现在才到达 Server；</li>
+<li>Server 误以为这是新的连接请求；</li>
+<li>Server 回复 <code>acc_conn(x)</code>；</li>
+<li>Server 进入 ESTABLISHED；</li>
+<li>Client 实际上没有这条连接。</li>
+</ol>
+<p>结果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Server 认为连接建立了；</span><br><span class="line">Client 并没有这个连接。</span><br></pre></td></tr></table></figure>
+
+<p>这就是 <strong>half-open connection，半连接</strong>。</p>
+<p>本质原因是：</p>
+<blockquote>
+<p>两次握手中，Server 没有确认 Client 是否真的收到了自己的响应，也没有确认 Client 现在是否仍然愿意建立连接。</p>
+</blockquote>
+<h3 id="9-2-问题二：old-duplicate-data-被误认为新数据"><a href="#9-2-问题二：old-duplicate-data-被误认为新数据" class="headerlink" title="9.2 问题二：old duplicate data 被误认为新数据"></a>9.2 问题二：old duplicate data 被误认为新数据</h3><p>更严重的是，旧数据也可能被误收。</p>
+<p>假设旧连接中有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">req_conn(x)</span><br><span class="line">data(x+1)</span><br></pre></td></tr></table></figure>
+
+<p>这条连接已经结束，但网络中残留了旧的 <code>req_conn(x)</code> 和旧的 <code>data(x+1)</code>。</p>
+<p>之后：</p>
+<ol>
+<li>旧的 <code>req_conn(x)</code> 延迟到达 Server；</li>
+<li>Server 误以为是新连接请求；</li>
+<li>Server 进入连接状态；</li>
+<li>旧的 <code>data(x+1)</code> 也延迟到达；</li>
+<li>Server 发现数据序号正好符合这个“假连接”；</li>
+<li>Server 把旧数据当成新数据接收。</li>
+</ol>
+<p>结果就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">旧连接的数据被误认为当前新连接的数据。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：两次握手的问题不在于正常情况不能建立连接，而在于遇到旧报文、延迟、重传时，服务器可能误建连接、误收旧数据。"><a href="#❗-本节核心结论：两次握手的问题不在于正常情况不能建立连接，而在于遇到旧报文、延迟、重传时，服务器可能误建连接、误收旧数据。" class="headerlink" title="❗ 本节核心结论：两次握手的问题不在于正常情况不能建立连接，而在于遇到旧报文、延迟、重传时，服务器可能误建连接、误收旧数据。"></a><strong>❗ 本节核心结论：</strong><br>两次握手的问题不在于正常情况不能建立连接，而在于遇到旧报文、延迟、重传时，服务器可能误建连接、误收旧数据。</h2><h2 id="10-TCP-三次握手"><a href="#10-TCP-三次握手" class="headerlink" title="10. TCP 三次握手"></a>10. TCP 三次握手</h2><p>三次握手的目标是：</p>
+<blockquote>
+<p>让双方都确认对方活着，并且双方都确认对方选择的初始序号。</p>
+</blockquote>
+<p>流程如下：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant C as Client
+    participant S as Server
+
+    C-&gt;&gt;S: SYN&#x3D;1, Seq&#x3D;x
+    S-&gt;&gt;C: SYN&#x3D;1, Seq&#x3D;y, ACK&#x3D;x+1
+    C-&gt;&gt;S: ACK&#x3D;y+1
+  </pre></div>
+
+<h3 id="10-1-第一次握手：Client-发-SYN"><a href="#10-1-第一次握手：Client-发-SYN" class="headerlink" title="10.1 第一次握手：Client 发 SYN"></a>10.1 第一次握手：Client 发 SYN</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Client → Server: SYN = 1, Seq = x</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li>Client 想建立连接；</li>
+<li>Client 选择初始序号 <code>x</code>；</li>
+<li>后续 Client 发送的数据会从 <code>x+1</code> 附近开始。</li>
+</ul>
+<p>为什么是 <code>x+1</code>？</p>
+<p>因为 SYN 本身会消耗一个序号。</p>
+<h3 id="10-2-第二次握手：Server-发-SYNACK"><a href="#10-2-第二次握手：Server-发-SYNACK" class="headerlink" title="10.2 第二次握手：Server 发 SYNACK"></a>10.2 第二次握手：Server 发 SYNACK</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Server → Client: SYN = 1, Seq = y, ACK = x + 1</span><br></pre></td></tr></table></figure>
+
+<p>这一步有两层含义：</p>
+<p>第一层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ACK = x + 1</span><br></pre></td></tr></table></figure>
+
+<p>表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我收到了你的 SYN，确认你的初始序号 x；</span><br><span class="line">我期待你下一个序号是 x+1。</span><br></pre></td></tr></table></figure>
+
+<p>第二层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SYN = 1, Seq = y</span><br></pre></td></tr></table></figure>
+
+<p>表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我也同意建立连接；</span><br><span class="line">我选择自己的初始序号 y。</span><br></pre></td></tr></table></figure>
+
+<p>所以第二次握手是 SYN 和 ACK 合在一起，通常叫 <strong>SYNACK</strong>。</p>
+<h3 id="10-3-第三次握手：Client-确认-Server-的初始序号"><a href="#10-3-第三次握手：Client-确认-Server-的初始序号" class="headerlink" title="10.3 第三次握手：Client 确认 Server 的初始序号"></a>10.3 第三次握手：Client 确认 Server 的初始序号</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Client → Server: ACK = y + 1</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我收到了你的 SYN，确认你的初始序号 y；</span><br><span class="line">我期待你下一个序号是 y+1。</span><br></pre></td></tr></table></figure>
+
+<p>这一步非常关键。</p>
+<p>没有第三次握手，Server 不知道 Client 是否真的收到了自己的 <code>Seq = y</code>。也就是说，Server 不知道 Client 是否已经知道服务器端初始序号。</p>
+<p>三次握手完成后，双方状态如下：</p>
+<table>
+<thead>
+<tr>
+<th>确认内容</th>
+<th>是否完成</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Server 知道 Client 活着</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Client 知道 Server 活着</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Server 确认 Client 的初始序号 x</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Client 确认 Server 的初始序号 y</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：三次握手不是形式主义，而是为了让双方都确认对方的初始序号，从而避免半连接和旧数据误收。"><a href="#❗-本节核心结论：三次握手不是形式主义，而是为了让双方都确认对方的初始序号，从而避免半连接和旧数据误收。" class="headerlink" title="❗ 本节核心结论：三次握手不是形式主义，而是为了让双方都确认对方的初始序号，从而避免半连接和旧数据误收。"></a><strong>❗ 本节核心结论：</strong><br>三次握手不是形式主义，而是为了让双方都确认对方的初始序号，从而避免半连接和旧数据误收。</h2><h2 id="11-三次握手如何缓解两次握手的问题？"><a href="#11-三次握手如何缓解两次握手的问题？" class="headerlink" title="11. 三次握手如何缓解两次握手的问题？"></a>11. 三次握手如何缓解两次握手的问题？</h2><h3 id="11-1-缓解-half-open-connection"><a href="#11-1-缓解-half-open-connection" class="headerlink" title="11.1 缓解 half-open connection"></a>11.1 缓解 half-open connection</h3><p>如果一个旧 SYN 延迟到达 Server，Server 可能回复 SYNACK。</p>
+<p>但在三次握手中，Server 不会仅凭自己发出 SYNACK 就确认连接稳定建立。它还要等 Client 的第三次 ACK。</p>
+<p>如果 Client 根本没有这条连接，就不会返回正确的第三次 ACK。</p>
+<p>因此 Server 不会最终完成这个连接。</p>
+<h3 id="11-2-缓解-old-duplicate-data"><a href="#11-2-缓解-old-duplicate-data" class="headerlink" title="11.2 缓解 old duplicate data"></a>11.2 缓解 old duplicate data</h3><p>三次握手还配合 <strong>变化的初始序号</strong> 使用。</p>
+<p>新连接不会简单沿用旧连接的序号范围。这样旧数据即使后来到达，也很难刚好落入当前连接的合法接收窗口。</p>
+<p>所以三次握手解决问题靠两点：</p>
+<ol>
+<li>双方都确认对方的初始序号；</li>
+<li>每次连接使用变化的初始序号，减少旧数据被误收的可能。</li>
+</ol>
+<hr>
+<h2 id="12-TCP-连接关闭"><a href="#12-TCP-连接关闭" class="headerlink" title="12. TCP 连接关闭"></a>12. TCP 连接关闭</h2><p>TCP 是全双工连接，所以两端可以分别关闭自己这一侧。</p>
+<p>一方关闭发送方向时，会发送：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FIN = 1</span><br></pre></td></tr></table></figure>
+
+<p>对方收到 FIN 后回复 ACK。</p>
+<p>之后对方也可以发送自己的 FIN，原发送方再 ACK。</p>
+<p>可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">我不再发数据了，但我仍然可以接收你发来的数据；</span><br><span class="line">你也不发了以后，再关闭另一半。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：TCP-连接关闭是双向的。每一方都要分别关闭自己的发送方向，所以通常需要-FIN-和-ACK-的交换。"><a href="#❗-本节核心结论：TCP-连接关闭是双向的。每一方都要分别关闭自己的发送方向，所以通常需要-FIN-和-ACK-的交换。" class="headerlink" title="❗ 本节核心结论：TCP 连接关闭是双向的。每一方都要分别关闭自己的发送方向，所以通常需要 FIN 和 ACK 的交换。"></a><strong>❗ 本节核心结论：</strong><br>TCP 连接关闭是双向的。每一方都要分别关闭自己的发送方向，所以通常需要 FIN 和 ACK 的交换。</h2><h2 id="13-重要对比表"><a href="#13-重要对比表" class="headerlink" title="13. 重要对比表"></a>13. 重要对比表</h2><h3 id="13-1-SEQ-vs-ACK"><a href="#13-1-SEQ-vs-ACK" class="headerlink" title="13.1 SEQ vs ACK"></a>13.1 SEQ vs ACK</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>SEQ</th>
+<th>ACK</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>中文</td>
+<td>序号</td>
+<td>确认号</td>
+</tr>
+<tr>
+<td>表示谁的数据</td>
+<td>本方发送的数据</td>
+<td>对方发送的数据</td>
+</tr>
+<tr>
+<td>含义</td>
+<td>本 segment 首字节编号</td>
+<td>期待收到的下一个字节编号</td>
+</tr>
+<tr>
+<td>是否按字节计数</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>常见误解</td>
+<td>以为是第几个 segment</td>
+<td>以为是最后收到的字节编号</td>
+</tr>
+</tbody></table>
+<h3 id="13-2-超时重传-vs-快速重传"><a href="#13-2-超时重传-vs-快速重传" class="headerlink" title="13.2 超时重传 vs 快速重传"></a>13.2 超时重传 vs 快速重传</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>超时重传</th>
+<th>快速重传</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>触发条件</td>
+<td>定时器超时</td>
+<td>收到 3 个重复 ACK</td>
+</tr>
+<tr>
+<td>反应速度</td>
+<td>较慢</td>
+<td>较快</td>
+</tr>
+<tr>
+<td>依据</td>
+<td>时间</td>
+<td>接收方重复 ACK</td>
+</tr>
+<tr>
+<td>说明什么</td>
+<td>长时间没有确认</td>
+<td>后续段到了，但中间有缺口</td>
+</tr>
+<tr>
+<td>重传对象</td>
+<td>最早未确认段</td>
+<td>推测丢失的段</td>
+</tr>
+</tbody></table>
+<h3 id="13-3-流量控制-vs-可靠传输"><a href="#13-3-流量控制-vs-可靠传输" class="headerlink" title="13.3 流量控制 vs 可靠传输"></a>13.3 流量控制 vs 可靠传输</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>可靠传输</th>
+<th>流量控制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解决什么</td>
+<td>丢包、乱序、重复</td>
+<td>接收方 buffer 溢出</td>
+</tr>
+<tr>
+<td>核心机制</td>
+<td>SEQ、ACK、timer、retransmission</td>
+<td>rwnd</td>
+</tr>
+<tr>
+<td>关注对象</td>
+<td>数据是否正确到达</td>
+<td>接收方是否接得住</td>
+</tr>
+<tr>
+<td>典型问题</td>
+<td>ACK 丢失、segment 丢失</td>
+<td>应用层读取太慢</td>
+</tr>
+</tbody></table>
+<h2 id="14-易混点整理"><a href="#14-易混点整理" class="headerlink" title="14. 易混点整理"></a>14. 易混点整理</h2><h3 id="14-1-TCP-的-ACK-不是“我收到了这个编号”"><a href="#14-1-TCP-的-ACK-不是“我收到了这个编号”" class="headerlink" title="14.1 TCP 的 ACK 不是“我收到了这个编号”"></a>14.1 TCP 的 ACK 不是“我收到了这个编号”</h3><p><code>ACK = n</code> 表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我期待下一个收到编号为 n 的字节。</span><br></pre></td></tr></table></figure>
+
+<p>它实际确认的是 <code>n</code> 之前的连续字节。</p>
+<h3 id="14-2-TCP-的序号不是报文段编号"><a href="#14-2-TCP-的序号不是报文段编号" class="headerlink" title="14.2 TCP 的序号不是报文段编号"></a>14.2 TCP 的序号不是报文段编号</h3><p>TCP 按字节编号，而不是按 segment 编号。</p>
+<h3 id="14-3-累计确认不是选择确认"><a href="#14-3-累计确认不是选择确认" class="headerlink" title="14.3 累计确认不是选择确认"></a>14.3 累计确认不是选择确认</h3><p>累计 ACK 只能说明某个位置之前的连续字节都收到了。<br>它不能直接表达“后面的某几个乱序 segment 我也收到了”。</p>
+<h3 id="14-4-快速重传不是-timeout"><a href="#14-4-快速重传不是-timeout" class="headerlink" title="14.4 快速重传不是 timeout"></a>14.4 快速重传不是 timeout</h3><p>快速重传由 3 个重复 ACK 触发，不是由定时器超时触发。</p>
+<h3 id="14-5-流量控制不是拥塞控制"><a href="#14-5-流量控制不是拥塞控制" class="headerlink" title="14.5 流量控制不是拥塞控制"></a>14.5 流量控制不是拥塞控制</h3><p>流量控制保护接收方。<br>拥塞控制保护网络。</p>
+<h3 id="14-6-三次握手不是多发一次而已"><a href="#14-6-三次握手不是多发一次而已" class="headerlink" title="14.6 三次握手不是多发一次而已"></a>14.6 三次握手不是多发一次而已</h3><p>三次握手的关键是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Server 确认 Client 的初始序号；</span><br><span class="line">Client 确认 Server 的初始序号。</span><br></pre></td></tr></table></figure>
+
+<p>这让双方连接状态同步，降低半连接和旧数据误收风险。</p>
+<hr>
+<h2 id="15-自测题：暂不附答案"><a href="#15-自测题：暂不附答案" class="headerlink" title="15. 自测题：暂不附答案"></a>15. 自测题：暂不附答案</h2><ol>
+<li><p>TCP 为什么说是“面向连接”的？这个连接是物理连接吗？</p>
+</li>
+<li><p>TCP 为什么说提供的是“字节流”服务，而不是“报文”服务？</p>
+</li>
+<li><p>TCP 的 sequence number 表示什么？为什么不是 segment 编号？</p>
+</li>
+<li><p><code>ACK = 100</code> 的准确含义是什么？</p>
+</li>
+<li><p>为什么说 TCP 使用的是 cumulative ACK？</p>
+</li>
+<li><p>SampleRTT 是怎么测量的？为什么重传过的 segment 通常不用于 SampleRTT 测量？</p>
+</li>
+<li><p>EstimatedRTT 为什么不用单次 SampleRTT 直接代替？</p>
+</li>
+<li><p>TimeoutInterval 为什么要加上 <code>4 * DevRTT</code>？</p>
+</li>
+<li><p>超时时间设置过短和过长分别有什么问题？</p>
+</li>
+<li><p>简化版 TCP 发送方主要处理哪三类事件？</p>
+</li>
+<li><p>TCP 超时后重传的是所有未确认段，还是最早未确认段？</p>
+</li>
+<li><p>什么是重复 ACK？为什么重复 ACK 可以暗示某个 segment 丢失？</p>
+</li>
+<li><p>快速重传为什么通常等待 3 个重复 ACK，而不是 1 个？</p>
+</li>
+<li><p><code>rwnd</code> 的作用是什么？发送方如何根据 <code>rwnd</code> 限制发送？</p>
+</li>
+<li><p>流量控制和拥塞控制的区别是什么？</p>
+</li>
+<li><p>两次握手为什么可能造成 half-open connection？</p>
+</li>
+<li><p>旧的 duplicate data 为什么可能在两次握手机制下被错误接收？</p>
+</li>
+<li><p>三次握手中 SYN、SYNACK、ACK 分别完成了什么确认？</p>
+</li>
+<li><p>TCP 关闭连接时，为什么双方要分别关闭自己这一侧连接？</p>
+</li>
+<li><p>为什么说 TCP 同时借鉴了 GBN 和 SR 的一些思想？</p>
+</li>
+</ol>
+<hr>
+<h2 id="最终总结"><a href="#最终总结" class="headerlink" title="最终总结"></a>最终总结</h2><p>Chapter 3-4 的核心是 TCP。TCP 在 IP 不可靠服务之上，通过一整套端系统机制，向应用层提供可靠、按序、面向连接的字节流服务。</p>
+<p>本节最重要的几个判断是：</p>
+<ul>
+<li>TCP 是 <strong>字节流协议</strong>，不是报文流协议；</li>
+<li>TCP 的 sequence number 是 <strong>字节编号</strong>，不是 segment 编号；</li>
+<li>TCP 的 ACK number 表示 <strong>下一个期待的字节编号</strong>；</li>
+<li>TCP 使用 <strong>累计确认</strong>；</li>
+<li>RTT 估计和 TimeoutInterval 决定重传时机；</li>
+<li>快速重传通过重复 ACK 提前发现缺口；</li>
+<li><code>rwnd</code> 用于流量控制，防止接收方 buffer 溢出；</li>
+<li>三次握手用于确认双方初始序号，避免半连接和旧数据误收；</li>
+<li>TCP 连接关闭是双向的，两端分别关闭自己的发送方向。</li>
+</ul>
+<hr>
+<p><strong>❗ 最终核心结论：</strong><br>TCP 的本质不是“可靠地发送一个个包”，而是在不可靠 IP 网络之上，为应用层构造一条可靠、按序、全双工、受控速率的字节流通道。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/')">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南&amp;url=http://example.com/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/&amp;pic=/cover/blanka.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/mai.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/13/Chapter-3-3%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E3%80%81%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E3%80%81GBN-%E4%B8%8E-SR-%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/kimberly.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/mai.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97"><span class="toc-number">1.</span> <span class="toc-text">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E4%B8%BB%E7%BA%BF"><span class="toc-number">1.1.</span> <span class="toc-text">0. 本节核心主线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATCP-%E4%B8%8D%E6%98%AF%E8%AE%A9%E7%BD%91%E7%BB%9C%E5%B1%82%E5%8F%98%E5%8F%AF%E9%9D%A0%EF%BC%8C%E8%80%8C%E6%98%AF%E5%9C%A8%E7%AB%AF%E7%B3%BB%E7%BB%9F%E4%B9%8B%E9%97%B4%E7%BB%B4%E6%8A%A4%E5%BA%8F%E5%8F%B7%E3%80%81ACK%E3%80%81%E7%AA%97%E5%8F%A3%E3%80%81%E5%AE%9A%E6%97%B6%E5%99%A8%E3%80%81%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81%E7%AD%89%E6%9C%BA%E5%88%B6%EF%BC%8C%E6%8A%8A%E4%B8%8D%E5%8F%AF%E9%9D%A0%E7%9A%84-IP-%E6%9C%8D%E5%8A%A1%E5%8C%85%E8%A3%85%E6%88%90%E5%8F%AF%E9%9D%A0%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%82"><span class="toc-number">1.2.</span> <span class="toc-text">❗ 本节核心结论：TCP 不是让网络层变可靠，而是在端系统之间维护序号、ACK、窗口、定时器、连接状态等机制，把不可靠的 IP 服务包装成可靠字节流。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-TCP-%E7%9A%84%E6%95%B4%E4%BD%93%E7%89%B9%E6%80%A7"><span class="toc-number">1.3.</span> <span class="toc-text">1. TCP 的整体特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-TCP-%E6%98%AF%E5%AD%97%E8%8A%82%E6%B5%81%EF%BC%8C%E4%B8%8D%E6%98%AF%E6%8A%A5%E6%96%87%E6%B5%81"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.1 TCP 是字节流，不是报文流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATCP-%E4%B8%8D%E6%89%BF%E8%AF%BA%E2%80%9C%E4%BD%A0-send-%E5%87%A0%E6%AC%A1%EF%BC%8C%E5%AF%B9%E6%96%B9%E5%B0%B1-recv-%E5%87%A0%E6%AC%A1%E2%80%9D%EF%BC%9BTCP-%E5%8F%AA%E6%89%BF%E8%AF%BA%E5%AD%97%E8%8A%82%E6%8C%89%E5%BA%8F%E3%80%81%E5%8F%AF%E9%9D%A0%E5%9C%B0%E8%BF%9B%E5%85%A5%E6%8E%A5%E6%94%B6%E6%96%B9%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%82"><span class="toc-number">1.4.</span> <span class="toc-text">❗ 本节核心结论：TCP 不承诺“你 send 几次，对方就 recv 几次”；TCP 只承诺字节按序、可靠地进入接收方字节流。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-TCP-Segment-%E7%BB%93%E6%9E%84"><span class="toc-number">1.5.</span> <span class="toc-text">2. TCP Segment 结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-TCP-%E5%BA%8F%E5%8F%B7%E4%B8%8D%E6%98%AF%E2%80%9C%E7%AC%AC%E5%87%A0%E4%B8%AA-segment%E2%80%9D"><span class="toc-number">1.5.1.</span> <span class="toc-text">2.1 TCP 序号不是“第几个 segment”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATCP-%E7%9A%84%E5%BA%8F%E5%8F%B7%E6%8C%89%E5%AD%97%E8%8A%82%E8%AE%A1%E6%95%B0%E3%80%82%E4%B8%80%E4%B8%AA-segment-%E6%90%BA%E5%B8%A6%E5%A4%9A%E5%B0%91%E5%AD%97%E8%8A%82%EF%BC%8C%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%BA%8F%E5%8F%B7%E5%B0%B1%E5%A2%9E%E5%8A%A0%E5%A4%9A%E5%B0%91%E3%80%82"><span class="toc-number">1.6.</span> <span class="toc-text">❗ 本节核心结论：TCP 的序号按字节计数。一个 segment 携带多少字节，下一个序号就增加多少。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Sequence-Number-%E4%B8%8E-ACK-Number"><span class="toc-number">1.7.</span> <span class="toc-text">3. Sequence Number 与 ACK Number</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Sequence-Number"><span class="toc-number">1.7.1.</span> <span class="toc-text">3.1 Sequence Number</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-ACK-Number"><span class="toc-number">1.7.2.</span> <span class="toc-text">3.2 ACK Number</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-TCP-%E4%BD%BF%E7%94%A8%E7%B4%AF%E8%AE%A1%E7%A1%AE%E8%AE%A4"><span class="toc-number">1.7.3.</span> <span class="toc-text">3.3 TCP 使用累计确认</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATCP-%E7%9A%84-ACK-Number-%E8%A1%A8%E7%A4%BA%E2%80%9C%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9C%9F%E5%BE%85%E7%9A%84%E5%AD%97%E8%8A%82%E7%BC%96%E5%8F%B7%E2%80%9D%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E2%80%9C%E6%9C%80%E5%90%8E%E6%94%B6%E5%88%B0%E7%9A%84%E5%AD%97%E8%8A%82%E7%BC%96%E5%8F%B7%E2%80%9D%E3%80%82"><span class="toc-number">1.8.</span> <span class="toc-text">❗ 本节核心结论：TCP 的 ACK Number 表示“下一个期待的字节编号”，而不是“最后收到的字节编号”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RTT-%E4%B8%8E%E8%B6%85%E6%97%B6%E6%9C%BA%E5%88%B6"><span class="toc-number">1.9.</span> <span class="toc-text">4. RTT 与超时机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-RTT"><span class="toc-number">1.10.</span> <span class="toc-text">4.1 RTT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-SampleRTT"><span class="toc-number">1.11.</span> <span class="toc-text">4.2 SampleRTT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-EstimatedRTT"><span class="toc-number">1.12.</span> <span class="toc-text">4.3 EstimatedRTT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-DevRTT-%E4%B8%8E-TimeoutInterval"><span class="toc-number">1.13.</span> <span class="toc-text">4.4 DevRTT 与 TimeoutInterval</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATimeoutInterval-%E4%B8%8D%E8%83%BD%E7%AE%80%E5%8D%95%E7%AD%89%E4%BA%8E-EstimatedRTT%EF%BC%9B%E5%AE%83%E5%BF%85%E9%A1%BB%E8%80%83%E8%99%91-RTT-%E6%B3%A2%E5%8A%A8%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E9%A2%91%E7%B9%81%E8%AF%AF%E5%88%A4%E4%B8%A2%E5%8C%85%E3%80%82"><span class="toc-number">1.14.</span> <span class="toc-text">❗ 本节核心结论：TimeoutInterval 不能简单等于 EstimatedRTT；它必须考虑 RTT 波动，否则会频繁误判丢包。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-TCP-%E5%8F%AF%E9%9D%A0%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93"><span class="toc-number">1.15.</span> <span class="toc-text">5. TCP 可靠数据传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-TCP-%E5%83%8F-GBN-%E8%BF%98%E6%98%AF-SR%EF%BC%9F"><span class="toc-number">1.15.1.</span> <span class="toc-text">5.1 TCP 像 GBN 还是 SR？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%BF%AB%E9%80%9F%E9%87%8D%E4%BC%A0-Fast-Retransmit"><span class="toc-number">1.16.</span> <span class="toc-text">6. 快速重传 Fast Retransmit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E4%BB%80%E4%B9%88%E6%98%AF%E9%87%8D%E5%A4%8D-ACK%EF%BC%9F"><span class="toc-number">1.16.1.</span> <span class="toc-text">6.1 什么是重复 ACK？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E4%B8%BA%E4%BB%80%E4%B9%88-3-%E4%B8%AA%E9%87%8D%E5%A4%8D-ACK-%E8%A7%A6%E5%8F%91%E5%BF%AB%E9%80%9F%E9%87%8D%E4%BC%A0%EF%BC%9F"><span class="toc-number">1.16.2.</span> <span class="toc-text">6.2 为什么 3 个重复 ACK 触发快速重传？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A%E9%87%8D%E5%A4%8D-ACK-%E4%B8%8D%E6%98%AF%E7%A1%AE%E8%AE%A4%E4%BA%86%E6%9B%B4%E5%A4%9A%E6%95%B0%E6%8D%AE%EF%BC%8C%E8%80%8C%E6%98%AF%E5%9C%A8%E5%8F%8D%E5%A4%8D%E6%8F%90%E7%A4%BA%E2%80%9C%E6%88%91%E8%BF%98%E5%9C%A8%E7%AD%89%E5%90%8C%E4%B8%80%E4%B8%AA%E7%BC%BA%E5%8F%A3%E2%80%9D%E3%80%82"><span class="toc-number">1.17.</span> <span class="toc-text">❗ 本节核心结论：重复 ACK 不是确认了更多数据，而是在反复提示“我还在等同一个缺口”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-TCP-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6-Flow-Control"><span class="toc-number">1.18.</span> <span class="toc-text">7. TCP 流量控制 Flow Control</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%EF%BC%9F"><span class="toc-number">1.18.1.</span> <span class="toc-text">7.1 为什么需要流量控制？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-rwnd-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.18.2.</span> <span class="toc-text">7.2 rwnd 的作用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-3-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6-vs-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6"><span class="toc-number">1.19.</span> <span class="toc-text">7.3 流量控制 vs 拥塞控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E7%AE%A1%E7%9A%84%E6%98%AF%E2%80%9C%E6%8E%A5%E6%94%B6%E6%96%B9%E5%90%83%E4%B8%8D%E5%90%83%E5%BE%97%E4%B8%8B%E2%80%9D%EF%BC%9B%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%A1%E7%9A%84%E6%98%AF%E2%80%9C%E7%BD%91%E7%BB%9C%E6%89%9B%E4%B8%8D%E6%89%9B%E5%BE%97%E4%BD%8F%E2%80%9D%E3%80%82"><span class="toc-number">1.20.</span> <span class="toc-text">❗ 本节核心结论：流量控制管的是“接收方吃不吃得下”；拥塞控制管的是“网络扛不扛得住”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-TCP-%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86"><span class="toc-number">1.21.</span> <span class="toc-text">8. TCP 连接管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%A4%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8D%E5%A4%9F%EF%BC%9F"><span class="toc-number">1.22.</span> <span class="toc-text">9. 为什么两次握手不够？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9Ahalf-open-connection"><span class="toc-number">1.22.1.</span> <span class="toc-text">9.1 问题一：half-open connection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E9%97%AE%E9%A2%98%E4%BA%8C%EF%BC%9Aold-duplicate-data-%E8%A2%AB%E8%AF%AF%E8%AE%A4%E4%B8%BA%E6%96%B0%E6%95%B0%E6%8D%AE"><span class="toc-number">1.22.2.</span> <span class="toc-text">9.2 问题二：old duplicate data 被误认为新数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A%E4%B8%A4%E6%AC%A1%E6%8F%A1%E6%89%8B%E7%9A%84%E9%97%AE%E9%A2%98%E4%B8%8D%E5%9C%A8%E4%BA%8E%E6%AD%A3%E5%B8%B8%E6%83%85%E5%86%B5%E4%B8%8D%E8%83%BD%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%EF%BC%8C%E8%80%8C%E5%9C%A8%E4%BA%8E%E9%81%87%E5%88%B0%E6%97%A7%E6%8A%A5%E6%96%87%E3%80%81%E5%BB%B6%E8%BF%9F%E3%80%81%E9%87%8D%E4%BC%A0%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8F%AF%E8%83%BD%E8%AF%AF%E5%BB%BA%E8%BF%9E%E6%8E%A5%E3%80%81%E8%AF%AF%E6%94%B6%E6%97%A7%E6%95%B0%E6%8D%AE%E3%80%82"><span class="toc-number">1.23.</span> <span class="toc-text">❗ 本节核心结论：两次握手的问题不在于正常情况不能建立连接，而在于遇到旧报文、延迟、重传时，服务器可能误建连接、误收旧数据。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-TCP-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="toc-number">1.24.</span> <span class="toc-text">10. TCP 三次握手</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%8F%A1%E6%89%8B%EF%BC%9AClient-%E5%8F%91-SYN"><span class="toc-number">1.24.1.</span> <span class="toc-text">10.1 第一次握手：Client 发 SYN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E7%AC%AC%E4%BA%8C%E6%AC%A1%E6%8F%A1%E6%89%8B%EF%BC%9AServer-%E5%8F%91-SYNACK"><span class="toc-number">1.24.2.</span> <span class="toc-text">10.2 第二次握手：Server 发 SYNACK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E7%AC%AC%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%EF%BC%9AClient-%E7%A1%AE%E8%AE%A4-Server-%E7%9A%84%E5%88%9D%E5%A7%8B%E5%BA%8F%E5%8F%B7"><span class="toc-number">1.24.3.</span> <span class="toc-text">10.3 第三次握手：Client 确认 Server 的初始序号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8D%E6%98%AF%E5%BD%A2%E5%BC%8F%E4%B8%BB%E4%B9%89%EF%BC%8C%E8%80%8C%E6%98%AF%E4%B8%BA%E4%BA%86%E8%AE%A9%E5%8F%8C%E6%96%B9%E9%83%BD%E7%A1%AE%E8%AE%A4%E5%AF%B9%E6%96%B9%E7%9A%84%E5%88%9D%E5%A7%8B%E5%BA%8F%E5%8F%B7%EF%BC%8C%E4%BB%8E%E8%80%8C%E9%81%BF%E5%85%8D%E5%8D%8A%E8%BF%9E%E6%8E%A5%E5%92%8C%E6%97%A7%E6%95%B0%E6%8D%AE%E8%AF%AF%E6%94%B6%E3%80%82"><span class="toc-number">1.25.</span> <span class="toc-text">❗ 本节核心结论：三次握手不是形式主义，而是为了让双方都确认对方的初始序号，从而避免半连接和旧数据误收。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%A6%82%E4%BD%95%E7%BC%93%E8%A7%A3%E4%B8%A4%E6%AC%A1%E6%8F%A1%E6%89%8B%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-number">1.26.</span> <span class="toc-text">11. 三次握手如何缓解两次握手的问题？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E7%BC%93%E8%A7%A3-half-open-connection"><span class="toc-number">1.26.1.</span> <span class="toc-text">11.1 缓解 half-open connection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E7%BC%93%E8%A7%A3-old-duplicate-data"><span class="toc-number">1.26.2.</span> <span class="toc-text">11.2 缓解 old duplicate data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-TCP-%E8%BF%9E%E6%8E%A5%E5%85%B3%E9%97%AD"><span class="toc-number">1.27.</span> <span class="toc-text">12. TCP 连接关闭</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATCP-%E8%BF%9E%E6%8E%A5%E5%85%B3%E9%97%AD%E6%98%AF%E5%8F%8C%E5%90%91%E7%9A%84%E3%80%82%E6%AF%8F%E4%B8%80%E6%96%B9%E9%83%BD%E8%A6%81%E5%88%86%E5%88%AB%E5%85%B3%E9%97%AD%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8F%91%E9%80%81%E6%96%B9%E5%90%91%EF%BC%8C%E6%89%80%E4%BB%A5%E9%80%9A%E5%B8%B8%E9%9C%80%E8%A6%81-FIN-%E5%92%8C-ACK-%E7%9A%84%E4%BA%A4%E6%8D%A2%E3%80%82"><span class="toc-number">1.28.</span> <span class="toc-text">❗ 本节核心结论：TCP 连接关闭是双向的。每一方都要分别关闭自己的发送方向，所以通常需要 FIN 和 ACK 的交换。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E9%87%8D%E8%A6%81%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="toc-number">1.29.</span> <span class="toc-text">13. 重要对比表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-SEQ-vs-ACK"><span class="toc-number">1.29.1.</span> <span class="toc-text">13.1 SEQ vs ACK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E8%B6%85%E6%97%B6%E9%87%8D%E4%BC%A0-vs-%E5%BF%AB%E9%80%9F%E9%87%8D%E4%BC%A0"><span class="toc-number">1.29.2.</span> <span class="toc-text">13.2 超时重传 vs 快速重传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6-vs-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93"><span class="toc-number">1.29.3.</span> <span class="toc-text">13.3 流量控制 vs 可靠传输</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%98%93%E6%B7%B7%E7%82%B9%E6%95%B4%E7%90%86"><span class="toc-number">1.30.</span> <span class="toc-text">14. 易混点整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-TCP-%E7%9A%84-ACK-%E4%B8%8D%E6%98%AF%E2%80%9C%E6%88%91%E6%94%B6%E5%88%B0%E4%BA%86%E8%BF%99%E4%B8%AA%E7%BC%96%E5%8F%B7%E2%80%9D"><span class="toc-number">1.30.1.</span> <span class="toc-text">14.1 TCP 的 ACK 不是“我收到了这个编号”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-TCP-%E7%9A%84%E5%BA%8F%E5%8F%B7%E4%B8%8D%E6%98%AF%E6%8A%A5%E6%96%87%E6%AE%B5%E7%BC%96%E5%8F%B7"><span class="toc-number">1.30.2.</span> <span class="toc-text">14.2 TCP 的序号不是报文段编号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E7%B4%AF%E8%AE%A1%E7%A1%AE%E8%AE%A4%E4%B8%8D%E6%98%AF%E9%80%89%E6%8B%A9%E7%A1%AE%E8%AE%A4"><span class="toc-number">1.30.3.</span> <span class="toc-text">14.3 累计确认不是选择确认</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-%E5%BF%AB%E9%80%9F%E9%87%8D%E4%BC%A0%E4%B8%8D%E6%98%AF-timeout"><span class="toc-number">1.30.4.</span> <span class="toc-text">14.4 快速重传不是 timeout</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-5-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8D%E6%98%AF%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6"><span class="toc-number">1.30.5.</span> <span class="toc-text">14.5 流量控制不是拥塞控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-6-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8D%E6%98%AF%E5%A4%9A%E5%8F%91%E4%B8%80%E6%AC%A1%E8%80%8C%E5%B7%B2"><span class="toc-number">1.30.6.</span> <span class="toc-text">14.6 三次握手不是多发一次而已</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%9A%E6%9A%82%E4%B8%8D%E9%99%84%E7%AD%94%E6%A1%88"><span class="toc-number">1.31.</span> <span class="toc-text">15. 自测题：暂不附答案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E6%80%BB%E7%BB%93"><span class="toc-number">1.32.</span> <span class="toc-text">最终总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/mai.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南">Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南</a><time datetime="2026-06-13T12:36:58.000Z" title="Created 2026-06-13 20:36:58">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/blanka.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</a><time datetime="2026-06-13T12:36:44.000Z" title="Created 2026-06-13 20:36:44">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-3%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E3%80%81%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E3%80%81GBN-%E4%B8%8E-SR-%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/kimberly.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-3%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E3%80%81%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E3%80%81GBN-%E4%B8%8E-SR-%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南">Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南</a><time datetime="2026-06-13T12:36:33.000Z" title="Created 2026-06-13 20:36:33">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-2%EF%BC%9A%E5%8F%AF%E9%9D%A0%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-rdt-%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-2：可靠数据传输 rdt 原理学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-2：可靠数据传输 rdt 原理学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-2%EF%BC%9A%E5%8F%AF%E9%9D%A0%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-rdt-%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-2：可靠数据传输 rdt 原理学习指南">Chapter 3-2：可靠数据传输 rdt 原理学习指南</a><time datetime="2026-06-13T12:36:22.000Z" title="Created 2026-06-13 20:36:22">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" title="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/kimberly.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" title="Chapter 3-1：传输层的核心边界——从主机通信到进程通信">Chapter 3-1：传输层的核心边界——从主机通信到进程通信</a><time datetime="2026-06-13T12:36:06.000Z" title="Created 2026-06-13 20:36:06">2026-06-13</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">47</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

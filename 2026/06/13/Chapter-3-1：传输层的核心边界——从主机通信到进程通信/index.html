@@ -1,0 +1,952 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 3-1：传输层的核心边界——从主机通信到进程通信 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"><meta name="application-name" content="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"><meta property="og:url" content="http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 3.1：传输层的核心边界——从主机通信到进程通信Chapter 3.1 的核心任务，是建立传输层的基本框架：传输层到底服务谁、它和网络层的边界在哪里、TCP 与 UDP 在 Internet 传输层中分别提供什么样的服务。 这一节不需要立刻深入 TCP 三次握手、可靠数据传输算法或拥"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/kimberly.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/kimberly.png"><meta name="description" content="Chapter 3.1：传输层的核心边界——从主机通信到进程通信Chapter 3.1 的核心任务，是建立传输层的基本框架：传输层到底服务谁、它和网络层的边界在哪里、TCP 与 UDP 在 Internet 传输层中分别提供什么样的服务。 这一节不需要立刻深入 TCP 三次握手、可靠数据传输算法或拥"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 3-1：传输层的核心边界——从主机通信到进程通信',
+  postAI: '',
+  pageFillDescription: 'Chapter 3.1：传输层的核心边界——从主机通信到进程通信, ❗ 本节核心结论：网络层负责把数据送到正确的主机；传输层负责把数据交给这台主机上的正确进程。, 1. 传输层服务的对象不是主机而是进程, ❗ 本节核心结论：IP 地址解决到哪台主机；端口号解决到这台主机上的哪个进程。, 2. 网络层与传输层的边界, 3. 发送方传输层做什么, 4. 接收方传输层做什么, ❗ 本节核心结论：网络层可以把数据交给某个上层协议例如 TCP 或 UDP；但把数据交给具体应用进程是传输层解复用的职责。, 5. Message、Segment、Datagram、Frame 的区别, 6. TCP 与 UDP 的基本服务差异, 6.1 TCP：功能更完整的传输层服务, 6.2 UDP：轻量、简单、少干预, ❗ 本节核心结论：TCP 比 UDP 提供更多服务但 TCP 和 UDP 都不能凭空保证低延迟或高带宽。, 7. TCP 不能解决所有网络问题, 8. 为什么解复用不是网络层做的, 9. 本节的完整逻辑链, 10. 易混点整理, 10.1 传输层是否负责路由？, 10.2 网络层和传输层都说 logical communication有什么区别？, 10.3 只靠 IP 地址能不能定位应用进程？, 10.4 UDP 是不是没有价值？, 11. 复习清单, 最终总结传输层的核心边界从主机通信到进程通信的核心任务是建立传输层的基本框架传输层到底服务谁它和网络层的边界在哪里与在传输层中分别提供什么样的服务这一节不需要立刻深入三次握手可靠数据传输算法或拥塞控制细节真正重要的是先抓住一句话本节核心结论网络层负责把数据送到正确的主机传输层负责把数据交给这台主机上的正确进程传输层服务的对象不是主机而是进程传输层提供的是即不同主机上应用进程之间的逻辑通信这句话里最关键的词不是主机而是进程一台主机上可以同时运行很多应用浏览器微信邮件客户端服务器数据库服务网络层的地址只能把数据送到某一台主机例如一个数据报到达网络层只能判断这个包是发给这台主机的但它并不知道这个数据应该交给浏览器微信还是某个后台服务这个交给哪个应用进程的问题就是传输层要解决的问题层次通信对象直观类比网络层主机到主机把快递送到某栋楼传输层进程到进程把快递送到楼里的具体某个人应用层应用逻辑收件人阅读处理回复本节核心结论地址解决到哪台主机端口号解决到这台主机上的哪个进程网络层与传输层的边界网络层和传输层都可以说提供某种但二者的通信对象不同层次逻辑通信类型主要职责网络层在网络中把数据送到目标主机传输层在端系统中把数据交给目标进程网络层更关心路径转发地址路由等问题它要解决的是数据如何从源主机到达目标主机传输层更关心端系统内部的进程通信端口复用解复用可靠性流量控制拥塞控制等问题它要解决的是数据到达目标主机之后应该交给哪个应用进程数据是否需要可靠有序地交付发送方是否需要控制发送速度所以传输层不是网络层的重复而是在网络层提供的主机到主机通信之上进一步抽象出进程到进程的通信应用进程传输层封装为网络层封装为网络中转发到目标主机目标主机网络层目标主机传输层解复用应用进程这张图强调网络层负责跨主机传送传输层负责端系统内部的进程定位与交付发送方传输层做什么发送方传输层从应用层接收应用层报文即然后它会加上传输层首部形成传输层报文段即再把交给网络层过程可以概括为接收应用层添加或确定传输层首部生成传输层将交给网络层网络层继续封装为也就是说发送方传输层的关键动作是应用层加上传输层首部传输层交给网络层网络层这里要注意不应说确认的头部信息更准确的说法是传输层为应用层添加自己的传输层首部从而形成接收方传输层做什么接收方传输层从网络层收到后需要执行相反方向的处理从网络层接收检查传输层首部提取应用层根据端口号等信息把交给正确的应用进程其中最关键的一步是解复用所谓解复用就是目标主机上可能有很多应用进程同时等待数据传输层要根据首部中的信息判断这个数据到底应该交给哪个这一步是传输层的职责而不是网络层的职责原因很简单网络层看到的是地址传输层看到的是端口号应用进程通过与端口相关联所以网络层最多只能把数据报交给本机的或等上层协议它不会继续判断这个数据应该交给微信还是具体交给哪个应用进程是传输层根据端口号完成的本节核心结论网络层可以把数据交给某个上层协议例如或但把数据交给具体应用进程是传输层解复用的职责的区别学习传输层时必须先把不同层的数据单位区分清楚层次数据单位中文常用说法应用层报文传输层报文段网络层数据报链路层帧在中最重要的是前三者应用层交给传输层的是传输层加上首部后形成网络层再把封装进这些名字不是孤立术语而是体现了分层封装关系这张图可以帮助记忆越往下走每一层都会在上层数据外面加上自己的控制信息与的基本服务差异传输层中最重要的两个协议是和阶段只需要先理解它们的服务特征不需要深入实现细节功能更完整的传输层服务提供的典型服务包括可靠传输保序传输多路复用解复用流量控制拥塞控制面向连接不只是把数据交给正确进程还会尽量保证数据可靠有序地到达同时它还会控制发送速度避免压垮接收方也避免对网络拥塞造成过强冲击所以可以理解为在的尽力而为服务之上提供更强约束的传输层服务轻量简单少干预提供的服务更少不保证可靠不保证顺序提供多路复用解复用基本不在的尽力而为服务上增加太多机制不是没用的协议它的价值在于简单轻量开销小适合一些更重视实时性或者希望应用层自己控制可靠性的场景对比项可靠性提供可靠传输不保证可靠顺序性保证按序交付不保证顺序连接面向连接无连接流量控制有无拥塞控制有通常无多路复用解复用有有延迟保证无无带宽保证无无本节核心结论比提供更多服务但和都不能凭空保证低延迟或高带宽不能解决所有网络问题一个常见误解是可以把不可靠的网络层服务增强为可靠传输所以也能保证低延迟这个说法是错误的确实可以增强可靠性和顺序性例如通过确认重传序号等机制处理丢包和乱序但不能凭空创造带宽也不能保证固定延迟原因是延迟和带宽主要取决于底层网络条件例如链路容量路由路径排队情况网络拥塞物理距离中间设备处理速度可以适应这些条件但不能消除这些条件所以更准确的说法是能在不可靠的网络层服务上构造可靠传输但不能承诺网络性能指标为什么解复用不是网络层做的接收方根据头部中的端口等信息把数据交给正确应用进程这一步属于传输层它不是网络层的职责因为网络层的定位粒度到主机为止网络层关心的是目标地址哪台主机传输层关心的是目标端口号这台主机上的哪个进程例如一台电脑的是同时运行浏览器微信一个数据包到达这台主机时网络层只能知道这个包是给的至于这个包应该交给浏览器微信某个后台服务这必须由传输层查看首部中的端口号来决定例如端口信息可能对应的应用目标端口服务或通信目标端口邮件服务某个临时端口某个客户端网络层确实会查看首部中的字段把数据交给或但这只是在选择上层协议而不是选择具体应用进程换句话说网络层最多决定交给还是传输层才决定交给哪个本节的完整逻辑链可以压缩成如下逻辑链网络应用运行在端系统进程中不同主机上的进程需要通信网络层只能提供通信传输层提供通信发送方把封装为网络层把封装为接收方传输层解封装并解复用数据交给正确应用进程传输层主要选择或这条链条就是的主线易混点整理传输层是否负责路由不负责路由是网络层的任务传输层不决定数据走哪条路径它主要负责端系统上的进程通信封装与解封装复用与解复用以及中的可靠性流量控制拥塞控制等网络层和传输层都说有什么区别区别在通信对象网络层主机到主机传输层进程到进程主机之间能通信不代表主机上的正确应用进程已经收到数据只靠地址能不能定位应用进程不能地址只能定位主机由于同一台主机上可以运行多个进程所以还需要端口号等传输层信息来定位具体进程或是不是没有价值不是不可靠不保序但它简单轻量适合实时应用或应用层自定义传输控制的场景它不是的残缺版而是另一种服务取舍复习清单学完应该能回答以下问题传输层提供的是主机到主机通信还是进程到进程通信网络层和传输层的有什么区别为什么地址不能唯一定位一个应用进程发送方传输层如何把变成接收方传输层如何把交给正确应用进程什么是为什么解复用是传输层职责而不是网络层职责相比额外提供哪些服务和都不提供哪些性能保证为什么不能保证低延迟和固定带宽分别对应哪一层为什么传输层协议主要运行在端系统而不是网络核心路由器最终总结的关键不是记住和的所有细节而是先建立传输层的边界意识网络层解决的是问题如何把数据送到目标主机传输层解决的是问题如何让目标主机上的正确应用进程收到数据因此端口号多路复用解复用都是传输层区别于网络层的关键机制和则是在这个基本职责之上提供了不同强度的传输服务选择更可靠更复杂更轻量更直接但无论选择哪一个它们都不能凭空保证网络的延迟和带宽最终核心结论传输层的本质是在网络层主机到主机的通信基础上构造出进程到进程的通信抽象',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-13 20:36:06',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">28</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 3-1：传输层的核心边界——从主机通信到进程通信</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:06.000Z" title="Created 2026-06-13 20:36:06">2026-06-13</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:06.329Z" title="Updated 2026-06-13 20:36:06">2026-06-13</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">3.4k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>10min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/kimberly.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 3-1：传输层的核心边界——从主机通信到进程通信</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:06.000Z" title="Created 2026-06-13 20:36:06">2026-06-13</time><time itemprop="dateCreated datePublished" datetime="2026-06-13T12:36:06.329Z" title="Updated 2026-06-13 20:36:06">2026-06-13</time></header><h1 id="Chapter-3-1：传输层的核心边界——从主机通信到进程通信"><a href="#Chapter-3-1：传输层的核心边界——从主机通信到进程通信" class="headerlink" title="Chapter 3.1：传输层的核心边界——从主机通信到进程通信"></a>Chapter 3.1：传输层的核心边界——从主机通信到进程通信</h1><p>Chapter 3.1 的核心任务，是建立传输层的基本框架：传输层到底服务谁、它和网络层的边界在哪里、TCP 与 UDP 在 Internet 传输层中分别提供什么样的服务。</p>
+<p>这一节不需要立刻深入 TCP 三次握手、可靠数据传输算法或拥塞控制细节。真正重要的是先抓住一句话：</p>
+<hr>
+<h2 id="❗-本节核心结论：网络层负责把数据送到正确的主机；传输层负责把数据交给这台主机上的正确进程。"><a href="#❗-本节核心结论：网络层负责把数据送到正确的主机；传输层负责把数据交给这台主机上的正确进程。" class="headerlink" title="❗ 本节核心结论：网络层负责把数据送到正确的主机；传输层负责把数据交给这台主机上的正确进程。"></a><strong>❗ 本节核心结论：</strong><br>网络层负责把数据送到正确的主机；传输层负责把数据交给这台主机上的正确进程。</h2><h2 id="1-传输层服务的对象不是主机，而是进程"><a href="#1-传输层服务的对象不是主机，而是进程" class="headerlink" title="1. 传输层服务的对象不是主机，而是进程"></a>1. 传输层服务的对象不是主机，而是进程</h2><p>传输层提供的是 <strong>process-to-process logical communication</strong>，即不同主机上应用进程之间的逻辑通信。</p>
+<p>这句话里最关键的词不是“主机”，而是 <strong>进程 process</strong>。</p>
+<p>一台主机上可以同时运行很多应用：</p>
+<ul>
+<li>浏览器；</li>
+<li>微信；</li>
+<li>QQ；</li>
+<li>Steam；</li>
+<li>邮件客户端；</li>
+<li>Web 服务器；</li>
+<li>数据库服务。</li>
+</ul>
+<p>网络层的 IP 地址只能把数据送到某一台主机。例如，一个 IP 数据报到达 <code>192.168.1.5</code>，网络层只能判断：</p>
+<blockquote>
+<p>这个包是发给 <code>192.168.1.5</code> 这台主机的。</p>
+</blockquote>
+<p>但它并不知道这个数据应该交给浏览器、微信、QQ，还是某个后台服务。这个“交给哪个应用进程”的问题，就是传输层要解决的问题。</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>通信对象</th>
+<th>直观类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>网络层</td>
+<td>主机到主机</td>
+<td>把快递送到某栋楼</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>进程到进程</td>
+<td>把快递送到楼里的具体某个人</td>
+</tr>
+<tr>
+<td>应用层</td>
+<td>应用逻辑</td>
+<td>收件人阅读、处理、回复</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：IP-地址解决“到哪台主机”；端口号解决“到这台主机上的哪个进程”。"><a href="#❗-本节核心结论：IP-地址解决“到哪台主机”；端口号解决“到这台主机上的哪个进程”。" class="headerlink" title="❗ 本节核心结论：IP 地址解决“到哪台主机”；端口号解决“到这台主机上的哪个进程”。"></a><strong>❗ 本节核心结论：</strong><br>IP 地址解决“到哪台主机”；端口号解决“到这台主机上的哪个进程”。</h2><h2 id="2-网络层与传输层的边界"><a href="#2-网络层与传输层的边界" class="headerlink" title="2. 网络层与传输层的边界"></a>2. 网络层与传输层的边界</h2><p>网络层和传输层都可以说提供某种 logical communication，但二者的通信对象不同：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>逻辑通信类型</th>
+<th>主要职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>网络层</td>
+<td>host-to-host</td>
+<td>在网络中把数据送到目标主机</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>process-to-process</td>
+<td>在端系统中把数据交给目标进程</td>
+</tr>
+</tbody></table>
+<p>网络层更关心路径、转发、IP 地址、路由等问题。它要解决的是：</p>
+<blockquote>
+<p>数据如何从源主机到达目标主机？</p>
+</blockquote>
+<p>传输层更关心端系统内部的进程通信、端口、复用、解复用、可靠性、流量控制、拥塞控制等问题。它要解决的是：</p>
+<blockquote>
+<p>数据到达目标主机之后，应该交给哪个应用进程？<br>数据是否需要可靠、有序地交付？<br>发送方是否需要控制发送速度？</p>
+</blockquote>
+<p>所以，传输层不是网络层的重复，而是在网络层提供的主机到主机通信之上，进一步抽象出进程到进程的通信。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[应用进程 A] --&gt; B[传输层：封装为 segment]
+    B --&gt; C[网络层：封装为 IP datagram]
+    C --&gt; D[网络中转发到目标主机]
+    D --&gt; E[目标主机网络层]
+    E --&gt; F[目标主机传输层：解复用]
+    F --&gt; G[应用进程 B]
+  </pre></div>
+
+<p>这张图强调：网络层负责跨主机传送，传输层负责端系统内部的进程定位与交付。</p>
+<h2 id="3-发送方传输层做什么"><a href="#3-发送方传输层做什么" class="headerlink" title="3. 发送方传输层做什么"></a>3. 发送方传输层做什么</h2><p>发送方传输层从应用层接收应用层报文，即 <strong>message</strong>。然后它会加上传输层首部，形成传输层报文段，即 <strong>segment</strong>，再把 segment 交给网络层。</p>
+<p>过程可以概括为：</p>
+<ol>
+<li>接收应用层 message；</li>
+<li>添加或确定传输层首部；</li>
+<li>生成传输层 segment；</li>
+<li>将 segment 交给网络层；</li>
+<li>网络层继续封装为 IP datagram。</li>
+</ol>
+<p>也就是说，发送方传输层的关键动作是：</p>
+<blockquote>
+<p>应用层 message<br>↓ 加上传输层首部<br>传输层 segment<br>↓ 交给网络层<br>网络层 datagram</p>
+</blockquote>
+<p>这里要注意，不应说“确认 message 的头部信息”。更准确的说法是：传输层为应用层 message 添加自己的传输层首部，从而形成 segment。</p>
+<h2 id="4-接收方传输层做什么"><a href="#4-接收方传输层做什么" class="headerlink" title="4. 接收方传输层做什么"></a>4. 接收方传输层做什么</h2><p>接收方传输层从网络层收到 segment 后，需要执行相反方向的处理：</p>
+<ol>
+<li>从网络层接收 segment；</li>
+<li>检查传输层首部；</li>
+<li>提取应用层 message；</li>
+<li>根据端口号、socket 等信息，把 message 交给正确的应用进程。</li>
+</ol>
+<p>其中最关键的一步是 <strong>demultiplexing，解复用</strong>。</p>
+<p>所谓解复用，就是目标主机上可能有很多应用进程同时等待数据，传输层要根据 segment 首部中的信息判断：</p>
+<blockquote>
+<p>这个数据到底应该交给哪个 socket &#x2F; process？</p>
+</blockquote>
+<p>这一步是传输层的职责，而不是网络层的职责。</p>
+<p>原因很简单：</p>
+<ul>
+<li>网络层看到的是 IP 地址；</li>
+<li>传输层看到的是端口号；</li>
+<li>应用进程通过 socket 与端口相关联。</li>
+</ul>
+<p>所以网络层最多只能把 IP 数据报交给本机的 TCP、UDP 或 ICMP 等上层协议；它不会继续判断这个数据应该交给 Chrome、QQ、微信还是 Steam。具体交给哪个应用进程，是传输层根据端口号完成的。</p>
+<hr>
+<h2 id="❗-本节核心结论：网络层可以把数据交给某个上层协议，例如-TCP-或-UDP；但把数据交给具体应用进程，是传输层解复用的职责。"><a href="#❗-本节核心结论：网络层可以把数据交给某个上层协议，例如-TCP-或-UDP；但把数据交给具体应用进程，是传输层解复用的职责。" class="headerlink" title="❗ 本节核心结论：网络层可以把数据交给某个上层协议，例如 TCP 或 UDP；但把数据交给具体应用进程，是传输层解复用的职责。"></a><strong>❗ 本节核心结论：</strong><br>网络层可以把数据交给某个上层协议，例如 TCP 或 UDP；但把数据交给具体应用进程，是传输层解复用的职责。</h2><h2 id="5-Message、Segment、Datagram、Frame-的区别"><a href="#5-Message、Segment、Datagram、Frame-的区别" class="headerlink" title="5. Message、Segment、Datagram、Frame 的区别"></a>5. Message、Segment、Datagram、Frame 的区别</h2><p>学习传输层时，必须先把不同层的数据单位区分清楚。</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>数据单位</th>
+<th>中文常用说法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用层</td>
+<td>message</td>
+<td>报文</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>segment</td>
+<td>报文段</td>
+</tr>
+<tr>
+<td>网络层</td>
+<td>datagram</td>
+<td>数据报</td>
+</tr>
+<tr>
+<td>链路层</td>
+<td>frame</td>
+<td>帧</td>
+</tr>
+</tbody></table>
+<p>在 Chapter 3.1 中，最重要的是前三者：</p>
+<ul>
+<li>应用层交给传输层的是 <strong>message</strong>；</li>
+<li>传输层加上首部后形成 <strong>segment</strong>；</li>
+<li>网络层再把 segment 封装进 IP <strong>datagram</strong>。</li>
+</ul>
+<p>这些名字不是孤立术语，而是体现了分层封装关系。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[Application message] --&gt; B[Transport segment]
+    B --&gt; C[Network datagram]
+    C --&gt; D[Link-layer frame]
+  </pre></div>
+
+<p>这张图可以帮助记忆：越往下走，每一层都会在上层数据外面加上自己的控制信息。</p>
+<h2 id="6-TCP-与-UDP-的基本服务差异"><a href="#6-TCP-与-UDP-的基本服务差异" class="headerlink" title="6. TCP 与 UDP 的基本服务差异"></a>6. TCP 与 UDP 的基本服务差异</h2><p>Internet 传输层中最重要的两个协议是 TCP 和 UDP。</p>
+<p>Chapter 3.1 阶段，只需要先理解它们的服务特征，不需要深入实现细节。</p>
+<h3 id="6-1-TCP：功能更完整的传输层服务"><a href="#6-1-TCP：功能更完整的传输层服务" class="headerlink" title="6.1 TCP：功能更完整的传输层服务"></a>6.1 TCP：功能更完整的传输层服务</h3><p>TCP 提供的典型服务包括：</p>
+<ul>
+<li>可靠传输；</li>
+<li>保序传输；</li>
+<li>多路复用 &#x2F; 解复用；</li>
+<li>流量控制；</li>
+<li>拥塞控制；</li>
+<li>面向连接。</li>
+</ul>
+<p>TCP 不只是把数据交给正确进程，还会尽量保证数据可靠、有序地到达。同时，它还会控制发送速度，避免压垮接收方，也避免对网络拥塞造成过强冲击。</p>
+<p>所以 TCP 可以理解为：</p>
+<blockquote>
+<p>在 IP 的尽力而为服务之上，提供更强约束的传输层服务。</p>
+</blockquote>
+<h3 id="6-2-UDP：轻量、简单、少干预"><a href="#6-2-UDP：轻量、简单、少干预" class="headerlink" title="6.2 UDP：轻量、简单、少干预"></a>6.2 UDP：轻量、简单、少干预</h3><p>UDP 提供的服务更少：</p>
+<ul>
+<li>不保证可靠；</li>
+<li>不保证顺序；</li>
+<li>提供多路复用 &#x2F; 解复用；</li>
+<li>基本不在 IP 的尽力而为服务上增加太多机制。</li>
+</ul>
+<p>UDP 不是“没用”的协议。它的价值在于简单、轻量、开销小，适合一些更重视实时性、或者希望应用层自己控制可靠性的场景。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>TCP</th>
+<th>UDP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可靠性</td>
+<td>提供可靠传输</td>
+<td>不保证可靠</td>
+</tr>
+<tr>
+<td>顺序性</td>
+<td>保证按序交付</td>
+<td>不保证顺序</td>
+</tr>
+<tr>
+<td>连接</td>
+<td>面向连接</td>
+<td>无连接</td>
+</tr>
+<tr>
+<td>流量控制</td>
+<td>有</td>
+<td>无</td>
+</tr>
+<tr>
+<td>拥塞控制</td>
+<td>有</td>
+<td>通常无</td>
+</tr>
+<tr>
+<td>多路复用 &#x2F; 解复用</td>
+<td>有</td>
+<td>有</td>
+</tr>
+<tr>
+<td>延迟保证</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>带宽保证</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：TCP-比-UDP-提供更多服务，但-TCP-和-UDP-都不能凭空保证低延迟或高带宽。"><a href="#❗-本节核心结论：TCP-比-UDP-提供更多服务，但-TCP-和-UDP-都不能凭空保证低延迟或高带宽。" class="headerlink" title="❗ 本节核心结论：TCP 比 UDP 提供更多服务，但 TCP 和 UDP 都不能凭空保证低延迟或高带宽。"></a><strong>❗ 本节核心结论：</strong><br>TCP 比 UDP 提供更多服务，但 TCP 和 UDP 都不能凭空保证低延迟或高带宽。</h2><h2 id="7-TCP-不能解决所有网络问题"><a href="#7-TCP-不能解决所有网络问题" class="headerlink" title="7. TCP 不能解决所有网络问题"></a>7. TCP 不能解决所有网络问题</h2><p>一个常见误解是：</p>
+<blockquote>
+<p>TCP 可以把不可靠的网络层服务增强为可靠传输，所以 TCP 也能保证低延迟。</p>
+</blockquote>
+<p>这个说法是错误的。</p>
+<p>TCP 确实可以增强可靠性和顺序性，例如通过确认、重传、序号等机制处理丢包和乱序。但 TCP 不能凭空创造带宽，也不能保证固定延迟。</p>
+<p>原因是延迟和带宽主要取决于底层网络条件，例如：</p>
+<ul>
+<li>链路容量；</li>
+<li>路由路径；</li>
+<li>排队情况；</li>
+<li>网络拥塞；</li>
+<li>物理距离；</li>
+<li>中间设备处理速度。</li>
+</ul>
+<p>TCP 可以适应这些条件，但不能消除这些条件。</p>
+<p>所以更准确的说法是：</p>
+<blockquote>
+<p>TCP 能在不可靠的网络层服务上构造可靠传输，但不能承诺网络性能指标。</p>
+</blockquote>
+<h2 id="8-为什么解复用不是网络层做的"><a href="#8-为什么解复用不是网络层做的" class="headerlink" title="8. 为什么解复用不是网络层做的"></a>8. 为什么解复用不是网络层做的</h2><p>接收方根据 segment 头部中的端口等信息，把数据交给正确应用进程。这一步属于传输层。</p>
+<p>它不是网络层的职责，因为网络层的定位粒度到 <strong>主机</strong> 为止。</p>
+<p>网络层关心的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目标 IP 地址 = 哪台主机？</span><br></pre></td></tr></table></figure>
+
+<p>传输层关心的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目标端口号 = 这台主机上的哪个进程 / socket？</span><br></pre></td></tr></table></figure>
+
+<p>例如，一台电脑的 IP 是 <code>192.168.1.5</code>，同时运行浏览器、QQ、微信、Steam。一个数据包到达这台主机时，网络层只能知道这个包是给 <code>192.168.1.5</code> 的。</p>
+<p>至于这个包应该交给：</p>
+<ul>
+<li>浏览器；</li>
+<li>QQ；</li>
+<li>微信；</li>
+<li>Steam；</li>
+<li>某个后台服务；</li>
+</ul>
+<p>这必须由传输层查看 TCP&#x2F;UDP 首部中的端口号来决定。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>端口信息</th>
+<th>可能对应的应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目标端口 80 &#x2F; 443</td>
+<td>Web 服务或 HTTPS 通信</td>
+</tr>
+<tr>
+<td>目标端口 25</td>
+<td>邮件服务</td>
+</tr>
+<tr>
+<td>某个临时端口</td>
+<td>某个客户端 socket</td>
+</tr>
+</tbody></table>
+<p>网络层确实会查看 IP 首部中的 <code>protocol</code> 字段，把数据交给 TCP、UDP 或 ICMP。但这只是在选择上层协议，而不是选择具体应用进程。</p>
+<p>换句话说：</p>
+<blockquote>
+<p>网络层最多决定“交给 TCP 还是 UDP”；传输层才决定“交给哪个 socket &#x2F; process”。</p>
+</blockquote>
+<h2 id="9-本节的完整逻辑链"><a href="#9-本节的完整逻辑链" class="headerlink" title="9. 本节的完整逻辑链"></a>9. 本节的完整逻辑链</h2><p>Chapter 3.1 可以压缩成如下逻辑链：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[网络应用运行在端系统进程中] --&gt; B[不同主机上的进程需要通信]
+    B --&gt; C[网络层只能提供 host-to-host 通信]
+    C --&gt; D[传输层提供 process-to-process 通信]
+    D --&gt; E[发送方把 message 封装为 segment]
+    E --&gt; F[网络层把 segment 封装为 datagram]
+    F --&gt; G[接收方传输层解封装并解复用]
+    G --&gt; H[数据交给正确应用进程]
+    H --&gt; I[Internet 传输层主要选择：TCP 或 UDP]
+  </pre></div>
+
+<p>这条链条就是 3.1 的主线。</p>
+<h2 id="10-易混点整理"><a href="#10-易混点整理" class="headerlink" title="10. 易混点整理"></a>10. 易混点整理</h2><h3 id="10-1-传输层是否负责路由？"><a href="#10-1-传输层是否负责路由？" class="headerlink" title="10.1 传输层是否负责路由？"></a>10.1 传输层是否负责路由？</h3><p>不负责。</p>
+<p>路由是网络层的任务。传输层不决定数据走哪条路径。它主要负责端系统上的进程通信、封装与解封装、复用与解复用，以及 TCP 中的可靠性、流量控制、拥塞控制等。</p>
+<h3 id="10-2-网络层和传输层都说-logical-communication，有什么区别？"><a href="#10-2-网络层和传输层都说-logical-communication，有什么区别？" class="headerlink" title="10.2 网络层和传输层都说 logical communication，有什么区别？"></a>10.2 网络层和传输层都说 logical communication，有什么区别？</h3><p>区别在通信对象：</p>
+<ul>
+<li>网络层：主机到主机；</li>
+<li>传输层：进程到进程。</li>
+</ul>
+<p>主机之间能通信，不代表主机上的正确应用进程已经收到数据。</p>
+<h3 id="10-3-只靠-IP-地址能不能定位应用进程？"><a href="#10-3-只靠-IP-地址能不能定位应用进程？" class="headerlink" title="10.3 只靠 IP 地址能不能定位应用进程？"></a>10.3 只靠 IP 地址能不能定位应用进程？</h3><p>不能。</p>
+<p>IP 地址只能定位主机。由于同一台主机上可以运行多个进程，所以还需要端口号等传输层信息来定位具体进程或 socket。</p>
+<h3 id="10-4-UDP-是不是没有价值？"><a href="#10-4-UDP-是不是没有价值？" class="headerlink" title="10.4 UDP 是不是没有价值？"></a>10.4 UDP 是不是没有价值？</h3><p>不是。</p>
+<p>UDP 不可靠、不保序，但它简单、轻量，适合实时应用或应用层自定义传输控制的场景。它不是 TCP 的“残缺版”，而是另一种服务取舍。</p>
+<h2 id="11-复习清单"><a href="#11-复习清单" class="headerlink" title="11. 复习清单"></a>11. 复习清单</h2><p>学完 Chapter 3.1，应该能回答以下问题：</p>
+<ul>
+<li>传输层提供的是主机到主机通信，还是进程到进程通信？</li>
+<li>网络层和传输层的 logical communication 有什么区别？</li>
+<li>为什么 IP 地址不能唯一定位一个应用进程？</li>
+<li>发送方传输层如何把 message 变成 segment？</li>
+<li>接收方传输层如何把 segment 交给正确应用进程？</li>
+<li>什么是 demultiplexing？</li>
+<li>为什么解复用是传输层职责，而不是网络层职责？</li>
+<li>TCP 相比 UDP 额外提供哪些服务？</li>
+<li>TCP 和 UDP 都不提供哪些性能保证？</li>
+<li>为什么 TCP 不能保证低延迟和固定带宽？</li>
+<li><code>message</code>、<code>segment</code>、<code>datagram</code>、<code>frame</code> 分别对应哪一层？</li>
+<li>为什么传输层协议主要运行在端系统，而不是网络核心路由器？</li>
+</ul>
+<h2 id="最终总结"><a href="#最终总结" class="headerlink" title="最终总结"></a>最终总结</h2><p>Chapter 3.1 的关键，不是记住 TCP 和 UDP 的所有细节，而是先建立传输层的边界意识。</p>
+<p>网络层解决的是 <strong>host-to-host</strong> 问题：如何把数据送到目标主机。传输层解决的是 <strong>process-to-process</strong> 问题：如何让目标主机上的正确应用进程收到数据。</p>
+<p>因此，端口号、socket、多路复用、解复用，都是传输层区别于网络层的关键机制。TCP 和 UDP 则是在这个基本职责之上，提供了不同强度的传输服务选择：TCP 更可靠、更复杂；UDP 更轻量、更直接。但无论选择哪一个，它们都不能凭空保证网络的延迟和带宽。</p>
+<hr>
+<p><strong>❗ 最终核心结论：</strong><br>传输层的本质，是在网络层“主机到主机”的通信基础上，构造出“进程到进程”的通信抽象。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/')">Chapter 3-1：传输层的核心边界——从主机通信到进程通信</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 3-1：传输层的核心边界——从主机通信到进程通信&amp;url=http://example.com/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/&amp;pic=/cover/kimberly.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/mai.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/11/%E7%AC%AC18%E8%AE%B2-%E5%A4%9A%E6%A0%B8%E4%B8%8E%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8II/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/kimberly.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第18讲 多核与多处理器II</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/13/Chapter-3-2%EF%BC%9A%E5%8F%AF%E9%9D%A0%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-rdt-%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 3-2：可靠数据传输 rdt 原理学习指南</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1"><span class="toc-number">1.</span> <span class="toc-text">Chapter 3.1：传输层的核心边界——从主机通信到进程通信</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E8%B4%9F%E8%B4%A3%E6%8A%8A%E6%95%B0%E6%8D%AE%E9%80%81%E5%88%B0%E6%AD%A3%E7%A1%AE%E7%9A%84%E4%B8%BB%E6%9C%BA%EF%BC%9B%E4%BC%A0%E8%BE%93%E5%B1%82%E8%B4%9F%E8%B4%A3%E6%8A%8A%E6%95%B0%E6%8D%AE%E4%BA%A4%E7%BB%99%E8%BF%99%E5%8F%B0%E4%B8%BB%E6%9C%BA%E4%B8%8A%E7%9A%84%E6%AD%A3%E7%A1%AE%E8%BF%9B%E7%A8%8B%E3%80%82"><span class="toc-number">1.1.</span> <span class="toc-text">❗ 本节核心结论：网络层负责把数据送到正确的主机；传输层负责把数据交给这台主机上的正确进程。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BC%A0%E8%BE%93%E5%B1%82%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%AF%B9%E8%B1%A1%E4%B8%8D%E6%98%AF%E4%B8%BB%E6%9C%BA%EF%BC%8C%E8%80%8C%E6%98%AF%E8%BF%9B%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">1. 传输层服务的对象不是主机，而是进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9AIP-%E5%9C%B0%E5%9D%80%E8%A7%A3%E5%86%B3%E2%80%9C%E5%88%B0%E5%93%AA%E5%8F%B0%E4%B8%BB%E6%9C%BA%E2%80%9D%EF%BC%9B%E7%AB%AF%E5%8F%A3%E5%8F%B7%E8%A7%A3%E5%86%B3%E2%80%9C%E5%88%B0%E8%BF%99%E5%8F%B0%E4%B8%BB%E6%9C%BA%E4%B8%8A%E7%9A%84%E5%93%AA%E4%B8%AA%E8%BF%9B%E7%A8%8B%E2%80%9D%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">❗ 本节核心结论：IP 地址解决“到哪台主机”；端口号解决“到这台主机上的哪个进程”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%BD%91%E7%BB%9C%E5%B1%82%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-number">1.4.</span> <span class="toc-text">2. 网络层与传输层的边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%91%E9%80%81%E6%96%B9%E4%BC%A0%E8%BE%93%E5%B1%82%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.5.</span> <span class="toc-text">3. 发送方传输层做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%8E%A5%E6%94%B6%E6%96%B9%E4%BC%A0%E8%BE%93%E5%B1%82%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.6.</span> <span class="toc-text">4. 接收方传输层做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E5%8F%AF%E4%BB%A5%E6%8A%8A%E6%95%B0%E6%8D%AE%E4%BA%A4%E7%BB%99%E6%9F%90%E4%B8%AA%E4%B8%8A%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%8C%E4%BE%8B%E5%A6%82-TCP-%E6%88%96-UDP%EF%BC%9B%E4%BD%86%E6%8A%8A%E6%95%B0%E6%8D%AE%E4%BA%A4%E7%BB%99%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8%E8%BF%9B%E7%A8%8B%EF%BC%8C%E6%98%AF%E4%BC%A0%E8%BE%93%E5%B1%82%E8%A7%A3%E5%A4%8D%E7%94%A8%E7%9A%84%E8%81%8C%E8%B4%A3%E3%80%82"><span class="toc-number">1.7.</span> <span class="toc-text">❗ 本节核心结论：网络层可以把数据交给某个上层协议，例如 TCP 或 UDP；但把数据交给具体应用进程，是传输层解复用的职责。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Message%E3%80%81Segment%E3%80%81Datagram%E3%80%81Frame-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.8.</span> <span class="toc-text">5. Message、Segment、Datagram、Frame 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-TCP-%E4%B8%8E-UDP-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%9C%8D%E5%8A%A1%E5%B7%AE%E5%BC%82"><span class="toc-number">1.9.</span> <span class="toc-text">6. TCP 与 UDP 的基本服务差异</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-TCP%EF%BC%9A%E5%8A%9F%E8%83%BD%E6%9B%B4%E5%AE%8C%E6%95%B4%E7%9A%84%E4%BC%A0%E8%BE%93%E5%B1%82%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.9.1.</span> <span class="toc-text">6.1 TCP：功能更完整的传输层服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-UDP%EF%BC%9A%E8%BD%BB%E9%87%8F%E3%80%81%E7%AE%80%E5%8D%95%E3%80%81%E5%B0%91%E5%B9%B2%E9%A2%84"><span class="toc-number">1.9.2.</span> <span class="toc-text">6.2 UDP：轻量、简单、少干预</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9ATCP-%E6%AF%94-UDP-%E6%8F%90%E4%BE%9B%E6%9B%B4%E5%A4%9A%E6%9C%8D%E5%8A%A1%EF%BC%8C%E4%BD%86-TCP-%E5%92%8C-UDP-%E9%83%BD%E4%B8%8D%E8%83%BD%E5%87%AD%E7%A9%BA%E4%BF%9D%E8%AF%81%E4%BD%8E%E5%BB%B6%E8%BF%9F%E6%88%96%E9%AB%98%E5%B8%A6%E5%AE%BD%E3%80%82"><span class="toc-number">1.10.</span> <span class="toc-text">❗ 本节核心结论：TCP 比 UDP 提供更多服务，但 TCP 和 UDP 都不能凭空保证低延迟或高带宽。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-TCP-%E4%B8%8D%E8%83%BD%E8%A7%A3%E5%86%B3%E6%89%80%E6%9C%89%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98"><span class="toc-number">1.11.</span> <span class="toc-text">7. TCP 不能解决所有网络问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A7%A3%E5%A4%8D%E7%94%A8%E4%B8%8D%E6%98%AF%E7%BD%91%E7%BB%9C%E5%B1%82%E5%81%9A%E7%9A%84"><span class="toc-number">1.12.</span> <span class="toc-text">8. 为什么解复用不是网络层做的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E6%9C%AC%E8%8A%82%E7%9A%84%E5%AE%8C%E6%95%B4%E9%80%BB%E8%BE%91%E9%93%BE"><span class="toc-number">1.13.</span> <span class="toc-text">9. 本节的完整逻辑链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%98%93%E6%B7%B7%E7%82%B9%E6%95%B4%E7%90%86"><span class="toc-number">1.14.</span> <span class="toc-text">10. 易混点整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E4%BC%A0%E8%BE%93%E5%B1%82%E6%98%AF%E5%90%A6%E8%B4%9F%E8%B4%A3%E8%B7%AF%E7%94%B1%EF%BC%9F"><span class="toc-number">1.14.1.</span> <span class="toc-text">10.1 传输层是否负责路由？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E7%BD%91%E7%BB%9C%E5%B1%82%E5%92%8C%E4%BC%A0%E8%BE%93%E5%B1%82%E9%83%BD%E8%AF%B4-logical-communication%EF%BC%8C%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="toc-number">1.14.2.</span> <span class="toc-text">10.2 网络层和传输层都说 logical communication，有什么区别？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E5%8F%AA%E9%9D%A0-IP-%E5%9C%B0%E5%9D%80%E8%83%BD%E4%B8%8D%E8%83%BD%E5%AE%9A%E4%BD%8D%E5%BA%94%E7%94%A8%E8%BF%9B%E7%A8%8B%EF%BC%9F"><span class="toc-number">1.14.3.</span> <span class="toc-text">10.3 只靠 IP 地址能不能定位应用进程？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-UDP-%E6%98%AF%E4%B8%8D%E6%98%AF%E6%B2%A1%E6%9C%89%E4%BB%B7%E5%80%BC%EF%BC%9F"><span class="toc-number">1.14.4.</span> <span class="toc-text">10.4 UDP 是不是没有价值？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E5%A4%8D%E4%B9%A0%E6%B8%85%E5%8D%95"><span class="toc-number">1.15.</span> <span class="toc-text">11. 复习清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E6%80%BB%E7%BB%93"><span class="toc-number">1.16.</span> <span class="toc-text">最终总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/mai.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南">Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南</a><time datetime="2026-06-13T12:36:58.000Z" title="Created 2026-06-13 20:36:58">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/blanka.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</a><time datetime="2026-06-13T12:36:44.000Z" title="Created 2026-06-13 20:36:44">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-3%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E3%80%81%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E3%80%81GBN-%E4%B8%8E-SR-%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/kimberly.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-3%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E3%80%81%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E3%80%81GBN-%E4%B8%8E-SR-%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南">Chapter 3-3：流水线、滑动窗口、GBN 与 SR 学习指南</a><time datetime="2026-06-13T12:36:33.000Z" title="Created 2026-06-13 20:36:33">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-2%EF%BC%9A%E5%8F%AF%E9%9D%A0%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-rdt-%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-2：可靠数据传输 rdt 原理学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-2：可靠数据传输 rdt 原理学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-2%EF%BC%9A%E5%8F%AF%E9%9D%A0%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93-rdt-%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-2：可靠数据传输 rdt 原理学习指南">Chapter 3-2：可靠数据传输 rdt 原理学习指南</a><time datetime="2026-06-13T12:36:22.000Z" title="Created 2026-06-13 20:36:22">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" title="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/kimberly.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-1：传输层的核心边界——从主机通信到进程通信"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-1%EF%BC%9A%E4%BC%A0%E8%BE%93%E5%B1%82%E7%9A%84%E6%A0%B8%E5%BF%83%E8%BE%B9%E7%95%8C%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E5%88%B0%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1/" title="Chapter 3-1：传输层的核心边界——从主机通信到进程通信">Chapter 3-1：传输层的核心边界——从主机通信到进程通信</a><time datetime="2026-06-13T12:36:06.000Z" title="Created 2026-06-13 20:36:06">2026-06-13</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">47</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
