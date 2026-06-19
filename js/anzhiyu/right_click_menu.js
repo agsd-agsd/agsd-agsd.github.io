@@ -51,6 +51,20 @@ let domhref = "";
 let domImgSrc = "";
 let globalEvent = null;
 
+function rmCanCreateAnnotation() {
+  return (
+    window.AnZhiYuAnnotation &&
+    typeof window.AnZhiYuAnnotation.canCreateFromSelection === "function" &&
+    window.AnZhiYuAnnotation.canCreateFromSelection()
+  );
+}
+
+function rmCaptureAnnotationSelection() {
+  if (window.AnZhiYuAnnotation && typeof window.AnZhiYuAnnotation.captureSelection === "function") {
+    window.AnZhiYuAnnotation.captureSelection();
+  }
+}
+
 var oncontextmenuFunction = function (event) {
   if (document.body.clientWidth > 768) {
     let pageX = event.clientX + 10; //加10是为了防止显示时鼠标遮在菜单上
@@ -96,11 +110,13 @@ var oncontextmenuFunction = function (event) {
 
     // 检查是否需要复制 是否有选中文本
     if (selectTextNow && window.getSelection()) {
+      const canCreateAnnotation = rmCanCreateAnnotation();
       pluginMode = true;
       $rightMenuCopyText.style.display = "block";
-      $rightMenuCommentText.style.display = "block";
+      $rightMenuCommentText.style.display = canCreateAnnotation ? "block" : "none";
       $rightMenuSearch.style.display = "block";
       $rightMenuSearchBaidu.style.display = "block";
+      if (canCreateAnnotation) rmCaptureAnnotationSelection();
     } else {
       $rightMenuCopyText.style.display = "none";
       $rightMenuCommentText.style.display = "none";
@@ -366,6 +382,12 @@ rm.pasteText = function () {
 //引用到评论
 rm.rightMenuCommentText = function (txt) {
   rm.hideRightMenu();
+  if (window.AnZhiYuAnnotation && typeof window.AnZhiYuAnnotation.createFromSelection === "function") {
+    window.AnZhiYuAnnotation.createFromSelection(txt);
+  } else {
+    anzhiyu.snackbarShow("当前页面不支持正文批注", false, 2000);
+  }
+  return;
   const postCommentDom = document.getElementById("post-comment");
   var domTop = postCommentDom.offsetTop;
   window.scrollTo(0, domTop - 80);
