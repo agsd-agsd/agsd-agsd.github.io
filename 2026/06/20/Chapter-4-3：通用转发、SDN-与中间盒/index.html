@@ -1,0 +1,1062 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 4-3：通用转发、SDN 与中间盒 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 4-3：通用转发、SDN 与中间盒"><meta name="application-name" content="Chapter 4-3：通用转发、SDN 与中间盒"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 4-3：通用转发、SDN 与中间盒"><meta property="og:url" content="http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 4-3：通用转发、SDN 与中间盒Chapter 4-3 的主线是网络层数据平面的进一步抽象。前面已经讨论过，传统路由器在收到 IP 数据报后，通常根据目的 IP 地址查转发表，再把分组送往某个输出端口。但现实网络中的设备远不止传统路由器：交换机、防火墙、NAT、负载均衡器、缓存、入"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/marisa.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/marisa.png"><meta name="description" content="Chapter 4-3：通用转发、SDN 与中间盒Chapter 4-3 的主线是网络层数据平面的进一步抽象。前面已经讨论过，传统路由器在收到 IP 数据报后，通常根据目的 IP 地址查转发表，再把分组送往某个输出端口。但现实网络中的设备远不止传统路由器：交换机、防火墙、NAT、负载均衡器、缓存、入"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 4-3：通用转发、SDN 与中间盒',
+  postAI: '',
+  pageFillDescription: 'Chapter 4-3：通用转发、SDN 与中间盒, ❗ 本节核心结论： Chapter 4-3 的核心不是又学一种路由表而是理解网络设备处理分组的统一抽象：根据字段匹配规则再执行转发、丢弃、修改、复制、上送控制器等动作。, 1. 从传统转发到通用转发, ❗ 本节核心结论： 传统转发是通用转发的一个特例；通用转发把路由器、交换机、防火墙、NAT 等设备都抽象为匹配字段并执行动作的系统。, 2. 数据平面与控制平面的重新理解, ❗ 本节核心结论： 数据平面负责高速执行控制平面负责生成规则；SDN 的关键是把控制逻辑从交换设备中抽离出来由逻辑集中的控制器管理。, 3. 通用转发的核心：Match、Action、Stats, 3.1 Match：匹配哪些字段, 3.2 Action：匹配后做什么, 3.3 Stats：记录什么, ❗ 本节核心结论： Match 决定哪些分组属于这条规则Action 决定匹配后怎么处理Stats 则记录这条规则处理了多少流量。, 4. OpenFlow：把通用转发表达成流表, ❗ 本节核心结论： OpenFlow 流表不是更复杂的路由表而是更通用的分组处理规则表；它用 Match、Action、Stats 统一表达路由、交换、防火墙等行为。, 5. SDN 如何让网络变得可编程, ❗ 本节核心结论： SDN 的可编程性来自控制逻辑的集中管理：网络策略先由应用表达再由控制器转换为分布在各交换设备上的流表规则。, 6. 一条路径不是由一个交换机单独实现的, ❗ 本节核心结论： SDN 中的端到端路径由多个交换机的本地流表规则共同实现；控制器负责配置规则交换机负责高速执行规则。, 7. Match + Action 如何统一各种网络设备, ❗ 本节核心结论： 路由器、交换机、防火墙、NAT 等设备功能不同但都可以抽象为匹配某些字段然后执行某些动作。, 8. 中间盒：现实互联网不只是纯 IP 路由器, ❗ 本节核心结论： 中间盒说明现实互联网已经不只是单纯的 IP 路由网络；路径中大量设备会执行安全、转换、缓存、负载均衡等额外功能。, 9. 重要对比, 9.1 基于目的地址的转发 vs 通用转发, 9.2 传统控制平面 vs SDN 控制平面, 9.3 转发表 vs 流表, ❗ 本节核心结论： 通用转发扩展了传统转发的匹配字段和动作类型；SDN 扩展了传统控制平面的组织方式；流表扩展了传统转发表的表达能力。, 10. 易混点集中整理, 10.1 流表不是路由表换名, 10.2 Action 不只是 forward, 10.3 SDN 的集中是逻辑集中, 10.4 SDN 交换机不是每个包都问控制器, 10.5 中间盒不是普通路由器, 10.6 OpenFlow 的重点不是应用层通信语法, ❗ 本节核心结论： 本章最容易混淆的是表的层次：路由表用于传统路径转发流表用于通用分组处理；SDN 不是让交换机失去执行能力而是让控制逻辑更集中、更可编程。, 11. 复习清单, 最终总结通用转发与中间盒的主线是网络层数据平面的进一步抽象前面已经讨论过传统路由器在收到数据报后通常根据目的地址查转发表再把分组送往某个输出端口但现实网络中的设备远不止传统路由器交换机防火墙负载均衡器缓存入侵检测系统等都会在数据路径上处理分组这些设备看起来功能不同但从更抽象的角度看它们都在做一件类似的事检查分组头部中的某些字段匹配某条规则执行对应动作因此本节的核心问题是能否用一个统一模型描述各种网络设备对分组的处理逻辑答案就是通用转发匹配动作和则把这种抽象进一步系统化可编程化使网络控制逻辑可以从传统设备中分离出来由控制器集中计算并下发规则本节核心结论的核心不是又学一种路由表而是理解网络设备处理分组的统一抽象根据字段匹配规则再执行转发丢弃修改复制上送控制器等动作从传统转发到通用转发传统路由器的工作方式可以简化为目的地址查转发表输出端口这就是基于目的地址的转发它关注的是这个分组要去哪个目的网络主要依赖目的地址和最长前缀匹配但现实网络设备经常需要做更复杂的判断例如防火墙需要根据源目的端口决定是否允许流量通过需要根据地址和端口号改写地址映射交换机需要根据地址转发或泛洪负载均衡器需要把请求分配到不同后端服务器入侵检测系统需要观察流量特征并触发告警缓存设备可能直接响应请求而不是继续转发这些行为不能简单归结为看目的后转发因此传统转发模型过窄无法统一描述现代网络中的多种设备功能通用转发把问题抽象为也就是分组到达设备设备读取分组头部字段在规则表中查找匹配项找到匹配项后执行对应动作更新统计信息分组到达设备读取头部字段匹配规则是否匹配是执行否默认处理更新这张图体现了通用转发的基本逻辑设备不再被限制为只看目的而是可以根据多层字段执行不同动作本节核心结论传统转发是通用转发的一个特例通用转发把路由器交换机防火墙等设备都抽象为匹配字段并执行动作的系统数据平面与控制平面的重新理解学习前必须再次区分数据平面和控制平面数据平面负责处理已经到达设备的分组它回答的问题是当前这个分组来了我应该马上怎么处理控制平面负责决定网络整体策略它回答的问题是整个网络应该如何转发路径和规则应该如何生成可以用交通系统类比概念类比网络中的含义数据平面路口执行交通规则分组到达设备后按表项立即处理控制平面交通规划系统计算路径策略和规则转发表流表路口指示牌告诉设备匹配后该做什么传统网络中每台路由器通常同时包含控制平面和数据平面路由器之间交换路由信息各自运行路由协议然后生成本地转发表则强调二者分离数据平面设备负责高速执行规则控制器负责从全局视角计算并下发规则网络应用可以在控制器之上实现等逻辑网络应用计算网络策略下发流表规则按流表处理分组这里的集中主要是逻辑集中不一定意味着物理上只有一台控制器真实部署中控制器可以有多个实例以保证性能和可靠性本节核心结论数据平面负责高速执行控制平面负责生成规则的关键是把控制逻辑从交换设备中抽离出来由逻辑集中的控制器管理通用转发的核心通用转发并不是只把转发表字段变多而是把网络设备行为统一抽象为三部分匹配哪些字段指设备用哪些头部字段判断一个分组是否符合某条规则匹配字段可以来自不同层次层次可匹配字段链路层入端口源目的网络层源目的协议字段传输层源端口目的端口传统路由器通常主要匹配目的前缀通用转发则可以把多层字段组合起来例如入端口源目的端口这类条件已经明显超出了传统路由表的表达范围匹配后做什么指某条规则匹配成功后设备要执行的动作动作不只是转发还可以包括转发到某个端口丢弃修改头部字段向多个端口泛洪复制分组封装后发送给控制器阻塞记录日志或统计信息因此通用转发的不能狭义理解为只转发它其实是在描述更一般的分组处理行为记录什么指统计信息例如匹配了多少个分组匹配了多少字节表项存在了多久最近一次匹配时间这些信息可以帮助控制器了解网络状态也可以用于计费监控调试和策略调整本节核心结论决定哪些分组属于这条规则决定匹配后怎么处理则记录这条规则处理了多少流量把通用转发表达成流表可以理解为中表达匹配动作的一种具体机制它把设备上的处理规则组织为流表一条流表项大致包含组成部分含义匹配字段匹配后执行的动作匹配统计信息这和传统路由表有本质区别传统路由表主要服务于路由转发典型规则是目的前缀下一跳输出接口而流表可以表达更广泛的规则例如目的从端口转发这是路由器式行为目的端口这是防火墙式行为源这也是访问控制或防火墙式行为目的某地址转发到某端口这是交换机式行为的关键意义在于它不是给传统路由表换了一个名字而是用统一格式表达多种网络设备功能本节核心结论流表不是更复杂的路由表而是更通用的分组处理规则表它用统一表达路由交换防火墙等行为如何让网络变得可编程传统网络中路由访问控制负载均衡等功能常常分散在不同设备中每台设备有自己的配置方式控制逻辑和管理界面网络管理员要改变策略时往往需要分别配置多个设备整体行为不容易统一推理试图改变这一点它把网络控制逻辑上移到控制器使网络策略可以像程序一样表达计算和下发的基本工作流程是网络应用提出策略控制器收集或维护网络状态控制器计算流表规则控制器把规则下发给交换设备交换设备按规则处理分组在这个结构中控制器负责算交换设备负责做网络应用负责表达更高层策略例如一个访问控制应用可以告诉控制器禁止来自某个源的流量控制器把它转换成流表项再下发到相关交换设备负载均衡应用也可以类似地把流量分配给不同服务器路由应用则可以根据拓扑和链路状态计算路径并把沿途交换机的流表项一起配置好本节核心结论的可编程性来自控制逻辑的集中管理网络策略先由应用表达再由控制器转换为分布在各交换设备上的流表规则一条路径不是由一个交换机单独实现的在或网络中一条端到端路径不是靠某一个交换机知道全部路径来完成的而是由沿途多个交换机上的流表规则共同实现可以把它理解成交换机看到某类分组转发到交换机看到某类分组转发到交换机看到某类分组转发到目的主机每个交换机只执行自己本地的规则但这些规则组合起来就形成了一条端到端路径源主机交换机交换机交换机目的主机控制器下发规则下发规则下发规则这张图说明控制器从全局视角计算路径但真正的数据包仍然由每个交换机在本地按流表高速转发这也解释了一个常见误解交换机不是完全没有智能它不需要每来一个分组都询问控制器绝大多数分组会直接匹配本地已有流表项并在数据平面中快速处理只有没有匹配规则需要异常处理或需要控制器决策时才可能把分组或事件上送控制器本节核心结论中的端到端路径由多个交换机的本地流表规则共同实现控制器负责配置规则交换机负责高速执行规则如何统一各种网络设备通用转发最重要的价值是给各种网络设备提供了共同语言设备看什么做什么路由器目的前缀转发到下一跳或输出接口交换机目的地址转发或泛洪防火墙地址协议类型端口号允许丢弃或阻塞地址端口号重写地址和端口负载均衡器目的地址端口连接信息改写目的服务器或分发请求流量特征协议字段记录告警或上报缓存请求内容或对象标识返回缓存内容或继续转发这些设备在工程实现上差异很大但抽象结构相似看字段匹配规则执行动作这就是为什么本节强调它不是为了取代所有网络设备而是为了提供一个能统一描述它们的概念框架本节核心结论路由器交换机防火墙等设备功能不同但都可以抽象为匹配某些字段然后执行某些动作中间盒现实互联网不只是纯路由器中间盒指的是位于源主机和目的主机之间的数据路径上执行普通路由器标准转发功能之外其他功能的设备典型中间盒包括防火墙入侵检测系统负载均衡器缓存应用专用中间盒相关设备传统互联网常被描述为沙漏结构上层很多应用和传输协议中间统一的下层各种链路层和物理层技术是细腰因为只要大家都支持不同上层应用和不同下层网络技术就能互联但现实网络逐渐变复杂了路径中不再只有按地址转发的路由器还插入了大量执行额外功能的设备这些设备让网络不再是理论上极简的转发系统而是带有安全性能管理地址转换内容分发等功能的复杂基础设施所谓互联网的中年发福正是在形容这种变化原本细腰的层周围堆叠了越来越多中间功能源主机防火墙负载均衡器缓存目的服务器这张图说明现实数据路径上可能经过多个中间盒每个中间盒都可能不只是简单转发而是对流量进行额外处理本节核心结论中间盒说明现实互联网已经不只是单纯的路由网络路径中大量设备会执行安全转换缓存负载均衡等额外功能重要对比基于目的地址的转发通用转发对比点基于目的地址的转发通用转发匹配字段主要看目的地址可看多个头部字段使用表转发表流表典型动作转发到某个输出端口转发丢弃修改复制发给控制器等适用范围传统路由器路由器交换机防火墙等灵活性较低较高管理复杂度较低较高传统控制平面控制平面对比点传统方式方式控制逻辑位置每台路由器内部逻辑集中的控制器数据平面位置路由器本地分组交换设备本地控制与转发是否分离不明显明显分离表项来源路由器自己计算控制器计算并下发可编程性较弱较强典型抽象路由表转发表流表转发表流表对比点转发表流表主要用途路由转发通用分组处理匹配内容通常是目的前缀多层头部字段典型动作输出端口或下一跳转发丢弃修改封装给控制器等表达范围较窄较广典型场景传统路由器本节核心结论通用转发扩展了传统转发的匹配字段和动作类型扩展了传统控制平面的组织方式流表扩展了传统转发表的表达能力易混点集中整理流表不是路由表换名路由表主要回答去某个目的网络应该往哪里转发流表可以回答更广泛的问题符合某些字段条件的分组应该如何处理例如目的端口这是防火墙规则不是传统路由规则不只是通用转发中的动作可以是转发但也可以是丢弃修改复制封装给控制器泛洪或阻塞把只理解成输出端口会低估本节的核心抽象的集中是逻辑集中控制器逻辑上集中管理网络但物理上可以部署为多个控制器实例不要把它机械理解成整个网络只有一台控制器服务器交换机不是每个包都问控制器交换机本地有流表能高速执行已有规则只有未命中规则异常流量或需要新决策时才可能联系控制器中间盒不是普通路由器普通路由器的标准功能是根据层信息进行转发中间盒是在路径中执行额外功能例如过滤缓存检测负载均衡的重点不是应用层通信语法可以涉及控制器和交换机之间的通信但本节重点是它如何表达数据平面的通用转发规则而不是把它当成单纯的应用层协议来背本节核心结论本章最容易混淆的是表的层次路由表用于传统路径转发流表用于通用分组处理不是让交换机失去执行能力而是让控制逻辑更集中更可编程复习清单学完本节后应能回答数据平面和控制平面的区别是什么为什么是本地动作而是网络范围内的逻辑传统基于目的地址的转发主要匹配什么字段通用转发为什么可以统一描述路由器交换机防火墙和匹配动作中的可以包含哪些字段匹配动作中的有哪些类型流表中的分别表示什么为什么说流表不是普通路由表的简单改名目的端口号为的分组全部更像哪类设备的行为中控制器和本地控制代理的关系是什么的控制平面和数据平面分离到底是什么意思为什么可以提高网络可编程性一条端到端路径为什么需要多个交换机上的流表规则共同实现交换机是否每来一个分组都要询问控制器中间盒是什么中间盒和普通路由器有什么区别为什么说中间盒让互联网从沙漏变得更复杂最终总结的核心是从传统转发走向通用转发传统路由器主要根据目的地址查转发表而现实网络需要根据更多字段执行更多动作于是网络设备可以被统一抽象为在这个基础上进一步把控制平面和数据平面分离控制器负责从全局视角计算规则交换设备负责按流表高速执行则提供了一种具体的流表表达方式使路由交换防火墙等功能都可以用匹配动作的模型描述中间盒的出现说明现实互联网早已不只是单纯的路由器网络数据路径中存在大量执行额外功能的设备这些设备让网络更强大也更复杂理解本节的关键就是把这些复杂设备背后的共同结构看出来网络设备处理分组本质上是在特定字段上匹配规则并根据规则执行动作',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-20 00:45:10',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">31</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 4-3：通用转发、SDN 与中间盒</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:10.000Z" title="Created 2026-06-20 00:45:10">2026-06-20</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:10.368Z" title="Updated 2026-06-20 00:45:10">2026-06-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">5.1k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>16min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/marisa.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 4-3：通用转发、SDN 与中间盒</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:10.000Z" title="Created 2026-06-20 00:45:10">2026-06-20</time><time itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:10.368Z" title="Updated 2026-06-20 00:45:10">2026-06-20</time></header><h1 id="Chapter-4-3：通用转发、SDN-与中间盒"><a href="#Chapter-4-3：通用转发、SDN-与中间盒" class="headerlink" title="Chapter 4-3：通用转发、SDN 与中间盒"></a>Chapter 4-3：通用转发、SDN 与中间盒</h1><p>Chapter 4-3 的主线是网络层数据平面的进一步抽象。前面已经讨论过，传统路由器在收到 IP 数据报后，通常根据目的 IP 地址查转发表，再把分组送往某个输出端口。但现实网络中的设备远不止传统路由器：交换机、防火墙、NAT、负载均衡器、缓存、入侵检测系统等都会在数据路径上处理分组。</p>
+<p>这些设备看起来功能不同，但从更抽象的角度看，它们都在做一件类似的事：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">检查分组头部中的某些字段</span><br><span class="line">    ↓</span><br><span class="line">匹配某条规则</span><br><span class="line">    ↓</span><br><span class="line">执行对应动作</span><br></pre></td></tr></table></figure>
+
+<p>因此，本节的核心问题是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">能否用一个统一模型描述各种网络设备对分组的处理逻辑？</span><br></pre></td></tr></table></figure>
+
+<p>答案就是通用转发：<strong>匹配 + 动作</strong>。SDN 和 OpenFlow 则把这种抽象进一步系统化、可编程化，使网络控制逻辑可以从传统设备中分离出来，由控制器集中计算并下发规则。</p>
+<hr>
+<h2 id="❗-本节核心结论：-Chapter-4-3-的核心不是“又学一种路由表”，而是理解网络设备处理分组的统一抽象：根据字段匹配规则，再执行转发、丢弃、修改、复制、上送控制器等动作。"><a href="#❗-本节核心结论：-Chapter-4-3-的核心不是“又学一种路由表”，而是理解网络设备处理分组的统一抽象：根据字段匹配规则，再执行转发、丢弃、修改、复制、上送控制器等动作。" class="headerlink" title="❗ 本节核心结论： Chapter 4-3 的核心不是“又学一种路由表”，而是理解网络设备处理分组的统一抽象：根据字段匹配规则，再执行转发、丢弃、修改、复制、上送控制器等动作。"></a><strong>❗ 本节核心结论：</strong> Chapter 4-3 的核心不是“又学一种路由表”，而是理解网络设备处理分组的统一抽象：根据字段匹配规则，再执行转发、丢弃、修改、复制、上送控制器等动作。</h2><h2 id="1-从传统转发到通用转发"><a href="#1-从传统转发到通用转发" class="headerlink" title="1. 从传统转发到通用转发"></a>1. 从传统转发到通用转发</h2><p>传统 IP 路由器的工作方式可以简化为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 IP 地址 → 查转发表 → 输出端口</span><br></pre></td></tr></table></figure>
+
+<p>这就是基于目的地址的转发。它关注的是“这个分组要去哪个目的网络”，主要依赖目的 IP 地址和最长前缀匹配。</p>
+<p>但现实网络设备经常需要做更复杂的判断。例如：</p>
+<ul>
+<li>防火墙需要根据源 IP、目的 IP、TCP&#x2F;UDP 端口决定是否允许流量通过；</li>
+<li>NAT 需要根据 IP 地址和端口号改写地址映射；</li>
+<li>交换机需要根据 MAC 地址转发或泛洪；</li>
+<li>负载均衡器需要把请求分配到不同后端服务器；</li>
+<li>入侵检测系统需要观察流量特征并触发告警；</li>
+<li>缓存设备可能直接响应请求，而不是继续转发。</li>
+</ul>
+<p>这些行为不能简单归结为“看目的 IP 后转发”。因此，传统转发模型过窄，无法统一描述现代网络中的多种设备功能。</p>
+<p>通用转发把问题抽象为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">match → action</span><br></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<ol>
+<li>分组到达设备；</li>
+<li>设备读取分组头部字段；</li>
+<li>在规则表中查找匹配项；</li>
+<li>找到匹配项后执行对应动作；</li>
+<li>更新统计信息。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[分组到达设备] --&gt; B[读取头部字段]
+    B --&gt; C[匹配规则]
+    C --&gt; D{是否匹配}
+    D -- 是 --&gt; E[执行 action]
+    D -- 否 --&gt; F[默认处理]
+    E --&gt; G[更新 stats]
+  </pre></div>
+
+<p>这张图体现了通用转发的基本逻辑：设备不再被限制为只看目的 IP，而是可以根据多层字段执行不同动作。</p>
+<hr>
+<h2 id="❗-本节核心结论：-传统转发是通用转发的一个特例；通用转发把路由器、交换机、防火墙、NAT-等设备都抽象为“匹配字段并执行动作”的系统。"><a href="#❗-本节核心结论：-传统转发是通用转发的一个特例；通用转发把路由器、交换机、防火墙、NAT-等设备都抽象为“匹配字段并执行动作”的系统。" class="headerlink" title="❗ 本节核心结论： 传统转发是通用转发的一个特例；通用转发把路由器、交换机、防火墙、NAT 等设备都抽象为“匹配字段并执行动作”的系统。"></a><strong>❗ 本节核心结论：</strong> 传统转发是通用转发的一个特例；通用转发把路由器、交换机、防火墙、NAT 等设备都抽象为“匹配字段并执行动作”的系统。</h2><h2 id="2-数据平面与控制平面的重新理解"><a href="#2-数据平面与控制平面的重新理解" class="headerlink" title="2. 数据平面与控制平面的重新理解"></a>2. 数据平面与控制平面的重新理解</h2><p>学习 SDN 前，必须再次区分数据平面和控制平面。</p>
+<p>数据平面负责处理已经到达设备的分组。它回答的问题是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当前这个分组来了，我应该马上怎么处理？</span><br></pre></td></tr></table></figure>
+
+<p>控制平面负责决定网络整体策略。它回答的问题是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">整个网络应该如何转发？路径和规则应该如何生成？</span><br></pre></td></tr></table></figure>
+
+<p>可以用交通系统类比：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>类比</th>
+<th>网络中的含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据平面</td>
+<td>路口执行交通规则</td>
+<td>分组到达设备后，按表项立即处理</td>
+</tr>
+<tr>
+<td>控制平面</td>
+<td>交通规划系统</td>
+<td>计算路径、策略和规则</td>
+</tr>
+<tr>
+<td>转发表&#x2F;流表</td>
+<td>路口指示牌</td>
+<td>告诉设备匹配后该做什么</td>
+</tr>
+</tbody></table>
+<p>传统网络中，每台路由器通常同时包含控制平面和数据平面。路由器之间交换路由信息，各自运行路由协议，然后生成本地转发表。</p>
+<p>SDN 则强调二者分离：</p>
+<ul>
+<li>数据平面设备负责高速执行规则；</li>
+<li>控制器负责从全局视角计算并下发规则；</li>
+<li>网络应用可以在控制器之上实现 routing、access control、load balancing 等逻辑。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[网络应用] --&gt; B[SDN Controller]
+    B --&gt; C[计算网络策略]
+    C --&gt; D[下发流表规则]
+    D --&gt; E[SDN Switches]
+    E --&gt; F[按流表处理分组]
+  </pre></div>
+
+<p>这里的“集中”主要是逻辑集中，不一定意味着物理上只有一台控制器。真实部署中，控制器可以有多个实例，以保证性能和可靠性。</p>
+<hr>
+<h2 id="❗-本节核心结论：-数据平面负责高速执行，控制平面负责生成规则；SDN-的关键是把控制逻辑从交换设备中抽离出来，由逻辑集中的控制器管理。"><a href="#❗-本节核心结论：-数据平面负责高速执行，控制平面负责生成规则；SDN-的关键是把控制逻辑从交换设备中抽离出来，由逻辑集中的控制器管理。" class="headerlink" title="❗ 本节核心结论： 数据平面负责高速执行，控制平面负责生成规则；SDN 的关键是把控制逻辑从交换设备中抽离出来，由逻辑集中的控制器管理。"></a><strong>❗ 本节核心结论：</strong> 数据平面负责高速执行，控制平面负责生成规则；SDN 的关键是把控制逻辑从交换设备中抽离出来，由逻辑集中的控制器管理。</h2><h2 id="3-通用转发的核心：Match、Action、Stats"><a href="#3-通用转发的核心：Match、Action、Stats" class="headerlink" title="3. 通用转发的核心：Match、Action、Stats"></a>3. 通用转发的核心：Match、Action、Stats</h2><p>通用转发并不是只把转发表字段变多，而是把网络设备行为统一抽象为三部分：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Match + Action + Stats</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-Match：匹配哪些字段"><a href="#3-1-Match：匹配哪些字段" class="headerlink" title="3.1 Match：匹配哪些字段"></a>3.1 Match：匹配哪些字段</h3><p>Match 指设备用哪些头部字段判断一个分组是否符合某条规则。</p>
+<p>匹配字段可以来自不同层次：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>可匹配字段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>链路层</td>
+<td>入端口、源 MAC、目的 MAC、VLAN</td>
+</tr>
+<tr>
+<td>网络层</td>
+<td>源 IP、目的 IP、IP 协议字段、IP ToS</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>TCP&#x2F;UDP 源端口、TCP&#x2F;UDP 目的端口</td>
+</tr>
+</tbody></table>
+<p>传统路由器通常主要匹配目的 IP 前缀；通用转发则可以把多层字段组合起来。例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">入端口 = 1</span><br><span class="line">源 IP = 10.0.0.1</span><br><span class="line">目的 TCP 端口 = 22</span><br></pre></td></tr></table></figure>
+
+<p>这类条件已经明显超出了传统路由表的表达范围。</p>
+<h3 id="3-2-Action：匹配后做什么"><a href="#3-2-Action：匹配后做什么" class="headerlink" title="3.2 Action：匹配后做什么"></a>3.2 Action：匹配后做什么</h3><p>Action 指某条规则匹配成功后，设备要执行的动作。动作不只是转发，还可以包括：</p>
+<ul>
+<li>forward：转发到某个端口；</li>
+<li>drop：丢弃；</li>
+<li>modify：修改头部字段；</li>
+<li>flood：向多个端口泛洪；</li>
+<li>copy：复制分组；</li>
+<li>encapsulate and send to controller：封装后发送给控制器；</li>
+<li>block：阻塞；</li>
+<li>record：记录日志或统计信息。</li>
+</ul>
+<p>因此，通用转发的“forwarding”不能狭义理解为“只转发”。它其实是在描述更一般的分组处理行为。</p>
+<h3 id="3-3-Stats：记录什么"><a href="#3-3-Stats：记录什么" class="headerlink" title="3.3 Stats：记录什么"></a>3.3 Stats：记录什么</h3><p>Stats 指统计信息，例如：</p>
+<ul>
+<li>匹配了多少个分组；</li>
+<li>匹配了多少字节；</li>
+<li>表项存在了多久；</li>
+<li>最近一次匹配时间。</li>
+</ul>
+<p>这些信息可以帮助控制器了解网络状态，也可以用于计费、监控、调试和策略调整。</p>
+<hr>
+<h2 id="❗-本节核心结论：-Match-决定“哪些分组属于这条规则”，Action-决定“匹配后怎么处理”，Stats-则记录“这条规则处理了多少流量”。"><a href="#❗-本节核心结论：-Match-决定“哪些分组属于这条规则”，Action-决定“匹配后怎么处理”，Stats-则记录“这条规则处理了多少流量”。" class="headerlink" title="❗ 本节核心结论： Match 决定“哪些分组属于这条规则”，Action 决定“匹配后怎么处理”，Stats 则记录“这条规则处理了多少流量”。"></a><strong>❗ 本节核心结论：</strong> Match 决定“哪些分组属于这条规则”，Action 决定“匹配后怎么处理”，Stats 则记录“这条规则处理了多少流量”。</h2><h2 id="4-OpenFlow：把通用转发表达成流表"><a href="#4-OpenFlow：把通用转发表达成流表" class="headerlink" title="4. OpenFlow：把通用转发表达成流表"></a>4. OpenFlow：把通用转发表达成流表</h2><p>OpenFlow 可以理解为 SDN 中表达“匹配 + 动作”的一种具体机制。它把设备上的处理规则组织为流表 flow table。</p>
+<p>一条 OpenFlow 流表项大致包含：</p>
+<table>
+<thead>
+<tr>
+<th>组成部分</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Match</td>
+<td>匹配字段</td>
+</tr>
+<tr>
+<td>Action</td>
+<td>匹配后执行的动作</td>
+</tr>
+<tr>
+<td>Stats</td>
+<td>匹配统计信息</td>
+</tr>
+</tbody></table>
+<p>这和传统路由表有本质区别。传统路由表主要服务于 IP 路由转发，典型规则是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 IP 前缀 → 下一跳 / 输出接口</span><br></pre></td></tr></table></figure>
+
+<p>而 OpenFlow 流表可以表达更广泛的规则。例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 IP = 51.6.0.8 → 从端口 6 转发</span><br></pre></td></tr></table></figure>
+
+<p>这是路由器式行为。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 TCP 端口 = 22 → drop</span><br></pre></td></tr></table></figure>
+
+<p>这是防火墙式行为。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">源 IP = 128.119.1.1 → drop</span><br></pre></td></tr></table></figure>
+
+<p>这也是访问控制或防火墙式行为。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 MAC = 某地址 → 转发到某端口</span><br></pre></td></tr></table></figure>
+
+<p>这是交换机式行为。</p>
+<p>OpenFlow 的关键意义在于：它不是给传统路由表换了一个名字，而是用统一格式表达多种网络设备功能。</p>
+<hr>
+<h2 id="❗-本节核心结论：-OpenFlow-流表不是更复杂的路由表，而是更通用的分组处理规则表；它用-Match、Action、Stats-统一表达路由、交换、防火墙等行为。"><a href="#❗-本节核心结论：-OpenFlow-流表不是更复杂的路由表，而是更通用的分组处理规则表；它用-Match、Action、Stats-统一表达路由、交换、防火墙等行为。" class="headerlink" title="❗ 本节核心结论： OpenFlow 流表不是更复杂的路由表，而是更通用的分组处理规则表；它用 Match、Action、Stats 统一表达路由、交换、防火墙等行为。"></a><strong>❗ 本节核心结论：</strong> OpenFlow 流表不是更复杂的路由表，而是更通用的分组处理规则表；它用 Match、Action、Stats 统一表达路由、交换、防火墙等行为。</h2><h2 id="5-SDN-如何让网络变得可编程"><a href="#5-SDN-如何让网络变得可编程" class="headerlink" title="5. SDN 如何让网络变得可编程"></a>5. SDN 如何让网络变得可编程</h2><p>传统网络中，路由、访问控制、负载均衡等功能常常分散在不同设备中。每台设备有自己的配置方式、控制逻辑和管理界面。网络管理员要改变策略时，往往需要分别配置多个设备，整体行为不容易统一推理。</p>
+<p>SDN 试图改变这一点。它把网络控制逻辑上移到控制器，使网络策略可以像程序一样表达、计算和下发。</p>
+<p>SDN 的基本工作流程是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">网络应用提出策略</span><br><span class="line">    ↓</span><br><span class="line">控制器收集或维护网络状态</span><br><span class="line">    ↓</span><br><span class="line">控制器计算流表规则</span><br><span class="line">    ↓</span><br><span class="line">控制器把规则下发给交换设备</span><br><span class="line">    ↓</span><br><span class="line">交换设备按规则处理分组</span><br></pre></td></tr></table></figure>
+
+<p>在这个结构中：</p>
+<ul>
+<li>控制器负责“算”；</li>
+<li>交换设备负责“做”；</li>
+<li>网络应用负责表达更高层策略。</li>
+</ul>
+<p>例如，一个访问控制应用可以告诉控制器：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">禁止来自某个源 IP 的 SSH 流量</span><br></pre></td></tr></table></figure>
+
+<p>控制器把它转换成流表项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">source IP = x</span><br><span class="line">TCP dst port = 22</span><br><span class="line">action = drop</span><br></pre></td></tr></table></figure>
+
+<p>再下发到相关交换设备。</p>
+<p>负载均衡应用也可以类似地把流量分配给不同服务器。路由应用则可以根据拓扑和链路状态计算路径，并把沿途交换机的流表项一起配置好。</p>
+<hr>
+<h2 id="❗-本节核心结论：-SDN-的可编程性来自控制逻辑的集中管理：网络策略先由应用表达，再由控制器转换为分布在各交换设备上的流表规则。"><a href="#❗-本节核心结论：-SDN-的可编程性来自控制逻辑的集中管理：网络策略先由应用表达，再由控制器转换为分布在各交换设备上的流表规则。" class="headerlink" title="❗ 本节核心结论： SDN 的可编程性来自控制逻辑的集中管理：网络策略先由应用表达，再由控制器转换为分布在各交换设备上的流表规则。"></a><strong>❗ 本节核心结论：</strong> SDN 的可编程性来自控制逻辑的集中管理：网络策略先由应用表达，再由控制器转换为分布在各交换设备上的流表规则。</h2><h2 id="6-一条路径不是由一个交换机单独实现的"><a href="#6-一条路径不是由一个交换机单独实现的" class="headerlink" title="6. 一条路径不是由一个交换机单独实现的"></a>6. 一条路径不是由一个交换机单独实现的</h2><p>在 OpenFlow 或 SDN 网络中，一条端到端路径不是靠某一个交换机“知道全部路径”来完成的，而是由沿途多个交换机上的流表规则共同实现。</p>
+<p>可以把它理解成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">交换机 S1：看到某类分组 → 转发到 S2</span><br><span class="line">交换机 S2：看到某类分组 → 转发到 S4</span><br><span class="line">交换机 S4：看到某类分组 → 转发到目的主机</span><br></pre></td></tr></table></figure>
+
+<p>每个交换机只执行自己本地的规则，但这些规则组合起来，就形成了一条端到端路径。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    H1[源主机] --&gt; S1[交换机 S1]
+    S1 --&gt; S2[交换机 S2]
+    S2 --&gt; S4[交换机 S4]
+    S4 --&gt; H2[目的主机]
+
+    C[SDN 控制器] -.下发规则.-&gt; S1
+    C -.下发规则.-&gt; S2
+    C -.下发规则.-&gt; S4
+  </pre></div>
+
+<p>这张图说明：控制器从全局视角计算路径，但真正的数据包仍然由每个交换机在本地按流表高速转发。</p>
+<p>这也解释了一个常见误解：SDN 交换机不是完全没有智能。它不需要每来一个分组都询问控制器。绝大多数分组会直接匹配本地已有流表项，并在数据平面中快速处理。只有没有匹配规则、需要异常处理或需要控制器决策时，才可能把分组或事件上送控制器。</p>
+<hr>
+<h2 id="❗-本节核心结论：-SDN-中的端到端路径由多个交换机的本地流表规则共同实现；控制器负责配置规则，交换机负责高速执行规则。"><a href="#❗-本节核心结论：-SDN-中的端到端路径由多个交换机的本地流表规则共同实现；控制器负责配置规则，交换机负责高速执行规则。" class="headerlink" title="❗ 本节核心结论： SDN 中的端到端路径由多个交换机的本地流表规则共同实现；控制器负责配置规则，交换机负责高速执行规则。"></a><strong>❗ 本节核心结论：</strong> SDN 中的端到端路径由多个交换机的本地流表规则共同实现；控制器负责配置规则，交换机负责高速执行规则。</h2><h2 id="7-Match-Action-如何统一各种网络设备"><a href="#7-Match-Action-如何统一各种网络设备" class="headerlink" title="7. Match + Action 如何统一各种网络设备"></a>7. Match + Action 如何统一各种网络设备</h2><p>通用转发最重要的价值，是给各种网络设备提供了共同语言。</p>
+<table>
+<thead>
+<tr>
+<th>设备</th>
+<th>Match 看什么</th>
+<th>Action 做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路由器 Router</td>
+<td>目的 IP 前缀</td>
+<td>转发到下一跳或输出接口</td>
+</tr>
+<tr>
+<td>交换机 Switch</td>
+<td>目的 MAC 地址</td>
+<td>转发或泛洪</td>
+</tr>
+<tr>
+<td>防火墙 Firewall</td>
+<td>IP 地址、协议类型、端口号</td>
+<td>允许、丢弃或阻塞</td>
+</tr>
+<tr>
+<td>NAT</td>
+<td>IP 地址、端口号</td>
+<td>重写地址和端口</td>
+</tr>
+<tr>
+<td>负载均衡器 Load Balancer</td>
+<td>目的地址、端口、连接信息</td>
+<td>改写目的服务器或分发请求</td>
+</tr>
+<tr>
+<td>IDS</td>
+<td>流量特征、协议字段</td>
+<td>记录、告警或上报</td>
+</tr>
+<tr>
+<td>缓存 Cache</td>
+<td>请求内容、URL 或对象标识</td>
+<td>返回缓存内容或继续转发</td>
+</tr>
+</tbody></table>
+<p>这些设备在工程实现上差异很大，但抽象结构相似：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">看字段</span><br><span class="line">    ↓</span><br><span class="line">匹配规则</span><br><span class="line">    ↓</span><br><span class="line">执行动作</span><br></pre></td></tr></table></figure>
+
+<p>这就是为什么本节强调 generalized forwarding。它不是为了取代所有网络设备，而是为了提供一个能统一描述它们的概念框架。</p>
+<hr>
+<h2 id="❗-本节核心结论：-路由器、交换机、防火墙、NAT-等设备功能不同，但都可以抽象为“匹配某些字段，然后执行某些动作”。"><a href="#❗-本节核心结论：-路由器、交换机、防火墙、NAT-等设备功能不同，但都可以抽象为“匹配某些字段，然后执行某些动作”。" class="headerlink" title="❗ 本节核心结论： 路由器、交换机、防火墙、NAT 等设备功能不同，但都可以抽象为“匹配某些字段，然后执行某些动作”。"></a><strong>❗ 本节核心结论：</strong> 路由器、交换机、防火墙、NAT 等设备功能不同，但都可以抽象为“匹配某些字段，然后执行某些动作”。</h2><h2 id="8-中间盒：现实互联网不只是纯-IP-路由器"><a href="#8-中间盒：现实互联网不只是纯-IP-路由器" class="headerlink" title="8. 中间盒：现实互联网不只是纯 IP 路由器"></a>8. 中间盒：现实互联网不只是纯 IP 路由器</h2><p>中间盒 middlebox 指的是：位于源主机和目的主机之间的数据路径上，执行普通 IP 路由器标准转发功能之外其他功能的设备。</p>
+<p>典型中间盒包括：</p>
+<ul>
+<li>NAT；</li>
+<li>防火墙；</li>
+<li>入侵检测系统 IDS；</li>
+<li>负载均衡器；</li>
+<li>缓存；</li>
+<li>应用专用中间盒；</li>
+<li>CDN 相关设备。</li>
+</ul>
+<p>传统互联网常被描述为“IP 沙漏”结构：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">上层：很多应用和传输协议</span><br><span class="line">中间：统一的 IP</span><br><span class="line">下层：各种链路层和物理层技术</span><br></pre></td></tr></table></figure>
+
+<p>IP 是“细腰”，因为只要大家都支持 IP，不同上层应用和不同下层网络技术就能互联。</p>
+<p>但现实网络逐渐变复杂了。路径中不再只有按 IP 地址转发的路由器，还插入了大量执行额外功能的设备。这些设备让网络不再是理论上极简的 IP 转发系统，而是带有安全、性能、管理、地址转换、内容分发等功能的复杂基础设施。</p>
+<p>所谓“互联网的中年发福”，正是在形容这种变化：原本细腰的 IP 层周围，堆叠了越来越多中间功能。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[源主机] --&gt; B[防火墙]
+    B --&gt; C[NAT]
+    C --&gt; D[负载均衡器]
+    D --&gt; E[缓存&#x2F;CDN]
+    E --&gt; F[目的服务器]
+  </pre></div>
+
+<p>这张图说明：现实数据路径上可能经过多个中间盒，每个中间盒都可能不只是简单转发，而是对流量进行额外处理。</p>
+<hr>
+<h2 id="❗-本节核心结论：-中间盒说明现实互联网已经不只是单纯的-IP-路由网络；路径中大量设备会执行安全、转换、缓存、负载均衡等额外功能。"><a href="#❗-本节核心结论：-中间盒说明现实互联网已经不只是单纯的-IP-路由网络；路径中大量设备会执行安全、转换、缓存、负载均衡等额外功能。" class="headerlink" title="❗ 本节核心结论： 中间盒说明现实互联网已经不只是单纯的 IP 路由网络；路径中大量设备会执行安全、转换、缓存、负载均衡等额外功能。"></a><strong>❗ 本节核心结论：</strong> 中间盒说明现实互联网已经不只是单纯的 IP 路由网络；路径中大量设备会执行安全、转换、缓存、负载均衡等额外功能。</h2><h2 id="9-重要对比"><a href="#9-重要对比" class="headerlink" title="9. 重要对比"></a>9. 重要对比</h2><h3 id="9-1-基于目的地址的转发-vs-通用转发"><a href="#9-1-基于目的地址的转发-vs-通用转发" class="headerlink" title="9.1 基于目的地址的转发 vs 通用转发"></a>9.1 基于目的地址的转发 vs 通用转发</h3><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>基于目的地址的转发</th>
+<th>通用转发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>匹配字段</td>
+<td>主要看目的 IP 地址</td>
+<td>可看多个头部字段</td>
+</tr>
+<tr>
+<td>使用表</td>
+<td>转发表 forwarding table</td>
+<td>流表 flow table</td>
+</tr>
+<tr>
+<td>典型动作</td>
+<td>转发到某个输出端口</td>
+<td>转发、丢弃、修改、复制、发给控制器等</td>
+</tr>
+<tr>
+<td>适用范围</td>
+<td>传统路由器</td>
+<td>路由器、交换机、防火墙、NAT 等</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>较低</td>
+<td>较高</td>
+</tr>
+<tr>
+<td>管理复杂度</td>
+<td>较低</td>
+<td>较高</td>
+</tr>
+</tbody></table>
+<h3 id="9-2-传统控制平面-vs-SDN-控制平面"><a href="#9-2-传统控制平面-vs-SDN-控制平面" class="headerlink" title="9.2 传统控制平面 vs SDN 控制平面"></a>9.2 传统控制平面 vs SDN 控制平面</h3><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>传统方式</th>
+<th>SDN 方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制逻辑位置</td>
+<td>每台路由器内部</td>
+<td>逻辑集中的控制器</td>
+</tr>
+<tr>
+<td>数据平面位置</td>
+<td>路由器本地</td>
+<td>分组交换设备本地</td>
+</tr>
+<tr>
+<td>控制与转发是否分离</td>
+<td>不明显</td>
+<td>明显分离</td>
+</tr>
+<tr>
+<td>表项来源</td>
+<td>路由器自己计算</td>
+<td>控制器计算并下发</td>
+</tr>
+<tr>
+<td>可编程性</td>
+<td>较弱</td>
+<td>较强</td>
+</tr>
+<tr>
+<td>典型抽象</td>
+<td>路由表 &#x2F; 转发表</td>
+<td>流表</td>
+</tr>
+</tbody></table>
+<h3 id="9-3-转发表-vs-流表"><a href="#9-3-转发表-vs-流表" class="headerlink" title="9.3 转发表 vs 流表"></a>9.3 转发表 vs 流表</h3><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>转发表</th>
+<th>流表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要用途</td>
+<td>IP 路由转发</td>
+<td>通用分组处理</td>
+</tr>
+<tr>
+<td>匹配内容</td>
+<td>通常是目的 IP 前缀</td>
+<td>多层头部字段</td>
+</tr>
+<tr>
+<td>典型动作</td>
+<td>输出端口或下一跳</td>
+<td>转发、丢弃、修改、封装给控制器等</td>
+</tr>
+<tr>
+<td>表达范围</td>
+<td>较窄</td>
+<td>较广</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>传统路由器</td>
+<td>SDN &#x2F; OpenFlow</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：-通用转发扩展了传统转发的匹配字段和动作类型；SDN-扩展了传统控制平面的组织方式；流表扩展了传统转发表的表达能力。"><a href="#❗-本节核心结论：-通用转发扩展了传统转发的匹配字段和动作类型；SDN-扩展了传统控制平面的组织方式；流表扩展了传统转发表的表达能力。" class="headerlink" title="❗ 本节核心结论： 通用转发扩展了传统转发的匹配字段和动作类型；SDN 扩展了传统控制平面的组织方式；流表扩展了传统转发表的表达能力。"></a><strong>❗ 本节核心结论：</strong> 通用转发扩展了传统转发的匹配字段和动作类型；SDN 扩展了传统控制平面的组织方式；流表扩展了传统转发表的表达能力。</h2><h2 id="10-易混点集中整理"><a href="#10-易混点集中整理" class="headerlink" title="10. 易混点集中整理"></a>10. 易混点集中整理</h2><h3 id="10-1-流表不是路由表换名"><a href="#10-1-流表不是路由表换名" class="headerlink" title="10.1 流表不是路由表换名"></a>10.1 流表不是路由表换名</h3><p>路由表主要回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">去某个目的网络应该往哪里转发？</span><br></pre></td></tr></table></figure>
+
+<p>流表可以回答更广泛的问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">符合某些字段条件的分组应该如何处理？</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 TCP 端口 = 22 → drop</span><br></pre></td></tr></table></figure>
+
+<p>这是防火墙规则，不是传统路由规则。</p>
+<h3 id="10-2-Action-不只是-forward"><a href="#10-2-Action-不只是-forward" class="headerlink" title="10.2 Action 不只是 forward"></a>10.2 Action 不只是 forward</h3><p>通用转发中的动作可以是转发，但也可以是丢弃、修改、复制、封装给控制器、泛洪或阻塞。把 action 只理解成“输出端口”会低估本节的核心抽象。</p>
+<h3 id="10-3-SDN-的集中是逻辑集中"><a href="#10-3-SDN-的集中是逻辑集中" class="headerlink" title="10.3 SDN 的集中是逻辑集中"></a>10.3 SDN 的集中是逻辑集中</h3><p>SDN 控制器逻辑上集中管理网络，但物理上可以部署为多个控制器实例。不要把它机械理解成“整个网络只有一台控制器服务器”。</p>
+<h3 id="10-4-SDN-交换机不是每个包都问控制器"><a href="#10-4-SDN-交换机不是每个包都问控制器" class="headerlink" title="10.4 SDN 交换机不是每个包都问控制器"></a>10.4 SDN 交换机不是每个包都问控制器</h3><p>交换机本地有流表，能高速执行已有规则。只有未命中规则、异常流量或需要新决策时，才可能联系控制器。</p>
+<h3 id="10-5-中间盒不是普通路由器"><a href="#10-5-中间盒不是普通路由器" class="headerlink" title="10.5 中间盒不是普通路由器"></a>10.5 中间盒不是普通路由器</h3><p>普通路由器的标准功能是根据 IP 层信息进行转发。中间盒是在路径中执行额外功能，例如 NAT、过滤、缓存、检测、负载均衡。</p>
+<h3 id="10-6-OpenFlow-的重点不是应用层通信语法"><a href="#10-6-OpenFlow-的重点不是应用层通信语法" class="headerlink" title="10.6 OpenFlow 的重点不是应用层通信语法"></a>10.6 OpenFlow 的重点不是应用层通信语法</h3><p>OpenFlow 可以涉及控制器和交换机之间的通信，但本节重点是它如何表达数据平面的通用转发规则，而不是把它当成单纯的应用层协议来背。</p>
+<hr>
+<h2 id="❗-本节核心结论：-本章最容易混淆的是“表”的层次：路由表用于传统路径转发，流表用于通用分组处理；SDN-不是让交换机失去执行能力，而是让控制逻辑更集中、更可编程。"><a href="#❗-本节核心结论：-本章最容易混淆的是“表”的层次：路由表用于传统路径转发，流表用于通用分组处理；SDN-不是让交换机失去执行能力，而是让控制逻辑更集中、更可编程。" class="headerlink" title="❗ 本节核心结论： 本章最容易混淆的是“表”的层次：路由表用于传统路径转发，流表用于通用分组处理；SDN 不是让交换机失去执行能力，而是让控制逻辑更集中、更可编程。"></a><strong>❗ 本节核心结论：</strong> 本章最容易混淆的是“表”的层次：路由表用于传统路径转发，流表用于通用分组处理；SDN 不是让交换机失去执行能力，而是让控制逻辑更集中、更可编程。</h2><h2 id="11-复习清单"><a href="#11-复习清单" class="headerlink" title="11. 复习清单"></a>11. 复习清单</h2><p>学完本节后，应能回答：</p>
+<ul>
+<li>数据平面和控制平面的区别是什么？</li>
+<li>为什么 forwarding 是本地动作，而 routing 是网络范围内的逻辑？</li>
+<li>传统基于目的地址的转发主要匹配什么字段？</li>
+<li>通用转发为什么可以统一描述路由器、交换机、防火墙和 NAT？</li>
+<li>“匹配 + 动作”中的 match 可以包含哪些字段？</li>
+<li>“匹配 + 动作”中的 action 有哪些类型？</li>
+<li>OpenFlow 流表中的 Match、Action、Stats 分别表示什么？</li>
+<li>为什么说 OpenFlow 流表不是普通路由表的简单改名？</li>
+<li>“目的 TCP 端口号为 22 的分组全部 drop”更像哪类设备的行为？</li>
+<li>SDN 中控制器和本地控制代理 CA 的关系是什么？</li>
+<li>SDN 的“控制平面和数据平面分离”到底是什么意思？</li>
+<li>为什么 SDN 可以提高网络可编程性？</li>
+<li>一条端到端路径为什么需要多个交换机上的流表规则共同实现？</li>
+<li>SDN 交换机是否每来一个分组都要询问控制器？</li>
+<li>中间盒是什么？</li>
+<li>中间盒和普通 IP 路由器有什么区别？</li>
+<li>为什么说中间盒让互联网从“IP 沙漏”变得更复杂？</li>
+</ul>
+<h2 id="最终总结"><a href="#最终总结" class="headerlink" title="最终总结"></a>最终总结</h2><p>Chapter 4-3 的核心是从传统转发走向通用转发。传统路由器主要根据目的 IP 地址查转发表，而现实网络需要根据更多字段执行更多动作。于是，网络设备可以被统一抽象为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Match + Action + Stats</span><br></pre></td></tr></table></figure>
+
+<p>SDN 在这个基础上进一步把控制平面和数据平面分离：控制器负责从全局视角计算规则，交换设备负责按流表高速执行。OpenFlow 则提供了一种具体的流表表达方式，使路由、交换、防火墙、NAT 等功能都可以用“匹配 + 动作”的模型描述。</p>
+<p>中间盒的出现说明，现实互联网早已不只是单纯的 IP 路由器网络。数据路径中存在大量执行额外功能的设备，这些设备让网络更强大，也更复杂。理解本节的关键，就是把这些复杂设备背后的共同结构看出来：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">网络设备处理分组，本质上是在特定字段上匹配规则，并根据规则执行动作。</span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/')">Chapter 4-3：通用转发、SDN 与中间盒</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 4-3：通用转发、SDN 与中间盒&amp;url=http://example.com/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/&amp;pic=/cover/marisa.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/marisa.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92"><span class="toc-number">1.</span> <span class="toc-text">Chapter 4-3：通用转发、SDN 与中间盒</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-Chapter-4-3-%E7%9A%84%E6%A0%B8%E5%BF%83%E4%B8%8D%E6%98%AF%E2%80%9C%E5%8F%88%E5%AD%A6%E4%B8%80%E7%A7%8D%E8%B7%AF%E7%94%B1%E8%A1%A8%E2%80%9D%EF%BC%8C%E8%80%8C%E6%98%AF%E7%90%86%E8%A7%A3%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E5%A4%84%E7%90%86%E5%88%86%E7%BB%84%E7%9A%84%E7%BB%9F%E4%B8%80%E6%8A%BD%E8%B1%A1%EF%BC%9A%E6%A0%B9%E6%8D%AE%E5%AD%97%E6%AE%B5%E5%8C%B9%E9%85%8D%E8%A7%84%E5%88%99%EF%BC%8C%E5%86%8D%E6%89%A7%E8%A1%8C%E8%BD%AC%E5%8F%91%E3%80%81%E4%B8%A2%E5%BC%83%E3%80%81%E4%BF%AE%E6%94%B9%E3%80%81%E5%A4%8D%E5%88%B6%E3%80%81%E4%B8%8A%E9%80%81%E6%8E%A7%E5%88%B6%E5%99%A8%E7%AD%89%E5%8A%A8%E4%BD%9C%E3%80%82"><span class="toc-number">1.1.</span> <span class="toc-text">❗ 本节核心结论： Chapter 4-3 的核心不是“又学一种路由表”，而是理解网络设备处理分组的统一抽象：根据字段匹配规则，再执行转发、丢弃、修改、复制、上送控制器等动作。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%8E%E4%BC%A0%E7%BB%9F%E8%BD%AC%E5%8F%91%E5%88%B0%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91"><span class="toc-number">1.2.</span> <span class="toc-text">1. 从传统转发到通用转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E4%BC%A0%E7%BB%9F%E8%BD%AC%E5%8F%91%E6%98%AF%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E7%9A%84%E4%B8%80%E4%B8%AA%E7%89%B9%E4%BE%8B%EF%BC%9B%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E6%8A%8A%E8%B7%AF%E7%94%B1%E5%99%A8%E3%80%81%E4%BA%A4%E6%8D%A2%E6%9C%BA%E3%80%81%E9%98%B2%E7%81%AB%E5%A2%99%E3%80%81NAT-%E7%AD%89%E8%AE%BE%E5%A4%87%E9%83%BD%E6%8A%BD%E8%B1%A1%E4%B8%BA%E2%80%9C%E5%8C%B9%E9%85%8D%E5%AD%97%E6%AE%B5%E5%B9%B6%E6%89%A7%E8%A1%8C%E5%8A%A8%E4%BD%9C%E2%80%9D%E7%9A%84%E7%B3%BB%E7%BB%9F%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">❗ 本节核心结论： 传统转发是通用转发的一个特例；通用转发把路由器、交换机、防火墙、NAT 等设备都抽象为“匹配字段并执行动作”的系统。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E4%B8%8E%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E7%9A%84%E9%87%8D%E6%96%B0%E7%90%86%E8%A7%A3"><span class="toc-number">1.4.</span> <span class="toc-text">2. 数据平面与控制平面的重新理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E8%B4%9F%E8%B4%A3%E9%AB%98%E9%80%9F%E6%89%A7%E8%A1%8C%EF%BC%8C%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E8%B4%9F%E8%B4%A3%E7%94%9F%E6%88%90%E8%A7%84%E5%88%99%EF%BC%9BSDN-%E7%9A%84%E5%85%B3%E9%94%AE%E6%98%AF%E6%8A%8A%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91%E4%BB%8E%E4%BA%A4%E6%8D%A2%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%8A%BD%E7%A6%BB%E5%87%BA%E6%9D%A5%EF%BC%8C%E7%94%B1%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD%E7%9A%84%E6%8E%A7%E5%88%B6%E5%99%A8%E7%AE%A1%E7%90%86%E3%80%82"><span class="toc-number">1.5.</span> <span class="toc-text">❗ 本节核心结论： 数据平面负责高速执行，控制平面负责生成规则；SDN 的关键是把控制逻辑从交换设备中抽离出来，由逻辑集中的控制器管理。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9AMatch%E3%80%81Action%E3%80%81Stats"><span class="toc-number">1.6.</span> <span class="toc-text">3. 通用转发的核心：Match、Action、Stats</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Match%EF%BC%9A%E5%8C%B9%E9%85%8D%E5%93%AA%E4%BA%9B%E5%AD%97%E6%AE%B5"><span class="toc-number">1.6.1.</span> <span class="toc-text">3.1 Match：匹配哪些字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Action%EF%BC%9A%E5%8C%B9%E9%85%8D%E5%90%8E%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.6.2.</span> <span class="toc-text">3.2 Action：匹配后做什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Stats%EF%BC%9A%E8%AE%B0%E5%BD%95%E4%BB%80%E4%B9%88"><span class="toc-number">1.6.3.</span> <span class="toc-text">3.3 Stats：记录什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-Match-%E5%86%B3%E5%AE%9A%E2%80%9C%E5%93%AA%E4%BA%9B%E5%88%86%E7%BB%84%E5%B1%9E%E4%BA%8E%E8%BF%99%E6%9D%A1%E8%A7%84%E5%88%99%E2%80%9D%EF%BC%8CAction-%E5%86%B3%E5%AE%9A%E2%80%9C%E5%8C%B9%E9%85%8D%E5%90%8E%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%E2%80%9D%EF%BC%8CStats-%E5%88%99%E8%AE%B0%E5%BD%95%E2%80%9C%E8%BF%99%E6%9D%A1%E8%A7%84%E5%88%99%E5%A4%84%E7%90%86%E4%BA%86%E5%A4%9A%E5%B0%91%E6%B5%81%E9%87%8F%E2%80%9D%E3%80%82"><span class="toc-number">1.7.</span> <span class="toc-text">❗ 本节核心结论： Match 决定“哪些分组属于这条规则”，Action 决定“匹配后怎么处理”，Stats 则记录“这条规则处理了多少流量”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-OpenFlow%EF%BC%9A%E6%8A%8A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E8%A1%A8%E8%BE%BE%E6%88%90%E6%B5%81%E8%A1%A8"><span class="toc-number">1.8.</span> <span class="toc-text">4. OpenFlow：把通用转发表达成流表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-OpenFlow-%E6%B5%81%E8%A1%A8%E4%B8%8D%E6%98%AF%E6%9B%B4%E5%A4%8D%E6%9D%82%E7%9A%84%E8%B7%AF%E7%94%B1%E8%A1%A8%EF%BC%8C%E8%80%8C%E6%98%AF%E6%9B%B4%E9%80%9A%E7%94%A8%E7%9A%84%E5%88%86%E7%BB%84%E5%A4%84%E7%90%86%E8%A7%84%E5%88%99%E8%A1%A8%EF%BC%9B%E5%AE%83%E7%94%A8-Match%E3%80%81Action%E3%80%81Stats-%E7%BB%9F%E4%B8%80%E8%A1%A8%E8%BE%BE%E8%B7%AF%E7%94%B1%E3%80%81%E4%BA%A4%E6%8D%A2%E3%80%81%E9%98%B2%E7%81%AB%E5%A2%99%E7%AD%89%E8%A1%8C%E4%B8%BA%E3%80%82"><span class="toc-number">1.9.</span> <span class="toc-text">❗ 本节核心结论： OpenFlow 流表不是更复杂的路由表，而是更通用的分组处理规则表；它用 Match、Action、Stats 统一表达路由、交换、防火墙等行为。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-SDN-%E5%A6%82%E4%BD%95%E8%AE%A9%E7%BD%91%E7%BB%9C%E5%8F%98%E5%BE%97%E5%8F%AF%E7%BC%96%E7%A8%8B"><span class="toc-number">1.10.</span> <span class="toc-text">5. SDN 如何让网络变得可编程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-SDN-%E7%9A%84%E5%8F%AF%E7%BC%96%E7%A8%8B%E6%80%A7%E6%9D%A5%E8%87%AA%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91%E7%9A%84%E9%9B%86%E4%B8%AD%E7%AE%A1%E7%90%86%EF%BC%9A%E7%BD%91%E7%BB%9C%E7%AD%96%E7%95%A5%E5%85%88%E7%94%B1%E5%BA%94%E7%94%A8%E8%A1%A8%E8%BE%BE%EF%BC%8C%E5%86%8D%E7%94%B1%E6%8E%A7%E5%88%B6%E5%99%A8%E8%BD%AC%E6%8D%A2%E4%B8%BA%E5%88%86%E5%B8%83%E5%9C%A8%E5%90%84%E4%BA%A4%E6%8D%A2%E8%AE%BE%E5%A4%87%E4%B8%8A%E7%9A%84%E6%B5%81%E8%A1%A8%E8%A7%84%E5%88%99%E3%80%82"><span class="toc-number">1.11.</span> <span class="toc-text">❗ 本节核心结论： SDN 的可编程性来自控制逻辑的集中管理：网络策略先由应用表达，再由控制器转换为分布在各交换设备上的流表规则。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E4%B8%80%E6%9D%A1%E8%B7%AF%E5%BE%84%E4%B8%8D%E6%98%AF%E7%94%B1%E4%B8%80%E4%B8%AA%E4%BA%A4%E6%8D%A2%E6%9C%BA%E5%8D%95%E7%8B%AC%E5%AE%9E%E7%8E%B0%E7%9A%84"><span class="toc-number">1.12.</span> <span class="toc-text">6. 一条路径不是由一个交换机单独实现的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-SDN-%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%B7%AF%E5%BE%84%E7%94%B1%E5%A4%9A%E4%B8%AA%E4%BA%A4%E6%8D%A2%E6%9C%BA%E7%9A%84%E6%9C%AC%E5%9C%B0%E6%B5%81%E8%A1%A8%E8%A7%84%E5%88%99%E5%85%B1%E5%90%8C%E5%AE%9E%E7%8E%B0%EF%BC%9B%E6%8E%A7%E5%88%B6%E5%99%A8%E8%B4%9F%E8%B4%A3%E9%85%8D%E7%BD%AE%E8%A7%84%E5%88%99%EF%BC%8C%E4%BA%A4%E6%8D%A2%E6%9C%BA%E8%B4%9F%E8%B4%A3%E9%AB%98%E9%80%9F%E6%89%A7%E8%A1%8C%E8%A7%84%E5%88%99%E3%80%82"><span class="toc-number">1.13.</span> <span class="toc-text">❗ 本节核心结论： SDN 中的端到端路径由多个交换机的本地流表规则共同实现；控制器负责配置规则，交换机负责高速执行规则。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Match-Action-%E5%A6%82%E4%BD%95%E7%BB%9F%E4%B8%80%E5%90%84%E7%A7%8D%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87"><span class="toc-number">1.14.</span> <span class="toc-text">7. Match + Action 如何统一各种网络设备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E8%B7%AF%E7%94%B1%E5%99%A8%E3%80%81%E4%BA%A4%E6%8D%A2%E6%9C%BA%E3%80%81%E9%98%B2%E7%81%AB%E5%A2%99%E3%80%81NAT-%E7%AD%89%E8%AE%BE%E5%A4%87%E5%8A%9F%E8%83%BD%E4%B8%8D%E5%90%8C%EF%BC%8C%E4%BD%86%E9%83%BD%E5%8F%AF%E4%BB%A5%E6%8A%BD%E8%B1%A1%E4%B8%BA%E2%80%9C%E5%8C%B9%E9%85%8D%E6%9F%90%E4%BA%9B%E5%AD%97%E6%AE%B5%EF%BC%8C%E7%84%B6%E5%90%8E%E6%89%A7%E8%A1%8C%E6%9F%90%E4%BA%9B%E5%8A%A8%E4%BD%9C%E2%80%9D%E3%80%82"><span class="toc-number">1.15.</span> <span class="toc-text">❗ 本节核心结论： 路由器、交换机、防火墙、NAT 等设备功能不同，但都可以抽象为“匹配某些字段，然后执行某些动作”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%B8%AD%E9%97%B4%E7%9B%92%EF%BC%9A%E7%8E%B0%E5%AE%9E%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%8D%E5%8F%AA%E6%98%AF%E7%BA%AF-IP-%E8%B7%AF%E7%94%B1%E5%99%A8"><span class="toc-number">1.16.</span> <span class="toc-text">8. 中间盒：现实互联网不只是纯 IP 路由器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E4%B8%AD%E9%97%B4%E7%9B%92%E8%AF%B4%E6%98%8E%E7%8E%B0%E5%AE%9E%E4%BA%92%E8%81%94%E7%BD%91%E5%B7%B2%E7%BB%8F%E4%B8%8D%E5%8F%AA%E6%98%AF%E5%8D%95%E7%BA%AF%E7%9A%84-IP-%E8%B7%AF%E7%94%B1%E7%BD%91%E7%BB%9C%EF%BC%9B%E8%B7%AF%E5%BE%84%E4%B8%AD%E5%A4%A7%E9%87%8F%E8%AE%BE%E5%A4%87%E4%BC%9A%E6%89%A7%E8%A1%8C%E5%AE%89%E5%85%A8%E3%80%81%E8%BD%AC%E6%8D%A2%E3%80%81%E7%BC%93%E5%AD%98%E3%80%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%89%E9%A2%9D%E5%A4%96%E5%8A%9F%E8%83%BD%E3%80%82"><span class="toc-number">1.17.</span> <span class="toc-text">❗ 本节核心结论： 中间盒说明现实互联网已经不只是单纯的 IP 路由网络；路径中大量设备会执行安全、转换、缓存、负载均衡等额外功能。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E9%87%8D%E8%A6%81%E5%AF%B9%E6%AF%94"><span class="toc-number">1.18.</span> <span class="toc-text">9. 重要对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E5%9F%BA%E4%BA%8E%E7%9B%AE%E7%9A%84%E5%9C%B0%E5%9D%80%E7%9A%84%E8%BD%AC%E5%8F%91-vs-%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91"><span class="toc-number">1.18.1.</span> <span class="toc-text">9.1 基于目的地址的转发 vs 通用转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E4%BC%A0%E7%BB%9F%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2-vs-SDN-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2"><span class="toc-number">1.18.2.</span> <span class="toc-text">9.2 传统控制平面 vs SDN 控制平面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E8%BD%AC%E5%8F%91%E8%A1%A8-vs-%E6%B5%81%E8%A1%A8"><span class="toc-number">1.18.3.</span> <span class="toc-text">9.3 转发表 vs 流表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E6%89%A9%E5%B1%95%E4%BA%86%E4%BC%A0%E7%BB%9F%E8%BD%AC%E5%8F%91%E7%9A%84%E5%8C%B9%E9%85%8D%E5%AD%97%E6%AE%B5%E5%92%8C%E5%8A%A8%E4%BD%9C%E7%B1%BB%E5%9E%8B%EF%BC%9BSDN-%E6%89%A9%E5%B1%95%E4%BA%86%E4%BC%A0%E7%BB%9F%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E7%9A%84%E7%BB%84%E7%BB%87%E6%96%B9%E5%BC%8F%EF%BC%9B%E6%B5%81%E8%A1%A8%E6%89%A9%E5%B1%95%E4%BA%86%E4%BC%A0%E7%BB%9F%E8%BD%AC%E5%8F%91%E8%A1%A8%E7%9A%84%E8%A1%A8%E8%BE%BE%E8%83%BD%E5%8A%9B%E3%80%82"><span class="toc-number">1.19.</span> <span class="toc-text">❗ 本节核心结论： 通用转发扩展了传统转发的匹配字段和动作类型；SDN 扩展了传统控制平面的组织方式；流表扩展了传统转发表的表达能力。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%98%93%E6%B7%B7%E7%82%B9%E9%9B%86%E4%B8%AD%E6%95%B4%E7%90%86"><span class="toc-number">1.20.</span> <span class="toc-text">10. 易混点集中整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E6%B5%81%E8%A1%A8%E4%B8%8D%E6%98%AF%E8%B7%AF%E7%94%B1%E8%A1%A8%E6%8D%A2%E5%90%8D"><span class="toc-number">1.20.1.</span> <span class="toc-text">10.1 流表不是路由表换名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-Action-%E4%B8%8D%E5%8F%AA%E6%98%AF-forward"><span class="toc-number">1.20.2.</span> <span class="toc-text">10.2 Action 不只是 forward</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-SDN-%E7%9A%84%E9%9B%86%E4%B8%AD%E6%98%AF%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD"><span class="toc-number">1.20.3.</span> <span class="toc-text">10.3 SDN 的集中是逻辑集中</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-SDN-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E4%B8%8D%E6%98%AF%E6%AF%8F%E4%B8%AA%E5%8C%85%E9%83%BD%E9%97%AE%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-number">1.20.4.</span> <span class="toc-text">10.4 SDN 交换机不是每个包都问控制器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-%E4%B8%AD%E9%97%B4%E7%9B%92%E4%B8%8D%E6%98%AF%E6%99%AE%E9%80%9A%E8%B7%AF%E7%94%B1%E5%99%A8"><span class="toc-number">1.20.5.</span> <span class="toc-text">10.5 中间盒不是普通路由器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-6-OpenFlow-%E7%9A%84%E9%87%8D%E7%82%B9%E4%B8%8D%E6%98%AF%E5%BA%94%E7%94%A8%E5%B1%82%E9%80%9A%E4%BF%A1%E8%AF%AD%E6%B3%95"><span class="toc-number">1.20.6.</span> <span class="toc-text">10.6 OpenFlow 的重点不是应用层通信语法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%9C%AC%E7%AB%A0%E6%9C%80%E5%AE%B9%E6%98%93%E6%B7%B7%E6%B7%86%E7%9A%84%E6%98%AF%E2%80%9C%E8%A1%A8%E2%80%9D%E7%9A%84%E5%B1%82%E6%AC%A1%EF%BC%9A%E8%B7%AF%E7%94%B1%E8%A1%A8%E7%94%A8%E4%BA%8E%E4%BC%A0%E7%BB%9F%E8%B7%AF%E5%BE%84%E8%BD%AC%E5%8F%91%EF%BC%8C%E6%B5%81%E8%A1%A8%E7%94%A8%E4%BA%8E%E9%80%9A%E7%94%A8%E5%88%86%E7%BB%84%E5%A4%84%E7%90%86%EF%BC%9BSDN-%E4%B8%8D%E6%98%AF%E8%AE%A9%E4%BA%A4%E6%8D%A2%E6%9C%BA%E5%A4%B1%E5%8E%BB%E6%89%A7%E8%A1%8C%E8%83%BD%E5%8A%9B%EF%BC%8C%E8%80%8C%E6%98%AF%E8%AE%A9%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91%E6%9B%B4%E9%9B%86%E4%B8%AD%E3%80%81%E6%9B%B4%E5%8F%AF%E7%BC%96%E7%A8%8B%E3%80%82"><span class="toc-number">1.21.</span> <span class="toc-text">❗ 本节核心结论： 本章最容易混淆的是“表”的层次：路由表用于传统路径转发，流表用于通用分组处理；SDN 不是让交换机失去执行能力，而是让控制逻辑更集中、更可编程。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E5%A4%8D%E4%B9%A0%E6%B8%85%E5%8D%95"><span class="toc-number">1.22.</span> <span class="toc-text">11. 复习清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E6%80%BB%E7%BB%93"><span class="toc-number">1.23.</span> <span class="toc-text">最终总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/" title="Chapter 4-3：通用转发、SDN 与中间盒"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/marisa.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 4-3：通用转发、SDN 与中间盒"/></a><div class="content"><a class="title" href="/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/" title="Chapter 4-3：通用转发、SDN 与中间盒">Chapter 4-3：通用转发、SDN 与中间盒</a><time datetime="2026-06-19T16:45:10.000Z" title="Created 2026-06-20 00:45:10">2026-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/" title="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"/></a><div class="content"><a class="title" href="/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/" title="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</a><time datetime="2026-06-19T16:45:01.000Z" title="Created 2026-06-20 00:45:01">2026-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/20/Chapter-4-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E9%80%90%E8%B7%B3%E8%BD%AC%E5%8F%91/" title="Chapter 4-1：网络层数据平面如何完成逐跳转发"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/aki.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 4-1：网络层数据平面如何完成逐跳转发"/></a><div class="content"><a class="title" href="/2026/06/20/Chapter-4-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E9%80%90%E8%B7%B3%E8%BD%AC%E5%8F%91/" title="Chapter 4-1：网络层数据平面如何完成逐跳转发">Chapter 4-1：网络层数据平面如何完成逐跳转发</a><time datetime="2026-06-19T16:44:53.000Z" title="Created 2026-06-20 00:44:53">2026-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ehonda.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南">Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南</a><time datetime="2026-06-13T12:36:58.000Z" title="Created 2026-06-13 20:36:58">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</a><time datetime="2026-06-13T12:36:44.000Z" title="Created 2026-06-13 20:36:44">2026-06-13</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">50</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

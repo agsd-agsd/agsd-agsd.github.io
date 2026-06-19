@@ -1,0 +1,1221 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"><meta name="application-name" content="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"><meta property="og:url" content="http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑Chapter 4-2 的主线是网络层中的 IP 协议本身。上一节 Chapter 4-1 更关注数据平面的整体结构：路由器如何查表、如何通过交换结构搬运分组、如何排队和调度。本节则进入更具体的问题：IP 数据报长什么样，为"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/gouki_akuma.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/gouki_akuma.png"><meta name="description" content="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑Chapter 4-2 的主线是网络层中的 IP 协议本身。上一节 Chapter 4-1 更关注数据平面的整体结构：路由器如何查表、如何通过交换结构搬运分组、如何排队和调度。本节则进入更具体的问题：IP 数据报长什么样，为"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑',
+  postAI: '',
+  pageFillDescription: 'Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑, ❗ 本节核心结论： IP 地址体系的核心不是给机器编号而是给接口编号并用前缀、掩码和路由表项把接口组织成可转发、可聚合、可扩展的网络结构。, 1. IP 数据报：网络层传输的基本单位, 1.1 payload 长度是什么, ❗ 本节核心结论： IP 数据报由 IP 头部和 IP payload 组成；总长度包含头部和数据部分payload 长度只指 IP 头部后面承载的上层内容。, 2. frame、hop 与 MTU：IP 数据报如何穿过链路, 2.1 frame 不是视频帧, 2.2 hop 是一跳不是一个完整端到端路径, 2.3 MTU 是链路层限制却会影响 IP 层, ❗ 本节核心结论： frame 是链路层传输单位hop 是逐跳路径单位MTU 是链路层对可承载 IP 数据报大小的限制。, 3. IPv4 分片与重组：当数据报太大时怎么办, 3.1 分片的基本思想, 3.2 分片偏移量为什么以 8 字节为单位, 3.3 为什么不在每个路由器重组, ❗ 本节核心结论： IPv4 分片是为了解决数据报超过下一跳 MTU 的问题；每个分片都有自己的 IP 头部偏移量以 8 字节为单位重组通常只在最终目的主机进行。, 4. IP 地址属于接口而不是简单属于主机, 4.1 interface 是哪两个层之间的接口吗, ❗ 本节核心结论： IP 地址严格来说绑定在接口上；interface 是设备接入网络链路的通信端点不只是某两层之间的抽象边界。, 5. 子网：一组不经过路由器即可互相到达的接口, 5.1 没有路由器的局域网算不算子网, ❗ 本节核心结论： 子网是网络层地址概念LAN 是链路层或物理组织概念；没有路由器的局域网也可以构成一个子网。, 6. 子网号与子网掩码：一个是结果一个是规则, 6.1 子网号是什么, 6.2 子网掩码是什么, 6.3 二者的关系, ❗ 本节核心结论： 子网掩码是切分规则子网号是按规则计算出的网络地址；/24 和 255.255.255.0 表达的是同一种前缀长度。, 7. CIDR：从固定分类到灵活前缀, 7.1 classless 怎么理解, 7.2 CIDR 与路由聚合, 7.3 more specific route, ❗ 本节核心结论： CIDR 的 classless 思想是取消 Ax2FBx2FC 固定分类用任意长度前缀灵活分配地址；它同时支持路由聚合减少全网路由表规模。, 8. DHCP：主机接入网络时需要的不只是 IP 地址, 8.1 为什么 DHCP 要返回这么多东西, ❗ 本节核心结论： DHCP 提供的是完整网络配置不只是 IP 地址；主机需要 IP、掩码、默认网关和 DNS 才能真正接入网络。, 9. 路由表项：匹配条件加转发动作, 9.1 为什么减少路由表项是好事, ❗ 本节核心结论： 路由表项是匹配条件 + 转发动作；减少表项可以降低存储、查表、更新和收敛成本但更具体路由在特殊情况下仍然必要。, 10. NAT：IPv4 地址不足下的地址复用机制, 10.1 NAT 如何区分不同内网主机, 10.2 NAT 的争议, ❗ 本节核心结论： NAT 通过地址和端口转换让多个内网设备共享公网 IP缓解 IPv4 地址不足；但它跨层处理端口号并削弱了端到端连接模型。, 11. IPv6：不是把 IPv4 地址写长一点, 11.1 IPv6 头部设计的关键变化, 11.2 IPv6 与隧道, ❗ 本节核心结论： IPv6 不只是更长地址而是重新设计了 IP 层的地址空间和头部处理方式；其目标包括扩大地址空间、简化路由器处理和支持逐步过渡。, 12. 易混点集中整理, 12.1 IP 地址不是简单属于主机, 12.2 同一个子网不只是 IP 看起来相似, 12.3 DHCP 不只是分配 IP, 12.4 NAT 不是防火墙, 12.5 IPv6 不是 IPv4 地址写长一点, 12.6 MTU 不是 IP 层字段, ❗ 本节核心结论： 本章最容易混淆的是概念边界：IP 地址绑定接口子网依赖前缀和掩码MTU 是链路约束但影响 IPNAT 是地址转换而不是安全机制。, 13. 复习清单, 最终总结编址分片与的网络层逻辑的主线是网络层中的协议本身上一节更关注数据平面的整体结构路由器如何查表如何通过交换结构搬运分组如何排队和调度本节则进入更具体的问题数据报长什么样为什么会被分片地址到底分配给谁子网和如何组织地址空间主机如何自动获得网络配置如何缓解地址不足以及为什么要重新设计地址和头部格式这一节的核心不是背字段名而是理解一条机制链传输层封装为放入链路层受限制必要时分片根据目标和转发表逐跳转发通过子网路由聚合减少地址和路由管理成本借助处理配置和地址规模问题本节核心结论地址体系的核心不是给机器编号而是给接口编号并用前缀掩码和路由表项把接口组织成可转发可聚合可扩展的网络结构数据报网络层传输的基本单位数据报是网络层传输的基本单位传输层把或交给网络层后网络层会在外面加上头部形成一个典型封装关系是其中头部保存网络层转发和控制所需的信息例如源地址目的地址版本号头部长度数据报总长度上层协议字段首部校验和分片相关字段可选项这些字段不是装饰而是为了让网络层能够回答几个关键问题问题对应字段这个数据报从哪里来源地址这个数据报要到哪里去目的地址这个数据报还能在网络中存在多久到达目的主机后交给还是这个数据报是否被分片头部在传输中是否出错长度是什么指的是某一层协议真正承载的上层数据对层来说数据报总长度长度长度例如一个数据报总长度是字节头部是字节那么长度字节这字节通常装的是或注意是相对概念站在不同层看的含义不同所在层链路层网络层传输层应用层数据所以不能笼统说就是用户数据更准确地说是当前层承载的上层内容本节核心结论数据报由头部和组成总长度包含头部和数据部分长度只指头部后面承载的上层内容与数据报如何穿过链路学习分片之前必须先分清三个概念和不是视频帧这里的是数据链路层的帧不是视频帧率或游戏帧数里的帧链路层是一跳链路上的传输单位它大致可以理解为链路层链路层头部链路层尾部数据报不能直接在物理链路上裸奔它要被封装进链路层里再通过以太网或其他链路发送是一跳不是一个完整端到端路径可以理解为从一个网络层设备到下一个网络层设备之间的一段转发例如主机路由器路由器主机这条路径中主机到是一跳到是一跳到主机是一跳每经过一个路由器通常就多走了一跳每经过一个路由器减正是为了避免数据报在网络中无限循环是链路层限制却会影响层是最大传输单元它表示某条链路的链路层最多能承载多大的网络层数据重点是是链路层约束但它限制的是能放进里的数据报大小例如以太网常见是字节这意味着一个链路层最多能携带字节的数据报如果数据报大于字节就无法完整放进这一跳的中下可能需要分片是否超过下一跳否封装进一个是分片多个较小分别封装进多个这张图说明数据报的大小必须服从下一跳链路的限制本节核心结论是链路层传输单位是逐跳路径单位是链路层对可承载数据报大小的限制分片与重组当数据报太大时怎么办互联网由不同链路组成不同链路的可能不同源主机发出的数据报在某一跳可能遇到较小无法完整放进链路层这时可以进行分片分片的基本思想假设一个数据报总长度为字节其中头部字节字节它要经过一条为字节的链路每个分片本身都要有自己的头部因此每片最多能携带的不是字节而是字节所以原来的字节需要被拆成每个分片都会成为一个新的数据报分片字节头部字节数据分片字节头部字节数据分片字节头部字节数据分片偏移量为什么以字节为单位的字段不是直接记录字节偏移而是以字节为单位记录偏移例如分片数据范围字节偏移第片第片第片因为这也是为什么除最后一片外每个分片的数据长度通常要是字节的整数倍否则后续分片的无法准确表达为什么不在每个路由器重组分片通常在最终目的主机重组而不是每经过一个路由器就重组原因很直接路由器要高速转发不能为了重组等待所有分片不同分片可能走不同路径中间重组会增加路由器状态和缓存压力重组后下一跳可能又遇到更小还要再次分片因此中间路由器可以分片但不负责把分片重新组回原始数据报最终目的主机根据和等字段完成重组本节核心结论分片是为了解决数据报超过下一跳的问题每个分片都有自己的头部偏移量以字节为单位重组通常只在最终目的主机进行地址属于接口而不是简单属于主机一个常见误解是地址属于一台电脑这句话在日常表达中可以接受但在网络层概念上不够准确更准确的说法是地址分配给是设备连接网络链路的出入口一个设备可以有多个接口因此也可以有多个地址例如一台笔记本有接口和以太网接口一个路由器有多个物理端口一台服务器可能有多块网卡一个接口也可能配置多个地址所以地址不是贴在整台设备上的标签而是贴在设备的某个网络接口上的标识是哪两个层之间的接口吗不是简单指网络层和链路层之间的软件接口它更像是一个设备接入某个网络链路的通信端点从协议栈看一个同时具有多层含义层次的意义物理层具体的物理连接或无线收发能力链路层有地址能收发网络层配置地址参与转发或收发因此不是只属于某两层之间的边界而是一个贯穿物理层链路层和网络层的网络出入口本节核心结论地址严格来说绑定在接口上是设备接入网络链路的通信端点不只是某两层之间的抽象边界子网一组不经过路由器即可互相到达的接口子网可以理解为一组共享相同地址前缀并且不经过路由器就可以彼此到达的接口集合例如主机主机主机它们都属于在典型以太网或局域网中如果这些主机连在同一个二层网络里它们可以通过链路层机制直接通信不需要经过路由器转发没有路由器的局域网算不算子网可以算子网的核心不是里面必须有路由器而是这些接口共享同一个网络前缀它们在网络层上被视为同一个网络它们之间通信不需要经过路由器局域网和子网关注角度不同概念关注点典型问题链路层物理连接这些设备怎么连在一起网络层地址结构这些接口是否属于同一个前缀二者经常重合但不是同一个概念一个可以承载一个子网也可以通过等方式承载多个逻辑子网一个子网通常对应一个二层广播域但具体实现可以更复杂本节核心结论子网是网络层地址概念是链路层或物理组织概念没有路由器的局域网也可以构成一个子网子网号与子网掩码一个是结果一个是规则子网号和子网掩码经常一起出现但它们不是一回事子网号是什么子网号是一个子网的网络地址用来代表整个子网例如其中就是这个子网的子网号或网络地址它表示这是这一段网络而不是某一台具体主机子网掩码是什么子网掩码是用来区分地址中网络部分和主机部分的规则例如等价于意思是前是网络部分后是主机部分二者的关系给定地址子网掩码把地址和子网掩码做按位与得到的结果就是子网号所以可以这样区分概念含义例子地址某个接口的地址子网掩码划分网络部分和主机部分的规则前缀长度掩码的简写形式子网号根据掩码算出的网络地址本节核心结论子网掩码是切分规则子网号是按规则计算出的网络地址和表达的是同一种前缀长度从固定分类到灵活前缀早期地址采用即按类固定划分网络规模大致可以理解为类别网络部分可容纳主机规模问题类很短很大对多数组织过大类中等仍然很大容易浪费类较长较小对很多组织又太小这种方式的问题是档位太粗如果一个组织需要个地址一个类地址不够一个类地址又太大分配类会浪费大量地址这就是传统分类地址容易浪费的根本原因怎么理解的意思是不再强制按照类的固定边界划分地址而是用任意长度的前缀表示网络范围写法是其中表示前多少是网络前缀例如表示前是网络部分剩下是主机部分这个网络可以容纳的地址数量大约是相比固定类可以更接近实际需求分配地址块与路由聚合不只减少地址浪费还支持路由聚合例如某拥有它可以把这块地址切成多个更小的分给不同组织对外通告时不一定要把每个小块都通告出去而可以说凡是这一大块地址都交给我这就是路由聚合组织组织组织组织外部路由器只需记录这张图说明既能灵活分配地址也能把多个连续地址块聚合成较少的路由表项路由聚合不是无脑越粗越好如果某个组织虽然地址属于某个的聚合范围但实际接入了另一个就可能需要更具体的路由项例如当目标地址落在中时比更具体应优先匹配这和最长前缀匹配是一致的本节核心结论的思想是取消固定分类用任意长度前缀灵活分配地址它同时支持路由聚合减少全网路由表规模主机接入网络时需要的不只是地址是动态主机配置协议它的作用不是简单发一个地址而是给主机一整套联网配置典型过程可以概括为也就是客户端广播有没有服务器服务器返回可以给你这个配置客户端发送我想使用这个配置服务器发送确认租约生效为什么要返回这么多东西通常会返回地址子网掩码默认网关也就是第一跳路由器地址服务器地址地址租约时间因为主机接入网络后不只是需要知道我是谁还需要知道怎么通信配置项解决的问题地址我在这个网络中的地址是什么子网掩码哪些目标和我在同一个子网默认网关不在本子网的目标应该交给谁服务器域名应该找谁解析成租约时间这个地址我能用多久如果只有地址没有子网掩码主机不知道哪些地址可以直接发找对方哪些地址要交给默认网关如果没有默认网关主机只能和本子网通信无法访问外部网络如果没有主机可以访问地址但无法正常使用域名访问网站本节核心结论提供的是完整网络配置不只是地址主机需要掩码默认网关和才能真正接入网络路由表项匹配条件加转发动作路由表项可以理解为路由器或主机中的一条转发规则它通常包含目标网络前缀子网掩码或前缀长度下一跳地址输出接口度量值或优先级等附加信息例如目的网络下一跳输出接口含义是凡是目标地址落在这一范围内的数据报都交给下一跳并从发出去为什么减少路由表项是好事路由器要对大量数据报做高速转发每来一个数据报它都需要读取目标地址查转发表找到匹配项决定输出接口转发如果路由表项特别多会带来多方面成本问题影响存储开销变大路由器要维护更大的表查表更复杂数据平面压力增大路由更新更多控制平面传播和计算成本更高收敛更慢网络变化后恢复稳定更困难可扩展性变差全球互联网规模下难以承受和路由聚合的价值就在这里它们允许用一个较大的前缀代表一批更小的网络例如原本需要记录聚合后可以记录成这样就显著减少了表项数量但减少表项不是绝对目标遇到特殊路径需求时仍然需要更具体的路由项网络系统的真实目标是在正确转发的前提下尽量提高可扩展性本节核心结论路由表项是匹配条件转发动作减少表项可以降低存储查表更新和收敛成本但更具体路由在特殊情况下仍然必要地址不足下的地址复用机制是网络地址转换它的典型场景是内网中大量设备使用私有地址对外共享一个或少数几个公网地址例如家庭网络中手机电脑平板它们访问互联网时外部看到的可能都是同一个公网如何区分不同内网主机不只是改地址通常还会改端口号例如内网连接后公网连接设备维护一张转换表公网公网端口内网内网端口当外部响应回来时根据目的端口查表把数据转回对应内网主机的争议解决了地址不足问题但也引入了争议它修改端口号跨越了网络层和传输层边界它破坏了端到端原则外部主机通常无法直接主动连接内网主机某些游戏联机等应用需要额外穿透机制它是地址不足下的现实折中而不是最干净的体系设计不是防火墙它可能带来类似外部无法直接访问内部的效果但其本质是地址和端口转换而不是安全策略控制本节核心结论通过地址和端口转换让多个内网设备共享公网缓解地址不足但它跨层处理端口号并削弱了端到端连接模型不是把地址写长一点的提出主要是为了从根本上解决地址空间不足并改进头部设计地址长度从的扩展到地址空间极大增加但的变化不只是地址变长还包括头部格式简化和功能调整头部设计的关键变化相比有几个重要变化变化意义地址长度变为大幅扩展地址空间固定基本头部长度便于路由器快速处理去掉减少每跳重新计算开销不允许路由器中途分片简化路由器数据平面使用扩展头部把可选功能移出基本头部改为语义更直接表示最多还能经过多少跳这些变化体现了一个方向让路由器转发更简单更快把复杂性更多放到端系统或扩展机制中与隧道互联网不可能瞬间从切换到因此会出现和共存的阶段隧道是一种过渡机制基本思想是把数据报封装进数据报中穿过只支持的网络区域到另一端再解封装出来主机路由器封装进网络解封装出目的网络这说明部署不是单点替换而是需要长期过渡机制本节核心结论不只是更长地址而是重新设计了层的地址空间和头部处理方式其目标包括扩大地址空间简化路由器处理和支持逐步过渡易混点集中整理地址不是简单属于主机更准确地说地址属于接口多网卡主机路由器多地址配置都说明了这一点同一个子网不只是看起来相似同一个子网要求共享相同网络前缀并且不经过路由器可直接到达只是前几段数字相似并不一定说明它们处于同一个子网必须结合子网掩码或前缀长度判断不只是分配提供完整网络配置包括掩码默认网关和租约时间只给地址主机仍然不知道如何完整联网不是防火墙的核心是地址和端口转换它可能间接阻止外部主动访问内网主机但这不是它的本质功能不是地址写长一点同时改变了地址长度基本头部分片方式校验和处理和扩展机制它是网络层协议设计的系统性调整不是层字段是链路层的最大承载限制但会影响数据报是否需要分片它体现了分层系统中的跨层约束链路层能力会影响网络层行为本节核心结论本章最容易混淆的是概念边界地址绑定接口子网依赖前缀和掩码是链路约束但影响是地址转换而不是安全机制复习清单学完本节后应能回答数据报由哪两大部分组成长度和数据报总长度有什么区别是什么它和视频帧有什么区别是什么为什么每过一个路由器要减是哪一层的概念为什么会影响分片一个字节数据报经过的链路时如何分片分片偏移量为什么以字节为单位为什么分片通常只在最终目的主机重组为什么说地址属于接口而不是简单属于主机在物理层链路层和网络层分别有什么意义没有路由器的局域网是否可以构成子网子网号和子网掩码有什么区别和是什么关系传统分类地址为什么容易浪费的核心思想是什么如何支持路由聚合为什么要提供掩码默认网关和路由表项由哪些部分组成为什么减少路由表项有利于互联网可扩展性为什么需要修改端口号为什么会引发端到端原则争议相比的关键变化有哪些最终总结的核心是协议和地址体系数据报是网络层的基本传输单位链路层是逐跳承载它的单位决定一个数据报是否需要被分片地址严格说绑定在上多个接口通过相同前缀组织成而子网掩码和决定如何解释这些前缀的思想解决了传统固定分类地址过粗的问题并通过路由聚合减少路由表项提高互联网可扩展性解决主机自动配置问题在地址不足下通过地址和端口转换实现地址复用而则从地址空间和头部设计上提供更长期的解决方向这一章可以压缩成一句话层通过数据报格式表达转发所需信息通过接口地址和子网前缀组织网络通过和路由聚合提升可扩展性并用分别解决配置地址复用和长期地址空间问题',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-20 00:45:01',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">31</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:01.000Z" title="Created 2026-06-20 00:45:01">2026-06-20</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:01.410Z" title="Updated 2026-06-20 00:45:01">2026-06-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">6.7k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>22min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/gouki_akuma.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:01.000Z" title="Created 2026-06-20 00:45:01">2026-06-20</time><time itemprop="dateCreated datePublished" datetime="2026-06-19T16:45:01.410Z" title="Updated 2026-06-20 00:45:01">2026-06-20</time></header><h1 id="Chapter-4-2：IP、编址、分片、NAT-与-IPv6-的网络层逻辑"><a href="#Chapter-4-2：IP、编址、分片、NAT-与-IPv6-的网络层逻辑" class="headerlink" title="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"></a>Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</h1><p>Chapter 4-2 的主线是网络层中的 IP 协议本身。上一节 Chapter 4-1 更关注数据平面的整体结构：路由器如何查表、如何通过交换结构搬运分组、如何排队和调度。本节则进入更具体的问题：IP 数据报长什么样，为什么会被分片，IP 地址到底分配给谁，子网和 CIDR 如何组织地址空间，主机如何自动获得网络配置，NAT 如何缓解 IPv4 地址不足，以及 IPv6 为什么要重新设计地址和头部格式。</p>
+<p>这一节的核心不是背字段名，而是理解一条机制链：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">传输层 segment</span><br><span class="line">    ↓</span><br><span class="line">封装为 IP datagram</span><br><span class="line">    ↓</span><br><span class="line">放入链路层 frame</span><br><span class="line">    ↓</span><br><span class="line">受 MTU 限制，必要时分片</span><br><span class="line">    ↓</span><br><span class="line">根据目标 IP 和转发表逐跳转发</span><br><span class="line">    ↓</span><br><span class="line">通过子网、CIDR、路由聚合减少地址和路由管理成本</span><br><span class="line">    ↓</span><br><span class="line">借助 DHCP、NAT、IPv6 处理配置和地址规模问题</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="❗-本节核心结论：-IP-地址体系的核心不是“给机器编号”，而是“给接口编号，并用前缀、掩码和路由表项把接口组织成可转发、可聚合、可扩展的网络结构”。"><a href="#❗-本节核心结论：-IP-地址体系的核心不是“给机器编号”，而是“给接口编号，并用前缀、掩码和路由表项把接口组织成可转发、可聚合、可扩展的网络结构”。" class="headerlink" title="❗ 本节核心结论： IP 地址体系的核心不是“给机器编号”，而是“给接口编号，并用前缀、掩码和路由表项把接口组织成可转发、可聚合、可扩展的网络结构”。"></a><strong>❗ 本节核心结论：</strong> IP 地址体系的核心不是“给机器编号”，而是“给接口编号，并用前缀、掩码和路由表项把接口组织成可转发、可聚合、可扩展的网络结构”。</h2><h2 id="1-IP-数据报：网络层传输的基本单位"><a href="#1-IP-数据报：网络层传输的基本单位" class="headerlink" title="1. IP 数据报：网络层传输的基本单位"></a>1. IP 数据报：网络层传输的基本单位</h2><p>IP 数据报是网络层传输的基本单位。传输层把 TCP segment 或 UDP segment 交给网络层后，网络层会在外面加上 IP 头部，形成 IP datagram。</p>
+<p>一个典型封装关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IP datagram</span><br><span class="line">├── IP header</span><br><span class="line">└── payload</span><br><span class="line">    └── TCP segment / UDP segment</span><br></pre></td></tr></table></figure>
+
+<p>其中，IP 头部保存网络层转发和控制所需的信息，例如：</p>
+<ul>
+<li>源 IP 地址；</li>
+<li>目的 IP 地址；</li>
+<li>版本号；</li>
+<li>头部长度；</li>
+<li>数据报总长度；</li>
+<li>TTL；</li>
+<li>上层协议字段；</li>
+<li>首部校验和；</li>
+<li>分片相关字段；</li>
+<li>可选项。</li>
+</ul>
+<p>这些字段不是装饰，而是为了让网络层能够回答几个关键问题：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>对应字段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>这个数据报从哪里来？</td>
+<td>源 IP 地址</td>
+</tr>
+<tr>
+<td>这个数据报要到哪里去？</td>
+<td>目的 IP 地址</td>
+</tr>
+<tr>
+<td>这个数据报还能在网络中存在多久？</td>
+<td>TTL</td>
+</tr>
+<tr>
+<td>到达目的主机后交给 TCP 还是 UDP？</td>
+<td>upper-layer protocol</td>
+</tr>
+<tr>
+<td>这个数据报是否被分片？</td>
+<td>identifier、flags、fragment offset</td>
+</tr>
+<tr>
+<td>IP 头部在传输中是否出错？</td>
+<td>header checksum</td>
+</tr>
+</tbody></table>
+<h3 id="1-1-payload-长度是什么"><a href="#1-1-payload-长度是什么" class="headerlink" title="1.1 payload 长度是什么"></a>1.1 payload 长度是什么</h3><p>payload 指的是某一层协议真正承载的“上层数据”。</p>
+<p>对 IP 层来说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IP 数据报总长度 = IP header 长度 + IP payload 长度</span><br></pre></td></tr></table></figure>
+
+<p>例如，一个 IPv4 数据报总长度是 4000 字节，IP 头部是 20 字节，那么：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IP payload 长度 = 4000 - 20 = 3980 字节</span><br></pre></td></tr></table></figure>
+
+<p>这 3980 字节通常装的是 TCP segment 或 UDP segment。</p>
+<p>注意，payload 是相对概念。站在不同层看，payload 的含义不同：</p>
+<table>
+<thead>
+<tr>
+<th>所在层</th>
+<th>header</th>
+<th>payload</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>链路层</td>
+<td>frame header</td>
+<td>IP datagram</td>
+</tr>
+<tr>
+<td>网络层</td>
+<td>IP header</td>
+<td>TCP&#x2F;UDP segment</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>TCP&#x2F;UDP header</td>
+<td>应用层数据</td>
+</tr>
+</tbody></table>
+<p>所以，不能笼统说“payload 就是用户数据”。更准确地说，payload 是当前层承载的上层内容。</p>
+<hr>
+<h2 id="❗-本节核心结论：-IP-数据报由-IP-头部和-IP-payload-组成；总长度包含头部和数据部分，payload-长度只指-IP-头部后面承载的上层内容。"><a href="#❗-本节核心结论：-IP-数据报由-IP-头部和-IP-payload-组成；总长度包含头部和数据部分，payload-长度只指-IP-头部后面承载的上层内容。" class="headerlink" title="❗ 本节核心结论： IP 数据报由 IP 头部和 IP payload 组成；总长度包含头部和数据部分，payload 长度只指 IP 头部后面承载的上层内容。"></a><strong>❗ 本节核心结论：</strong> IP 数据报由 IP 头部和 IP payload 组成；总长度包含头部和数据部分，payload 长度只指 IP 头部后面承载的上层内容。</h2><h2 id="2-frame、hop-与-MTU：IP-数据报如何穿过链路"><a href="#2-frame、hop-与-MTU：IP-数据报如何穿过链路" class="headerlink" title="2. frame、hop 与 MTU：IP 数据报如何穿过链路"></a>2. frame、hop 与 MTU：IP 数据报如何穿过链路</h2><p>学习 IP 分片之前，必须先分清三个概念：frame、hop 和 MTU。</p>
+<h3 id="2-1-frame-不是视频帧"><a href="#2-1-frame-不是视频帧" class="headerlink" title="2.1 frame 不是视频帧"></a>2.1 frame 不是视频帧</h3><p>这里的 frame 是数据链路层的帧，不是视频帧率或游戏帧数里的“帧”。</p>
+<p>链路层 frame 是一跳链路上的传输单位。它大致可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">链路层 frame</span><br><span class="line">├── 链路层头部</span><br><span class="line">├── IP datagram</span><br><span class="line">└── 链路层尾部</span><br></pre></td></tr></table></figure>
+
+<p>IP 数据报不能直接在物理链路上裸奔，它要被封装进链路层 frame 里，再通过以太网、Wi-Fi 或其他链路发送。</p>
+<h3 id="2-2-hop-是一跳，不是一个完整端到端路径"><a href="#2-2-hop-是一跳，不是一个完整端到端路径" class="headerlink" title="2.2 hop 是一跳，不是一个完整端到端路径"></a>2.2 hop 是一跳，不是一个完整端到端路径</h3><p>hop 可以理解为从一个网络层设备到下一个网络层设备之间的一段转发。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">主机 A → 路由器 R1 → 路由器 R2 → 主机 B</span><br></pre></td></tr></table></figure>
+
+<p>这条路径中：</p>
+<ul>
+<li>主机 A 到 R1 是一跳；</li>
+<li>R1 到 R2 是一跳；</li>
+<li>R2 到主机 B 是一跳。</li>
+</ul>
+<p>每经过一个路由器，通常就多走了一跳。TTL 每经过一个路由器减 1，正是为了避免数据报在网络中无限循环。</p>
+<h3 id="2-3-MTU-是链路层限制，却会影响-IP-层"><a href="#2-3-MTU-是链路层限制，却会影响-IP-层" class="headerlink" title="2.3 MTU 是链路层限制，却会影响 IP 层"></a>2.3 MTU 是链路层限制，却会影响 IP 层</h3><p>MTU 是 Maximum Transmission Unit，最大传输单元。它表示某条链路的链路层 frame 最多能承载多大的网络层数据。</p>
+<p>重点是：MTU 是链路层约束，但它限制的是能放进 frame 里的 IP 数据报大小。</p>
+<p>例如，以太网常见 MTU 是 1500 字节。这意味着一个链路层 frame 最多能携带 1500 字节的 IP 数据报。如果 IP 数据报大于 1500 字节，就无法完整放进这一跳的 frame 中，IPv4 下可能需要分片。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[IP datagram] --&gt; B{是否超过下一跳 MTU}
+    B -- 否 --&gt; C[封装进一个 frame]
+    B -- 是 --&gt; D[IPv4 分片]
+    D --&gt; E[多个较小 IP datagram]
+    E --&gt; F[分别封装进多个 frame]
+  </pre></div>
+
+<p>这张图说明：IP 数据报的大小必须服从下一跳链路的 MTU 限制。</p>
+<hr>
+<h2 id="❗-本节核心结论：-frame-是链路层传输单位，hop-是逐跳路径单位，MTU-是链路层对可承载-IP-数据报大小的限制。"><a href="#❗-本节核心结论：-frame-是链路层传输单位，hop-是逐跳路径单位，MTU-是链路层对可承载-IP-数据报大小的限制。" class="headerlink" title="❗ 本节核心结论： frame 是链路层传输单位，hop 是逐跳路径单位，MTU 是链路层对可承载 IP 数据报大小的限制。"></a><strong>❗ 本节核心结论：</strong> frame 是链路层传输单位，hop 是逐跳路径单位，MTU 是链路层对可承载 IP 数据报大小的限制。</h2><h2 id="3-IPv4-分片与重组：当数据报太大时怎么办"><a href="#3-IPv4-分片与重组：当数据报太大时怎么办" class="headerlink" title="3. IPv4 分片与重组：当数据报太大时怎么办"></a>3. IPv4 分片与重组：当数据报太大时怎么办</h2><p>互联网由不同链路组成，不同链路的 MTU 可能不同。源主机发出的 IP 数据报，在某一跳可能遇到较小 MTU，无法完整放进链路层 frame。这时 IPv4 可以进行分片。</p>
+<h3 id="3-1-分片的基本思想"><a href="#3-1-分片的基本思想" class="headerlink" title="3.1 分片的基本思想"></a>3.1 分片的基本思想</h3><p>假设一个 IPv4 数据报总长度为 4000 字节，其中 IP 头部 20 字节，payload 3980 字节。它要经过一条 MTU 为 1500 字节的链路。</p>
+<p>每个分片本身都要有自己的 IP 头部。因此，每片最多能携带的 payload 不是 1500 字节，而是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1500 - 20 = 1480 字节</span><br></pre></td></tr></table></figure>
+
+<p>所以原来的 3980 字节 payload 需要被拆成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1480 + 1480 + 1020</span><br></pre></td></tr></table></figure>
+
+<p>每个分片都会成为一个新的 IP 数据报：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">分片 1：20 字节 IP 头部 + 1480 字节数据</span><br><span class="line">分片 2：20 字节 IP 头部 + 1480 字节数据</span><br><span class="line">分片 3：20 字节 IP 头部 + 1020 字节数据</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-分片偏移量为什么以-8-字节为单位"><a href="#3-2-分片偏移量为什么以-8-字节为单位" class="headerlink" title="3.2 分片偏移量为什么以 8 字节为单位"></a>3.2 分片偏移量为什么以 8 字节为单位</h3><p>IPv4 的 fragment offset 字段不是直接记录字节偏移，而是以 8 字节为单位记录偏移。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>分片</th>
+<th align="right">数据范围</th>
+<th align="right">字节偏移</th>
+<th align="right">fragment offset</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1 片</td>
+<td align="right">0 ~ 1479</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr>
+<td>第 2 片</td>
+<td align="right">1480 ~ 2959</td>
+<td align="right">1480</td>
+<td align="right">185</td>
+</tr>
+<tr>
+<td>第 3 片</td>
+<td align="right">2960 ~ 3979</td>
+<td align="right">2960</td>
+<td align="right">370</td>
+</tr>
+</tbody></table>
+<p>因为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1480 / 8 = 185</span><br><span class="line">2960 / 8 = 370</span><br></pre></td></tr></table></figure>
+
+<p>这也是为什么除最后一片外，每个分片的数据长度通常要是 8 字节的整数倍。否则后续分片的 offset 无法准确表达。</p>
+<h3 id="3-3-为什么不在每个路由器重组"><a href="#3-3-为什么不在每个路由器重组" class="headerlink" title="3.3 为什么不在每个路由器重组"></a>3.3 为什么不在每个路由器重组</h3><p>IPv4 分片通常在最终目的主机重组，而不是每经过一个路由器就重组。原因很直接：</p>
+<ul>
+<li>路由器要高速转发，不能为了重组等待所有分片；</li>
+<li>不同分片可能走不同路径；</li>
+<li>中间重组会增加路由器状态和缓存压力；</li>
+<li>重组后下一跳可能又遇到更小 MTU，还要再次分片。</li>
+</ul>
+<p>因此，中间路由器可以分片，但不负责把分片重新组回原始数据报。最终目的主机根据 identifier、fragment offset 和 flags 等字段完成重组。</p>
+<hr>
+<h2 id="❗-本节核心结论：-IPv4-分片是为了解决数据报超过下一跳-MTU-的问题；每个分片都有自己的-IP-头部，偏移量以-8-字节为单位，重组通常只在最终目的主机进行。"><a href="#❗-本节核心结论：-IPv4-分片是为了解决数据报超过下一跳-MTU-的问题；每个分片都有自己的-IP-头部，偏移量以-8-字节为单位，重组通常只在最终目的主机进行。" class="headerlink" title="❗ 本节核心结论： IPv4 分片是为了解决数据报超过下一跳 MTU 的问题；每个分片都有自己的 IP 头部，偏移量以 8 字节为单位，重组通常只在最终目的主机进行。"></a><strong>❗ 本节核心结论：</strong> IPv4 分片是为了解决数据报超过下一跳 MTU 的问题；每个分片都有自己的 IP 头部，偏移量以 8 字节为单位，重组通常只在最终目的主机进行。</h2><h2 id="4-IP-地址属于接口，而不是简单属于主机"><a href="#4-IP-地址属于接口，而不是简单属于主机" class="headerlink" title="4. IP 地址属于接口，而不是简单属于主机"></a>4. IP 地址属于接口，而不是简单属于主机</h2><p>一个常见误解是：“IP 地址属于一台电脑。”这句话在日常表达中可以接受，但在网络层概念上不够准确。</p>
+<p>更准确的说法是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IP 地址分配给 interface</span><br></pre></td></tr></table></figure>
+
+<p>interface 是设备连接网络链路的出入口。一个设备可以有多个接口，因此也可以有多个 IP 地址。</p>
+<p>例如：</p>
+<ul>
+<li>一台笔记本有 Wi-Fi 接口和以太网接口；</li>
+<li>一个路由器有多个物理端口；</li>
+<li>一台服务器可能有多块网卡；</li>
+<li>一个接口也可能配置多个 IP 地址。</li>
+</ul>
+<p>所以，IP 地址不是贴在“整台设备”上的标签，而是贴在设备的某个网络接口上的标识。</p>
+<h3 id="4-1-interface-是哪两个层之间的接口吗"><a href="#4-1-interface-是哪两个层之间的接口吗" class="headerlink" title="4.1 interface 是哪两个层之间的接口吗"></a>4.1 interface 是哪两个层之间的接口吗</h3><p>interface 不是简单指“网络层和链路层之间的软件接口”。它更像是一个设备接入某个网络链路的通信端点。</p>
+<p>从协议栈看，一个 interface 同时具有多层含义：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>interface 的意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理层</td>
+<td>具体的物理连接或无线收发能力</td>
+</tr>
+<tr>
+<td>链路层</td>
+<td>有 MAC 地址，能收发 frame</td>
+</tr>
+<tr>
+<td>网络层</td>
+<td>配置 IP 地址，参与 IP 转发或收发</td>
+</tr>
+</tbody></table>
+<p>因此，interface 不是只属于某两层之间的边界，而是一个贯穿物理层、链路层和网络层的网络出入口。</p>
+<hr>
+<h2 id="❗-本节核心结论：-IP-地址严格来说绑定在接口上；interface-是设备接入网络链路的通信端点，不只是某两层之间的抽象边界。"><a href="#❗-本节核心结论：-IP-地址严格来说绑定在接口上；interface-是设备接入网络链路的通信端点，不只是某两层之间的抽象边界。" class="headerlink" title="❗ 本节核心结论： IP 地址严格来说绑定在接口上；interface 是设备接入网络链路的通信端点，不只是某两层之间的抽象边界。"></a><strong>❗ 本节核心结论：</strong> IP 地址严格来说绑定在接口上；interface 是设备接入网络链路的通信端点，不只是某两层之间的抽象边界。</h2><h2 id="5-子网：一组不经过路由器即可互相到达的接口"><a href="#5-子网：一组不经过路由器即可互相到达的接口" class="headerlink" title="5. 子网：一组不经过路由器即可互相到达的接口"></a>5. 子网：一组不经过路由器即可互相到达的接口</h2><p>子网 subnet 可以理解为一组共享相同 IP 地址前缀、并且不经过路由器就可以彼此到达的接口集合。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">主机 A：192.168.1.2/24</span><br><span class="line">主机 B：192.168.1.3/24</span><br><span class="line">主机 C：192.168.1.4/24</span><br></pre></td></tr></table></figure>
+
+<p>它们都属于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.0/24</span><br></pre></td></tr></table></figure>
+
+<p>在典型以太网或 Wi-Fi 局域网中，如果这些主机连在同一个二层网络里，它们可以通过链路层机制直接通信，不需要经过路由器转发。</p>
+<h3 id="5-1-没有路由器的局域网算不算子网"><a href="#5-1-没有路由器的局域网算不算子网" class="headerlink" title="5.1 没有路由器的局域网算不算子网"></a>5.1 没有路由器的局域网算不算子网</h3><p>可以算。</p>
+<p>子网的核心不是“里面必须有路由器”，而是：</p>
+<ul>
+<li>这些接口共享同一个网络前缀；</li>
+<li>它们在网络层上被视为同一个 IP 网络；</li>
+<li>它们之间通信不需要经过路由器。</li>
+</ul>
+<p>局域网 LAN 和子网 subnet 关注角度不同：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>关注点</th>
+<th>典型问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LAN</td>
+<td>链路层&#x2F;物理连接</td>
+<td>这些设备怎么连在一起？</td>
+</tr>
+<tr>
+<td>subnet</td>
+<td>网络层地址结构</td>
+<td>这些接口是否属于同一个 IP 前缀？</td>
+</tr>
+</tbody></table>
+<p>二者经常重合，但不是同一个概念。一个 LAN 可以承载一个子网，也可以通过 VLAN 等方式承载多个逻辑子网；一个子网通常对应一个二层广播域，但具体实现可以更复杂。</p>
+<hr>
+<h2 id="❗-本节核心结论：-子网是网络层地址概念，LAN-是链路层或物理组织概念；没有路由器的局域网也可以构成一个子网。"><a href="#❗-本节核心结论：-子网是网络层地址概念，LAN-是链路层或物理组织概念；没有路由器的局域网也可以构成一个子网。" class="headerlink" title="❗ 本节核心结论： 子网是网络层地址概念，LAN 是链路层或物理组织概念；没有路由器的局域网也可以构成一个子网。"></a><strong>❗ 本节核心结论：</strong> 子网是网络层地址概念，LAN 是链路层或物理组织概念；没有路由器的局域网也可以构成一个子网。</h2><h2 id="6-子网号与子网掩码：一个是结果，一个是规则"><a href="#6-子网号与子网掩码：一个是结果，一个是规则" class="headerlink" title="6. 子网号与子网掩码：一个是结果，一个是规则"></a>6. 子网号与子网掩码：一个是结果，一个是规则</h2><p>子网号和子网掩码经常一起出现，但它们不是一回事。</p>
+<h3 id="6-1-子网号是什么"><a href="#6-1-子网号是什么" class="headerlink" title="6.1 子网号是什么"></a>6.1 子网号是什么</h3><p>子网号是一个子网的网络地址，用来代表整个子网。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.0/24</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.0</span><br></pre></td></tr></table></figure>
+
+<p>就是这个子网的子网号或网络地址。</p>
+<p>它表示：这是 <code>192.168.1.x</code> 这一段网络，而不是某一台具体主机。</p>
+<h3 id="6-2-子网掩码是什么"><a href="#6-2-子网掩码是什么" class="headerlink" title="6.2 子网掩码是什么"></a>6.2 子网掩码是什么</h3><p>子网掩码是用来区分 IP 地址中“网络部分”和“主机部分”的规则。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">255.255.255.0</span><br></pre></td></tr></table></figure>
+
+<p>等价于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/24</span><br></pre></td></tr></table></figure>
+
+<p>意思是：前 24 bit 是网络部分，后 8 bit 是主机部分。</p>
+<h3 id="6-3-二者的关系"><a href="#6-3-二者的关系" class="headerlink" title="6.3 二者的关系"></a>6.3 二者的关系</h3><p>给定：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP 地址：192.168.1.37</span><br><span class="line">子网掩码：255.255.255.0</span><br></pre></td></tr></table></figure>
+
+<p>把 IP 地址和子网掩码做按位与：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.37 &amp; 255.255.255.0 = 192.168.1.0</span><br></pre></td></tr></table></figure>
+
+<p>得到的结果就是子网号。</p>
+<p>所以可以这样区分：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IP 地址</td>
+<td>某个接口的地址</td>
+<td><code>192.168.1.37</code></td>
+</tr>
+<tr>
+<td>子网掩码</td>
+<td>划分网络部分和主机部分的规则</td>
+<td><code>255.255.255.0</code></td>
+</tr>
+<tr>
+<td>前缀长度</td>
+<td>掩码的简写形式</td>
+<td><code>/24</code></td>
+</tr>
+<tr>
+<td>子网号</td>
+<td>根据掩码算出的网络地址</td>
+<td><code>192.168.1.0</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：-子网掩码是切分规则，子网号是按规则计算出的网络地址；-24-和-255-255-255-0-表达的是同一种前缀长度。"><a href="#❗-本节核心结论：-子网掩码是切分规则，子网号是按规则计算出的网络地址；-24-和-255-255-255-0-表达的是同一种前缀长度。" class="headerlink" title="❗ 本节核心结论： 子网掩码是切分规则，子网号是按规则计算出的网络地址；/24 和 255.255.255.0 表达的是同一种前缀长度。"></a><strong>❗ 本节核心结论：</strong> 子网掩码是切分规则，子网号是按规则计算出的网络地址；<code>/24</code> 和 <code>255.255.255.0</code> 表达的是同一种前缀长度。</h2><h2 id="7-CIDR：从固定分类到灵活前缀"><a href="#7-CIDR：从固定分类到灵活前缀" class="headerlink" title="7. CIDR：从固定分类到灵活前缀"></a>7. CIDR：从固定分类到灵活前缀</h2><p>早期 IPv4 地址采用 classful addressing，即按 A、B、C 类固定划分网络规模。</p>
+<p>大致可以理解为：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>网络部分</th>
+<th>可容纳主机规模</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A 类</td>
+<td>很短</td>
+<td>很大</td>
+<td>对多数组织过大</td>
+</tr>
+<tr>
+<td>B 类</td>
+<td>中等</td>
+<td>仍然很大</td>
+<td>容易浪费</td>
+</tr>
+<tr>
+<td>C 类</td>
+<td>较长</td>
+<td>较小</td>
+<td>对很多组织又太小</td>
+</tr>
+</tbody></table>
+<p>这种方式的问题是“档位太粗”。</p>
+<p>如果一个组织需要 2000 个地址：</p>
+<ul>
+<li>一个 C 类地址不够；</li>
+<li>一个 B 类地址又太大；</li>
+<li>分配 B 类会浪费大量地址。</li>
+</ul>
+<p>这就是传统分类地址容易浪费的根本原因。</p>
+<h3 id="7-1-classless-怎么理解"><a href="#7-1-classless-怎么理解" class="headerlink" title="7.1 classless 怎么理解"></a>7.1 classless 怎么理解</h3><p>classless 的意思是：不再强制按照 A&#x2F;B&#x2F;C 类的固定边界划分地址，而是用任意长度的前缀表示网络范围。</p>
+<p>CIDR 写法是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a.b.c.d/x</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>x</code> 表示前多少 bit 是网络前缀。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">200.23.16.0/23</span><br></pre></td></tr></table></figure>
+
+<p>表示前 23 bit 是网络部分，剩下 9 bit 是主机部分。这个网络可以容纳的地址数量大约是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^(32 - 23) = 512</span><br></pre></td></tr></table></figure>
+
+<p>相比固定 A&#x2F;B&#x2F;C 类，CIDR 可以更接近实际需求分配地址块。</p>
+<h3 id="7-2-CIDR-与路由聚合"><a href="#7-2-CIDR-与路由聚合" class="headerlink" title="7.2 CIDR 与路由聚合"></a>7.2 CIDR 与路由聚合</h3><p>CIDR 不只减少地址浪费，还支持路由聚合。</p>
+<p>例如，某 ISP 拥有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">200.23.16.0/20</span><br></pre></td></tr></table></figure>
+
+<p>它可以把这块地址切成多个更小的 <code>/23</code> 分给不同组织：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">200.23.16.0/23</span><br><span class="line">200.23.18.0/23</span><br><span class="line">200.23.20.0/23</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>对外通告时，ISP 不一定要把每个小块都通告出去，而可以说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">凡是 200.23.16.0/20 这一大块地址，都交给我。</span><br></pre></td></tr></table></figure>
+
+<p>这就是路由聚合 route aggregation。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[ISP: 200.23.16.0&#x2F;20] --&gt; B[组织1: 200.23.16.0&#x2F;23]
+    A --&gt; C[组织2: 200.23.18.0&#x2F;23]
+    A --&gt; D[组织3: 200.23.20.0&#x2F;23]
+    A --&gt; E[组织4: 200.23.22.0&#x2F;23]
+    F[外部路由器] --&gt; G[只需记录 200.23.16.0&#x2F;20]
+  </pre></div>
+
+<p>这张图说明：CIDR 既能灵活分配地址，也能把多个连续地址块聚合成较少的路由表项。</p>
+<h3 id="7-3-more-specific-route"><a href="#7-3-more-specific-route" class="headerlink" title="7.3 more specific route"></a>7.3 more specific route</h3><p>路由聚合不是无脑越粗越好。如果某个组织虽然地址属于某个 ISP 的聚合范围，但实际接入了另一个 ISP，就可能需要更具体的路由项。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">200.23.16.0/20 → ISP A</span><br><span class="line">200.23.18.0/23 → ISP B</span><br></pre></td></tr></table></figure>
+
+<p>当目标地址落在 <code>200.23.18.0/23</code> 中时，<code>/23</code> 比 <code>/20</code> 更具体，应优先匹配 <code>/23</code>。这和最长前缀匹配是一致的。</p>
+<hr>
+<h2 id="❗-本节核心结论：-CIDR-的-classless-思想是取消-A-B-C-固定分类，用任意长度前缀灵活分配地址；它同时支持路由聚合，减少全网路由表规模。"><a href="#❗-本节核心结论：-CIDR-的-classless-思想是取消-A-B-C-固定分类，用任意长度前缀灵活分配地址；它同时支持路由聚合，减少全网路由表规模。" class="headerlink" title="❗ 本节核心结论： CIDR 的 classless 思想是取消 A&#x2F;B&#x2F;C 固定分类，用任意长度前缀灵活分配地址；它同时支持路由聚合，减少全网路由表规模。"></a><strong>❗ 本节核心结论：</strong> CIDR 的 classless 思想是取消 A&#x2F;B&#x2F;C 固定分类，用任意长度前缀灵活分配地址；它同时支持路由聚合，减少全网路由表规模。</h2><h2 id="8-DHCP：主机接入网络时需要的不只是-IP-地址"><a href="#8-DHCP：主机接入网络时需要的不只是-IP-地址" class="headerlink" title="8. DHCP：主机接入网络时需要的不只是 IP 地址"></a>8. DHCP：主机接入网络时需要的不只是 IP 地址</h2><p>DHCP 是 Dynamic Host Configuration Protocol，动态主机配置协议。它的作用不是简单“发一个 IP 地址”，而是给主机一整套联网配置。</p>
+<p>典型 DHCP 过程可以概括为 DORA：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Discover → Offer → Request → ACK</span><br></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<ol>
+<li>客户端广播 Discover：有没有 DHCP 服务器？</li>
+<li>服务器返回 Offer：可以给你这个配置。</li>
+<li>客户端发送 Request：我想使用这个配置。</li>
+<li>服务器发送 ACK：确认租约生效。</li>
+</ol>
+<h3 id="8-1-为什么-DHCP-要返回这么多东西"><a href="#8-1-为什么-DHCP-要返回这么多东西" class="headerlink" title="8.1 为什么 DHCP 要返回这么多东西"></a>8.1 为什么 DHCP 要返回这么多东西</h3><p>DHCP 通常会返回：</p>
+<ul>
+<li>IP 地址；</li>
+<li>子网掩码；</li>
+<li>默认网关，也就是第一跳路由器地址；</li>
+<li>DNS 服务器地址；</li>
+<li>地址租约时间。</li>
+</ul>
+<p>因为主机接入网络后，不只是需要知道“我是谁”，还需要知道“怎么通信”。</p>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IP 地址</td>
+<td>我在这个网络中的地址是什么？</td>
+</tr>
+<tr>
+<td>子网掩码</td>
+<td>哪些目标和我在同一个子网？</td>
+</tr>
+<tr>
+<td>默认网关</td>
+<td>不在本子网的目标应该交给谁？</td>
+</tr>
+<tr>
+<td>DNS 服务器</td>
+<td>域名应该找谁解析成 IP？</td>
+</tr>
+<tr>
+<td>租约时间</td>
+<td>这个地址我能用多久？</td>
+</tr>
+</tbody></table>
+<p>如果只有 IP 地址，没有子网掩码，主机不知道哪些地址可以直接发 ARP 找对方，哪些地址要交给默认网关。</p>
+<p>如果没有默认网关，主机只能和本子网通信，无法访问外部网络。</p>
+<p>如果没有 DNS，主机可以访问 IP 地址，但无法正常使用域名访问网站。</p>
+<hr>
+<h2 id="❗-本节核心结论：-DHCP-提供的是完整网络配置，不只是-IP-地址；主机需要-IP、掩码、默认网关和-DNS-才能真正接入网络。"><a href="#❗-本节核心结论：-DHCP-提供的是完整网络配置，不只是-IP-地址；主机需要-IP、掩码、默认网关和-DNS-才能真正接入网络。" class="headerlink" title="❗ 本节核心结论： DHCP 提供的是完整网络配置，不只是 IP 地址；主机需要 IP、掩码、默认网关和 DNS 才能真正接入网络。"></a><strong>❗ 本节核心结论：</strong> DHCP 提供的是完整网络配置，不只是 IP 地址；主机需要 IP、掩码、默认网关和 DNS 才能真正接入网络。</h2><h2 id="9-路由表项：匹配条件加转发动作"><a href="#9-路由表项：匹配条件加转发动作" class="headerlink" title="9. 路由表项：匹配条件加转发动作"></a>9. 路由表项：匹配条件加转发动作</h2><p>路由表项可以理解为路由器或主机中的一条转发规则。</p>
+<p>它通常包含：</p>
+<ul>
+<li>目标网络前缀；</li>
+<li>子网掩码或前缀长度；</li>
+<li>下一跳地址；</li>
+<li>输出接口；</li>
+<li>度量值或优先级等附加信息。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">目的网络：200.23.16.0/20</span><br><span class="line">下一跳：IPx</span><br><span class="line">输出接口：wan0</span><br></pre></td></tr></table></figure>
+
+<p>含义是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">凡是目标地址落在 200.23.16.0/20 这一范围内的数据报，都交给下一跳 IPx，并从 wan0 发出去。</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-1-为什么减少路由表项是好事"><a href="#9-1-为什么减少路由表项是好事" class="headerlink" title="9.1 为什么减少路由表项是好事"></a>9.1 为什么减少路由表项是好事</h3><p>路由器要对大量数据报做高速转发。每来一个 IP 数据报，它都需要：</p>
+<ol>
+<li>读取目标 IP 地址；</li>
+<li>查转发表；</li>
+<li>找到匹配项；</li>
+<li>决定输出接口；</li>
+<li>转发。</li>
+</ol>
+<p>如果路由表项特别多，会带来多方面成本：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>存储开销变大</td>
+<td>路由器要维护更大的表</td>
+</tr>
+<tr>
+<td>查表更复杂</td>
+<td>数据平面压力增大</td>
+</tr>
+<tr>
+<td>路由更新更多</td>
+<td>控制平面传播和计算成本更高</td>
+</tr>
+<tr>
+<td>收敛更慢</td>
+<td>网络变化后恢复稳定更困难</td>
+</tr>
+<tr>
+<td>可扩展性变差</td>
+<td>全球互联网规模下难以承受</td>
+</tr>
+</tbody></table>
+<p>CIDR 和路由聚合的价值就在这里。它们允许用一个较大的前缀代表一批更小的网络。</p>
+<p>例如，原本需要记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">200.23.16.0/23</span><br><span class="line">200.23.18.0/23</span><br><span class="line">200.23.20.0/23</span><br><span class="line">...</span><br><span class="line">200.23.30.0/23</span><br></pre></td></tr></table></figure>
+
+<p>聚合后可以记录成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">200.23.16.0/20</span><br></pre></td></tr></table></figure>
+
+<p>这样就显著减少了表项数量。</p>
+<p>但减少表项不是绝对目标。遇到特殊路径需求时，仍然需要更具体的路由项。网络系统的真实目标是：在正确转发的前提下尽量提高可扩展性。</p>
+<hr>
+<h2 id="❗-本节核心结论：-路由表项是“匹配条件-转发动作”；减少表项可以降低存储、查表、更新和收敛成本，但更具体路由在特殊情况下仍然必要。"><a href="#❗-本节核心结论：-路由表项是“匹配条件-转发动作”；减少表项可以降低存储、查表、更新和收敛成本，但更具体路由在特殊情况下仍然必要。" class="headerlink" title="❗ 本节核心结论： 路由表项是“匹配条件 + 转发动作”；减少表项可以降低存储、查表、更新和收敛成本，但更具体路由在特殊情况下仍然必要。"></a><strong>❗ 本节核心结论：</strong> 路由表项是“匹配条件 + 转发动作”；减少表项可以降低存储、查表、更新和收敛成本，但更具体路由在特殊情况下仍然必要。</h2><h2 id="10-NAT：IPv4-地址不足下的地址复用机制"><a href="#10-NAT：IPv4-地址不足下的地址复用机制" class="headerlink" title="10. NAT：IPv4 地址不足下的地址复用机制"></a>10. NAT：IPv4 地址不足下的地址复用机制</h2><p>NAT 是 Network Address Translation，网络地址转换。它的典型场景是：内网中大量设备使用私有地址，对外共享一个或少数几个公网 IP 地址。</p>
+<p>例如家庭网络中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">手机：192.168.1.2</span><br><span class="line">电脑：192.168.1.3</span><br><span class="line">平板：192.168.1.4</span><br></pre></td></tr></table></figure>
+
+<p>它们访问互联网时，外部看到的可能都是同一个公网 IP。</p>
+<h3 id="10-1-NAT-如何区分不同内网主机"><a href="#10-1-NAT-如何区分不同内网主机" class="headerlink" title="10.1 NAT 如何区分不同内网主机"></a>10.1 NAT 如何区分不同内网主机</h3><p>NAT 不只是改 IP 地址，通常还会改端口号。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>内网连接</th>
+<th>NAT 后公网连接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>192.168.1.2:5001 → 8.8.8.8:443</code></td>
+<td><code>203.0.113.5:62001 → 8.8.8.8:443</code></td>
+</tr>
+<tr>
+<td><code>192.168.1.3:5001 → 8.8.8.8:443</code></td>
+<td><code>203.0.113.5:62002 → 8.8.8.8:443</code></td>
+</tr>
+</tbody></table>
+<p>NAT 设备维护一张转换表：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">公网 IP:公网端口 ↔ 内网 IP:内网端口</span><br></pre></td></tr></table></figure>
+
+<p>当外部响应回来时，NAT 根据目的端口查表，把数据转回对应内网主机。</p>
+<h3 id="10-2-NAT-的争议"><a href="#10-2-NAT-的争议" class="headerlink" title="10.2 NAT 的争议"></a>10.2 NAT 的争议</h3><p>NAT 解决了 IPv4 地址不足问题，但也引入了争议：</p>
+<ul>
+<li>它修改端口号，跨越了网络层和传输层边界；</li>
+<li>它破坏了端到端原则；</li>
+<li>外部主机通常无法直接主动连接内网主机；</li>
+<li>某些 P2P、VoIP、游戏联机等应用需要额外穿透机制；</li>
+<li>它是 IPv4 地址不足下的现实折中，而不是最干净的体系设计。</li>
+</ul>
+<p>NAT 不是防火墙。它可能带来类似“外部无法直接访问内部”的效果，但其本质是地址和端口转换，而不是安全策略控制。</p>
+<hr>
+<h2 id="❗-本节核心结论：-NAT-通过地址和端口转换让多个内网设备共享公网-IP，缓解-IPv4-地址不足；但它跨层处理端口号，并削弱了端到端连接模型。"><a href="#❗-本节核心结论：-NAT-通过地址和端口转换让多个内网设备共享公网-IP，缓解-IPv4-地址不足；但它跨层处理端口号，并削弱了端到端连接模型。" class="headerlink" title="❗ 本节核心结论： NAT 通过地址和端口转换让多个内网设备共享公网 IP，缓解 IPv4 地址不足；但它跨层处理端口号，并削弱了端到端连接模型。"></a><strong>❗ 本节核心结论：</strong> NAT 通过地址和端口转换让多个内网设备共享公网 IP，缓解 IPv4 地址不足；但它跨层处理端口号，并削弱了端到端连接模型。</h2><h2 id="11-IPv6：不是把-IPv4-地址写长一点"><a href="#11-IPv6：不是把-IPv4-地址写长一点" class="headerlink" title="11. IPv6：不是把 IPv4 地址写长一点"></a>11. IPv6：不是把 IPv4 地址写长一点</h2><p>IPv6 的提出，主要是为了从根本上解决 IPv4 地址空间不足，并改进 IP 头部设计。</p>
+<p>IPv6 地址长度从 IPv4 的 32 bit 扩展到 128 bit，地址空间极大增加。但 IPv6 的变化不只是地址变长，还包括头部格式简化和功能调整。</p>
+<h3 id="11-1-IPv6-头部设计的关键变化"><a href="#11-1-IPv6-头部设计的关键变化" class="headerlink" title="11.1 IPv6 头部设计的关键变化"></a>11.1 IPv6 头部设计的关键变化</h3><p>IPv6 相比 IPv4 有几个重要变化：</p>
+<table>
+<thead>
+<tr>
+<th>变化</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>地址长度变为 128 bit</td>
+<td>大幅扩展地址空间</td>
+</tr>
+<tr>
+<td>固定基本头部长度</td>
+<td>便于路由器快速处理</td>
+</tr>
+<tr>
+<td>去掉 IPv4 header checksum</td>
+<td>减少每跳重新计算开销</td>
+</tr>
+<tr>
+<td>不允许路由器中途分片</td>
+<td>简化路由器数据平面</td>
+</tr>
+<tr>
+<td>使用扩展头部</td>
+<td>把可选功能移出基本头部</td>
+</tr>
+<tr>
+<td>TTL 改为 Hop Limit</td>
+<td>语义更直接，表示最多还能经过多少跳</td>
+</tr>
+</tbody></table>
+<p>这些变化体现了一个方向：让路由器转发更简单、更快，把复杂性更多放到端系统或扩展机制中。</p>
+<h3 id="11-2-IPv6-与隧道"><a href="#11-2-IPv6-与隧道" class="headerlink" title="11.2 IPv6 与隧道"></a>11.2 IPv6 与隧道</h3><p>互联网不可能瞬间从 IPv4 切换到 IPv6，因此会出现 IPv6 和 IPv4 共存的阶段。隧道 tunneling 是一种过渡机制。</p>
+<p>基本思想是：把 IPv6 数据报封装进 IPv4 数据报中，穿过只支持 IPv4 的网络区域，到另一端再解封装出来。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[IPv6 主机] --&gt; B[IPv6 路由器]
+    B --&gt; C[封装进 IPv4 datagram]
+    C --&gt; D[IPv4 网络]
+    D --&gt; E[解封装出 IPv6 datagram]
+    E --&gt; F[IPv6 目的网络]
+  </pre></div>
+
+<p>这说明 IPv6 部署不是单点替换，而是需要长期过渡机制。</p>
+<hr>
+<h2 id="❗-本节核心结论：-IPv6-不只是更长地址，而是重新设计了-IP-层的地址空间和头部处理方式；其目标包括扩大地址空间、简化路由器处理和支持逐步过渡。"><a href="#❗-本节核心结论：-IPv6-不只是更长地址，而是重新设计了-IP-层的地址空间和头部处理方式；其目标包括扩大地址空间、简化路由器处理和支持逐步过渡。" class="headerlink" title="❗ 本节核心结论： IPv6 不只是更长地址，而是重新设计了 IP 层的地址空间和头部处理方式；其目标包括扩大地址空间、简化路由器处理和支持逐步过渡。"></a><strong>❗ 本节核心结论：</strong> IPv6 不只是更长地址，而是重新设计了 IP 层的地址空间和头部处理方式；其目标包括扩大地址空间、简化路由器处理和支持逐步过渡。</h2><h2 id="12-易混点集中整理"><a href="#12-易混点集中整理" class="headerlink" title="12. 易混点集中整理"></a>12. 易混点集中整理</h2><h3 id="12-1-IP-地址不是简单属于主机"><a href="#12-1-IP-地址不是简单属于主机" class="headerlink" title="12.1 IP 地址不是简单属于主机"></a>12.1 IP 地址不是简单属于主机</h3><p>更准确地说，IP 地址属于接口。多网卡主机、路由器、多地址配置都说明了这一点。</p>
+<h3 id="12-2-同一个子网不只是-IP-看起来相似"><a href="#12-2-同一个子网不只是-IP-看起来相似" class="headerlink" title="12.2 同一个子网不只是 IP 看起来相似"></a>12.2 同一个子网不只是 IP 看起来相似</h3><p>同一个子网要求共享相同网络前缀，并且不经过路由器可直接到达。只是前几段数字相似并不一定说明它们处于同一个子网，必须结合子网掩码或前缀长度判断。</p>
+<h3 id="12-3-DHCP-不只是分配-IP"><a href="#12-3-DHCP-不只是分配-IP" class="headerlink" title="12.3 DHCP 不只是分配 IP"></a>12.3 DHCP 不只是分配 IP</h3><p>DHCP 提供完整网络配置，包括 IP、掩码、默认网关、DNS 和租约时间。只给 IP 地址，主机仍然不知道如何完整联网。</p>
+<h3 id="12-4-NAT-不是防火墙"><a href="#12-4-NAT-不是防火墙" class="headerlink" title="12.4 NAT 不是防火墙"></a>12.4 NAT 不是防火墙</h3><p>NAT 的核心是地址和端口转换。它可能间接阻止外部主动访问内网主机，但这不是它的本质功能。</p>
+<h3 id="12-5-IPv6-不是-IPv4-地址写长一点"><a href="#12-5-IPv6-不是-IPv4-地址写长一点" class="headerlink" title="12.5 IPv6 不是 IPv4 地址写长一点"></a>12.5 IPv6 不是 IPv4 地址写长一点</h3><p>IPv6 同时改变了地址长度、基本头部、分片方式、校验和处理和扩展机制。它是网络层协议设计的系统性调整。</p>
+<h3 id="12-6-MTU-不是-IP-层字段"><a href="#12-6-MTU-不是-IP-层字段" class="headerlink" title="12.6 MTU 不是 IP 层字段"></a>12.6 MTU 不是 IP 层字段</h3><p>MTU 是链路层的最大承载限制，但会影响 IP 数据报是否需要分片。它体现了分层系统中的跨层约束：链路层能力会影响网络层行为。</p>
+<hr>
+<h2 id="❗-本节核心结论：-本章最容易混淆的是概念边界：IP-地址绑定接口，子网依赖前缀和掩码，MTU-是链路约束但影响-IP，NAT-是地址转换而不是安全机制。"><a href="#❗-本节核心结论：-本章最容易混淆的是概念边界：IP-地址绑定接口，子网依赖前缀和掩码，MTU-是链路约束但影响-IP，NAT-是地址转换而不是安全机制。" class="headerlink" title="❗ 本节核心结论： 本章最容易混淆的是概念边界：IP 地址绑定接口，子网依赖前缀和掩码，MTU 是链路约束但影响 IP，NAT 是地址转换而不是安全机制。"></a><strong>❗ 本节核心结论：</strong> 本章最容易混淆的是概念边界：IP 地址绑定接口，子网依赖前缀和掩码，MTU 是链路约束但影响 IP，NAT 是地址转换而不是安全机制。</h2><h2 id="13-复习清单"><a href="#13-复习清单" class="headerlink" title="13. 复习清单"></a>13. 复习清单</h2><p>学完本节后，应能回答：</p>
+<ul>
+<li>IP 数据报由哪两大部分组成？</li>
+<li>IP payload 长度和 IP 数据报总长度有什么区别？</li>
+<li>frame 是什么？它和视频帧有什么区别？</li>
+<li>hop 是什么？为什么 TTL 每过一个路由器要减 1？</li>
+<li>MTU 是哪一层的概念？为什么会影响 IP 分片？</li>
+<li>一个 4000 字节 IPv4 数据报经过 MTU 1500 的链路时，如何分片？</li>
+<li>分片偏移量为什么以 8 字节为单位？</li>
+<li>为什么 IP 分片通常只在最终目的主机重组？</li>
+<li>为什么说 IP 地址属于接口，而不是简单属于主机？</li>
+<li>interface 在物理层、链路层和网络层分别有什么意义？</li>
+<li>没有路由器的局域网是否可以构成子网？</li>
+<li>子网号和子网掩码有什么区别？</li>
+<li><code>/24</code> 和 <code>255.255.255.0</code> 是什么关系？</li>
+<li>传统 A&#x2F;B&#x2F;C 分类地址为什么容易浪费？</li>
+<li>classless addressing 的核心思想是什么？</li>
+<li>CIDR 如何支持路由聚合？</li>
+<li>DHCP 为什么要提供 IP、掩码、默认网关和 DNS？</li>
+<li>路由表项由哪些部分组成？</li>
+<li>为什么减少路由表项有利于互联网可扩展性？</li>
+<li>NAT 为什么需要修改端口号？</li>
+<li>NAT 为什么会引发端到端原则争议？</li>
+<li>IPv6 相比 IPv4 的关键变化有哪些？</li>
+</ul>
+<h2 id="最终总结"><a href="#最终总结" class="headerlink" title="最终总结"></a>最终总结</h2><p>Chapter 4-2 的核心是 IP 协议和地址体系。IP 数据报是网络层的基本传输单位，链路层 frame 是逐跳承载它的单位，MTU 决定一个数据报是否需要被分片。IP 地址严格说绑定在 interface 上，多个接口通过相同前缀组织成 subnet，而子网掩码和 CIDR 决定如何解释这些前缀。</p>
+<p>CIDR 的 classless 思想解决了传统固定分类地址过粗的问题，并通过路由聚合减少路由表项，提高互联网可扩展性。DHCP 解决主机自动配置问题，NAT 在 IPv4 地址不足下通过地址和端口转换实现地址复用，而 IPv6 则从地址空间和头部设计上提供更长期的解决方向。</p>
+<p>这一章可以压缩成一句话：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IP 层通过数据报格式表达转发所需信息，通过接口地址和子网前缀组织网络，通过 CIDR 和路由聚合提升可扩展性，并用 DHCP、NAT、IPv6 分别解决配置、地址复用和长期地址空间问题。</span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/')">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑&amp;url=http://example.com/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/&amp;pic=/cover/gouki_akuma.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/marisa.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/20/Chapter-4-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E9%80%90%E8%B7%B3%E8%BD%AC%E5%8F%91/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/aki.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 4-1：网络层数据平面如何完成逐跳转发</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/marisa.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 4-3：通用转发、SDN 与中间盒</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91"><span class="toc-number">1.</span> <span class="toc-text">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-IP-%E5%9C%B0%E5%9D%80%E4%BD%93%E7%B3%BB%E7%9A%84%E6%A0%B8%E5%BF%83%E4%B8%8D%E6%98%AF%E2%80%9C%E7%BB%99%E6%9C%BA%E5%99%A8%E7%BC%96%E5%8F%B7%E2%80%9D%EF%BC%8C%E8%80%8C%E6%98%AF%E2%80%9C%E7%BB%99%E6%8E%A5%E5%8F%A3%E7%BC%96%E5%8F%B7%EF%BC%8C%E5%B9%B6%E7%94%A8%E5%89%8D%E7%BC%80%E3%80%81%E6%8E%A9%E7%A0%81%E5%92%8C%E8%B7%AF%E7%94%B1%E8%A1%A8%E9%A1%B9%E6%8A%8A%E6%8E%A5%E5%8F%A3%E7%BB%84%E7%BB%87%E6%88%90%E5%8F%AF%E8%BD%AC%E5%8F%91%E3%80%81%E5%8F%AF%E8%81%9A%E5%90%88%E3%80%81%E5%8F%AF%E6%89%A9%E5%B1%95%E7%9A%84%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84%E2%80%9D%E3%80%82"><span class="toc-number">1.1.</span> <span class="toc-text">❗ 本节核心结论： IP 地址体系的核心不是“给机器编号”，而是“给接口编号，并用前缀、掩码和路由表项把接口组织成可转发、可聚合、可扩展的网络结构”。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-IP-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E4%BC%A0%E8%BE%93%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8D%95%E4%BD%8D"><span class="toc-number">1.2.</span> <span class="toc-text">1. IP 数据报：网络层传输的基本单位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-payload-%E9%95%BF%E5%BA%A6%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1 payload 长度是什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-IP-%E6%95%B0%E6%8D%AE%E6%8A%A5%E7%94%B1-IP-%E5%A4%B4%E9%83%A8%E5%92%8C-IP-payload-%E7%BB%84%E6%88%90%EF%BC%9B%E6%80%BB%E9%95%BF%E5%BA%A6%E5%8C%85%E5%90%AB%E5%A4%B4%E9%83%A8%E5%92%8C%E6%95%B0%E6%8D%AE%E9%83%A8%E5%88%86%EF%BC%8Cpayload-%E9%95%BF%E5%BA%A6%E5%8F%AA%E6%8C%87-IP-%E5%A4%B4%E9%83%A8%E5%90%8E%E9%9D%A2%E6%89%BF%E8%BD%BD%E7%9A%84%E4%B8%8A%E5%B1%82%E5%86%85%E5%AE%B9%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">❗ 本节核心结论： IP 数据报由 IP 头部和 IP payload 组成；总长度包含头部和数据部分，payload 长度只指 IP 头部后面承载的上层内容。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-frame%E3%80%81hop-%E4%B8%8E-MTU%EF%BC%9AIP-%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%A6%82%E4%BD%95%E7%A9%BF%E8%BF%87%E9%93%BE%E8%B7%AF"><span class="toc-number">1.4.</span> <span class="toc-text">2. frame、hop 与 MTU：IP 数据报如何穿过链路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-frame-%E4%B8%8D%E6%98%AF%E8%A7%86%E9%A2%91%E5%B8%A7"><span class="toc-number">1.4.1.</span> <span class="toc-text">2.1 frame 不是视频帧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-hop-%E6%98%AF%E4%B8%80%E8%B7%B3%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%B7%AF%E5%BE%84"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.2 hop 是一跳，不是一个完整端到端路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-MTU-%E6%98%AF%E9%93%BE%E8%B7%AF%E5%B1%82%E9%99%90%E5%88%B6%EF%BC%8C%E5%8D%B4%E4%BC%9A%E5%BD%B1%E5%93%8D-IP-%E5%B1%82"><span class="toc-number">1.4.3.</span> <span class="toc-text">2.3 MTU 是链路层限制，却会影响 IP 层</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-frame-%E6%98%AF%E9%93%BE%E8%B7%AF%E5%B1%82%E4%BC%A0%E8%BE%93%E5%8D%95%E4%BD%8D%EF%BC%8Chop-%E6%98%AF%E9%80%90%E8%B7%B3%E8%B7%AF%E5%BE%84%E5%8D%95%E4%BD%8D%EF%BC%8CMTU-%E6%98%AF%E9%93%BE%E8%B7%AF%E5%B1%82%E5%AF%B9%E5%8F%AF%E6%89%BF%E8%BD%BD-IP-%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%A4%A7%E5%B0%8F%E7%9A%84%E9%99%90%E5%88%B6%E3%80%82"><span class="toc-number">1.5.</span> <span class="toc-text">❗ 本节核心结论： frame 是链路层传输单位，hop 是逐跳路径单位，MTU 是链路层对可承载 IP 数据报大小的限制。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-IPv4-%E5%88%86%E7%89%87%E4%B8%8E%E9%87%8D%E7%BB%84%EF%BC%9A%E5%BD%93%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%A4%AA%E5%A4%A7%E6%97%B6%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">1.6.</span> <span class="toc-text">3. IPv4 分片与重组：当数据报太大时怎么办</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%88%86%E7%89%87%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="toc-number">1.6.1.</span> <span class="toc-text">3.1 分片的基本思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%88%86%E7%89%87%E5%81%8F%E7%A7%BB%E9%87%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BB%A5-8-%E5%AD%97%E8%8A%82%E4%B8%BA%E5%8D%95%E4%BD%8D"><span class="toc-number">1.6.2.</span> <span class="toc-text">3.2 分片偏移量为什么以 8 字节为单位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%9C%A8%E6%AF%8F%E4%B8%AA%E8%B7%AF%E7%94%B1%E5%99%A8%E9%87%8D%E7%BB%84"><span class="toc-number">1.6.3.</span> <span class="toc-text">3.3 为什么不在每个路由器重组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-IPv4-%E5%88%86%E7%89%87%E6%98%AF%E4%B8%BA%E4%BA%86%E8%A7%A3%E5%86%B3%E6%95%B0%E6%8D%AE%E6%8A%A5%E8%B6%85%E8%BF%87%E4%B8%8B%E4%B8%80%E8%B7%B3-MTU-%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9B%E6%AF%8F%E4%B8%AA%E5%88%86%E7%89%87%E9%83%BD%E6%9C%89%E8%87%AA%E5%B7%B1%E7%9A%84-IP-%E5%A4%B4%E9%83%A8%EF%BC%8C%E5%81%8F%E7%A7%BB%E9%87%8F%E4%BB%A5-8-%E5%AD%97%E8%8A%82%E4%B8%BA%E5%8D%95%E4%BD%8D%EF%BC%8C%E9%87%8D%E7%BB%84%E9%80%9A%E5%B8%B8%E5%8F%AA%E5%9C%A8%E6%9C%80%E7%BB%88%E7%9B%AE%E7%9A%84%E4%B8%BB%E6%9C%BA%E8%BF%9B%E8%A1%8C%E3%80%82"><span class="toc-number">1.7.</span> <span class="toc-text">❗ 本节核心结论： IPv4 分片是为了解决数据报超过下一跳 MTU 的问题；每个分片都有自己的 IP 头部，偏移量以 8 字节为单位，重组通常只在最终目的主机进行。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-IP-%E5%9C%B0%E5%9D%80%E5%B1%9E%E4%BA%8E%E6%8E%A5%E5%8F%A3%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E7%AE%80%E5%8D%95%E5%B1%9E%E4%BA%8E%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.8.</span> <span class="toc-text">4. IP 地址属于接口，而不是简单属于主机</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-interface-%E6%98%AF%E5%93%AA%E4%B8%A4%E4%B8%AA%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E6%8E%A5%E5%8F%A3%E5%90%97"><span class="toc-number">1.8.1.</span> <span class="toc-text">4.1 interface 是哪两个层之间的接口吗</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-IP-%E5%9C%B0%E5%9D%80%E4%B8%A5%E6%A0%BC%E6%9D%A5%E8%AF%B4%E7%BB%91%E5%AE%9A%E5%9C%A8%E6%8E%A5%E5%8F%A3%E4%B8%8A%EF%BC%9Binterface-%E6%98%AF%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E7%BD%91%E7%BB%9C%E9%93%BE%E8%B7%AF%E7%9A%84%E9%80%9A%E4%BF%A1%E7%AB%AF%E7%82%B9%EF%BC%8C%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%9F%90%E4%B8%A4%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E6%8A%BD%E8%B1%A1%E8%BE%B9%E7%95%8C%E3%80%82"><span class="toc-number">1.9.</span> <span class="toc-text">❗ 本节核心结论： IP 地址严格来说绑定在接口上；interface 是设备接入网络链路的通信端点，不只是某两层之间的抽象边界。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%AD%90%E7%BD%91%EF%BC%9A%E4%B8%80%E7%BB%84%E4%B8%8D%E7%BB%8F%E8%BF%87%E8%B7%AF%E7%94%B1%E5%99%A8%E5%8D%B3%E5%8F%AF%E4%BA%92%E7%9B%B8%E5%88%B0%E8%BE%BE%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-number">1.10.</span> <span class="toc-text">5. 子网：一组不经过路由器即可互相到达的接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%B2%A1%E6%9C%89%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%B1%80%E5%9F%9F%E7%BD%91%E7%AE%97%E4%B8%8D%E7%AE%97%E5%AD%90%E7%BD%91"><span class="toc-number">1.10.1.</span> <span class="toc-text">5.1 没有路由器的局域网算不算子网</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%AD%90%E7%BD%91%E6%98%AF%E7%BD%91%E7%BB%9C%E5%B1%82%E5%9C%B0%E5%9D%80%E6%A6%82%E5%BF%B5%EF%BC%8CLAN-%E6%98%AF%E9%93%BE%E8%B7%AF%E5%B1%82%E6%88%96%E7%89%A9%E7%90%86%E7%BB%84%E7%BB%87%E6%A6%82%E5%BF%B5%EF%BC%9B%E6%B2%A1%E6%9C%89%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%B1%80%E5%9F%9F%E7%BD%91%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%9E%84%E6%88%90%E4%B8%80%E4%B8%AA%E5%AD%90%E7%BD%91%E3%80%82"><span class="toc-number">1.11.</span> <span class="toc-text">❗ 本节核心结论： 子网是网络层地址概念，LAN 是链路层或物理组织概念；没有路由器的局域网也可以构成一个子网。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%AD%90%E7%BD%91%E5%8F%B7%E4%B8%8E%E5%AD%90%E7%BD%91%E6%8E%A9%E7%A0%81%EF%BC%9A%E4%B8%80%E4%B8%AA%E6%98%AF%E7%BB%93%E6%9E%9C%EF%BC%8C%E4%B8%80%E4%B8%AA%E6%98%AF%E8%A7%84%E5%88%99"><span class="toc-number">1.12.</span> <span class="toc-text">6. 子网号与子网掩码：一个是结果，一个是规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E5%AD%90%E7%BD%91%E5%8F%B7%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.12.1.</span> <span class="toc-text">6.1 子网号是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%AD%90%E7%BD%91%E6%8E%A9%E7%A0%81%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.12.2.</span> <span class="toc-text">6.2 子网掩码是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E4%BA%8C%E8%80%85%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.12.3.</span> <span class="toc-text">6.3 二者的关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%AD%90%E7%BD%91%E6%8E%A9%E7%A0%81%E6%98%AF%E5%88%87%E5%88%86%E8%A7%84%E5%88%99%EF%BC%8C%E5%AD%90%E7%BD%91%E5%8F%B7%E6%98%AF%E6%8C%89%E8%A7%84%E5%88%99%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%EF%BC%9B-24-%E5%92%8C-255-255-255-0-%E8%A1%A8%E8%BE%BE%E7%9A%84%E6%98%AF%E5%90%8C%E4%B8%80%E7%A7%8D%E5%89%8D%E7%BC%80%E9%95%BF%E5%BA%A6%E3%80%82"><span class="toc-number">1.13.</span> <span class="toc-text">❗ 本节核心结论： 子网掩码是切分规则，子网号是按规则计算出的网络地址；&#x2F;24 和 255.255.255.0 表达的是同一种前缀长度。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-CIDR%EF%BC%9A%E4%BB%8E%E5%9B%BA%E5%AE%9A%E5%88%86%E7%B1%BB%E5%88%B0%E7%81%B5%E6%B4%BB%E5%89%8D%E7%BC%80"><span class="toc-number">1.14.</span> <span class="toc-text">7. CIDR：从固定分类到灵活前缀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-classless-%E6%80%8E%E4%B9%88%E7%90%86%E8%A7%A3"><span class="toc-number">1.14.1.</span> <span class="toc-text">7.1 classless 怎么理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-CIDR-%E4%B8%8E%E8%B7%AF%E7%94%B1%E8%81%9A%E5%90%88"><span class="toc-number">1.14.2.</span> <span class="toc-text">7.2 CIDR 与路由聚合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-more-specific-route"><span class="toc-number">1.14.3.</span> <span class="toc-text">7.3 more specific route</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-CIDR-%E7%9A%84-classless-%E6%80%9D%E6%83%B3%E6%98%AF%E5%8F%96%E6%B6%88-A-B-C-%E5%9B%BA%E5%AE%9A%E5%88%86%E7%B1%BB%EF%BC%8C%E7%94%A8%E4%BB%BB%E6%84%8F%E9%95%BF%E5%BA%A6%E5%89%8D%E7%BC%80%E7%81%B5%E6%B4%BB%E5%88%86%E9%85%8D%E5%9C%B0%E5%9D%80%EF%BC%9B%E5%AE%83%E5%90%8C%E6%97%B6%E6%94%AF%E6%8C%81%E8%B7%AF%E7%94%B1%E8%81%9A%E5%90%88%EF%BC%8C%E5%87%8F%E5%B0%91%E5%85%A8%E7%BD%91%E8%B7%AF%E7%94%B1%E8%A1%A8%E8%A7%84%E6%A8%A1%E3%80%82"><span class="toc-number">1.15.</span> <span class="toc-text">❗ 本节核心结论： CIDR 的 classless 思想是取消 A&#x2F;B&#x2F;C 固定分类，用任意长度前缀灵活分配地址；它同时支持路由聚合，减少全网路由表规模。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-DHCP%EF%BC%9A%E4%B8%BB%E6%9C%BA%E6%8E%A5%E5%85%A5%E7%BD%91%E7%BB%9C%E6%97%B6%E9%9C%80%E8%A6%81%E7%9A%84%E4%B8%8D%E5%8F%AA%E6%98%AF-IP-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.16.</span> <span class="toc-text">8. DHCP：主机接入网络时需要的不只是 IP 地址</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E4%B8%BA%E4%BB%80%E4%B9%88-DHCP-%E8%A6%81%E8%BF%94%E5%9B%9E%E8%BF%99%E4%B9%88%E5%A4%9A%E4%B8%9C%E8%A5%BF"><span class="toc-number">1.16.1.</span> <span class="toc-text">8.1 为什么 DHCP 要返回这么多东西</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-DHCP-%E6%8F%90%E4%BE%9B%E7%9A%84%E6%98%AF%E5%AE%8C%E6%95%B4%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%EF%BC%8C%E4%B8%8D%E5%8F%AA%E6%98%AF-IP-%E5%9C%B0%E5%9D%80%EF%BC%9B%E4%B8%BB%E6%9C%BA%E9%9C%80%E8%A6%81-IP%E3%80%81%E6%8E%A9%E7%A0%81%E3%80%81%E9%BB%98%E8%AE%A4%E7%BD%91%E5%85%B3%E5%92%8C-DNS-%E6%89%8D%E8%83%BD%E7%9C%9F%E6%AD%A3%E6%8E%A5%E5%85%A5%E7%BD%91%E7%BB%9C%E3%80%82"><span class="toc-number">1.17.</span> <span class="toc-text">❗ 本节核心结论： DHCP 提供的是完整网络配置，不只是 IP 地址；主机需要 IP、掩码、默认网关和 DNS 才能真正接入网络。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E8%B7%AF%E7%94%B1%E8%A1%A8%E9%A1%B9%EF%BC%9A%E5%8C%B9%E9%85%8D%E6%9D%A1%E4%BB%B6%E5%8A%A0%E8%BD%AC%E5%8F%91%E5%8A%A8%E4%BD%9C"><span class="toc-number">1.18.</span> <span class="toc-text">9. 路由表项：匹配条件加转发动作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%87%8F%E5%B0%91%E8%B7%AF%E7%94%B1%E8%A1%A8%E9%A1%B9%E6%98%AF%E5%A5%BD%E4%BA%8B"><span class="toc-number">1.18.1.</span> <span class="toc-text">9.1 为什么减少路由表项是好事</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E8%B7%AF%E7%94%B1%E8%A1%A8%E9%A1%B9%E6%98%AF%E2%80%9C%E5%8C%B9%E9%85%8D%E6%9D%A1%E4%BB%B6-%E8%BD%AC%E5%8F%91%E5%8A%A8%E4%BD%9C%E2%80%9D%EF%BC%9B%E5%87%8F%E5%B0%91%E8%A1%A8%E9%A1%B9%E5%8F%AF%E4%BB%A5%E9%99%8D%E4%BD%8E%E5%AD%98%E5%82%A8%E3%80%81%E6%9F%A5%E8%A1%A8%E3%80%81%E6%9B%B4%E6%96%B0%E5%92%8C%E6%94%B6%E6%95%9B%E6%88%90%E6%9C%AC%EF%BC%8C%E4%BD%86%E6%9B%B4%E5%85%B7%E4%BD%93%E8%B7%AF%E7%94%B1%E5%9C%A8%E7%89%B9%E6%AE%8A%E6%83%85%E5%86%B5%E4%B8%8B%E4%BB%8D%E7%84%B6%E5%BF%85%E8%A6%81%E3%80%82"><span class="toc-number">1.19.</span> <span class="toc-text">❗ 本节核心结论： 路由表项是“匹配条件 + 转发动作”；减少表项可以降低存储、查表、更新和收敛成本，但更具体路由在特殊情况下仍然必要。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-NAT%EF%BC%9AIPv4-%E5%9C%B0%E5%9D%80%E4%B8%8D%E8%B6%B3%E4%B8%8B%E7%9A%84%E5%9C%B0%E5%9D%80%E5%A4%8D%E7%94%A8%E6%9C%BA%E5%88%B6"><span class="toc-number">1.20.</span> <span class="toc-text">10. NAT：IPv4 地址不足下的地址复用机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-NAT-%E5%A6%82%E4%BD%95%E5%8C%BA%E5%88%86%E4%B8%8D%E5%90%8C%E5%86%85%E7%BD%91%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.20.1.</span> <span class="toc-text">10.1 NAT 如何区分不同内网主机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-NAT-%E7%9A%84%E4%BA%89%E8%AE%AE"><span class="toc-number">1.20.2.</span> <span class="toc-text">10.2 NAT 的争议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-NAT-%E9%80%9A%E8%BF%87%E5%9C%B0%E5%9D%80%E5%92%8C%E7%AB%AF%E5%8F%A3%E8%BD%AC%E6%8D%A2%E8%AE%A9%E5%A4%9A%E4%B8%AA%E5%86%85%E7%BD%91%E8%AE%BE%E5%A4%87%E5%85%B1%E4%BA%AB%E5%85%AC%E7%BD%91-IP%EF%BC%8C%E7%BC%93%E8%A7%A3-IPv4-%E5%9C%B0%E5%9D%80%E4%B8%8D%E8%B6%B3%EF%BC%9B%E4%BD%86%E5%AE%83%E8%B7%A8%E5%B1%82%E5%A4%84%E7%90%86%E7%AB%AF%E5%8F%A3%E5%8F%B7%EF%BC%8C%E5%B9%B6%E5%89%8A%E5%BC%B1%E4%BA%86%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%BF%9E%E6%8E%A5%E6%A8%A1%E5%9E%8B%E3%80%82"><span class="toc-number">1.21.</span> <span class="toc-text">❗ 本节核心结论： NAT 通过地址和端口转换让多个内网设备共享公网 IP，缓解 IPv4 地址不足；但它跨层处理端口号，并削弱了端到端连接模型。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-IPv6%EF%BC%9A%E4%B8%8D%E6%98%AF%E6%8A%8A-IPv4-%E5%9C%B0%E5%9D%80%E5%86%99%E9%95%BF%E4%B8%80%E7%82%B9"><span class="toc-number">1.22.</span> <span class="toc-text">11. IPv6：不是把 IPv4 地址写长一点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-IPv6-%E5%A4%B4%E9%83%A8%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%85%B3%E9%94%AE%E5%8F%98%E5%8C%96"><span class="toc-number">1.22.1.</span> <span class="toc-text">11.1 IPv6 头部设计的关键变化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-IPv6-%E4%B8%8E%E9%9A%A7%E9%81%93"><span class="toc-number">1.22.2.</span> <span class="toc-text">11.2 IPv6 与隧道</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-IPv6-%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%9B%B4%E9%95%BF%E5%9C%B0%E5%9D%80%EF%BC%8C%E8%80%8C%E6%98%AF%E9%87%8D%E6%96%B0%E8%AE%BE%E8%AE%A1%E4%BA%86-IP-%E5%B1%82%E7%9A%84%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E5%92%8C%E5%A4%B4%E9%83%A8%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F%EF%BC%9B%E5%85%B6%E7%9B%AE%E6%A0%87%E5%8C%85%E6%8B%AC%E6%89%A9%E5%A4%A7%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4%E3%80%81%E7%AE%80%E5%8C%96%E8%B7%AF%E7%94%B1%E5%99%A8%E5%A4%84%E7%90%86%E5%92%8C%E6%94%AF%E6%8C%81%E9%80%90%E6%AD%A5%E8%BF%87%E6%B8%A1%E3%80%82"><span class="toc-number">1.23.</span> <span class="toc-text">❗ 本节核心结论： IPv6 不只是更长地址，而是重新设计了 IP 层的地址空间和头部处理方式；其目标包括扩大地址空间、简化路由器处理和支持逐步过渡。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E6%98%93%E6%B7%B7%E7%82%B9%E9%9B%86%E4%B8%AD%E6%95%B4%E7%90%86"><span class="toc-number">1.24.</span> <span class="toc-text">12. 易混点集中整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-IP-%E5%9C%B0%E5%9D%80%E4%B8%8D%E6%98%AF%E7%AE%80%E5%8D%95%E5%B1%9E%E4%BA%8E%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.24.1.</span> <span class="toc-text">12.1 IP 地址不是简单属于主机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-%E5%90%8C%E4%B8%80%E4%B8%AA%E5%AD%90%E7%BD%91%E4%B8%8D%E5%8F%AA%E6%98%AF-IP-%E7%9C%8B%E8%B5%B7%E6%9D%A5%E7%9B%B8%E4%BC%BC"><span class="toc-number">1.24.2.</span> <span class="toc-text">12.2 同一个子网不只是 IP 看起来相似</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-DHCP-%E4%B8%8D%E5%8F%AA%E6%98%AF%E5%88%86%E9%85%8D-IP"><span class="toc-number">1.24.3.</span> <span class="toc-text">12.3 DHCP 不只是分配 IP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-4-NAT-%E4%B8%8D%E6%98%AF%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">1.24.4.</span> <span class="toc-text">12.4 NAT 不是防火墙</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-5-IPv6-%E4%B8%8D%E6%98%AF-IPv4-%E5%9C%B0%E5%9D%80%E5%86%99%E9%95%BF%E4%B8%80%E7%82%B9"><span class="toc-number">1.24.5.</span> <span class="toc-text">12.5 IPv6 不是 IPv4 地址写长一点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-6-MTU-%E4%B8%8D%E6%98%AF-IP-%E5%B1%82%E5%AD%97%E6%AE%B5"><span class="toc-number">1.24.6.</span> <span class="toc-text">12.6 MTU 不是 IP 层字段</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%9C%AC%E7%AB%A0%E6%9C%80%E5%AE%B9%E6%98%93%E6%B7%B7%E6%B7%86%E7%9A%84%E6%98%AF%E6%A6%82%E5%BF%B5%E8%BE%B9%E7%95%8C%EF%BC%9AIP-%E5%9C%B0%E5%9D%80%E7%BB%91%E5%AE%9A%E6%8E%A5%E5%8F%A3%EF%BC%8C%E5%AD%90%E7%BD%91%E4%BE%9D%E8%B5%96%E5%89%8D%E7%BC%80%E5%92%8C%E6%8E%A9%E7%A0%81%EF%BC%8CMTU-%E6%98%AF%E9%93%BE%E8%B7%AF%E7%BA%A6%E6%9D%9F%E4%BD%86%E5%BD%B1%E5%93%8D-IP%EF%BC%8CNAT-%E6%98%AF%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%E8%80%8C%E4%B8%8D%E6%98%AF%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6%E3%80%82"><span class="toc-number">1.25.</span> <span class="toc-text">❗ 本节核心结论： 本章最容易混淆的是概念边界：IP 地址绑定接口，子网依赖前缀和掩码，MTU 是链路约束但影响 IP，NAT 是地址转换而不是安全机制。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%A4%8D%E4%B9%A0%E6%B8%85%E5%8D%95"><span class="toc-number">1.26.</span> <span class="toc-text">13. 复习清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E6%80%BB%E7%BB%93"><span class="toc-number">1.27.</span> <span class="toc-text">最终总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/" title="Chapter 4-3：通用转发、SDN 与中间盒"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/marisa.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 4-3：通用转发、SDN 与中间盒"/></a><div class="content"><a class="title" href="/2026/06/20/Chapter-4-3%EF%BC%9A%E9%80%9A%E7%94%A8%E8%BD%AC%E5%8F%91%E3%80%81SDN-%E4%B8%8E%E4%B8%AD%E9%97%B4%E7%9B%92/" title="Chapter 4-3：通用转发、SDN 与中间盒">Chapter 4-3：通用转发、SDN 与中间盒</a><time datetime="2026-06-19T16:45:10.000Z" title="Created 2026-06-20 00:45:10">2026-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/" title="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑"/></a><div class="content"><a class="title" href="/2026/06/20/Chapter-4-2%EF%BC%9AIP%E3%80%81%E7%BC%96%E5%9D%80%E3%80%81%E5%88%86%E7%89%87%E3%80%81NAT-%E4%B8%8E-IPv6-%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B1%82%E9%80%BB%E8%BE%91/" title="Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑">Chapter 4-2：IP、编址、分片、NAT 与 IPv6 的网络层逻辑</a><time datetime="2026-06-19T16:45:01.000Z" title="Created 2026-06-20 00:45:01">2026-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/20/Chapter-4-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E9%80%90%E8%B7%B3%E8%BD%AC%E5%8F%91/" title="Chapter 4-1：网络层数据平面如何完成逐跳转发"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/aki.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 4-1：网络层数据平面如何完成逐跳转发"/></a><div class="content"><a class="title" href="/2026/06/20/Chapter-4-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E9%80%90%E8%B7%B3%E8%BD%AC%E5%8F%91/" title="Chapter 4-1：网络层数据平面如何完成逐跳转发">Chapter 4-1：网络层数据平面如何完成逐跳转发</a><time datetime="2026-06-19T16:44:53.000Z" title="Created 2026-06-20 00:44:53">2026-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ehonda.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-5%EF%BC%9A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86%E3%80%81TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E6%BC%94%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南">Chapter 3-5：拥塞控制原理、TCP 拥塞控制与传输层演化学习指南</a><time datetime="2026-06-13T12:36:58.000Z" title="Created 2026-06-13 20:36:58">2026-06-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/juri.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南"/></a><div class="content"><a class="title" href="/2026/06/13/Chapter-3-4%EF%BC%9ATCP-%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93%E3%80%81%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97/" title="Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南">Chapter 3-4：TCP 可靠传输、流量控制与连接管理学习指南</a><time datetime="2026-06-13T12:36:44.000Z" title="Created 2026-06-13 20:36:44">2026-06-13</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">50</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
