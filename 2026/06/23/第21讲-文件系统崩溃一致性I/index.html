@@ -1,0 +1,1362 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第21讲 文件系统崩溃一致性I | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第21讲 文件系统崩溃一致性I"><meta name="application-name" content="第21讲 文件系统崩溃一致性I"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第21讲 文件系统崩溃一致性I"><meta property="og:url" content="http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="第十三周：文件系统崩溃一致性 学习指南以下内容按照课件与学习指南规范整理：先建立主线，再解释机制、对比与易错点，最后给出不含答案的自测题。  0. 这一章到底在解决什么问题？文件系统的一次操作，往往不只是修改一个地方。 例如创建文件 &amp;#x2F;chb，至少要完成三项修改：  在 inode 分配表中，把某个"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/chunli.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/chunli.png"><meta name="description" content="第十三周：文件系统崩溃一致性 学习指南以下内容按照课件与学习指南规范整理：先建立主线，再解释机制、对比与易错点，最后给出不含答案的自测题。  0. 这一章到底在解决什么问题？文件系统的一次操作，往往不只是修改一个地方。 例如创建文件 &amp;#x2F;chb，至少要完成三项修改：  在 inode 分配表中，把某个"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第21讲 文件系统崩溃一致性I',
+  postAI: '',
+  pageFillDescription: '第十三周：文件系统崩溃一致性 学习指南, 0. 这一章到底在解决什么问题？, 本章关键词, 1. 本节知识地图, 2. 文件系统为什么存在一致性约束？, 2.1 它是什么？, 2.2 为什么容易被破坏？, 2.3 为什么内存缓存让问题更复杂？, 3. 崩溃一致性到底要求什么？, 3.1 用户期望, 3.2 课件中的磁盘假设, 3.3 文件系统操作的三个属性, 持久性 Durable, 原子性 Atomic, 有序性 Ordered, 4. 崩溃后的恢复方式, 4.1 离线恢复, 4.2 在线检查, 5. 核心机制一：日志 Journaling, 5.1 它是什么？, 5.2 它为什么能保证原子性？, 在 Commit 之前崩溃, 在 Commit 之后崩溃, 5.3 日志的完整运行流程, 阶段一：记录日志, 阶段二：提交事务, 阶段三：写回正式位置, 阶段四：回收日志, 5.4 为什么还要使用内存缓存？, 5.5 日志的代价, 6. Linux 的 JBD2 日志系统, 6.1 JBD2 是什么？, 6.2 JBD2 事务状态, 运行 Running, 锁定 Locked, 写入 Flushing, 提交 Committing, 完成 Finished, 6.3 文件系统如何使用 JBD2？, 6.4 JBD2 的磁盘结构, 7. Ext4 的三种日志模式, 7.1 Writeback 模式, 7.2 Journal 模式, 7.3 Ordered 模式, 三种模式对比, 8. 核心机制二：写时复制 Copy-on-Write, 8.1 它是什么？, 8.2 它为什么能保证一致性？, 8.3 文件中的写时复制流程, 8.4 写放大问题, 8.5 写时复制文件系统, 9. 日志与写时复制的区别, 10. 核心机制三：Soft Updates, 10.1 它是什么？, 10.2 它是怎么工作的？, 10.3 Soft Updates 的三个次序规则, 规则一：不要指向未初始化的结构, 规则二：仍被引用的结构不能重新分配, 规则三：不要过早删除最后一个有效指针, 10.4 Soft Updates 的优缺点, 11. 三种崩溃一致性方案对比, 12. 关键机制总流程, 12.1 日志恢复流程, 12.2 写时复制更新流程, 12.3 Soft Updates 写入流程, 13. 最容易混淆的点, 1. 崩溃一致性不等于所有数据都不会丢, 2. 系统调用返回不一定等于数据已经进入磁盘, 3. CPU 执行顺序不等于磁盘持久化顺序, 4. 日志不是普通的应用日志, 5. Commit 不等于正式位置已经修改完成, 6. Transaction 和单次文件操作不完全相同, 7. Ordered 模式不是所有写操作都严格按程序顺序持久化, 8. 写时复制不是普通的内存 Copy-on-Write, 9. Soft Updates 不等于完全避免不一致, 14. 本节一句话总复习, 15. 自测题先不放答案, 基础理解, 日志机制, Ext4 日志模式, 写时复制, Soft Updates, 综合题第十三周文件系统崩溃一致性学习指南以下内容按照课件与学习指南规范整理先建立主线再解释机制对比与易错点最后给出不含答案的自测题这一章到底在解决什么问题文件系统的一次操作往往不只是修改一个地方例如创建文件至少要完成三项修改在分配表中把某个标记为已占用初始化这个在父目录中加入目录项让文件名指向该从用户角度看这只是一次但从文件系统内部看它是多个磁盘结构的联合修改问题在于如果系统恰好在这些修改进行到一半时断电磁盘上会留下什么状态例如目录项已经写入磁盘但还没有初始化那么用户虽然能找到这个文件名它却指向一个无效甚至属于其他文件的文件系统内部的数据结构关系就被破坏了因此这一章研究的核心是如何让由多个磁盘写组成的文件系统操作在任意时刻崩溃后仍然保持一个可以解释可以恢复不会破坏内部结构的状态这里追求的不一定是所有最新数据都不丢失而是文件系统结构不能损坏已经暴露出来的状态必须合理崩溃后能够恢复到操作前或操作后的某个完整状态不能停留在危险的中间状态本章关键词崩溃一致性一致性约束原子性持久性有序性本节知识地图这一章可以分为四层文件系统为什么会不一致一次操作涉及多个相关数据结构缓存和异步写使磁盘落盘顺序不可预测需要控制哪些修改可以被看见主要解决方案日志先把完整修改方案写进日志再修改正式位置写时复制不覆盖旧数据构造完整新版本后原子切换入口不要求所有修改一起落盘而是严格安排依赖顺序文件系统为什么存在一致性约束它是什么文件系统不是一个单独的数据表而是由许多相互关联的数据结构组成例如超级块数据块分配信息分配信息表目录项文件数据块一级二级间接索引块这些结构之间存在依赖关系例如中记录的文件大小应当与其指向的数据块数量相匹配的链接数应当与指向它的目录项数量匹配标记为空闲的数据块不应同时被某个文件引用标记为已使用的应当能够从目录树中访问目录项不应指向一个未分配或未初始化的超级块记录的文件系统大小应当与实际管理空间相符所谓文件系统一致性就是这些关系没有被破坏为什么容易被破坏创建文件的三个修改理论上有种可能的持久化组合课件第页把这八种状态完整列了出来关键不是按什么顺序执行而是崩溃发生时哪些缓存内容已经真正写入磁盘已持久化的修改结果什么都没发生文件不存在被占用但无法访问造成空间泄漏初始化结果之后可能被覆盖一般不会形成严重不一致目录项指向未初始化或错误十分危险已存在但没有目录项造成空间泄漏目录项指向未正确初始化的目录项指向一个仍被认为空闲的可能被其他文件重复分配文件正常创建这里可以把问题分成两类良性不一致浪费一些空间但不会让文件系统错误解释数据恶性不一致出现悬空指针重复分配错误共享可能造成数据损坏或安全问题为什么内存缓存让问题更复杂文件系统不会每修改一个字段就立即同步写磁盘它通常先修改内存中的分配器状态之后再由后台线程异步写回磁盘因此程序执行顺序磁盘持久化顺序即使代码中先修改再修改目录项也不能仅凭代码顺序保证一定先落盘崩溃一致性到底要求什么用户期望系统重启后用户通常接受刚刚修改的内容可能没保存但不能接受昨天的文件突然损坏一个磁盘块同时属于两个文件文件名指向随机数据文件系统无法挂载后执行的操作存在前面的操作反而消失因此崩溃一致性不是简单地追求不丢数据它首先追求无论在哪一刻崩溃文件系统都能恢复到某个内部结构正确的状态课件中的磁盘假设课件作了几个简化假设磁盘是的失败后停止工作正常时磁盘会执行文件系统下发的命令崩溃时最近的一部分写操作可能没有完成磁盘不会无缘无故把内容写到错误位置即不存在也就是说我们主要研究的是最近的写可能丢失或只完成一部分而不是磁盘随机篡改其他区域文件系统操作的三个属性假设程序执行持久性关心哪些操作已经真正保存到磁盘例如返回后文件是否一定能在重启后看到原子性一组修改要么全部可见要么全部不可见创建文件涉及和目录项不能只完成其中一部分有序性崩溃后可见的操作应当形成原操作顺序的一个前缀例如如果重启后可以看到那么通常也应当看到更早创建的不能出现后面的操作已经持久化前面的操作反而消失崩溃后的恢复方式离线恢复典型工具包括的的它们会扫描文件系统中的各种结构重新检查分配表是否与实际引用一致是否可达链接数是否正确是否存在丢失的块或重复分配问题是文件系统越大扫描时间越长在检查完成前文件系统通常不能正常使用在线检查文件系统运行过程中检查部分关键约束尽早发现问题但在线检查一般只能检查部分关系很难代替完整的崩溃一致性机制所以更理想的思路不是崩溃后把所有磁盘内容重新猜一遍而是在正常运行时就留下足够的信息使崩溃恢复变得简单这就引出了日志核心机制一日志它是什么日志的基本思想是在修改文件系统正式位置之前先把这次修改完整地记录到一块专门的日志区域可以把它理解成正式修改文件系统前先写一份施工方案基本流程是把所有修改写入日志写入提交标记根据日志修改文件系统正式位置正式位置更新完成后回收日志只有看到完整的提交标记恢复程序才认为这次操作是完整的它为什么能保证原子性假设创建的三个修改已经被记录在日志中在之前崩溃日志不完整恢复时直接忽略这条日志相当于文件没有被创建在之后崩溃日志已经完整即使正式位置只修改了一部分恢复时也可以根据日志把全部修改重新执行一遍因此从恢复后的结果看只可能是操作完全没发生或操作完整发生不会暴露中间状态日志的完整运行流程阶段一记录日志把待修改块的新内容以及它们对应的原磁盘块号写入日志区域阶段二提交事务写入表示本事务所有必要内容已经完整进入日志是事务是否有效的分界线阶段三写回正式位置把日志中的数据复制到文件系统原本的位置这一步也叫写回阶段四回收日志当正式位置已经更新原日志不再有用可以将事务标记为无效释放日志空间为什么还要使用内存缓存最朴素的日志做法是每次文件操作都同步写磁盘但会有几个问题每个操作都等待磁盘缓存失去意义同一份修改通常要先写日志再写正式位置同一个块短时间内被修改多次会产生重复记录大量小写操作效率很低所以实际系统会在内存中积累修改将多个文件系统操作合并为一个事务同一个被多次修改的块只记录最终版本定期或按需统一提交提交常见触发条件包括每隔一段时间提交日志达到一定大小应用调用文件系统卸载或需要回收日志空间日志的代价日志虽然简化了恢复但并不是免费机制主要代价是写放大相同内容先写日志再写正式位置占用额外日志空间需要保证写入顺序提交事务可能增加延迟如果事务过大恢复和提交成本也会增加的日志系统是什么是是中通用的块设备日志模块可以借助实现日志功能中有三个重要概念概念含义整个日志区域可以位于文件中或直接位于设备块中一次需要原子完成的文件系统操作为提高效率把多个合并后形成的一次批量提交也就是说一次操作一个多个操作合并进一个多个顺序保存在中事务状态课件将事务划分为五个主要状态运行锁定写入提交完成运行新产生的文件系统原子操作还可以加入事务锁定不再接受新的操作但已经加入的操作可能仍在完成修改写入开始把事务内容写入日志设备提交事务数据已经写入正在写完成已完成事务在日志中已经有效文件系统如何使用简化后的调用关系如下表示开始一个原子操作并预估最多会修改多少块在修改某个前表示接下来我要修改这个块请把它纳入日志保护范围完成内存修改后表示这个块已经被修改需要记录到事务中操作完成后结束本次重点不是记住函数名而是理解要知道三件事一次原子操作从哪里开始在哪里结束这次操作可能修改哪些块哪些块确实已经被修改的磁盘结构课件第页展示了一个事务的典型结构中保存多个每个说明后面的某个日志块最终应该写回文件系统的哪个块校验信息和标志位恢复时读取就知道这块日志数据原本应该写回磁盘的哪个位置则表示事务是否完整有效的三种日志模式可以在数据安全性和性能之间选择不同模式模式只对元数据记日志普通文件数据不受日志写入顺序保护日志保护元数据不保护文件数据及其写入顺序优点写入次数少性能较高缺点只能较好地保证文件系统结构崩溃后文件内容可能是旧数据或意外内容可以概括为保结构不一定保数据模式元数据和文件数据都写入日志数据元数据日志正式位置优点一致性最强文件内容也受到日志保护缺点数据通常要写两次写放大和性能开销最大模式只把元数据写入日志但要求文件数据必须先写入正式位置之后才能提交引用这些数据的元数据日志例如即将指向一个新数据块先写新数据块再提交元数据这样即使崩溃也不会出现已经指向一个尚未写入的数据块它是的典型默认模式在性能和一致性之间折中三种模式对比对比点元数据是否记日志是是是文件数据是否记日志否否是是否约束数据先于元数据否是通过完整日志保证一致性强度较弱中等最强写入开销最低中等最高主要目标保文件系统结构防止元数据指向未写数据同时保护元数据和数据核心机制二写时复制它是什么写时复制的核心原则是不要直接覆盖当前正在使用的数据而是在新位置上构造修改后的版本只有当新版本全部准备好之后才原子地切换入口使新版本正式生效它为什么能保证一致性假设文件系统中的结构是一棵树现在要同时修改和不能直接覆盖它们而是创建和由于父节点中的指针也要改变还需要复制父节点和接着根节点也要指向新的父节点因此还需要新根节点最终磁盘中同时存在旧版本新版本最后只需要原子修改根指针根指针切换之前读者看到完整旧版本切换之后读者看到完整新版本不会看到一半新一半旧的混合状态课件第页的树形图体现的正是把大范围修改递归转换成一次很小的根指针原子更新文件中的写时复制流程文件可能通过多级索引找到数据二级索引块一级索引块数据块如果某个数据块需要修改为该数据块分配新块把旧数据复制到新块并修改复制指向该数据块的一级索引块修改其中的指针复制更上层的二级索引块复制或更高层结构原子切换入口确认旧版本不再使用后回收旧块重点是修改沿着数据块到根节点的路径逐层向上传播写放大问题用户可能只想修改两个小数据块但系统还需要复制相关索引块二级索引块其他祖先节点因此实际写入量用户修改量这叫写放大写时复制不代表一定比日志快如果只是修改一个很小的数据区域却需要复制很长的索引路径写入开销仍然可能很大写时复制文件系统课件以为例说明写时复制可以应用于整个文件系统的树状结构文件系统中的多种结构都可以通过树组织例如根树文件系统树区段树设备树校验码树修改时构造新树节点再切换相应的根或指针日志与写时复制的区别对比点日志写时复制原数据是否原地修改最终会修改正式位置不直接覆盖旧版本修改前做什么把修改记录到日志在新位置复制并修改生效标志根指针或入口指针切换崩溃前新版本未完成忽略未提交日志继续使用旧树新版本完成后的恢复可能需要重放日志入口已经指向新版本主要额外开销日志写入数据可能写两遍复制祖先节点空间回收典型问题日志空间提交延迟写放大碎片写放大回收复杂典型系统等可以把它们直观地区分为日志先写我要怎么改然后去改旧结构写时复制不改旧结构先在旁边造好新结构然后切换入口核心机制三它是什么的思想与日志和写时复制不同它不一定要求一次操作的全部修改原子落盘而是认为有些不完整状态只是空间泄漏并不会破坏文件系统真正需要避免的是危险的不一致状态例如已标记为占用但还没有目录项指向它这会浪费一个但不会让目录项指向错误对象相反目录项已经指向但尚未初始化就是危险状态因此的方法是在内存中记录修改之间的依赖关系严格安排它们写入磁盘的先后次序它是怎么工作的内存中维护最新的元数据并把各个修改组织成依赖图例如创建文件时修改在中标记已占用修改初始化依赖修改修改写入目录项依赖修改和修改因此持久化顺序必须满足分配初始化目录项指向后台可以异步写磁盘但不能违反依赖顺序的三个次序规则规则一不要指向未初始化的结构目录项指向之前必须已经初始化正确初始化写入目录项错误写入目录项以后再初始化规则二仍被引用的结构不能重新分配如果某个仍然指向数据块该数据块就不能同时被重新分配给其他文件必须先让旧指针失效再把资源放回空闲池规则三不要过早删除最后一个有效指针例如重命名文件旧目录项文件新目录项文件应当先写入新目录项再删除旧目录项否则如果先删除旧目录项并发生崩溃文件可能失去最后一个可访问入口的优缺点优点不需要在磁盘上维护额外日志正常读写可以大量利用内存缓存磁盘上的元数据始终保持结构一致崩溃后通常不需要重放日志即可挂载缺点依赖关系极其复杂每种文件系统操作都要拆成多个细粒度修改需要记录旧值新值和依赖边很难实现和验证正确性课件也明确指出的实现复杂度很高三种崩溃一致性方案对比对比点日志写时复制基本思想先记录再原地修改新位置构造再切换入口控制依赖写入顺序是否保留旧版本通常不长期保留切换前保留不以保留完整版本为核心磁盘额外信息需要日志区域需要新副本和新节点通常不需要额外日志崩溃恢复检查并重放已提交事务选择有效入口或根通常可直接使用一致磁盘状态原子性来源原子切换根指针避免危险中间状态性能问题双写提交延迟写放大碎片和回收依赖追踪开销实现复杂度较高但机制清晰较高非常高三种方案解决问题的角度不同日志让中间状态可以被恢复程序识别和修复写时复制不让中间状态覆盖旧的完整状态可以出现中间状态但禁止危险的中间状态写入磁盘关键机制总流程日志恢复流程系统启动扫描日志事务是否有完整否丢弃事务是根据和重放事务文件系统恢复写时复制更新流程保留旧结构分配新数据块在新块上修改逐层复制并更新祖先节点所有新结构持久化原子切换根指针回收旧结构写入流程把文件系统请求拆成多个修改分析修改之间的依赖关系建立依赖图只选择当前依赖已满足的修改写盘磁盘始终维持安全状态最容易混淆的点崩溃一致性不等于所有数据都不会丢崩溃一致性首先保证结构正确即使文件系统完全一致刚写入但尚未持久化的数据仍可能丢失一致性磁盘上的关系是否合理持久性某次写入是否真的保存下来二者不是同一件事系统调用返回不一定等于数据已经进入磁盘一次返回往往只代表数据进入了内核缓存只有完成必要的写回或同步操作后数据才真正进入持久化设备执行顺序不等于磁盘持久化顺序代码里先修改再修改目录项并不能天然保证一定先落盘缓存后台写回和设备内部调度都会改变真实持久化顺序日志不是普通的应用日志这里的文件系统日志不是用户在登录而是保存把磁盘块修改成某个新内容把磁盘块修改成某个新内容它直接服务于磁盘结构恢复不等于正式位置已经修改完成表示完成修改所需的信息已经完整写入日志正式文件系统位置可能尚未全部更新这时崩溃仍然没关系因为恢复时可以重放日志和单次文件操作不完全相同一次文件系统原子操作通常对应一个为了提高效率会把多个合并到同一个中一起提交模式不是所有写操作都严格按程序顺序持久化它主要保证与某次元数据提交相关的数据块先于相应元数据到达磁盘它不是对所有应用写入建立一个全局严格顺序写时复制不是普通的内存二者思想相同修改前保留旧副本但本章讨论的是磁盘文件系统中的数据块索引节点和树结构更新不只是后的物理内存页复制不等于完全避免不一致它允许某些良性不一致例如泄漏它保证的是不出现会导致错误引用重复分配等恶性不一致本节一句话总复习文件系统崩溃一致性的核心矛盾是一次逻辑操作需要修改多个磁盘结构而崩溃可能让其中只有一部分持久化日志通过先记录后提交再写回实现恢复写时复制通过构造新版本后原子切换入口避免覆盖完整旧版本则通过控制元数据依赖顺序阻止危险中间状态进入磁盘自测题先不放答案基础理解为什么创建一个空文件也不是一次简单的磁盘写操作创建文件时如果目录项已经持久化但仍然被标记为空闲可能出现什么问题为什么代码中先初始化再写目录项仍然不能直接证明磁盘上的顺序也一定如此文件系统崩溃一致性为什么不等于最近写入的数据绝对不会丢失持久性原子性和有序性分别约束什么日志机制日志中的有什么作用为什么不能只看前面的日志数据块是否存在系统在之前崩溃和之后崩溃恢复行为有什么区别既然事务已经写入日志为什么还要将内容写回文件系统的正式位置为什么文件系统会把多个操作合并进同一个日志事务而不是每次系统调用都立即提交中和是什么关系为什么要在真正修改块之前调用日志模式模式为什么可以保证文件系统结构基本一致却不能保证文件内容正确模式为什么一致性最强又为什么写入开销最大模式为什么要求数据块先于对应元数据日志提交如果只记元数据日志却不控制数据块的写入顺序可能产生什么现象写时复制写时复制为什么要从被修改的叶子节点一路复制到根节点为什么只要原子切换根指针就能让整棵新树一起生效如果新版本构造到一半时崩溃旧版本为什么仍然可以正常使用用户只修改一个数据块时写时复制为什么可能还要修改多个索引块写时复制为什么并不一定比日志更高效为什么已分配但没有目录项指向它通常比目录项指向未初始化安全为什么可以不把多个修改作为一个完整事务一起写入磁盘不要修改最后一个指向有用结构的指针在文件重命名过程中具体意味着什么为什么不需要日志重放却很难实现综合题用自己的话分别概括日志写时复制和如何处理危险中间状态假设你正在设计一个重视写入性能允许丢失最近数据但绝不能破坏目录结构的文件系统你会优先考虑哪类机制说明理由假设事务已经但只完成了一半此时崩溃重启后应该如何处理写时复制完成根指针切换后为什么不能立刻无条件回收全部旧块在缓存日志事务和数据持久化之间大致起什么作用为什么说崩溃一致性的本质不是避免崩溃而是控制崩溃后允许出现的状态',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-23 12:13:22',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">36</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">第21讲 文件系统崩溃一致性I</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:22.000Z" title="Created 2026-06-23 12:13:22">2026-06-23</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:22.913Z" title="Updated 2026-06-23 12:13:22">2026-06-23</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">7.4k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>22min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/chunli.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/"><header><h1 id="CrawlerTitle" itemprop="name headline">第21讲 文件系统崩溃一致性I</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:22.000Z" title="Created 2026-06-23 12:13:22">2026-06-23</time><time itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:22.913Z" title="Updated 2026-06-23 12:13:22">2026-06-23</time></header><h1 id="第十三周：文件系统崩溃一致性-学习指南"><a href="#第十三周：文件系统崩溃一致性-学习指南" class="headerlink" title="第十三周：文件系统崩溃一致性 学习指南"></a>第十三周：文件系统崩溃一致性 学习指南</h1><p>以下内容按照课件与学习指南规范整理：先建立主线，再解释机制、对比与易错点，最后给出不含答案的自测题。 </p>
+<h2 id="0-这一章到底在解决什么问题？"><a href="#0-这一章到底在解决什么问题？" class="headerlink" title="0. 这一章到底在解决什么问题？"></a>0. 这一章到底在解决什么问题？</h2><p>文件系统的一次操作，往往不只是修改一个地方。</p>
+<p>例如创建文件 <code>/chb</code>，至少要完成三项修改：</p>
+<ol>
+<li>在 inode 分配表中，把某个 inode 标记为已占用。</li>
+<li>初始化这个 inode。</li>
+<li>在父目录中加入目录项，让文件名 <code>chb</code> 指向该 inode。</li>
+</ol>
+<p>从用户角度看，这只是一次 <code>create()</code>；但从文件系统内部看，它是多个磁盘结构的联合修改。</p>
+<p>问题在于：</p>
+<blockquote>
+<p>如果系统恰好在这些修改进行到一半时断电，磁盘上会留下什么状态？</p>
+</blockquote>
+<p>例如目录项已经写入磁盘，但 inode 还没有初始化，那么用户虽然能找到这个文件名，它却指向一个无效甚至属于其他文件的 inode。文件系统内部的数据结构关系就被破坏了。</p>
+<p>因此，这一章研究的核心是：</p>
+<blockquote>
+<p>如何让由多个磁盘写组成的文件系统操作，在任意时刻崩溃后，仍然保持一个可以解释、可以恢复、不会破坏内部结构的状态？</p>
+</blockquote>
+<p>这里追求的不一定是“所有最新数据都不丢失”，而是：</p>
+<ul>
+<li>文件系统结构不能损坏；</li>
+<li>已经暴露出来的状态必须合理；</li>
+<li>崩溃后能够恢复到操作前或操作后的某个完整状态；</li>
+<li>不能停留在危险的中间状态。</li>
+</ul>
+<h3 id="本章关键词"><a href="#本章关键词" class="headerlink" title="本章关键词"></a>本章关键词</h3><ul>
+<li>崩溃一致性</li>
+<li>一致性约束</li>
+<li>原子性</li>
+<li>持久性</li>
+<li>有序性</li>
+<li>Journaling</li>
+<li>JBD2</li>
+<li>Transaction</li>
+<li>Commit</li>
+<li>Checkpoint</li>
+<li>Copy-on-Write</li>
+<li>Soft Updates</li>
+</ul>
+<hr>
+<h2 id="1-本节知识地图"><a href="#1-本节知识地图" class="headerlink" title="1. 本节知识地图"></a>1. 本节知识地图</h2><p>这一章可以分为四层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">文件系统为什么会不一致</span><br><span class="line">        ↓</span><br><span class="line">一次操作涉及多个相关数据结构</span><br><span class="line">        ↓</span><br><span class="line">缓存和异步写使磁盘落盘顺序不可预测</span><br><span class="line">        ↓</span><br><span class="line">需要控制“哪些修改可以被看见”</span><br><span class="line"></span><br><span class="line">主要解决方案：</span><br><span class="line"></span><br><span class="line">1. 日志 Journaling</span><br><span class="line">   先把完整修改方案写进日志，再修改正式位置</span><br><span class="line"></span><br><span class="line">2. 写时复制 Copy-on-Write</span><br><span class="line">   不覆盖旧数据，构造完整新版本后原子切换入口</span><br><span class="line"></span><br><span class="line">3. Soft Updates</span><br><span class="line">   不要求所有修改一起落盘，而是严格安排依赖顺序</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-文件系统为什么存在“一致性约束”？"><a href="#2-文件系统为什么存在“一致性约束”？" class="headerlink" title="2. 文件系统为什么存在“一致性约束”？"></a>2. 文件系统为什么存在“一致性约束”？</h2><h3 id="2-1-它是什么？"><a href="#2-1-它是什么？" class="headerlink" title="2.1 它是什么？"></a>2.1 它是什么？</h3><p>文件系统不是一个单独的数据表，而是由许多相互关联的数据结构组成，例如：</p>
+<ul>
+<li>超级块；</li>
+<li>数据块分配信息；</li>
+<li>inode 分配信息；</li>
+<li>inode 表；</li>
+<li>目录项；</li>
+<li>文件数据块；</li>
+<li>一级、二级间接索引块。</li>
+</ul>
+<p>这些结构之间存在依赖关系。</p>
+<p>例如：</p>
+<ul>
+<li>inode 中记录的文件大小，应当与其指向的数据块数量相匹配；</li>
+<li>inode 的链接数，应当与指向它的目录项数量匹配；</li>
+<li>标记为空闲的数据块，不应同时被某个文件引用；</li>
+<li>标记为已使用的 inode，应当能够从目录树中访问；</li>
+<li>目录项不应指向一个未分配或未初始化的 inode；</li>
+<li>超级块记录的文件系统大小，应当与实际管理空间相符。</li>
+</ul>
+<p>所谓文件系统一致性，就是这些关系没有被破坏。</p>
+<h3 id="2-2-为什么容易被破坏？"><a href="#2-2-为什么容易被破坏？" class="headerlink" title="2.2 为什么容易被破坏？"></a>2.2 为什么容易被破坏？</h3><p>创建文件 <code>/chb</code> 的三个修改，理论上有 (2^3&#x3D;8) 种可能的持久化组合。</p>
+<p>课件第18—20页把这八种状态完整列了出来。关键不是 CPU 按什么顺序执行，而是崩溃发生时，哪些缓存内容已经真正写入磁盘。</p>
+<table>
+<thead>
+<tr>
+<th>已持久化的修改</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>{}</code></td>
+<td>什么都没发生，文件不存在</td>
+</tr>
+<tr>
+<td><code>{1}</code></td>
+<td>inode 被占用但无法访问，造成空间泄漏</td>
+</tr>
+<tr>
+<td><code>{2}</code></td>
+<td>初始化结果之后可能被覆盖，一般不会形成严重不一致</td>
+</tr>
+<tr>
+<td><code>{3}</code></td>
+<td>目录项指向未初始化或错误 inode，十分危险</td>
+</tr>
+<tr>
+<td><code>{1,2}</code></td>
+<td>inode 已存在但没有目录项，造成空间泄漏</td>
+</tr>
+<tr>
+<td><code>{1,3}</code></td>
+<td>目录项指向未正确初始化的 inode</td>
+</tr>
+<tr>
+<td><code>{2,3}</code></td>
+<td>目录项指向一个仍被认为空闲的 inode，可能被其他文件重复分配</td>
+</tr>
+<tr>
+<td><code>{1,2,3}</code></td>
+<td>文件正常创建</td>
+</tr>
+</tbody></table>
+<p>这里可以把问题分成两类：</p>
+<ul>
+<li><strong>良性不一致</strong>：浪费一些空间，但不会让文件系统错误解释数据。</li>
+<li><strong>恶性不一致</strong>：出现悬空指针、重复分配、错误共享，可能造成数据损坏或安全问题。</li>
+</ul>
+<h3 id="2-3-为什么内存缓存让问题更复杂？"><a href="#2-3-为什么内存缓存让问题更复杂？" class="headerlink" title="2.3 为什么内存缓存让问题更复杂？"></a>2.3 为什么内存缓存让问题更复杂？</h3><p>文件系统不会每修改一个字段就立即同步写磁盘。</p>
+<p>它通常先修改内存中的：</p>
+<ul>
+<li>page cache；</li>
+<li>inode cache；</li>
+<li>directory entry cache；</li>
+<li>buffer cache；</li>
+<li>分配器状态。</li>
+</ul>
+<p>之后再由后台线程异步写回磁盘。</p>
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">程序执行顺序 ≠ 磁盘持久化顺序</span><br></pre></td></tr></table></figure>
+
+<p>即使代码中先修改 inode，再修改目录项，也不能仅凭代码顺序保证 inode 一定先落盘。</p>
+<hr>
+<h2 id="3-崩溃一致性到底要求什么？"><a href="#3-崩溃一致性到底要求什么？" class="headerlink" title="3. 崩溃一致性到底要求什么？"></a>3. 崩溃一致性到底要求什么？</h2><h3 id="3-1-用户期望"><a href="#3-1-用户期望" class="headerlink" title="3.1 用户期望"></a>3.1 用户期望</h3><p>系统重启后，用户通常接受“刚刚修改的内容可能没保存”，但不能接受：</p>
+<ul>
+<li>昨天的文件突然损坏；</li>
+<li>一个磁盘块同时属于两个文件；</li>
+<li>文件名指向随机数据；</li>
+<li>文件系统无法挂载；</li>
+<li>后执行的操作存在，前面的操作反而消失。</li>
+</ul>
+<p>因此，崩溃一致性不是简单地追求“不丢数据”。</p>
+<p>它首先追求：</p>
+<blockquote>
+<p>无论在哪一刻崩溃，文件系统都能恢复到某个内部结构正确的状态。</p>
+</blockquote>
+<h3 id="3-2-课件中的磁盘假设"><a href="#3-2-课件中的磁盘假设" class="headerlink" title="3.2 课件中的磁盘假设"></a>3.2 课件中的磁盘假设</h3><p>课件作了几个简化假设：</p>
+<ul>
+<li>磁盘是 <strong>fail-stop</strong> 的：失败后停止工作；</li>
+<li>正常时，磁盘会执行文件系统下发的命令；</li>
+<li>崩溃时，最近的一部分写操作可能没有完成；</li>
+<li>磁盘不会无缘无故把内容写到错误位置，即不存在 wild write。</li>
+</ul>
+<p>也就是说，我们主要研究的是：</p>
+<blockquote>
+<p>最近的写可能丢失或只完成一部分，而不是磁盘随机篡改其他区域。</p>
+</blockquote>
+<h3 id="3-3-文件系统操作的三个属性"><a href="#3-3-文件系统操作的三个属性" class="headerlink" title="3.3 文件系统操作的三个属性"></a>3.3 文件系统操作的三个属性</h3><p>假设程序执行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">create(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">fd = create(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">write(fd, ...);</span><br><span class="line">crash();</span><br></pre></td></tr></table></figure>
+
+<h4 id="持久性-Durable"><a href="#持久性-Durable" class="headerlink" title="持久性 Durable"></a>持久性 Durable</h4><p>关心哪些操作已经真正保存到磁盘。</p>
+<p>例如 <code>create(&quot;a&quot;)</code> 返回后，文件 <code>a</code> 是否一定能在重启后看到。</p>
+<h4 id="原子性-Atomic"><a href="#原子性-Atomic" class="headerlink" title="原子性 Atomic"></a>原子性 Atomic</h4><p>一组修改要么全部可见，要么全部不可见。</p>
+<p>创建文件涉及 inode bitmap、inode 和目录项，不能只完成其中一部分。</p>
+<h4 id="有序性-Ordered"><a href="#有序性-Ordered" class="headerlink" title="有序性 Ordered"></a>有序性 Ordered</h4><p>崩溃后可见的操作，应当形成原操作顺序的一个前缀。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">create(&quot;a&quot;)</span><br><span class="line">create(&quot;b&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>如果重启后可以看到 <code>b</code>，那么通常也应当看到更早创建的 <code>a</code>。不能出现后面的操作已经持久化，前面的操作反而消失。</p>
+<hr>
+<h2 id="4-崩溃后的恢复方式"><a href="#4-崩溃后的恢复方式" class="headerlink" title="4. 崩溃后的恢复方式"></a>4. 崩溃后的恢复方式</h2><h3 id="4-1-离线恢复"><a href="#4-1-离线恢复" class="headerlink" title="4.1 离线恢复"></a>4.1 离线恢复</h3><p>典型工具包括：</p>
+<ul>
+<li>Windows 的 <code>chkdsk</code></li>
+<li>Linux 的 <code>fsck</code></li>
+</ul>
+<p>它们会扫描文件系统中的各种结构，重新检查：</p>
+<ul>
+<li>分配表是否与实际引用一致；</li>
+<li>inode 是否可达；</li>
+<li>链接数是否正确；</li>
+<li>是否存在丢失的块或重复分配。</li>
+</ul>
+<p>问题是，文件系统越大，扫描时间越长。在检查完成前，文件系统通常不能正常使用。</p>
+<h3 id="4-2-在线检查"><a href="#4-2-在线检查" class="headerlink" title="4.2 在线检查"></a>4.2 在线检查</h3><p>文件系统运行过程中检查部分关键约束，尽早发现问题。</p>
+<p>但在线检查一般只能检查部分关系，很难代替完整的崩溃一致性机制。</p>
+<p>所以更理想的思路不是：</p>
+<blockquote>
+<p>崩溃后把所有磁盘内容重新猜一遍。</p>
+</blockquote>
+<p>而是：</p>
+<blockquote>
+<p>在正常运行时就留下足够的信息，使崩溃恢复变得简单。</p>
+</blockquote>
+<p>这就引出了日志。</p>
+<hr>
+<h2 id="5-核心机制一：日志-Journaling"><a href="#5-核心机制一：日志-Journaling" class="headerlink" title="5. 核心机制一：日志 Journaling"></a>5. 核心机制一：日志 Journaling</h2><h3 id="5-1-它是什么？"><a href="#5-1-它是什么？" class="headerlink" title="5.1 它是什么？"></a>5.1 它是什么？</h3><p>日志的基本思想是：</p>
+<blockquote>
+<p>在修改文件系统正式位置之前，先把这次修改完整地记录到一块专门的日志区域。</p>
+</blockquote>
+<p>可以把它理解成正式修改文件系统前，先写一份“施工方案”。</p>
+<p>基本流程是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 把所有修改写入日志</span><br><span class="line">2. 写入提交标记 Commit</span><br><span class="line">3. 根据日志修改文件系统正式位置</span><br><span class="line">4. 正式位置更新完成后，回收日志</span><br></pre></td></tr></table></figure>
+
+<p>只有看到完整的提交标记，恢复程序才认为这次操作是完整的。</p>
+<h3 id="5-2-它为什么能保证原子性？"><a href="#5-2-它为什么能保证原子性？" class="headerlink" title="5.2 它为什么能保证原子性？"></a>5.2 它为什么能保证原子性？</h3><p>假设创建 <code>/chb</code> 的三个修改已经被记录在日志中。</p>
+<h4 id="在-Commit-之前崩溃"><a href="#在-Commit-之前崩溃" class="headerlink" title="在 Commit 之前崩溃"></a>在 Commit 之前崩溃</h4><p>日志不完整。</p>
+<p>恢复时直接忽略这条日志，相当于文件没有被创建。</p>
+<h4 id="在-Commit-之后崩溃"><a href="#在-Commit-之后崩溃" class="headerlink" title="在 Commit 之后崩溃"></a>在 Commit 之后崩溃</h4><p>日志已经完整。</p>
+<p>即使正式位置只修改了一部分，恢复时也可以根据日志把全部修改重新执行一遍。</p>
+<p>因此，从恢复后的结果看，只可能是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">操作完全没发生</span><br><span class="line">或</span><br><span class="line">操作完整发生</span><br></pre></td></tr></table></figure>
+
+<p>不会暴露中间状态。</p>
+<h3 id="5-3-日志的完整运行流程"><a href="#5-3-日志的完整运行流程" class="headerlink" title="5.3 日志的完整运行流程"></a>5.3 日志的完整运行流程</h3><h4 id="阶段一：记录日志"><a href="#阶段一：记录日志" class="headerlink" title="阶段一：记录日志"></a>阶段一：记录日志</h4><p>把待修改块的新内容，以及它们对应的原磁盘块号写入日志区域。</p>
+<h4 id="阶段二：提交事务"><a href="#阶段二：提交事务" class="headerlink" title="阶段二：提交事务"></a>阶段二：提交事务</h4><p>写入 Commit Block，表示：</p>
+<blockquote>
+<p>本事务所有必要内容已经完整进入日志。</p>
+</blockquote>
+<p>Commit 是事务是否有效的分界线。</p>
+<h4 id="阶段三：写回正式位置"><a href="#阶段三：写回正式位置" class="headerlink" title="阶段三：写回正式位置"></a>阶段三：写回正式位置</h4><p>把日志中的数据复制到文件系统原本的位置，这一步也叫：</p>
+<ul>
+<li>checkpoint；</li>
+<li>checkpointing；</li>
+<li>写回 home location。</li>
+</ul>
+<h4 id="阶段四：回收日志"><a href="#阶段四：回收日志" class="headerlink" title="阶段四：回收日志"></a>阶段四：回收日志</h4><p>当正式位置已经更新，原日志不再有用，可以将事务标记为无效，释放日志空间。</p>
+<h3 id="5-4-为什么还要使用内存缓存？"><a href="#5-4-为什么还要使用内存缓存？" class="headerlink" title="5.4 为什么还要使用内存缓存？"></a>5.4 为什么还要使用内存缓存？</h3><p>最朴素的日志做法是每次文件操作都同步写磁盘，但会有几个问题：</p>
+<ul>
+<li>每个操作都等待磁盘，缓存失去意义；</li>
+<li>同一份修改通常要先写日志，再写正式位置；</li>
+<li>同一个块短时间内被修改多次，会产生重复记录；</li>
+<li>大量小写操作效率很低。</li>
+</ul>
+<p>所以实际系统会：</p>
+<ul>
+<li>在内存中积累修改；</li>
+<li>将多个文件系统操作合并为一个事务；</li>
+<li>同一个被多次修改的块，只记录最终版本；</li>
+<li>定期或按需统一提交。</li>
+</ul>
+<p>提交常见触发条件包括：</p>
+<ul>
+<li>每隔一段时间提交；</li>
+<li>日志达到一定大小；</li>
+<li>应用调用 <code>fsync()</code>；</li>
+<li>文件系统卸载或需要回收日志空间。</li>
+</ul>
+<h3 id="5-5-日志的代价"><a href="#5-5-日志的代价" class="headerlink" title="5.5 日志的代价"></a>5.5 日志的代价</h3><p>日志虽然简化了恢复，但并不是免费机制。</p>
+<p>主要代价是：</p>
+<ul>
+<li>写放大：相同内容先写日志，再写正式位置；</li>
+<li>占用额外日志空间；</li>
+<li>Commit 需要保证写入顺序；</li>
+<li>提交事务可能增加延迟；</li>
+<li>如果事务过大，恢复和提交成本也会增加。</li>
+</ul>
+<hr>
+<h2 id="6-Linux-的-JBD2-日志系统"><a href="#6-Linux-的-JBD2-日志系统" class="headerlink" title="6. Linux 的 JBD2 日志系统"></a>6. Linux 的 JBD2 日志系统</h2><h3 id="6-1-JBD2-是什么？"><a href="#6-1-JBD2-是什么？" class="headerlink" title="6.1 JBD2 是什么？"></a>6.1 JBD2 是什么？</h3><p>JBD2 是 <strong>Journal Block Device 2</strong>，是 Linux 中通用的块设备日志模块。</p>
+<p>Ext4 可以借助 JBD2 实现日志功能。</p>
+<p>JBD2 中有三个重要概念：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Journal</td>
+<td>整个日志区域，可以位于文件中或直接位于设备块中</td>
+</tr>
+<tr>
+<td>Handle</td>
+<td>一次需要原子完成的文件系统操作</td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td>为提高效率，把多个 Handle 合并后形成的一次批量提交</td>
+</tr>
+</tbody></table>
+<p>也就是说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">一次 create 操作 → 一个 Handle</span><br><span class="line">多个 create/write 操作 → 合并进一个 Transaction</span><br><span class="line">多个 Transaction → 顺序保存在 Journal 中</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-JBD2-事务状态"><a href="#6-2-JBD2-事务状态" class="headerlink" title="6.2 JBD2 事务状态"></a>6.2 JBD2 事务状态</h3><p>课件将事务划分为五个主要状态：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">运行</span><br><span class="line">  ↓</span><br><span class="line">锁定</span><br><span class="line">  ↓</span><br><span class="line">写入</span><br><span class="line">  ↓</span><br><span class="line">提交</span><br><span class="line">  ↓</span><br><span class="line">完成</span><br></pre></td></tr></table></figure>
+
+<h4 id="运行-Running"><a href="#运行-Running" class="headerlink" title="运行 Running"></a>运行 Running</h4><p>新产生的文件系统原子操作还可以加入事务。</p>
+<h4 id="锁定-Locked"><a href="#锁定-Locked" class="headerlink" title="锁定 Locked"></a>锁定 Locked</h4><p>不再接受新的操作，但已经加入的操作可能仍在完成修改。</p>
+<h4 id="写入-Flushing"><a href="#写入-Flushing" class="headerlink" title="写入 Flushing"></a>写入 Flushing</h4><p>开始把事务内容写入日志设备。</p>
+<h4 id="提交-Committing"><a href="#提交-Committing" class="headerlink" title="提交 Committing"></a>提交 Committing</h4><p>事务数据已经写入，正在写 Commit Block。</p>
+<h4 id="完成-Finished"><a href="#完成-Finished" class="headerlink" title="完成 Finished"></a>完成 Finished</h4><p>Commit 已完成，事务在日志中已经有效。</p>
+<h3 id="6-3-文件系统如何使用-JBD2？"><a href="#6-3-文件系统如何使用-JBD2？" class="headerlink" title="6.3 文件系统如何使用 JBD2？"></a>6.3 文件系统如何使用 JBD2？</h3><p>简化后的调用关系如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">handle = jbd2_journal_start(journal, nblocks);</span><br></pre></td></tr></table></figure>
+
+<p>表示开始一个原子操作，并预估最多会修改多少块。</p>
+<p>在修改某个 <code>buffer_head</code> 前：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jbd2_journal_get_write_access(handle, bh);</span><br></pre></td></tr></table></figure>
+
+<p>表示：</p>
+<blockquote>
+<p>接下来我要修改这个块，请把它纳入日志保护范围。</p>
+</blockquote>
+<p>完成内存修改后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jbd2_journal_dirty_metadata(handle, bh);</span><br></pre></td></tr></table></figure>
+
+<p>表示：</p>
+<blockquote>
+<p>这个块已经被修改，需要记录到事务中。</p>
+</blockquote>
+<p>操作完成后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jbd2_journal_stop(handle);</span><br></pre></td></tr></table></figure>
+
+<p>结束本次 Handle。</p>
+<p>重点不是记住函数名，而是理解 JBD2 要知道三件事：</p>
+<ol>
+<li>一次原子操作从哪里开始、在哪里结束；</li>
+<li>这次操作可能修改哪些块；</li>
+<li>哪些块确实已经被修改。</li>
+</ol>
+<h3 id="6-4-JBD2-的磁盘结构"><a href="#6-4-JBD2-的磁盘结构" class="headerlink" title="6.4 JBD2 的磁盘结构"></a>6.4 JBD2 的磁盘结构</h3><p>课件第46页展示了一个事务的典型结构：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Descriptor Block</span><br><span class="line">Journal Data Block</span><br><span class="line">Journal Data Block</span><br><span class="line">...</span><br><span class="line">Commit Block</span><br></pre></td></tr></table></figure>
+
+<p>Descriptor Block 中保存多个 tag，每个 tag 说明：</p>
+<ul>
+<li>后面的某个日志块；</li>
+<li>最终应该写回文件系统的哪个块；</li>
+<li>校验信息和标志位。</li>
+</ul>
+<p>恢复时，JBD2 读取 Descriptor Block，就知道：</p>
+<blockquote>
+<p>这块日志数据原本应该写回磁盘的哪个位置。</p>
+</blockquote>
+<p>Commit Block 则表示事务是否完整有效。</p>
+<hr>
+<h2 id="7-Ext4-的三种日志模式"><a href="#7-Ext4-的三种日志模式" class="headerlink" title="7. Ext4 的三种日志模式"></a>7. Ext4 的三种日志模式</h2><p>Ext4 可以在数据安全性和性能之间选择不同模式。</p>
+<h3 id="7-1-Writeback-模式"><a href="#7-1-Writeback-模式" class="headerlink" title="7.1 Writeback 模式"></a>7.1 Writeback 模式</h3><p>只对元数据记日志，普通文件数据不受日志写入顺序保护。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">日志保护：元数据</span><br><span class="line">不保护：文件数据及其写入顺序</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>写入次数少；</li>
+<li>性能较高。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>只能较好地保证文件系统结构；</li>
+<li>崩溃后文件内容可能是旧数据或意外内容。</li>
+</ul>
+<p>可以概括为：</p>
+<blockquote>
+<p>保结构，不一定保数据。</p>
+</blockquote>
+<h3 id="7-2-Journal-模式"><a href="#7-2-Journal-模式" class="headerlink" title="7.2 Journal 模式"></a>7.2 Journal 模式</h3><p>元数据和文件数据都写入日志。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">数据 + 元数据</span><br><span class="line">        ↓</span><br><span class="line">      日志</span><br><span class="line">        ↓</span><br><span class="line">    正式位置</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li>一致性最强；</li>
+<li>文件内容也受到日志保护。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>数据通常要写两次；</li>
+<li>写放大和性能开销最大。</li>
+</ul>
+<h3 id="7-3-Ordered-模式"><a href="#7-3-Ordered-模式" class="headerlink" title="7.3 Ordered 模式"></a>7.3 Ordered 模式</h3><p>只把元数据写入日志，但要求：</p>
+<blockquote>
+<p>文件数据必须先写入正式位置，之后才能提交引用这些数据的元数据日志。</p>
+</blockquote>
+<p>例如 inode 即将指向一个新数据块：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">先写新数据块</span><br><span class="line">再提交 inode 元数据</span><br></pre></td></tr></table></figure>
+
+<p>这样即使崩溃，也不会出现 inode 已经指向一个尚未写入的数据块。</p>
+<p>它是 Ext4 的典型默认模式，在性能和一致性之间折中。</p>
+<h3 id="三种模式对比"><a href="#三种模式对比" class="headerlink" title="三种模式对比"></a>三种模式对比</h3><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>Writeback</th>
+<th>Ordered</th>
+<th>Journal</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>元数据是否记日志</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>文件数据是否记日志</td>
+<td>否</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>是否约束数据先于元数据</td>
+<td>否</td>
+<td>是</td>
+<td>通过完整日志保证</td>
+</tr>
+<tr>
+<td>一致性强度</td>
+<td>较弱</td>
+<td>中等</td>
+<td>最强</td>
+</tr>
+<tr>
+<td>写入开销</td>
+<td>最低</td>
+<td>中等</td>
+<td>最高</td>
+</tr>
+<tr>
+<td>主要目标</td>
+<td>保文件系统结构</td>
+<td>防止元数据指向未写数据</td>
+<td>同时保护元数据和数据</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-核心机制二：写时复制-Copy-on-Write"><a href="#8-核心机制二：写时复制-Copy-on-Write" class="headerlink" title="8. 核心机制二：写时复制 Copy-on-Write"></a>8. 核心机制二：写时复制 Copy-on-Write</h2><h3 id="8-1-它是什么？"><a href="#8-1-它是什么？" class="headerlink" title="8.1 它是什么？"></a>8.1 它是什么？</h3><p>写时复制的核心原则是：</p>
+<blockquote>
+<p>不要直接覆盖当前正在使用的数据，而是在新位置上构造修改后的版本。</p>
+</blockquote>
+<p>只有当新版本全部准备好之后，才原子地切换入口，使新版本正式生效。</p>
+<h3 id="8-2-它为什么能保证一致性？"><a href="#8-2-它为什么能保证一致性？" class="headerlink" title="8.2 它为什么能保证一致性？"></a>8.2 它为什么能保证一致性？</h3><p>假设文件系统中的结构是一棵树：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">     A</span><br><span class="line">   /   \</span><br><span class="line">  B     D</span><br><span class="line"> /     / \</span><br><span class="line">C     E   F</span><br></pre></td></tr></table></figure>
+
+<p>现在要同时修改 <code>C</code> 和 <code>E</code>。</p>
+<p>不能直接覆盖它们，而是创建：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C&#x27; 和 E&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>由于父节点中的指针也要改变，还需要复制父节点：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">B&#x27; 和 D&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>接着根节点也要指向新的父节点，因此还需要新根节点 <code>A&#39;</code>。</p>
+<p>最终磁盘中同时存在：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">旧版本：A → B、D → C、E、F</span><br><span class="line">新版本：A&#x27; → B&#x27;、D&#x27; → C&#x27;、E&#x27;、F</span><br></pre></td></tr></table></figure>
+
+<p>最后只需要原子修改根指针：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root = A&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>根指针切换之前，读者看到完整旧版本；切换之后，读者看到完整新版本。</p>
+<p>不会看到一半新、一半旧的混合状态。</p>
+<p>课件第56—59页的树形图体现的正是：</p>
+<blockquote>
+<p>把大范围修改递归转换成一次很小的根指针原子更新。</p>
+</blockquote>
+<h3 id="8-3-文件中的写时复制流程"><a href="#8-3-文件中的写时复制流程" class="headerlink" title="8.3 文件中的写时复制流程"></a>8.3 文件中的写时复制流程</h3><p>文件可能通过多级索引找到数据：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">inode</span><br><span class="line">  ↓</span><br><span class="line">二级索引块</span><br><span class="line">  ↓</span><br><span class="line">一级索引块</span><br><span class="line">  ↓</span><br><span class="line">数据块</span><br></pre></td></tr></table></figure>
+
+<p>如果某个数据块需要修改：</p>
+<ol>
+<li>为该数据块分配新块；</li>
+<li>把旧数据复制到新块并修改；</li>
+<li>复制指向该数据块的一级索引块，修改其中的指针；</li>
+<li>复制更上层的二级索引块；</li>
+<li>复制 inode 或更高层结构；</li>
+<li>原子切换入口；</li>
+<li>确认旧版本不再使用后，回收旧块。</li>
+</ol>
+<p>重点是：</p>
+<blockquote>
+<p>修改沿着“数据块到根节点”的路径逐层向上传播。</p>
+</blockquote>
+<h3 id="8-4-写放大问题"><a href="#8-4-写放大问题" class="headerlink" title="8.4 写放大问题"></a>8.4 写放大问题</h3><p>用户可能只想修改两个小数据块，但系统还需要复制：</p>
+<ul>
+<li>相关索引块；</li>
+<li>二级索引块；</li>
+<li>inode；</li>
+<li>其他祖先节点。</li>
+</ul>
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">实际写入量 &gt; 用户修改量</span><br></pre></td></tr></table></figure>
+
+<p>这叫写放大。</p>
+<p>写时复制不代表一定比日志快。</p>
+<p>如果只是修改一个很小的数据区域，却需要复制很长的索引路径，写入开销仍然可能很大。</p>
+<h3 id="8-5-写时复制文件系统"><a href="#8-5-写时复制文件系统" class="headerlink" title="8.5 写时复制文件系统"></a>8.5 写时复制文件系统</h3><p>课件以 Btrfs 为例说明，写时复制可以应用于整个文件系统的树状结构。</p>
+<p>文件系统中的多种结构都可以通过树组织，例如：</p>
+<ul>
+<li>根树；</li>
+<li>文件系统树；</li>
+<li>区段树；</li>
+<li>设备树；</li>
+<li>校验码树。</li>
+</ul>
+<p>修改时构造新树节点，再切换相应的根或指针。</p>
+<hr>
+<h2 id="9-日志与写时复制的区别"><a href="#9-日志与写时复制的区别" class="headerlink" title="9. 日志与写时复制的区别"></a>9. 日志与写时复制的区别</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>日志 Journaling</th>
+<th>写时复制 Copy-on-Write</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原数据是否原地修改</td>
+<td>最终会修改正式位置</td>
+<td>不直接覆盖旧版本</td>
+</tr>
+<tr>
+<td>修改前做什么</td>
+<td>把修改记录到日志</td>
+<td>在新位置复制并修改</td>
+</tr>
+<tr>
+<td>生效标志</td>
+<td>Commit Block</td>
+<td>根指针或入口指针切换</td>
+</tr>
+<tr>
+<td>崩溃前新版本未完成</td>
+<td>忽略未提交日志</td>
+<td>继续使用旧树</td>
+</tr>
+<tr>
+<td>新版本完成后的恢复</td>
+<td>可能需要重放日志</td>
+<td>入口已经指向新版本</td>
+</tr>
+<tr>
+<td>主要额外开销</td>
+<td>日志写入、数据可能写两遍</td>
+<td>复制祖先节点、空间回收</td>
+</tr>
+<tr>
+<td>典型问题</td>
+<td>日志空间、提交延迟、写放大</td>
+<td>碎片、写放大、回收复杂</td>
+</tr>
+<tr>
+<td>典型系统</td>
+<td>Ext4 + JBD2</td>
+<td>Btrfs 等</td>
+</tr>
+</tbody></table>
+<p>可以把它们直观地区分为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">日志：</span><br><span class="line">先写“我要怎么改”，然后去改旧结构。</span><br><span class="line"></span><br><span class="line">写时复制：</span><br><span class="line">不改旧结构，先在旁边造好新结构，然后切换入口。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="10-核心机制三：Soft-Updates"><a href="#10-核心机制三：Soft-Updates" class="headerlink" title="10. 核心机制三：Soft Updates"></a>10. 核心机制三：Soft Updates</h2><h3 id="10-1-它是什么？"><a href="#10-1-它是什么？" class="headerlink" title="10.1 它是什么？"></a>10.1 它是什么？</h3><p>Soft Updates 的思想与日志和写时复制不同。</p>
+<p>它不一定要求一次操作的全部修改原子落盘，而是认为：</p>
+<blockquote>
+<p>有些不完整状态只是空间泄漏，并不会破坏文件系统；真正需要避免的是危险的不一致状态。</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inode 已标记为占用</span><br><span class="line">但还没有目录项指向它</span><br></pre></td></tr></table></figure>
+
+<p>这会浪费一个 inode，但不会让目录项指向错误对象。</p>
+<p>相反：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">目录项已经指向 inode</span><br><span class="line">但 inode 尚未初始化</span><br></pre></td></tr></table></figure>
+
+<p>就是危险状态。</p>
+<p>因此 Soft Updates 的方法是：</p>
+<blockquote>
+<p>在内存中记录修改之间的依赖关系，严格安排它们写入磁盘的先后次序。</p>
+</blockquote>
+<h3 id="10-2-它是怎么工作的？"><a href="#10-2-它是怎么工作的？" class="headerlink" title="10.2 它是怎么工作的？"></a>10.2 它是怎么工作的？</h3><p>内存中维护最新的元数据，并把各个修改组织成依赖图。</p>
+<p>例如创建文件时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">修改1：在 bitmap 中标记 inode 已占用</span><br><span class="line">修改2：初始化 inode，依赖修改1</span><br><span class="line">修改3：写入目录项，依赖修改1和修改2</span><br></pre></td></tr></table></figure>
+
+<p>因此持久化顺序必须满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">分配 inode</span><br><span class="line">    ↓</span><br><span class="line">初始化 inode</span><br><span class="line">    ↓</span><br><span class="line">目录项指向 inode</span><br></pre></td></tr></table></figure>
+
+<p>后台可以异步写磁盘，但不能违反依赖顺序。</p>
+<h3 id="10-3-Soft-Updates-的三个次序规则"><a href="#10-3-Soft-Updates-的三个次序规则" class="headerlink" title="10.3 Soft Updates 的三个次序规则"></a>10.3 Soft Updates 的三个次序规则</h3><h4 id="规则一：不要指向未初始化的结构"><a href="#规则一：不要指向未初始化的结构" class="headerlink" title="规则一：不要指向未初始化的结构"></a>规则一：不要指向未初始化的结构</h4><p>目录项指向 inode 之前，inode 必须已经初始化。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">正确：</span><br><span class="line">初始化 inode → 写入目录项</span><br><span class="line"></span><br><span class="line">错误：</span><br><span class="line">写入目录项 → 以后再初始化 inode</span><br></pre></td></tr></table></figure>
+
+<h4 id="规则二：仍被引用的结构不能重新分配"><a href="#规则二：仍被引用的结构不能重新分配" class="headerlink" title="规则二：仍被引用的结构不能重新分配"></a>规则二：仍被引用的结构不能重新分配</h4><p>如果某个 inode 仍然指向数据块，该数据块就不能同时被重新分配给其他文件。</p>
+<p>必须先让旧指针失效，再把资源放回空闲池。</p>
+<h4 id="规则三：不要过早删除最后一个有效指针"><a href="#规则三：不要过早删除最后一个有效指针" class="headerlink" title="规则三：不要过早删除最后一个有效指针"></a>规则三：不要过早删除最后一个有效指针</h4><p>例如重命名文件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">旧目录项 → 文件</span><br><span class="line">新目录项 → 文件</span><br></pre></td></tr></table></figure>
+
+<p>应当先写入新目录项，再删除旧目录项。</p>
+<p>否则如果先删除旧目录项并发生崩溃，文件可能失去最后一个可访问入口。</p>
+<h3 id="10-4-Soft-Updates-的优缺点"><a href="#10-4-Soft-Updates-的优缺点" class="headerlink" title="10.4 Soft Updates 的优缺点"></a>10.4 Soft Updates 的优缺点</h3><p>优点：</p>
+<ul>
+<li>不需要在磁盘上维护额外日志；</li>
+<li>正常读写可以大量利用内存缓存；</li>
+<li>磁盘上的元数据始终保持结构一致；</li>
+<li>崩溃后通常不需要重放日志即可挂载。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>依赖关系极其复杂；</li>
+<li>每种文件系统操作都要拆成多个细粒度修改；</li>
+<li>需要记录旧值、新值和依赖边；</li>
+<li>很难实现和验证正确性。</li>
+</ul>
+<p>课件也明确指出：Soft Updates 的实现复杂度很高。</p>
+<hr>
+<h2 id="11-三种崩溃一致性方案对比"><a href="#11-三种崩溃一致性方案对比" class="headerlink" title="11. 三种崩溃一致性方案对比"></a>11. 三种崩溃一致性方案对比</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>日志</th>
+<th>写时复制</th>
+<th>Soft Updates</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基本思想</td>
+<td>先记录，再原地修改</td>
+<td>新位置构造，再切换入口</td>
+<td>控制依赖写入顺序</td>
+</tr>
+<tr>
+<td>是否保留旧版本</td>
+<td>通常不长期保留</td>
+<td>切换前保留</td>
+<td>不以保留完整版本为核心</td>
+</tr>
+<tr>
+<td>磁盘额外信息</td>
+<td>需要日志区域</td>
+<td>需要新副本和新节点</td>
+<td>通常不需要额外日志</td>
+</tr>
+<tr>
+<td>崩溃恢复</td>
+<td>检查并重放已提交事务</td>
+<td>选择有效入口或根</td>
+<td>通常可直接使用一致磁盘状态</td>
+</tr>
+<tr>
+<td>原子性来源</td>
+<td>Commit Block</td>
+<td>原子切换根指针</td>
+<td>避免危险中间状态</td>
+</tr>
+<tr>
+<td>性能问题</td>
+<td>双写、提交延迟</td>
+<td>写放大、碎片和回收</td>
+<td>依赖追踪开销</td>
+</tr>
+<tr>
+<td>实现复杂度</td>
+<td>较高但机制清晰</td>
+<td>较高</td>
+<td>非常高</td>
+</tr>
+</tbody></table>
+<p>三种方案解决问题的角度不同：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">日志：</span><br><span class="line">让中间状态可以被恢复程序识别和修复。</span><br><span class="line"></span><br><span class="line">写时复制：</span><br><span class="line">不让中间状态覆盖旧的完整状态。</span><br><span class="line"></span><br><span class="line">Soft Updates：</span><br><span class="line">可以出现中间状态，但禁止危险的中间状态写入磁盘。</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="12-关键机制总流程"><a href="#12-关键机制总流程" class="headerlink" title="12. 关键机制总流程"></a>12. 关键机制总流程</h2><h3 id="12-1-日志恢复流程"><a href="#12-1-日志恢复流程" class="headerlink" title="12.1 日志恢复流程"></a>12.1 日志恢复流程</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">系统启动</span><br><span class="line">  ↓</span><br><span class="line">扫描日志</span><br><span class="line">  ↓</span><br><span class="line">事务是否有完整 Commit？</span><br><span class="line">  ├─ 否 → 丢弃事务</span><br><span class="line">  └─ 是 → 根据 Descriptor 和 Tag 重放事务</span><br><span class="line">                 ↓</span><br><span class="line">             文件系统恢复</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-2-写时复制更新流程"><a href="#12-2-写时复制更新流程" class="headerlink" title="12.2 写时复制更新流程"></a>12.2 写时复制更新流程</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">保留旧结构</span><br><span class="line">  ↓</span><br><span class="line">分配新数据块</span><br><span class="line">  ↓</span><br><span class="line">在新块上修改</span><br><span class="line">  ↓</span><br><span class="line">逐层复制并更新祖先节点</span><br><span class="line">  ↓</span><br><span class="line">所有新结构持久化</span><br><span class="line">  ↓</span><br><span class="line">原子切换根指针</span><br><span class="line">  ↓</span><br><span class="line">回收旧结构</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-3-Soft-Updates-写入流程"><a href="#12-3-Soft-Updates-写入流程" class="headerlink" title="12.3 Soft Updates 写入流程"></a>12.3 Soft Updates 写入流程</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">把文件系统请求拆成多个修改</span><br><span class="line">  ↓</span><br><span class="line">分析修改之间的依赖关系</span><br><span class="line">  ↓</span><br><span class="line">建立依赖图</span><br><span class="line">  ↓</span><br><span class="line">只选择当前依赖已满足的修改写盘</span><br><span class="line">  ↓</span><br><span class="line">磁盘始终维持安全状态</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="13-最容易混淆的点"><a href="#13-最容易混淆的点" class="headerlink" title="13. 最容易混淆的点"></a>13. 最容易混淆的点</h2><h3 id="1-崩溃一致性不等于所有数据都不会丢"><a href="#1-崩溃一致性不等于所有数据都不会丢" class="headerlink" title="1. 崩溃一致性不等于所有数据都不会丢"></a>1. 崩溃一致性不等于所有数据都不会丢</h3><p>崩溃一致性首先保证结构正确。</p>
+<p>即使文件系统完全一致，刚写入但尚未持久化的数据仍可能丢失。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">一致性：磁盘上的关系是否合理</span><br><span class="line">持久性：某次写入是否真的保存下来</span><br></pre></td></tr></table></figure>
+
+<p>二者不是同一件事。</p>
+<h3 id="2-系统调用返回不一定等于数据已经进入磁盘"><a href="#2-系统调用返回不一定等于数据已经进入磁盘" class="headerlink" title="2. 系统调用返回不一定等于数据已经进入磁盘"></a>2. 系统调用返回不一定等于数据已经进入磁盘</h3><p>一次 <code>write()</code> 返回，往往只代表数据进入了内核缓存。</p>
+<p>只有完成必要的写回或同步操作后，数据才真正进入持久化设备。</p>
+<h3 id="3-CPU-执行顺序不等于磁盘持久化顺序"><a href="#3-CPU-执行顺序不等于磁盘持久化顺序" class="headerlink" title="3. CPU 执行顺序不等于磁盘持久化顺序"></a>3. CPU 执行顺序不等于磁盘持久化顺序</h3><p>代码里先修改 inode，再修改目录项，并不能天然保证 inode 一定先落盘。</p>
+<p>缓存、后台写回和设备内部调度都会改变真实持久化顺序。</p>
+<h3 id="4-日志不是普通的应用日志"><a href="#4-日志不是普通的应用日志" class="headerlink" title="4. 日志不是普通的应用日志"></a>4. 日志不是普通的应用日志</h3><p>这里的文件系统日志不是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户 A 在 10:30 登录</span><br></pre></td></tr></table></figure>
+
+<p>而是保存：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">把磁盘块 100 修改成某个新内容</span><br><span class="line">把磁盘块 205 修改成某个新内容</span><br></pre></td></tr></table></figure>
+
+<p>它直接服务于磁盘结构恢复。</p>
+<h3 id="5-Commit-不等于正式位置已经修改完成"><a href="#5-Commit-不等于正式位置已经修改完成" class="headerlink" title="5. Commit 不等于正式位置已经修改完成"></a>5. Commit 不等于正式位置已经修改完成</h3><p>Commit 表示：</p>
+<blockquote>
+<p>完成修改所需的信息已经完整写入日志。</p>
+</blockquote>
+<p>正式文件系统位置可能尚未全部更新。</p>
+<p>这时崩溃仍然没关系，因为恢复时可以重放日志。</p>
+<h3 id="6-Transaction-和单次文件操作不完全相同"><a href="#6-Transaction-和单次文件操作不完全相同" class="headerlink" title="6. Transaction 和单次文件操作不完全相同"></a>6. Transaction 和单次文件操作不完全相同</h3><p>一次文件系统原子操作通常对应一个 Handle。</p>
+<p>为了提高效率，JBD2 会把多个 Handle 合并到同一个 Transaction 中一起提交。</p>
+<h3 id="7-Ordered-模式不是“所有写操作都严格按程序顺序持久化”"><a href="#7-Ordered-模式不是“所有写操作都严格按程序顺序持久化”" class="headerlink" title="7. Ordered 模式不是“所有写操作都严格按程序顺序持久化”"></a>7. Ordered 模式不是“所有写操作都严格按程序顺序持久化”</h3><p>它主要保证与某次元数据提交相关的数据块，先于相应元数据到达磁盘。</p>
+<p>它不是对所有应用写入建立一个全局严格顺序。</p>
+<h3 id="8-写时复制不是普通的内存-Copy-on-Write"><a href="#8-写时复制不是普通的内存-Copy-on-Write" class="headerlink" title="8. 写时复制不是普通的内存 Copy-on-Write"></a>8. 写时复制不是普通的内存 Copy-on-Write</h3><p>二者思想相同：修改前保留旧副本。</p>
+<p>但本章讨论的是磁盘文件系统中的数据块、索引节点和树结构更新，不只是 <code>fork()</code> 后的物理内存页复制。</p>
+<h3 id="9-Soft-Updates-不等于完全避免不一致"><a href="#9-Soft-Updates-不等于完全避免不一致" class="headerlink" title="9. Soft Updates 不等于完全避免不一致"></a>9. Soft Updates 不等于完全避免不一致</h3><p>它允许某些良性不一致，例如 inode 泄漏。</p>
+<p>它保证的是：</p>
+<blockquote>
+<p>不出现会导致错误引用、重复分配等恶性不一致。</p>
+</blockquote>
+<hr>
+<h2 id="14-本节一句话总复习"><a href="#14-本节一句话总复习" class="headerlink" title="14. 本节一句话总复习"></a>14. 本节一句话总复习</h2><p>文件系统崩溃一致性的核心矛盾是：一次逻辑操作需要修改多个磁盘结构，而崩溃可能让其中只有一部分持久化。日志通过“先记录、后提交、再写回”实现恢复，写时复制通过“构造新版本后原子切换入口”避免覆盖完整旧版本，Soft Updates 则通过控制元数据依赖顺序，阻止危险中间状态进入磁盘。</p>
+<hr>
+<h2 id="15-自测题，先不放答案"><a href="#15-自测题，先不放答案" class="headerlink" title="15. 自测题，先不放答案"></a>15. 自测题，先不放答案</h2><h3 id="基础理解"><a href="#基础理解" class="headerlink" title="基础理解"></a>基础理解</h3><ol>
+<li><p>为什么创建一个空文件也不是一次简单的磁盘写操作？</p>
+</li>
+<li><p>创建文件时，如果目录项已经持久化，但 inode 仍然被标记为空闲，可能出现什么问题？</p>
+</li>
+<li><p>为什么代码中“先初始化 inode，再写目录项”，仍然不能直接证明磁盘上的顺序也一定如此？</p>
+</li>
+<li><p>文件系统崩溃一致性为什么不等于“最近写入的数据绝对不会丢失”？</p>
+</li>
+<li><p>持久性、原子性和有序性分别约束什么？</p>
+</li>
+</ol>
+<h3 id="日志机制"><a href="#日志机制" class="headerlink" title="日志机制"></a>日志机制</h3><ol start="6">
+<li><p>日志中的 Commit Block 有什么作用？为什么不能只看前面的日志数据块是否存在？</p>
+</li>
+<li><p>系统在 Commit 之前崩溃和 Commit 之后崩溃，恢复行为有什么区别？</p>
+</li>
+<li><p>既然事务已经写入日志，为什么还要将内容写回文件系统的正式位置？</p>
+</li>
+<li><p>为什么文件系统会把多个操作合并进同一个日志事务，而不是每次系统调用都立即提交？</p>
+</li>
+<li><p>JBD2 中 Handle、Transaction 和 Journal 是什么关系？</p>
+</li>
+<li><p><code>jbd2_journal_get_write_access()</code> 为什么要在真正修改块之前调用？</p>
+</li>
+</ol>
+<h3 id="Ext4-日志模式"><a href="#Ext4-日志模式" class="headerlink" title="Ext4 日志模式"></a>Ext4 日志模式</h3><ol start="12">
+<li><p>Writeback 模式为什么可以保证文件系统结构基本一致，却不能保证文件内容正确？</p>
+</li>
+<li><p>Journal 模式为什么一致性最强，又为什么写入开销最大？</p>
+</li>
+<li><p>Ordered 模式为什么要求数据块先于对应元数据日志提交？</p>
+</li>
+<li><p>如果只记元数据日志，却不控制数据块的写入顺序，可能产生什么现象？</p>
+</li>
+</ol>
+<h3 id="写时复制"><a href="#写时复制" class="headerlink" title="写时复制"></a>写时复制</h3><ol start="16">
+<li><p>写时复制为什么要从被修改的叶子节点一路复制到根节点？</p>
+</li>
+<li><p>为什么只要原子切换根指针，就能让整棵新树一起生效？</p>
+</li>
+<li><p>如果新版本构造到一半时崩溃，旧版本为什么仍然可以正常使用？</p>
+</li>
+<li><p>用户只修改一个数据块时，写时复制为什么可能还要修改多个索引块？</p>
+</li>
+<li><p>写时复制为什么并不一定比日志更高效？</p>
+</li>
+</ol>
+<h3 id="Soft-Updates"><a href="#Soft-Updates" class="headerlink" title="Soft Updates"></a>Soft Updates</h3><ol start="21">
+<li><p>为什么“inode 已分配但没有目录项指向它”通常比“目录项指向未初始化 inode”安全？</p>
+</li>
+<li><p>Soft Updates 为什么可以不把多个修改作为一个完整事务一起写入磁盘？</p>
+</li>
+<li><p>“不要修改最后一个指向有用结构的指针”在文件重命名过程中具体意味着什么？</p>
+</li>
+<li><p>为什么 Soft Updates 不需要日志重放，却很难实现？</p>
+</li>
+</ol>
+<h3 id="综合题"><a href="#综合题" class="headerlink" title="综合题"></a>综合题</h3><ol start="25">
+<li><p>用自己的话分别概括日志、写时复制和 Soft Updates 如何处理“危险中间状态”。</p>
+</li>
+<li><p>假设你正在设计一个重视写入性能、允许丢失最近数据但绝不能破坏目录结构的文件系统，你会优先考虑哪类机制？说明理由。</p>
+</li>
+<li><p>假设事务已经 Commit，但只完成了一半 checkpoint，此时崩溃。重启后应该如何处理？</p>
+</li>
+<li><p>写时复制完成根指针切换后，为什么不能立刻无条件回收全部旧块？</p>
+</li>
+<li><p><code>fsync()</code> 在缓存、日志事务和数据持久化之间大致起什么作用？</p>
+</li>
+<li><p>为什么说崩溃一致性的本质不是“避免崩溃”，而是“控制崩溃后允许出现的状态”？</p>
+</li>
+</ol>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/')">第21讲 文件系统崩溃一致性I</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第21讲 文件系统崩溃一致性I&amp;url=http://example.com/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/&amp;pic=/cover/chunli.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/vega_mbison.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/deejay.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第20讲 文件系统II</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ken.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">第22讲 文件系统崩溃一致性II</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B8%89%E5%91%A8%EF%BC%9A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7-%E5%AD%A6%E4%B9%A0%E6%8C%87%E5%8D%97"><span class="toc-number">1.</span> <span class="toc-text">第十三周：文件系统崩溃一致性 学习指南</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E8%BF%99%E4%B8%80%E7%AB%A0%E5%88%B0%E5%BA%95%E5%9C%A8%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">0. 这一章到底在解决什么问题？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E7%AB%A0%E5%85%B3%E9%94%AE%E8%AF%8D"><span class="toc-number">1.1.1.</span> <span class="toc-text">本章关键词</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%9C%AC%E8%8A%82%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">1.2.</span> <span class="toc-text">1. 本节知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%98%E5%9C%A8%E2%80%9C%E4%B8%80%E8%87%B4%E6%80%A7%E7%BA%A6%E6%9D%9F%E2%80%9D%EF%BC%9F"><span class="toc-number">1.3.</span> <span class="toc-text">2. 文件系统为什么存在“一致性约束”？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1 它是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AE%B9%E6%98%93%E8%A2%AB%E7%A0%B4%E5%9D%8F%EF%BC%9F"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2 为什么容易被破坏？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%86%85%E5%AD%98%E7%BC%93%E5%AD%98%E8%AE%A9%E9%97%AE%E9%A2%98%E6%9B%B4%E5%A4%8D%E6%9D%82%EF%BC%9F"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.3 为什么内存缓存让问题更复杂？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7%E5%88%B0%E5%BA%95%E8%A6%81%E6%B1%82%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">3. 崩溃一致性到底要求什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%94%A8%E6%88%B7%E6%9C%9F%E6%9C%9B"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1 用户期望</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%AF%BE%E4%BB%B6%E4%B8%AD%E7%9A%84%E7%A3%81%E7%9B%98%E5%81%87%E8%AE%BE"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2 课件中的磁盘假设</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%93%8D%E4%BD%9C%E7%9A%84%E4%B8%89%E4%B8%AA%E5%B1%9E%E6%80%A7"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.3 文件系统操作的三个属性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8C%81%E4%B9%85%E6%80%A7-Durable"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">持久性 Durable</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E5%AD%90%E6%80%A7-Atomic"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">原子性 Atomic</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%89%E5%BA%8F%E6%80%A7-Ordered"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">有序性 Ordered</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B4%A9%E6%BA%83%E5%90%8E%E7%9A%84%E6%81%A2%E5%A4%8D%E6%96%B9%E5%BC%8F"><span class="toc-number">1.5.</span> <span class="toc-text">4. 崩溃后的恢复方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E7%A6%BB%E7%BA%BF%E6%81%A2%E5%A4%8D"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1 离线恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%9C%A8%E7%BA%BF%E6%A3%80%E6%9F%A5"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2 在线检查</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E4%B8%80%EF%BC%9A%E6%97%A5%E5%BF%97-Journaling"><span class="toc-number">1.6.</span> <span class="toc-text">5. 核心机制一：日志 Journaling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.6.1.</span> <span class="toc-text">5.1 它是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E5%AE%83%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E4%BF%9D%E8%AF%81%E5%8E%9F%E5%AD%90%E6%80%A7%EF%BC%9F"><span class="toc-number">1.6.2.</span> <span class="toc-text">5.2 它为什么能保证原子性？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%A8-Commit-%E4%B9%8B%E5%89%8D%E5%B4%A9%E6%BA%83"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">在 Commit 之前崩溃</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%A8-Commit-%E4%B9%8B%E5%90%8E%E5%B4%A9%E6%BA%83"><span class="toc-number">1.6.2.2.</span> <span class="toc-text">在 Commit 之后崩溃</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%97%A5%E5%BF%97%E7%9A%84%E5%AE%8C%E6%95%B4%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.6.3.</span> <span class="toc-text">5.3 日志的完整运行流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97"><span class="toc-number">1.6.3.1.</span> <span class="toc-text">阶段一：记录日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E6%8F%90%E4%BA%A4%E4%BA%8B%E5%8A%A1"><span class="toc-number">1.6.3.2.</span> <span class="toc-text">阶段二：提交事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%86%99%E5%9B%9E%E6%AD%A3%E5%BC%8F%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.6.3.3.</span> <span class="toc-text">阶段三：写回正式位置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E5%9B%9B%EF%BC%9A%E5%9B%9E%E6%94%B6%E6%97%A5%E5%BF%97"><span class="toc-number">1.6.3.4.</span> <span class="toc-text">阶段四：回收日志</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E8%A6%81%E4%BD%BF%E7%94%A8%E5%86%85%E5%AD%98%E7%BC%93%E5%AD%98%EF%BC%9F"><span class="toc-number">1.6.4.</span> <span class="toc-text">5.4 为什么还要使用内存缓存？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E6%97%A5%E5%BF%97%E7%9A%84%E4%BB%A3%E4%BB%B7"><span class="toc-number">1.6.5.</span> <span class="toc-text">5.5 日志的代价</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Linux-%E7%9A%84-JBD2-%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.7.</span> <span class="toc-text">6. Linux 的 JBD2 日志系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-JBD2-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.7.1.</span> <span class="toc-text">6.1 JBD2 是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-JBD2-%E4%BA%8B%E5%8A%A1%E7%8A%B6%E6%80%81"><span class="toc-number">1.7.2.</span> <span class="toc-text">6.2 JBD2 事务状态</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C-Running"><span class="toc-number">1.7.2.1.</span> <span class="toc-text">运行 Running</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%94%81%E5%AE%9A-Locked"><span class="toc-number">1.7.2.2.</span> <span class="toc-text">锁定 Locked</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%99%E5%85%A5-Flushing"><span class="toc-number">1.7.2.3.</span> <span class="toc-text">写入 Flushing</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E4%BA%A4-Committing"><span class="toc-number">1.7.2.4.</span> <span class="toc-text">提交 Committing</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%8C%E6%88%90-Finished"><span class="toc-number">1.7.2.5.</span> <span class="toc-text">完成 Finished</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-JBD2%EF%BC%9F"><span class="toc-number">1.7.3.</span> <span class="toc-text">6.3 文件系统如何使用 JBD2？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-JBD2-%E7%9A%84%E7%A3%81%E7%9B%98%E7%BB%93%E6%9E%84"><span class="toc-number">1.7.4.</span> <span class="toc-text">6.4 JBD2 的磁盘结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Ext4-%E7%9A%84%E4%B8%89%E7%A7%8D%E6%97%A5%E5%BF%97%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.8.</span> <span class="toc-text">7. Ext4 的三种日志模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-Writeback-%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.8.1.</span> <span class="toc-text">7.1 Writeback 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-Journal-%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.8.2.</span> <span class="toc-text">7.2 Journal 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-Ordered-%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.8.3.</span> <span class="toc-text">7.3 Ordered 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94"><span class="toc-number">1.8.4.</span> <span class="toc-text">三种模式对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E4%BA%8C%EF%BC%9A%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6-Copy-on-Write"><span class="toc-number">1.9.</span> <span class="toc-text">8. 核心机制二：写时复制 Copy-on-Write</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.9.1.</span> <span class="toc-text">8.1 它是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E5%AE%83%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E4%BF%9D%E8%AF%81%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9F"><span class="toc-number">1.9.2.</span> <span class="toc-text">8.2 它为什么能保证一致性？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%E6%B5%81%E7%A8%8B"><span class="toc-number">1.9.3.</span> <span class="toc-text">8.3 文件中的写时复制流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E5%86%99%E6%94%BE%E5%A4%A7%E9%97%AE%E9%A2%98"><span class="toc-number">1.9.4.</span> <span class="toc-text">8.4 写放大问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.9.5.</span> <span class="toc-text">8.5 写时复制文件系统</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E6%97%A5%E5%BF%97%E4%B8%8E%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.10.</span> <span class="toc-text">9. 日志与写时复制的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E4%B8%89%EF%BC%9ASoft-Updates"><span class="toc-number">1.11.</span> <span class="toc-text">10. 核心机制三：Soft Updates</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.11.1.</span> <span class="toc-text">10.1 它是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E5%AE%83%E6%98%AF%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9F"><span class="toc-number">1.11.2.</span> <span class="toc-text">10.2 它是怎么工作的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-Soft-Updates-%E7%9A%84%E4%B8%89%E4%B8%AA%E6%AC%A1%E5%BA%8F%E8%A7%84%E5%88%99"><span class="toc-number">1.11.3.</span> <span class="toc-text">10.3 Soft Updates 的三个次序规则</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%84%E5%88%99%E4%B8%80%EF%BC%9A%E4%B8%8D%E8%A6%81%E6%8C%87%E5%90%91%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">1.11.3.1.</span> <span class="toc-text">规则一：不要指向未初始化的结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%84%E5%88%99%E4%BA%8C%EF%BC%9A%E4%BB%8D%E8%A2%AB%E5%BC%95%E7%94%A8%E7%9A%84%E7%BB%93%E6%9E%84%E4%B8%8D%E8%83%BD%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D"><span class="toc-number">1.11.3.2.</span> <span class="toc-text">规则二：仍被引用的结构不能重新分配</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%84%E5%88%99%E4%B8%89%EF%BC%9A%E4%B8%8D%E8%A6%81%E8%BF%87%E6%97%A9%E5%88%A0%E9%99%A4%E6%9C%80%E5%90%8E%E4%B8%80%E4%B8%AA%E6%9C%89%E6%95%88%E6%8C%87%E9%92%88"><span class="toc-number">1.11.3.3.</span> <span class="toc-text">规则三：不要过早删除最后一个有效指针</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-Soft-Updates-%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">1.11.4.</span> <span class="toc-text">10.4 Soft Updates 的优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E4%B8%89%E7%A7%8D%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="toc-number">1.12.</span> <span class="toc-text">11. 三种崩溃一致性方案对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%85%B3%E9%94%AE%E6%9C%BA%E5%88%B6%E6%80%BB%E6%B5%81%E7%A8%8B"><span class="toc-number">1.13.</span> <span class="toc-text">12. 关键机制总流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E6%97%A5%E5%BF%97%E6%81%A2%E5%A4%8D%E6%B5%81%E7%A8%8B"><span class="toc-number">1.13.1.</span> <span class="toc-text">12.1 日志恢复流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B"><span class="toc-number">1.13.2.</span> <span class="toc-text">12.2 写时复制更新流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-Soft-Updates-%E5%86%99%E5%85%A5%E6%B5%81%E7%A8%8B"><span class="toc-number">1.13.3.</span> <span class="toc-text">12.3 Soft Updates 写入流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E6%9C%80%E5%AE%B9%E6%98%93%E6%B7%B7%E6%B7%86%E7%9A%84%E7%82%B9"><span class="toc-number">1.14.</span> <span class="toc-text">13. 最容易混淆的点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%89%80%E6%9C%89%E6%95%B0%E6%8D%AE%E9%83%BD%E4%B8%8D%E4%BC%9A%E4%B8%A2"><span class="toc-number">1.14.1.</span> <span class="toc-text">1. 崩溃一致性不等于所有数据都不会丢</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%BF%94%E5%9B%9E%E4%B8%8D%E4%B8%80%E5%AE%9A%E7%AD%89%E4%BA%8E%E6%95%B0%E6%8D%AE%E5%B7%B2%E7%BB%8F%E8%BF%9B%E5%85%A5%E7%A3%81%E7%9B%98"><span class="toc-number">1.14.2.</span> <span class="toc-text">2. 系统调用返回不一定等于数据已经进入磁盘</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-CPU-%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F%E4%B8%8D%E7%AD%89%E4%BA%8E%E7%A3%81%E7%9B%98%E6%8C%81%E4%B9%85%E5%8C%96%E9%A1%BA%E5%BA%8F"><span class="toc-number">1.14.3.</span> <span class="toc-text">3. CPU 执行顺序不等于磁盘持久化顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%97%A5%E5%BF%97%E4%B8%8D%E6%98%AF%E6%99%AE%E9%80%9A%E7%9A%84%E5%BA%94%E7%94%A8%E6%97%A5%E5%BF%97"><span class="toc-number">1.14.4.</span> <span class="toc-text">4. 日志不是普通的应用日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Commit-%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%AD%A3%E5%BC%8F%E4%BD%8D%E7%BD%AE%E5%B7%B2%E7%BB%8F%E4%BF%AE%E6%94%B9%E5%AE%8C%E6%88%90"><span class="toc-number">1.14.5.</span> <span class="toc-text">5. Commit 不等于正式位置已经修改完成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-Transaction-%E5%92%8C%E5%8D%95%E6%AC%A1%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B8%8D%E5%AE%8C%E5%85%A8%E7%9B%B8%E5%90%8C"><span class="toc-number">1.14.6.</span> <span class="toc-text">6. Transaction 和单次文件操作不完全相同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-Ordered-%E6%A8%A1%E5%BC%8F%E4%B8%8D%E6%98%AF%E2%80%9C%E6%89%80%E6%9C%89%E5%86%99%E6%93%8D%E4%BD%9C%E9%83%BD%E4%B8%A5%E6%A0%BC%E6%8C%89%E7%A8%8B%E5%BA%8F%E9%A1%BA%E5%BA%8F%E6%8C%81%E4%B9%85%E5%8C%96%E2%80%9D"><span class="toc-number">1.14.7.</span> <span class="toc-text">7. Ordered 模式不是“所有写操作都严格按程序顺序持久化”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%E4%B8%8D%E6%98%AF%E6%99%AE%E9%80%9A%E7%9A%84%E5%86%85%E5%AD%98-Copy-on-Write"><span class="toc-number">1.14.8.</span> <span class="toc-text">8. 写时复制不是普通的内存 Copy-on-Write</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-Soft-Updates-%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%AE%8C%E5%85%A8%E9%81%BF%E5%85%8D%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-number">1.14.9.</span> <span class="toc-text">9. Soft Updates 不等于完全避免不一致</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%9C%AC%E8%8A%82%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E5%A4%8D%E4%B9%A0"><span class="toc-number">1.15.</span> <span class="toc-text">14. 本节一句话总复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%8C%E5%85%88%E4%B8%8D%E6%94%BE%E7%AD%94%E6%A1%88"><span class="toc-number">1.16.</span> <span class="toc-text">15. 自测题，先不放答案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%90%86%E8%A7%A3"><span class="toc-number">1.16.1.</span> <span class="toc-text">基础理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%9C%BA%E5%88%B6"><span class="toc-number">1.16.2.</span> <span class="toc-text">日志机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ext4-%E6%97%A5%E5%BF%97%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.16.3.</span> <span class="toc-text">Ext4 日志模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6"><span class="toc-number">1.16.4.</span> <span class="toc-text">写时复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Soft-Updates"><span class="toc-number">1.16.5.</span> <span class="toc-text">Soft Updates</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E9%A2%98"><span class="toc-number">1.16.6.</span> <span class="toc-text">综合题</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" title="第23讲 设备管理"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/vega_mbison.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第23讲 设备管理"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" title="第23讲 设备管理">第23讲 设备管理</a><time datetime="2026-06-23T04:13:38.000Z" title="Created 2026-06-23 12:13:38">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/" title="第22讲 文件系统崩溃一致性II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ken.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第22讲 文件系统崩溃一致性II"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/" title="第22讲 文件系统崩溃一致性II">第22讲 文件系统崩溃一致性II</a><time datetime="2026-06-23T04:13:31.000Z" title="Created 2026-06-23 12:13:31">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/" title="第21讲 文件系统崩溃一致性I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/chunli.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第21讲 文件系统崩溃一致性I"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/" title="第21讲 文件系统崩溃一致性I">第21讲 文件系统崩溃一致性I</a><time datetime="2026-06-23T04:13:22.000Z" title="Created 2026-06-23 12:13:22">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/" title="第20讲 文件系统II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/deejay.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第20讲 文件系统II"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/" title="第20讲 文件系统II">第20讲 文件系统II</a><time datetime="2026-06-23T04:13:15.000Z" title="Created 2026-06-23 12:13:15">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/" title="第19讲 文件系统I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第19讲 文件系统I"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/" title="第19讲 文件系统I">第19讲 文件系统I</a><time datetime="2026-06-23T04:13:06.000Z" title="Created 2026-06-23 12:13:06">2026-06-23</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">55</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

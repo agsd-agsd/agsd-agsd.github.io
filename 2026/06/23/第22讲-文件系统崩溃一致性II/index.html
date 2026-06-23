@@ -1,0 +1,1931 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第22讲 文件系统崩溃一致性II | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第22讲 文件系统崩溃一致性II"><meta name="application-name" content="第22讲 文件系统崩溃一致性II"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第22讲 文件系统崩溃一致性II"><meta property="og:url" content="http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="从日志到闪存：日志结构文件系统与F2FS如何组织持续写入引言传统带日志文件系统通常采用如下更新流程： 12345先把修改写入日志        ↓写入Commit，确认事务完整        ↓把修改复制到文件系统正式位置  这种设计能够有效保证崩溃一致性，但也存在明显代价：同一份修改可能先写入日志"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/ken.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/ken.png"><meta name="description" content="从日志到闪存：日志结构文件系统与F2FS如何组织持续写入引言传统带日志文件系统通常采用如下更新流程： 12345先把修改写入日志        ↓写入Commit，确认事务完整        ↓把修改复制到文件系统正式位置  这种设计能够有效保证崩溃一致性，但也存在明显代价：同一份修改可能先写入日志"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第22讲 文件系统崩溃一致性II',
+  postAI: '',
+  pageFillDescription: '从日志到闪存：日志结构文件系统与F2FS如何组织持续写入, 引言, 一、带日志文件系统与日志结构文件系统, 1. LFS为什么采用追加写, 读取经常被缓存吸收, 机械硬盘顺序写远快于随机写, 2. 异地更新, 二、inode map：如何找到不断移动的inode, 1. inode map的工作方式, 2. inode map本身也会移动, 3. 创建文件时的完整更新, 写入文件数据和inode, 更新父目录, 更新映射, 4. 无效不等于已删除, 三、为什么LFS必须进行空间回收, 四、Segment：顺序写与空间回收的折中单位, 1. 为什么不按单个块回收, 2. 为什么不能每次整理整个磁盘, 3. 段的折中, 4. 段内写入规则, 5. 段使用表, 五、段概要：如何判断块是否仍然有效, 1. 有效性的判断标准, 2. inode块如何判断有效性, 3. 段概要与段使用表, 六、段清理, 1. 选择待清理段, 2. 读取段与概要, 3. 判断有效块, 4. 搬迁有效数据, 5. 更新映射, 6. 释放旧段, 7. 清理带来的写放大, 七、Checkpoint：崩溃恢复的可信起点, 1. 检查点保存什么, 2. 检查点的恢复流程, 3. 为什么需要两个检查点区域, 八、Roll-forward：恢复检查点之后的更新, 1. 前滚恢复流程, 2. Checkpoint与Roll-forward的关系, 九、顺序追加为什么仍不能自动保证目录一致性, 十、目录修改日志, 十一、NAND Flash的基本特性, 1. 读取、写入与擦除单位不同, 2. 闪存不能任意原地覆盖, 3. 擦写寿命, 4. SSD具有内部并行性, 5. Cell类型, 十二、FTL：SSD内部的地址转换层, 1. 覆盖写如何被FTL处理, 2. FTL的职责, 3. 有FTL为什么还需要闪存友好文件系统, 十三、传统LFS在闪存上的两个问题, 1. 递归更新, 2. 单一日志限制并行性, 十四、F2FS：面向闪存的日志结构文件系统, 十五、NAT：用稳定Node ID切断递归更新, 1. 传统指针结构, 2. 引入NAT后的结构, 3. NAT减少了什么, 4. NAT自身仍需持久化, 十六、NAT与FTL不是同一映射, 十七、多日志与冷热数据分离, 1. 为什么要区分冷热, 2. 生命周期相似的数据放在一起, 3. 多日志与SSD并行性, 十八、F2FS的空间层次, 1. Block, 2. Segment, 3. Section, 4. Zone, 5. 不同层次的块, 十九、F2FS的主要磁盘结构, 1. CP, 2. SIT, 3. NAT, 4. SSA, 5. Main Area, 二十、F2FS更新一个node的过程, 二十一、F2FS的垃圾回收, 1. 双重垃圾回收, 二十二、LFS为什么不是只写一次, 二十三、关键概念对比, 1. inode map与NAT, 2. inode map与段概要, 3. Checkpoint与增量日志, 4. LFS清理与FTL垃圾回收, 二十四、容易混淆的几个问题, 1. 追加写不自动保证崩溃一致性, 2. 无效块并不等于已经擦除, 3. 顺序写仍然可能产生写放大, 4. Segment不是NAND Erase Block, 5. FTL不能替代文件系统优化, 二十五、统一理解：用映射换取可移动性, 结论从日志到闪存日志结构文件系统与如何组织持续写入引言传统带日志文件系统通常采用如下更新流程先把修改写入日志写入确认事务完整把修改复制到文件系统正式位置这种设计能够有效保证崩溃一致性但也存在明显代价同一份修改可能先写入日志再写入正式位置产生额外写入于是日志结构文件系统提出了一个更彻底的问题既然日志中已经保存了最新数据为什么还要维护另一套固定位置的文件系统结构日志结构文件系统即简称选择直接把日志作为文件系统的主要存储形式文件数据和其他元数据不再频繁覆盖原位置而是不断追加到新的位置其基本更新方式是旧版本保留在原位置新版本追加到日志末尾更新映射使新版本成为当前版本旧版本因不再被引用而失效这种设计能够把许多离散的小写入合并成大块顺序写尤其适合随机写代价较高的机械硬盘然而异地追加也带来新的问题不断移动后系统怎样找到它旧版本留下的无效空间怎样回收清理时怎样判断哪些数据仍然有效崩溃后怎样快速恢复最新状态面对闪存的擦除限制有限寿命和内部并行性传统是否仍然合适即正是在日志结构思想基础上针对闪存设备进一步优化的文件系统一带日志文件系统与日志结构文件系统带日志文件系统和日志结构文件系统虽然名称相似但日志在二者中的地位完全不同对比点带日志文件系统日志结构文件系统英文日志作用临时记录待执行的修改文件系统主要存储形式是否维护正式位置是数据主要直接存在日志中更新方式日志提交后覆盖原位置向日志末尾追加新版本主要恢复机制重放已提交日志检查点与前滚恢复空间回收循环复用日志区域清理无效块和段带日志文件系统的结构可以理解为日志区域暂时保存修改正式区域长期保存文件系统状态而的结构则是持续增长的日志文件系统主要内容因此不是简单地把日志区域做得更大而是改变了整个文件系统的组织原则为什么采用追加写的提出建立在两个重要观察上读取经常被缓存吸收操作系统会使用页缓存保存近期访问过的文件内容许多读取请求可以直接从内存完成不必真正访问磁盘因此文件系统性能瓶颈常常集中在必须持久化的写入上机械硬盘顺序写远快于随机写传统文件系统更新不同对象时可能需要写入区域位图区域目录块文件数据块间接索引块这些位置分散在磁盘不同区域会引发频繁寻道将内存中积累的修改整理后连续写入日志末尾多个离散文件修改在内存中聚合形成连续日志块顺序写入存储设备这样可以将大量小型随机写转换成较大的顺序写异地更新最基本的规则是不在原位置覆盖旧版本而是在新位置写入更新后的版本假设一个文件的位于磁盘位置文件被修改后不会在处覆盖而是在日志末尾写入新的文件数据在日志末尾写入新的更新映射使系统找到新旧因为不再被当前映射引用而失效这与普通的原地更新不同原地更新旧内容直接覆盖新内容更新旧内容保留新内容写到新位置映射切换到新内容异地更新避免了随机覆盖却使文件对象的位置不断变化这就引出了的第一个核心结构本节核心结论带日志文件系统把日志当作临时恢复记录则直接用持续追加的日志保存文件和元数据从而把随机更新转化为顺序写二如何找到不断移动的在传统文件系统中通常位于固定的表中只要知道号就可以按照固定公式计算其位置例如号计算表偏移找到但在中每次更新都会被写到新位置号保持不变磁盘位置却不断变化因此系统需要维护号最新位置这张映射表就是也称的工作方式假设当前映射为位置位置位置被修改后新的被追加到位置系统只需把映射更新为位置旧位置上的仍然存在但已经不再是当前版本完整查找流程变为号最新位置文件数据块增加了一层间接映射使可以自由移动而不改变其编号本身也会移动同样属于文件系统元数据也会被修改如果位置变化中对应的表项就必须更新而的新版本通常也以日志形式写入新位置这会产生新的问题的位置又由谁记录通常通过检查点区域记录各部分的位置检查点位于固定可直接找到的位置是文件系统启动恢复的入口因此查找链条进一步变为固定检查点的位置的当前位置文件数据这是一种多层间接定位结构创建文件时的完整更新假设在根目录下创建文件其内容为从用户角度看这只是创建并写入一个文件但需要追加多个对象写入文件数据和系统先追加保存的数据块指向该数据块的新文件此时文件自身的数据结构已经存在但目录中还无法通过名字找到它更新父目录根目录需要新增目录项不能在原位置修改根目录数据块因此需要追加新的根目录数据块指向新目录数据块的新根目录更新映射之后还需要更新的分配状态的新位置根目录的新位置的新版本完整过程可以表示为写入数据块写入写入新根目录数据块写入新根目录更新旧版本失效一次简单的文件创建最终可能触发多个数据和元数据对象的新版本写入无效不等于已删除新版本生效以后旧和旧数据通常仍然保留在磁盘中它们只是不再被最新或指针引用因此旧块处于无效状态但尚未被物理清除需要区分状态含义有效当前文件系统状态仍引用该块无效已被新版本替代不再被引用空闲或干净可以直接重新用于写入已擦除对闪存而言物理擦除已经完成无效块只有在后续空间清理中被回收后所在区域才可以重新使用本节核心结论记录号到最新位置的映射使能够在日志中不断移动旧版本不会立即消失而是先变成等待回收的无效数据三为什么必须进行空间回收不断向新位置追加数据但设备容量有限随着文件反复修改磁盘会同时存在当前有效版本被新版本替代的旧被覆盖的旧文件数据旧目录块旧块这些旧内容虽然已经无效却散布在日志的各个位置最终可能出现设备表面上已经写满但其中大量空间保存的是无效旧版本因此必须识别无效内容并重新组织剩余有效数据从而释放可连续写入的空间四顺序写与空间回收的折中单位为什么不按单个块回收一种简单方法是把每个空闲块加入空闲链表之后需要空间时从链表中取任意块使用这样虽然能充分利用零散空间但新写入会散落到各处重新变成随机写破坏的主要优势空闲块链表每次找到一个零散块写入位置不断跳跃为什么不能每次整理整个磁盘另一个极端是把所有有效数据完整复制到连续区域然后释放其他空间这样可以获得非常整齐的布局但每次整理都要扫描和复制大量数据成本过高段的折中把存储空间划分为固定大小的段即段通常远大于单个文件系统块例如系统以段为单位进行顺序写入有效性统计数据搬迁空间回收这种设计避免了单块管理过于零散也避免了全盘整理代价过高段内写入规则一个可写段内部通常按照顺序追加块块块块当前段写满后系统从干净段列表中选择另一个段继续写入所谓干净段是指整个段已经可以重新作为新的日志区域使用段中只要还存在不能丢弃的有效数据就不能直接作为干净段覆盖段使用表使用段使用表记录每个段的整体状态例如段中有效字节或有效块数量最近修改时间是否已经清理是否可直接回收例如段有效块数量最近修改时间较早较新较早如果某段的有效块数量为说明段内所有内容都已失效可以直接转变为干净段如果仍有少量有效块则必须先搬走这些块才能释放整段段使用表只能说明一个段中还有多少有效内容但不能说明具体哪个块有效以及它属于哪个文件后一个问题由段概要解决本节核心结论是顺序写与空间回收的基本单位在零散块管理和全盘整理之间取得折中五段概要如何判断块是否仍然有效每个段需要记录段内各块的身份这类信息称为即段概要某个块的概要可能记录块类型文件数据块号逻辑块序号含义是这个物理块曾经保存所代表文件的第个逻辑数据块有效性的判断标准仅凭段概要不能直接判断块是否仍然有效因为段概要只能说明这个块曾经属于谁系统还需要检查当前文件系统状态是否仍然引用它判断过程为从段概要得知该块属于的逻辑块通过找到的最新版本查看最新中逻辑块的当前地址比较当前地址是否仍然是该物理块读取段中某块段概要逻辑块通过找到最新最新指针是否仍指向此块是块仍然有效否块已经失效因此块是否有效取决于当前文件系统的最新指针是否仍然认领它数据仍然存在于磁盘上并不代表它仍属于当前文件系统状态块如何判断有效性如果段中的对象本身是也可以利用判断例如段概要表明某块保存那么系统检查是否仍然指向该块如果是该块仍然有效如果已经指向新位置旧块就失效段概要与段使用表对比点段概要段使用表粒度段内单个块整个段记录内容块属于哪个及逻辑位置有效块数量时间等主要用途识别块身份判断有效性管理段选择清理对象查询方向物理块到文件对象段到整体使用状态则提供相反方向的定位号位置所以可以将三者区分为正向找到段概要从磁盘块反查其身份段使用表统计整个段的有效程度六段清理段清理的目标是把若干包含大量无效数据的旧段整理成少量保存有效数据的新段并释放旧段选择待清理段系统通常优先选择无效块比例高的段长时间未清理的段清理收益较高的段如果一个段包含大量仍然有效的数据清理时需要搬迁很多块收益较低如果一个段几乎全部无效只需搬迁少量内容即可释放整个段收益较高读取段与概要系统读取待清理段及其段概要识别每个块曾经保存的对象判断有效块对每个块系统通过最新和其他映射判断它是否仍然被引用搬迁有效数据仍然有效的数据不能丢弃系统将这些块重新整理并顺序写入新的干净段例如旧段有效无效无效有效旧段无效有效无效无效清理后新段有效有效有效旧段可回收旧段可回收更新映射有效块迁移到新位置后需要更新中的数据块位置段使用信息其他相关元数据这又会产生新的日志写入释放旧段所有有效数据迁出后旧段可以标记为干净段加入可写段列表选择低利用率旧段读取段与段概要识别有效块把有效块写入新段更新映射旧段转为干净段清理带来的写放大段清理会产生额外读取旧段复制仍有效的数据更新映射写入新的段概要和管理信息因此的前台更新虽然主要是顺序追加但后台清理可能重新写入大量未被用户修改的数据这说明避免了传统日志的日志加正式位置双写却不能避免整个生命周期中的额外写入如果清理策略选择不当写放大仍然可能很严重本节核心结论段清理通过搬迁仍有效的数据来释放整个旧段它恢复了连续空间但会产生额外读写和写放大七崩溃恢复的可信起点如果系统每次挂载时都从日志开头扫描到末尾理论上可以重建最新状态但日志可能非常长其中还包含大量失效旧版本随着文件系统增大全量扫描会使挂载时间不可接受因此会定期创建即检查点检查点保存什么检查点记录某一时刻的关键文件系统状态例如各部分的位置段使用表当前日志尾位置当前时间或版本号其他恢复所需元数据有了这些信息文件系统可以直接恢复到检查点时刻而不必从日志最早位置开始扫描检查点的恢复流程读取检查点找到恢复文件最新位置恢复段使用状态确定日志尾和后续扫描位置检查点并不保存整个文件系统的数据副本而是保存足以找到当前主要结构的入口信息为什么需要两个检查点区域如果只有一个检查点区域系统更新检查点时可能在中途崩溃例如旧检查点已经被部分覆盖新检查点又尚未完整写入此时唯一恢复入口可能损坏因此系统通常准备两个检查点区域并交替写入上一次完整状态正在构造的新状态新检查点完整持久化以前旧检查点仍然保留下一次再更新时可以反向写入另一个区域这种设计遵循崩溃一致性的基本原则在新版本确认完整之前不破坏最后一个有效旧版本八恢复检查点之后的更新检查点是周期性生成的并不会在每次文件写入后立即更新因此系统可能在以下时刻崩溃检查点完成又追加了若干文件和尚未生成下一检查点系统崩溃如果恢复时只加载检查点检查点之后已经完整写入的修改就会全部丢失因此采用即前滚恢复前滚恢复流程选择最新完整检查点恢复检查点记录的和段状态从检查点对应的日志尾开始继续扫描根据段概要识别检查点之后写入的新和数据验证这些结构是否构成完整更新将完整更新加入恢复后的文件系统状态丢弃未被有效对象引用的孤立块读取最新检查点恢复检查点状态扫描检查点后的日志识别完整新和数据前滚到更新后的状态丢弃不完整或孤立数据与的关系机制作用提供可信完整的恢复起点尽量找回检查点之后的完整更新检查点减少扫描范围前滚减少数据丢失二者结合后系统既不需要扫描整个磁盘也不必简单回退到较早状态本节核心结论双检查点保存最近完整状态再扫描检查点之后的日志恢复已经完整写入但尚未进入新检查点的更新九顺序追加为什么仍不能自动保证目录一致性把内容按顺序追加并不意味着一次复杂操作的所有部分一定同时完成例如创建新文件可能涉及写入新文件数据写入新文件修改父目录更新链接数更新系统可能在任意两步之间崩溃假设新文件已经写入链接计数也已经更新但父目录项尚未写入此时可能认为自己已被目录引用但实际上没有任何目录项能够访问它段概要只能说明某个块属于哪个它无法表达操作是否完整完成是否完成的两个目录修改是否都完成是否已经完成链接数与目录项数量是否一致因此还需要专门记录目录操作十目录修改日志目录修改日志用于记录目录相关操作的语义信息例如目录项位置目录项内容链接数变化该日志需要在真正修改目录前持久化使恢复程序能够判断操作意图例如重命名可能包含在新目录中增加新名字从旧目录中删除旧名字更新相关和目录元数据如果系统在中途崩溃目录修改日志可以帮助恢复程序决定应该完成剩余步骤应该撤销不完整步骤应如何修正链接计数这形成一个看似特殊的结构本身已经采用日志结构复杂目录语义仍需要额外操作日志原因在于物理上的顺序写入只能证明某些块已写入不能自动证明这些块共同表达了一个完整合法的文件系统操作崩溃一致性不仅是块级完整性问题也是高层语义关系问题本节核心结论顺序追加只能保证数据被依次写出不能自动保证目录项和链接计数的语义一致因此仍需要目录修改日志十一的基本特性最初主要针对机械硬盘设计将类似思想用于时必须理解的物理限制闪存内部通常具有如下层次控制器还通过多个并行访问多个和读取写入与擦除单位不同通常以为读写或编程单位以更大的为擦除单位例如或或具体大小随设备而变化但关键关系是擦除单位远大于写入单位闪存不能任意原地覆盖已经写入的闪存页不能像内存一样随意改写如果某个页需要更新典型做法是把新数据写入另一个空闲页更新地址映射将旧页标记为无效之后通过垃圾回收统一擦除旧块如果擦除块中仍存在有效页垃圾回收还要读取有效页将其复制到其他位置擦除整个块重新使用该块这一过程会产生写放大擦写寿命闪存块能够承受的有限如果少数物理块被反复擦除它们会比其他块更快损坏因此需要磨损均衡将写入和擦除尽量分散到不同物理块使设备整体寿命更加均衡具有内部并行性没有机械磁头但它不是一个单线程存储设备控制器可以通过多个并行执行操作因此性能不仅取决于是否顺序写还取决于写入是否能分布到多个内部单元如果文件系统只维持一个单一串行写入点可能无法充分利用设备内部并行性类型按照每个保存的比特数量闪存可分为类型每比特数一般特征速度快耐久性高成本高通常容量与性能折中密度更高广泛使用容量密度高写入与寿命压力更大每个保存的状态越多通常意味着容量密度提高每成本下降编程更复杂误差容忍更困难写入性能和耐久性面临更大压力十二内部的地址转换层操作系统把视为普通块设备并向其发送逻辑块地址但内部真正操作的是闪存页和擦除块即负责完成主机逻辑块地址闪存物理页覆盖写如何被处理当操作系统要求覆盖某个逻辑块时可能执行找到一个新的空闲物理页将新数据写入该页更新逻辑块到物理页的映射将旧物理页标记为无效在之后的垃圾回收中擦除旧页所在块这与的异地更新非常相似的职责通常负责逻辑地址到物理地址映射异地更新垃圾回收磨损均衡坏块管理数据迁移内部并行调度因此即使上层文件系统看起来在执行覆盖写内部也可能把它转化为异地写入有为什么还需要闪存友好文件系统不能完全消除上层文件系统低效写入的代价如果文件系统产生大量小型随机写冷热数据混合反复元数据更新短生命周期数据无规律覆盖就需要更频繁地更新映射搬迁有效页执行垃圾回收擦除闪存块这会增加写放大并缩短设备寿命因此文件系统仍然需要尽量产生更适合闪存的写入模式本节核心结论把逻辑块映射到物理闪存页并在设备内部执行异地更新和垃圾回收但上层文件系统的访问模式仍会影响性能和寿命十三传统在闪存上的两个问题的异地更新与闪存天然契合但传统并不能直接发挥现代的全部能力递归更新假设只修改文件的一个数据块由于数据块写到了新位置索引块中的地址必须更新索引块写到新位置后中的指针也要更新移动后又要更新修改一个数据块数据块位置改变更新索引索引位置改变更新位置改变更新这种位置变化沿索引层级向上传播称为递归更新用户只修改少量数据却可能触发多层元数据重写在写入寿命有限的闪存上这类写放大尤其不利单一日志限制并行性传统通常强调一条连续日志在一个日志尾部不断追加对于机械硬盘这可以最大限度减少寻道但具有多个并行通道如果所有更新都集中在一个写入点可能形成串行瓶颈因此更适合的文件系统需要多个并行日志多个当前写入段根据数据类型分流根据更新频率分流这正是的重要改进方向十四面向闪存的日志结构文件系统全称为它继承了的核心思想异地更新顺序追加段式空间管理垃圾回收检查点恢复同时针对闪存加入了减少递归更新多日志提高并行性冷热数据分离减少垃圾回收开销面向闪存的段区和管理结构十五用稳定切断递归更新是它维护当前逻辑块地址这里的不仅包括还包括直接间接其他索引传统指针结构传统结构中父节点直接保存子节点位置父节点子节点当前地址子节点一旦移动父节点就必须修改父节点修改后也会移动从而继续影响更高层节点引入后的结构让父节点保存稳定的而不是容易变化的位置父节点子节点子节点当前逻辑地址父子子当前位置当子被写入新位置时只需更新新地址父中的保持不变不必逐层向上修改减少了什么不能让元数据更新完全消失它做的是把分散在多层父节点中的地址更新集中到一张地址映射表中因此它能够显著减少因移动导致的递归传播自身仍需持久化也是文件系统元数据需要缓存更新写入崩溃恢复因此还要通过检查点和相关管理机制保证其一致性增加一层间接映射换来了较少的树形递归更新但也增加了映射表管理成本十六与不是同一映射和都执行地址转换但位于不同层次对比点所属层次文件系统控制器或闪存管理层输入主机逻辑块地址输出文件系统逻辑块地址闪存物理页主要作用找到当前逻辑位置管理物理闪存布局维护者操作系统中的固件或闪存软件一次访问可能经过逻辑块地址闪存物理页二者共同使用间接映射思想但解决的问题不同解决的是文件系统中的移动解决的是逻辑块在物理闪存中的移动本节核心结论通过稳定定位可移动避免地址变化沿索引树递归传播则在更低层把逻辑块映射到物理闪存页十七多日志与冷热数据分离并不只维护一个当前日志段而是设置多个当前写入段将不同类型和生命周期的数据分别写入常见分类包括热数据温数据冷数据热温冷为什么要区分冷热热数据频繁更新冷数据长期不变如果把二者混在同一段中一个段热数据冷数据热数据冷数据一段时间后和可能很快失效和仍然有效为了回收和留下的空间垃圾回收必须反复搬迁和这会增加写放大生命周期相似的数据放在一起如果将热数据集中存放热段热数据热数据热数据这些内容更可能在相近时间失效使整个段更容易被完整回收冷数据则集中在冷段中长期保持有效减少不必要搬迁因此冷热分离的目标是让同一个段中的数据具有尽可能相似的生命周期多日志与并行性多个写入段还意味着多个逻辑写入流底层和控制器可以把这些写入分散到不同不同不同从而提高并行度不过文件系统无法完全直接控制内部物理布局最终效果还依赖策略多日志提供的是更有利的并行机会而不是绝对物理位置保证十八的空间层次从小到大组织为通常约为是文件系统逻辑读写单位一个由多个组成典型大小约为是顺序写入和状态统计的重要单位由多个组成常作为垃圾回收的较大单位由多个组成可以帮助文件系统进行更大范围的空间组织不同层次的块需要特别区分名称所属层次含义文件系统逻辑读写块通常约文件系统多个组成的顺序写区域闪存硬件闪存编程和读取单位闪存硬件闪存擦除单位不必等于文件系统看到的是逻辑块设备底层物理映射由控制因此二者只能在设计上尽量协调不能简单一一对应十九的主要磁盘结构通常包含以下重要区域主要数据区域保存恢复所需的关键状态例如当前有效版本和相关信息当前段位置文件系统状态它是崩溃恢复的重要起点记录状态例如有效块数量有效块位图段类型修改时间它帮助系统选择垃圾回收对象并管理空间记录当前逻辑块地址用于找到和各种索引保存即段概要信息它说明中每个块属于哪个哪个文件逻辑位置哪种数据类型主要用于垃圾回收和恢复保存文件数据直接间接不同类型和温度的数据可以写入不同当前结构主要作用提供崩溃恢复入口管理段状态和有效块定位当前位置记录段中块的身份保存文件数据和本节核心结论通过和分别管理恢复入口段状态位置和块身份则负责多日志追加文件数据与二十更新一个的过程假设某个需要修改传统结构可能需要修改位置改变更新父父位置改变继续更新祖先使用后修改把新写入新逻辑块更新中的映射父仍引用相同完整流程为修改内容在新位置写入更新映射旧变为无效父无需因地址变化而更新这样可以减少因地址改变产生的元数据级联更新二十一的垃圾回收同样需要回收包含无效块的垃圾回收大致包括根据选择回收目标通过识别段中各块身份通过和其他结构判断块是否仍然有效把有效块迁移到新的更新或文件数据映射释放旧或这与段清理思想一致但还要考虑热冷分类前台与后台垃圾回收闪存写放大空间不足时的紧急回收与垃圾回收的叠加双重垃圾回收使用时可能同时存在两层垃圾回收垃圾回收整理逻辑垃圾回收整理物理闪存擦除块文件系统认为某些逻辑块已经释放并不意味着底层物理页立即被擦除还需要根据自己的映射和物理块状态进行回收如果两层策略配合不好可能产生额外的数据搬迁二十二为什么不是只写一次避免了带日志文件系统中的典型双写先写日志再写正式位置但中的有效数据仍然可能因为以下原因多次写入文件自身再次修改更新递归元数据更新段清理垃圾回收有效块搬迁检查点更新因此追加写不等于每份数据生命周期中只写一次更准确地说把前台更新组织成异地追加但后台空间回收仍然可能重复搬迁有效数据二十三关键概念对比与对比点典型系统映射对象号广义定位目标当前位置及索引当前位置主要目的找到移动后的减少移动导致的递归更新覆盖范围主要是直接间接并不是的简单改名它扩展了映射对象并通过稳定切断多级之间的位置依赖与段概要对比点段概要查询方向号到位置物理块到所属对象主要场景正常文件访问垃圾回收和恢复回答问题现在在哪里这个块曾经属于谁与增量日志对比点检查点之后的日志内容某一时刻的关键完整状态之后产生的增量更新作用快速恢复起点写入频率周期性持续产生恢复方式直接加载顺序扫描验证清理与垃圾回收对比点或清理垃圾回收所属层次文件系统控制器管理对象逻辑块和物理页和擦除块有效性依据文件系统指针和元数据逻辑到物理映射主要目标回收文件系统逻辑空间回收可擦除物理空间二十四容易混淆的几个问题追加写不自动保证崩溃一致性即使所有内容按顺序追加系统仍可能在以下状态崩溃数据块已写未写已写未写文件已写目录项未写检查点只写了一半因此仍需要双检查点目录修改日志明确的持久化协议无效块并不等于已经擦除中旧块只是失去引用在磁盘上它可能仍然保留原始字节在闪存上它可能仍占据物理页真正重新利用空间需要文件系统段清理可能的垃圾回收闪存块擦除顺序写仍然可能产生写放大顺序写减少了随机写代价但清理会搬迁有效数据所以评价不能只看前台写入还要看用户实际写入量与设备最终物理写入量之间的比例不是是文件系统逻辑单位是闪存物理单位由于存在文件系统通常不知道一个逻辑最终对应哪些物理擦除块不能替代文件系统优化可以处理异地更新但无法无代价地消除上层产生的大量小写冷热混合和频繁覆盖低效文件系统写入最终仍会表现为更多映射更新更多物理搬迁更多垃圾回收更高写放大更短设备寿命二十五统一理解用映射换取可移动性和中反复出现同一种设计思想对象的位置可能改变但对象的逻辑身份保持稳定通过映射表把稳定身份转换为当前位置在中号位置在中逻辑地址在内部逻辑块地址闪存物理地址这些映射表使底层对象能够自由迁移可以在日志中移动可以在之间移动逻辑块可以在闪存页之间移动代价是系统必须维护更多映射元数据并保证映射本身的崩溃一致性稳定逻辑身份映射层当前可变位置允许异地更新与迁移需要维护映射一致性结论日志结构文件系统将日志从临时恢复区域提升为文件系统的主要存储形式它不再频繁覆盖固定位置而是把文件数据和元数据持续追加到日志末尾使用定位不断移动的以为单位保持顺序写使用段概要判断块的身份和有效性通过段清理搬迁有效数据并回收空间通过双提供可信恢复起点通过恢复检查点之后的完整修改使用目录修改日志维护高层目录语义一致性面对闪存设备传统仍存在递归更新和单日志并行度不足的问题通过维护稳定到当前位置的映射多日志将不同类型的数据分流冷热数据分离减少垃圾回收时的有效数据搬迁和协同管理恢复段状态位置与块身份最终形成更适合特性的日志结构设计的核心不是简单地把数据顺序写下去而是通过追加写映射清理和检查点把不断变化的文件系统组织成一条可恢复可回收的日志的关键改进则是在保持异地更新优势的同时减少递归元数据更新分离不同生命周期的数据并尽可能利用闪存设备的内部并行性',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-23 12:13:31',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">36</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">第22讲 文件系统崩溃一致性II</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:31.000Z" title="Created 2026-06-23 12:13:31">2026-06-23</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:31.754Z" title="Updated 2026-06-23 12:13:31">2026-06-23</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">10.9k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>33min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/ken.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/"><header><h1 id="CrawlerTitle" itemprop="name headline">第22讲 文件系统崩溃一致性II</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:31.000Z" title="Created 2026-06-23 12:13:31">2026-06-23</time><time itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:31.754Z" title="Updated 2026-06-23 12:13:31">2026-06-23</time></header><h1 id="从日志到闪存：日志结构文件系统与F2FS如何组织持续写入"><a href="#从日志到闪存：日志结构文件系统与F2FS如何组织持续写入" class="headerlink" title="从日志到闪存：日志结构文件系统与F2FS如何组织持续写入"></a>从日志到闪存：日志结构文件系统与F2FS如何组织持续写入</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>传统带日志文件系统通常采用如下更新流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">先把修改写入日志</span><br><span class="line">        ↓</span><br><span class="line">写入Commit，确认事务完整</span><br><span class="line">        ↓</span><br><span class="line">把修改复制到文件系统正式位置</span><br></pre></td></tr></table></figure>
+
+<p>这种设计能够有效保证崩溃一致性，但也存在明显代价：同一份修改可能先写入日志，再写入正式位置，产生额外写入。</p>
+<p>于是，日志结构文件系统提出了一个更彻底的问题：</p>
+<blockquote>
+<p>既然日志中已经保存了最新数据，为什么还要维护另一套固定位置的文件系统结构？</p>
+</blockquote>
+<p>日志结构文件系统，即Log-structured File System，简称LFS，选择直接把日志作为文件系统的主要存储形式。文件数据、inode和其他元数据不再频繁覆盖原位置，而是不断追加到新的位置。</p>
+<p>其基本更新方式是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">旧版本保留在原位置</span><br><span class="line">        ↓</span><br><span class="line">新版本追加到日志末尾</span><br><span class="line">        ↓</span><br><span class="line">更新映射，使新版本成为当前版本</span><br><span class="line">        ↓</span><br><span class="line">旧版本因不再被引用而失效</span><br></pre></td></tr></table></figure>
+
+<p>这种设计能够把许多离散的小写入合并成大块顺序写，尤其适合随机写代价较高的机械硬盘。</p>
+<p>然而，异地追加也带来新的问题：</p>
+<ul>
+<li>inode不断移动后，系统怎样找到它？</li>
+<li>旧版本留下的无效空间怎样回收？</li>
+<li>清理时怎样判断哪些数据仍然有效？</li>
+<li>崩溃后怎样快速恢复最新状态？</li>
+<li>面对闪存的擦除限制、有限寿命和内部并行性，传统LFS是否仍然合适？</li>
+</ul>
+<p>F2FS，即Flash-Friendly File System，正是在日志结构思想基础上，针对闪存设备进一步优化的文件系统。</p>
+<hr>
+<h1 id="一、带日志文件系统与日志结构文件系统"><a href="#一、带日志文件系统与日志结构文件系统" class="headerlink" title="一、带日志文件系统与日志结构文件系统"></a>一、带日志文件系统与日志结构文件系统</h1><p>“带日志文件系统”和“日志结构文件系统”虽然名称相似，但日志在二者中的地位完全不同。</p>
+<table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>带日志文件系统</th>
+<th>日志结构文件系统</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>英文</td>
+<td>Journaling File System</td>
+<td>Log-structured File System</td>
+</tr>
+<tr>
+<td>日志作用</td>
+<td>临时记录待执行的修改</td>
+<td>文件系统主要存储形式</td>
+</tr>
+<tr>
+<td>是否维护正式位置</td>
+<td>是</td>
+<td>数据主要直接存在日志中</td>
+</tr>
+<tr>
+<td>更新方式</td>
+<td>日志提交后覆盖原位置</td>
+<td>向日志末尾追加新版本</td>
+</tr>
+<tr>
+<td>主要恢复机制</td>
+<td>重放已提交日志</td>
+<td>检查点与前滚恢复</td>
+</tr>
+<tr>
+<td>空间回收</td>
+<td>循环复用日志区域</td>
+<td>清理无效块和段</td>
+</tr>
+</tbody></table>
+<p>带日志文件系统的结构可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">日志区域：暂时保存修改</span><br><span class="line">正式区域：长期保存文件系统状态</span><br></pre></td></tr></table></figure>
+
+<p>而LFS的结构则是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">持续增长的日志</span><br><span class="line">    =</span><br><span class="line">文件系统主要内容</span><br></pre></td></tr></table></figure>
+
+<p>因此，LFS不是简单地把日志区域做得更大，而是改变了整个文件系统的组织原则。</p>
+<hr>
+<h2 id="1-LFS为什么采用追加写"><a href="#1-LFS为什么采用追加写" class="headerlink" title="1. LFS为什么采用追加写"></a>1. LFS为什么采用追加写</h2><p>LFS的提出建立在两个重要观察上。</p>
+<h3 id="读取经常被缓存吸收"><a href="#读取经常被缓存吸收" class="headerlink" title="读取经常被缓存吸收"></a>读取经常被缓存吸收</h3><p>操作系统会使用页缓存保存近期访问过的文件内容。许多读取请求可以直接从内存完成，不必真正访问磁盘。</p>
+<p>因此，文件系统性能瓶颈常常集中在必须持久化的写入上。</p>
+<h3 id="机械硬盘顺序写远快于随机写"><a href="#机械硬盘顺序写远快于随机写" class="headerlink" title="机械硬盘顺序写远快于随机写"></a>机械硬盘顺序写远快于随机写</h3><p>传统文件系统更新不同对象时，可能需要写入：</p>
+<ul>
+<li>inode区域</li>
+<li>位图区域</li>
+<li>目录块</li>
+<li>文件数据块</li>
+<li>间接索引块</li>
+</ul>
+<p>这些位置分散在磁盘不同区域，会引发频繁寻道。</p>
+<p>LFS将内存中积累的修改整理后，连续写入日志末尾：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[多个离散文件修改] --&gt; B[在内存中聚合]
+    B --&gt; C[形成连续日志块]
+    C --&gt; D[顺序写入存储设备]
+  </pre></div>
+
+<p>这样可以将大量小型随机写转换成较大的顺序写。</p>
+<hr>
+<h2 id="2-异地更新"><a href="#2-异地更新" class="headerlink" title="2. 异地更新"></a>2. 异地更新</h2><p>LFS最基本的规则是：</p>
+<blockquote>
+<p><strong>不在原位置覆盖旧版本，而是在新位置写入更新后的版本。</strong></p>
+</blockquote>
+<p>假设一个文件的inode位于磁盘位置A。</p>
+<p>文件被修改后，LFS不会在A处覆盖inode，而是：</p>
+<ol>
+<li>在日志末尾写入新的文件数据。</li>
+<li>在日志末尾写入新的inode。</li>
+<li>更新映射，使系统找到新inode。</li>
+<li>旧inode因为不再被当前映射引用而失效。</li>
+</ol>
+<p>这与普通的原地更新不同：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">原地更新：</span><br><span class="line">旧内容 → 直接覆盖 → 新内容</span><br><span class="line"></span><br><span class="line">LFS更新：</span><br><span class="line">旧内容保留</span><br><span class="line">新内容写到新位置</span><br><span class="line">映射切换到新内容</span><br></pre></td></tr></table></figure>
+
+<p>异地更新避免了随机覆盖，却使文件对象的位置不断变化。</p>
+<p>这就引出了LFS的第一个核心结构：inode map。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 带日志文件系统把日志当作临时恢复记录；LFS则直接用持续追加的日志保存文件和元数据，从而把随机更新转化为顺序写。</p>
+<hr>
+<h1 id="二、inode-map：如何找到不断移动的inode"><a href="#二、inode-map：如何找到不断移动的inode" class="headerlink" title="二、inode map：如何找到不断移动的inode"></a>二、inode map：如何找到不断移动的inode</h1><p>在传统inode文件系统中，inode通常位于固定的inode表中。只要知道inode号，就可以按照固定公式计算其位置。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">inode号</span><br><span class="line">   ↓</span><br><span class="line">计算inode表偏移</span><br><span class="line">   ↓</span><br><span class="line">找到inode</span><br></pre></td></tr></table></figure>
+
+<p>但在LFS中，inode每次更新都会被写到新位置。inode号保持不变，磁盘位置却不断变化。</p>
+<p>因此，系统需要维护：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inode号 → 最新inode位置</span><br></pre></td></tr></table></figure>
+
+<p>这张映射表就是inode map，也称imap。</p>
+<hr>
+<h2 id="1-inode-map的工作方式"><a href="#1-inode-map的工作方式" class="headerlink" title="1. inode map的工作方式"></a>1. inode map的工作方式</h2><p>假设当前映射为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inode 1 → 位置A</span><br><span class="line">inode 2 → 位置D</span><br><span class="line">inode 3 → 位置H</span><br></pre></td></tr></table></figure>
+
+<p>inode 2被修改后，新的inode被追加到位置K。系统只需把映射更新为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inode 2 → 位置K</span><br></pre></td></tr></table></figure>
+
+<p>旧位置D上的inode仍然存在，但已经不再是当前版本。</p>
+<p>完整查找流程变为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[inode号] --&gt; B[inode map]
+    B --&gt; C[最新inode位置]
+    C --&gt; D[inode]
+    D --&gt; E[文件数据块]
+  </pre></div>
+
+<p>inode map增加了一层间接映射，使inode可以自由移动而不改变其编号。</p>
+<hr>
+<h2 id="2-inode-map本身也会移动"><a href="#2-inode-map本身也会移动" class="headerlink" title="2. inode map本身也会移动"></a>2. inode map本身也会移动</h2><p>inode map同样属于文件系统元数据，也会被修改。</p>
+<p>如果inode位置变化，inode map中对应的表项就必须更新；而inode map的新版本通常也以日志形式写入新位置。</p>
+<p>这会产生新的问题：</p>
+<blockquote>
+<p>inode map的位置又由谁记录？</p>
+</blockquote>
+<p>LFS通常通过检查点区域记录inode map各部分的位置。检查点位于固定、可直接找到的位置，是文件系统启动恢复的入口。</p>
+<p>因此，查找链条进一步变为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">固定检查点</span><br><span class="line">    ↓</span><br><span class="line">inode map的位置</span><br><span class="line">    ↓</span><br><span class="line">inode的当前位置</span><br><span class="line">    ↓</span><br><span class="line">文件数据</span><br></pre></td></tr></table></figure>
+
+<p>这是一种多层间接定位结构。</p>
+<hr>
+<h2 id="3-创建文件时的完整更新"><a href="#3-创建文件时的完整更新" class="headerlink" title="3. 创建文件时的完整更新"></a>3. 创建文件时的完整更新</h2><p>假设在根目录下创建文件<code>/file3</code>，其内容为<code>hello</code>。</p>
+<p>从用户角度看，这只是创建并写入一个文件。但LFS需要追加多个对象。</p>
+<h3 id="写入文件数据和inode"><a href="#写入文件数据和inode" class="headerlink" title="写入文件数据和inode"></a>写入文件数据和inode</h3><p>系统先追加：</p>
+<ul>
+<li>保存<code>hello</code>的数据块</li>
+<li>指向该数据块的新文件inode</li>
+</ul>
+<p>此时文件自身的数据结构已经存在，但目录中还无法通过名字找到它。</p>
+<h3 id="更新父目录"><a href="#更新父目录" class="headerlink" title="更新父目录"></a>更新父目录</h3><p>根目录需要新增目录项：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file3 → inode 6</span><br></pre></td></tr></table></figure>
+
+<p>LFS不能在原位置修改根目录数据块，因此需要追加：</p>
+<ul>
+<li>新的根目录数据块</li>
+<li>指向新目录数据块的新根目录inode</li>
+</ul>
+<h3 id="更新映射"><a href="#更新映射" class="headerlink" title="更新映射"></a>更新映射</h3><p>之后还需要更新：</p>
+<ul>
+<li>inode 6的分配状态</li>
+<li>inode 6的新位置</li>
+<li>根目录inode的新位置</li>
+<li>inode map的新版本</li>
+</ul>
+<p>完整过程可以表示为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[写入file3数据块] --&gt; B[写入file3 inode]
+    B --&gt; C[写入新根目录数据块]
+    C --&gt; D[写入新根目录inode]
+    D --&gt; E[更新inode map]
+    E --&gt; F[旧版本失效]
+  </pre></div>
+
+<p>一次简单的文件创建，最终可能触发多个数据和元数据对象的新版本写入。</p>
+<hr>
+<h2 id="4-无效不等于已删除"><a href="#4-无效不等于已删除" class="headerlink" title="4. 无效不等于已删除"></a>4. 无效不等于已删除</h2><p>新版本生效以后，旧inode和旧数据通常仍然保留在磁盘中。</p>
+<p>它们只是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">不再被最新inode map或inode指针引用</span><br></pre></td></tr></table></figure>
+
+<p>因此旧块处于“无效”状态，但尚未被物理清除。</p>
+<p>需要区分：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>有效</td>
+<td>当前文件系统状态仍引用该块</td>
+</tr>
+<tr>
+<td>无效</td>
+<td>已被新版本替代，不再被引用</td>
+</tr>
+<tr>
+<td>空闲或干净</td>
+<td>可以直接重新用于写入</td>
+</tr>
+<tr>
+<td>已擦除</td>
+<td>对闪存而言，物理擦除已经完成</td>
+</tr>
+</tbody></table>
+<p>无效块只有在后续空间清理中被回收后，所在区域才可以重新使用。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> inode map记录inode号到最新inode位置的映射，使inode能够在日志中不断移动；旧版本不会立即消失，而是先变成等待回收的无效数据。</p>
+<hr>
+<h1 id="三、为什么LFS必须进行空间回收"><a href="#三、为什么LFS必须进行空间回收" class="headerlink" title="三、为什么LFS必须进行空间回收"></a>三、为什么LFS必须进行空间回收</h1><p>LFS不断向新位置追加数据，但设备容量有限。</p>
+<p>随着文件反复修改，磁盘会同时存在：</p>
+<ul>
+<li>当前有效版本</li>
+<li>被新版本替代的旧inode</li>
+<li>被覆盖的旧文件数据</li>
+<li>旧目录块</li>
+<li>旧inode map块</li>
+</ul>
+<p>这些旧内容虽然已经无效，却散布在日志的各个位置。</p>
+<p>最终可能出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">设备表面上已经写满</span><br><span class="line">但其中大量空间保存的是无效旧版本</span><br></pre></td></tr></table></figure>
+
+<p>因此，LFS必须识别无效内容，并重新组织剩余有效数据，从而释放可连续写入的空间。</p>
+<hr>
+<h1 id="四、Segment：顺序写与空间回收的折中单位"><a href="#四、Segment：顺序写与空间回收的折中单位" class="headerlink" title="四、Segment：顺序写与空间回收的折中单位"></a>四、Segment：顺序写与空间回收的折中单位</h1><h2 id="1-为什么不按单个块回收"><a href="#1-为什么不按单个块回收" class="headerlink" title="1. 为什么不按单个块回收"></a>1. 为什么不按单个块回收</h2><p>一种简单方法是把每个空闲块加入空闲链表。之后需要空间时，从链表中取任意块使用。</p>
+<p>这样虽然能充分利用零散空间，但新写入会散落到各处，重新变成随机写，破坏LFS的主要优势。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">空闲块链表</span><br><span class="line">    ↓</span><br><span class="line">每次找到一个零散块</span><br><span class="line">    ↓</span><br><span class="line">写入位置不断跳跃</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-为什么不能每次整理整个磁盘"><a href="#2-为什么不能每次整理整个磁盘" class="headerlink" title="2. 为什么不能每次整理整个磁盘"></a>2. 为什么不能每次整理整个磁盘</h2><p>另一个极端是把所有有效数据完整复制到连续区域，然后释放其他空间。</p>
+<p>这样可以获得非常整齐的布局，但每次整理都要扫描和复制大量数据，成本过高。</p>
+<hr>
+<h2 id="3-段的折中"><a href="#3-段的折中" class="headerlink" title="3. 段的折中"></a>3. 段的折中</h2><p>LFS把存储空间划分为固定大小的段，即Segment。</p>
+<p>段通常远大于单个文件系统块，例如：</p>
+<ul>
+<li>512KB</li>
+<li>1MB</li>
+<li>2MB</li>
+</ul>
+<p>系统以段为单位进行：</p>
+<ul>
+<li>顺序写入</li>
+<li>有效性统计</li>
+<li>数据搬迁</li>
+<li>空间回收</li>
+</ul>
+<p>这种设计避免了单块管理过于零散，也避免了全盘整理代价过高。</p>
+<hr>
+<h2 id="4-段内写入规则"><a href="#4-段内写入规则" class="headerlink" title="4. 段内写入规则"></a>4. 段内写入规则</h2><p>一个可写段内部通常按照顺序追加。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">块0 → 块1 → 块2 → 块3 → …</span><br></pre></td></tr></table></figure>
+
+<p>当前段写满后，系统从干净段列表中选择另一个段继续写入。</p>
+<p>所谓干净段，是指：</p>
+<blockquote>
+<p>整个段已经可以重新作为新的日志区域使用。</p>
+</blockquote>
+<p>段中只要还存在不能丢弃的有效数据，就不能直接作为干净段覆盖。</p>
+<hr>
+<h2 id="5-段使用表"><a href="#5-段使用表" class="headerlink" title="5. 段使用表"></a>5. 段使用表</h2><p>LFS使用段使用表记录每个段的整体状态，例如：</p>
+<ul>
+<li>段中有效字节或有效块数量</li>
+<li>最近修改时间</li>
+<li>是否已经清理</li>
+<li>是否可直接回收</li>
+</ul>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>段</th>
+<th align="right">有效块数量</th>
+<th>最近修改时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Segment 1</td>
+<td align="right">0</td>
+<td>较早</td>
+</tr>
+<tr>
+<td>Segment 2</td>
+<td align="right">8</td>
+<td>较新</td>
+</tr>
+<tr>
+<td>Segment 3</td>
+<td align="right">2</td>
+<td>较早</td>
+</tr>
+</tbody></table>
+<p>如果某段的有效块数量为0，说明段内所有内容都已失效，可以直接转变为干净段。</p>
+<p>如果仍有少量有效块，则必须先搬走这些块，才能释放整段。</p>
+<p>段使用表只能说明：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一个段中还有多少有效内容</span><br></pre></td></tr></table></figure>
+
+<p>但不能说明：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">具体哪个块有效，以及它属于哪个文件</span><br></pre></td></tr></table></figure>
+
+<p>后一个问题由段概要解决。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> Segment是LFS顺序写与空间回收的基本单位，在零散块管理和全盘整理之间取得折中。</p>
+<hr>
+<h1 id="五、段概要：如何判断块是否仍然有效"><a href="#五、段概要：如何判断块是否仍然有效" class="headerlink" title="五、段概要：如何判断块是否仍然有效"></a>五、段概要：如何判断块是否仍然有效</h1><p>每个段需要记录段内各块的身份，这类信息称为Segment Summary，即段概要。</p>
+<p>某个块的概要可能记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">块类型：文件数据块</span><br><span class="line">inode号：8</span><br><span class="line">逻辑块序号：2</span><br></pre></td></tr></table></figure>
+
+<p>含义是：</p>
+<blockquote>
+<p>这个物理块曾经保存inode 8所代表文件的第2个逻辑数据块。</p>
+</blockquote>
+<hr>
+<h2 id="1-有效性的判断标准"><a href="#1-有效性的判断标准" class="headerlink" title="1. 有效性的判断标准"></a>1. 有效性的判断标准</h2><p>仅凭段概要不能直接判断块是否仍然有效，因为段概要只能说明这个块“曾经属于谁”。</p>
+<p>系统还需要检查当前文件系统状态是否仍然引用它。</p>
+<p>判断过程为：</p>
+<ol>
+<li>从段概要得知该块属于inode 8的逻辑块2。</li>
+<li>通过inode map找到inode 8的最新版本。</li>
+<li>查看最新inode中逻辑块2的当前地址。</li>
+<li>比较当前地址是否仍然是该物理块。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[读取段中某块] --&gt; B[段概要：inode 8，逻辑块2]
+    B --&gt; C[通过inode map找到最新inode 8]
+    C --&gt; D{最新指针是否仍指向此块}
+    D -- 是 --&gt; E[块仍然有效]
+    D -- 否 --&gt; F[块已经失效]
+  </pre></div>
+
+<p>因此，块是否有效取决于：</p>
+<blockquote>
+<p><strong>当前文件系统的最新指针是否仍然认领它。</strong></p>
+</blockquote>
+<p>数据仍然存在于磁盘上，并不代表它仍属于当前文件系统状态。</p>
+<hr>
+<h2 id="2-inode块如何判断有效性"><a href="#2-inode块如何判断有效性" class="headerlink" title="2. inode块如何判断有效性"></a>2. inode块如何判断有效性</h2><p>如果段中的对象本身是inode，也可以利用inode map判断。</p>
+<p>例如段概要表明某块保存inode 8，那么系统检查：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inode map[8]是否仍然指向该块</span><br></pre></td></tr></table></figure>
+
+<p>如果是，该inode块仍然有效；如果inode map已经指向新位置，旧inode块就失效。</p>
+<hr>
+<h2 id="3-段概要与段使用表"><a href="#3-段概要与段使用表" class="headerlink" title="3. 段概要与段使用表"></a>3. 段概要与段使用表</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>段概要</th>
+<th>段使用表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>粒度</td>
+<td>段内单个块</td>
+<td>整个段</td>
+</tr>
+<tr>
+<td>记录内容</td>
+<td>块属于哪个inode及逻辑位置</td>
+<td>有效块数量、时间等</td>
+</tr>
+<tr>
+<td>主要用途</td>
+<td>识别块身份、判断有效性</td>
+<td>管理段、选择清理对象</td>
+</tr>
+<tr>
+<td>查询方向</td>
+<td>物理块到文件对象</td>
+<td>段到整体使用状态</td>
+</tr>
+</tbody></table>
+<p>inode map则提供相反方向的定位：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inode号 → inode位置</span><br></pre></td></tr></table></figure>
+
+<p>所以可以将三者区分为：</p>
+<ul>
+<li>inode map：正向找到inode。</li>
+<li>段概要：从磁盘块反查其身份。</li>
+<li>段使用表：统计整个段的有效程度。</li>
+</ul>
+<hr>
+<h1 id="六、段清理"><a href="#六、段清理" class="headerlink" title="六、段清理"></a>六、段清理</h1><p>段清理的目标是：</p>
+<blockquote>
+<p>把若干包含大量无效数据的旧段，整理成少量保存有效数据的新段，并释放旧段。</p>
+</blockquote>
+<hr>
+<h2 id="1-选择待清理段"><a href="#1-选择待清理段" class="headerlink" title="1. 选择待清理段"></a>1. 选择待清理段</h2><p>系统通常优先选择：</p>
+<ul>
+<li>无效块比例高的段</li>
+<li>长时间未清理的段</li>
+<li>清理收益较高的段</li>
+</ul>
+<p>如果一个段包含大量仍然有效的数据，清理时需要搬迁很多块，收益较低。</p>
+<p>如果一个段几乎全部无效，只需搬迁少量内容即可释放整个段，收益较高。</p>
+<hr>
+<h2 id="2-读取段与概要"><a href="#2-读取段与概要" class="headerlink" title="2. 读取段与概要"></a>2. 读取段与概要</h2><p>系统读取待清理段及其段概要，识别每个块曾经保存的对象。</p>
+<hr>
+<h2 id="3-判断有效块"><a href="#3-判断有效块" class="headerlink" title="3. 判断有效块"></a>3. 判断有效块</h2><p>对每个块，系统通过最新inode、inode map和其他映射判断它是否仍然被引用。</p>
+<hr>
+<h2 id="4-搬迁有效数据"><a href="#4-搬迁有效数据" class="headerlink" title="4. 搬迁有效数据"></a>4. 搬迁有效数据</h2><p>仍然有效的数据不能丢弃。</p>
+<p>系统将这些块重新整理，并顺序写入新的干净段。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">旧段A：有效1、无效、无效、有效2</span><br><span class="line">旧段B：无效、有效3、无效、无效</span><br></pre></td></tr></table></figure>
+
+<p>清理后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">新段C：有效1、有效2、有效3</span><br><span class="line">旧段A：可回收</span><br><span class="line">旧段B：可回收</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-更新映射"><a href="#5-更新映射" class="headerlink" title="5. 更新映射"></a>5. 更新映射</h2><p>有效块迁移到新位置后，需要更新：</p>
+<ul>
+<li>inode中的数据块位置</li>
+<li>inode map</li>
+<li>段使用信息</li>
+<li>其他相关元数据</li>
+</ul>
+<p>这又会产生新的日志写入。</p>
+<hr>
+<h2 id="6-释放旧段"><a href="#6-释放旧段" class="headerlink" title="6. 释放旧段"></a>6. 释放旧段</h2><p>所有有效数据迁出后，旧段可以标记为干净段，加入可写段列表。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[选择低利用率旧段] --&gt; B[读取段与段概要]
+    B --&gt; C[识别有效块]
+    C --&gt; D[把有效块写入新段]
+    D --&gt; E[更新映射]
+    E --&gt; F[旧段转为干净段]
+  </pre></div>
+
+<hr>
+<h2 id="7-清理带来的写放大"><a href="#7-清理带来的写放大" class="headerlink" title="7. 清理带来的写放大"></a>7. 清理带来的写放大</h2><p>段清理会产生额外I&#x2F;O：</p>
+<ul>
+<li>读取旧段</li>
+<li>复制仍有效的数据</li>
+<li>更新映射</li>
+<li>写入新的段概要和管理信息</li>
+</ul>
+<p>因此，LFS的前台更新虽然主要是顺序追加，但后台清理可能重新写入大量未被用户修改的数据。</p>
+<p>这说明：</p>
+<blockquote>
+<p>LFS避免了传统日志的“日志加正式位置”双写，却不能避免整个生命周期中的额外写入。</p>
+</blockquote>
+<p>如果清理策略选择不当，写放大仍然可能很严重。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 段清理通过搬迁仍有效的数据来释放整个旧段；它恢复了连续空间，但会产生额外读写和写放大。</p>
+<hr>
+<h1 id="七、Checkpoint：崩溃恢复的可信起点"><a href="#七、Checkpoint：崩溃恢复的可信起点" class="headerlink" title="七、Checkpoint：崩溃恢复的可信起点"></a>七、Checkpoint：崩溃恢复的可信起点</h1><p>如果系统每次挂载时都从日志开头扫描到末尾，理论上可以重建最新状态。</p>
+<p>但日志可能非常长，其中还包含大量失效旧版本。随着文件系统增大，全量扫描会使挂载时间不可接受。</p>
+<p>因此，LFS会定期创建Checkpoint，即检查点。</p>
+<hr>
+<h2 id="1-检查点保存什么"><a href="#1-检查点保存什么" class="headerlink" title="1. 检查点保存什么"></a>1. 检查点保存什么</h2><p>检查点记录某一时刻的关键文件系统状态，例如：</p>
+<ul>
+<li>inode map各部分的位置</li>
+<li>段使用表</li>
+<li>当前日志尾位置</li>
+<li>当前时间或版本号</li>
+<li>其他恢复所需元数据</li>
+</ul>
+<p>有了这些信息，文件系统可以直接恢复到检查点时刻，而不必从日志最早位置开始扫描。</p>
+<hr>
+<h2 id="2-检查点的恢复流程"><a href="#2-检查点的恢复流程" class="headerlink" title="2. 检查点的恢复流程"></a>2. 检查点的恢复流程</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">读取检查点</span><br><span class="line">    ↓</span><br><span class="line">找到inode map</span><br><span class="line">    ↓</span><br><span class="line">恢复文件最新inode位置</span><br><span class="line">    ↓</span><br><span class="line">恢复段使用状态</span><br><span class="line">    ↓</span><br><span class="line">确定日志尾和后续扫描位置</span><br></pre></td></tr></table></figure>
+
+<p>检查点并不保存整个文件系统的数据副本，而是保存足以找到当前主要结构的入口信息。</p>
+<hr>
+<h2 id="3-为什么需要两个检查点区域"><a href="#3-为什么需要两个检查点区域" class="headerlink" title="3. 为什么需要两个检查点区域"></a>3. 为什么需要两个检查点区域</h2><p>如果只有一个检查点区域，系统更新检查点时可能在中途崩溃。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">旧检查点已经被部分覆盖</span><br><span class="line">新检查点又尚未完整写入</span><br></pre></td></tr></table></figure>
+
+<p>此时唯一恢复入口可能损坏。</p>
+<p>因此，系统通常准备两个检查点区域，并交替写入：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Checkpoint A：上一次完整状态</span><br><span class="line">Checkpoint B：正在构造的新状态</span><br></pre></td></tr></table></figure>
+
+<p>新检查点完整持久化以前，旧检查点仍然保留。</p>
+<p>下一次再更新时，可以反向写入另一个区域。</p>
+<p>这种设计遵循崩溃一致性的基本原则：</p>
+<blockquote>
+<p>在新版本确认完整之前，不破坏最后一个有效旧版本。</p>
+</blockquote>
+<hr>
+<h1 id="八、Roll-forward：恢复检查点之后的更新"><a href="#八、Roll-forward：恢复检查点之后的更新" class="headerlink" title="八、Roll-forward：恢复检查点之后的更新"></a>八、Roll-forward：恢复检查点之后的更新</h1><p>检查点是周期性生成的，并不会在每次文件写入后立即更新。</p>
+<p>因此，系统可能在以下时刻崩溃：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">检查点完成</span><br><span class="line">    ↓</span><br><span class="line">又追加了若干文件和inode</span><br><span class="line">    ↓</span><br><span class="line">尚未生成下一检查点</span><br><span class="line">    ↓</span><br><span class="line">系统崩溃</span><br></pre></td></tr></table></figure>
+
+<p>如果恢复时只加载检查点，检查点之后已经完整写入的修改就会全部丢失。</p>
+<p>LFS因此采用Roll-forward，即前滚恢复。</p>
+<hr>
+<h2 id="1-前滚恢复流程"><a href="#1-前滚恢复流程" class="headerlink" title="1. 前滚恢复流程"></a>1. 前滚恢复流程</h2><ol>
+<li>选择最新完整检查点。</li>
+<li>恢复检查点记录的inode map和段状态。</li>
+<li>从检查点对应的日志尾开始继续扫描。</li>
+<li>根据段概要识别检查点之后写入的新inode和数据。</li>
+<li>验证这些结构是否构成完整更新。</li>
+<li>将完整更新加入恢复后的文件系统状态。</li>
+<li>丢弃未被有效对象引用的孤立块。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[读取最新检查点] --&gt; B[恢复检查点状态]
+    B --&gt; C[扫描检查点后的日志]
+    C --&gt; D[识别完整新inode和数据]
+    D --&gt; E[前滚到更新后的状态]
+    D --&gt; F[丢弃不完整或孤立数据]
+  </pre></div>
+
+<hr>
+<h2 id="2-Checkpoint与Roll-forward的关系"><a href="#2-Checkpoint与Roll-forward的关系" class="headerlink" title="2. Checkpoint与Roll-forward的关系"></a>2. Checkpoint与Roll-forward的关系</h2><table>
+<thead>
+<tr>
+<th>机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Checkpoint</td>
+<td>提供可信、完整的恢复起点</td>
+</tr>
+<tr>
+<td>Roll-forward</td>
+<td>尽量找回检查点之后的完整更新</td>
+</tr>
+</tbody></table>
+<p>检查点减少扫描范围，前滚减少数据丢失。</p>
+<p>二者结合后，系统既不需要扫描整个磁盘，也不必简单回退到较早状态。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 双检查点保存最近完整状态，Roll-forward再扫描检查点之后的日志，恢复已经完整写入但尚未进入新检查点的更新。</p>
+<hr>
+<h1 id="九、顺序追加为什么仍不能自动保证目录一致性"><a href="#九、顺序追加为什么仍不能自动保证目录一致性" class="headerlink" title="九、顺序追加为什么仍不能自动保证目录一致性"></a>九、顺序追加为什么仍不能自动保证目录一致性</h1><p>LFS把内容按顺序追加，并不意味着一次复杂操作的所有部分一定同时完成。</p>
+<p>例如创建新文件可能涉及：</p>
+<ul>
+<li>写入新文件数据</li>
+<li>写入新文件inode</li>
+<li>修改父目录</li>
+<li>更新inode链接数</li>
+<li>更新inode map</li>
+</ul>
+<p>系统可能在任意两步之间崩溃。</p>
+<p>假设：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">新文件inode已经写入</span><br><span class="line">inode链接计数也已经更新</span><br><span class="line">但父目录项尚未写入</span><br></pre></td></tr></table></figure>
+
+<p>此时inode可能认为自己已被目录引用，但实际上没有任何目录项能够访问它。</p>
+<p>段概要只能说明：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">某个块属于哪个inode</span><br></pre></td></tr></table></figure>
+
+<p>它无法表达：</p>
+<ul>
+<li>create操作是否完整完成</li>
+<li>link是否完成</li>
+<li>rename的两个目录修改是否都完成</li>
+<li>unlink是否已经完成</li>
+<li>inode链接数与目录项数量是否一致</li>
+</ul>
+<p>因此，LFS还需要专门记录目录操作。</p>
+<hr>
+<h1 id="十、目录修改日志"><a href="#十、目录修改日志" class="headerlink" title="十、目录修改日志"></a>十、目录修改日志</h1><p>目录修改日志用于记录目录相关操作的语义信息，例如：</p>
+<ul>
+<li>create</li>
+<li>link</li>
+<li>unlink</li>
+<li>rename</li>
+<li>目录项位置</li>
+<li>目录项内容</li>
+<li>inode链接数变化</li>
+</ul>
+<p>该日志需要在真正修改目录前持久化，使恢复程序能够判断操作意图。</p>
+<p>例如重命名可能包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在新目录中增加新名字</span><br><span class="line">从旧目录中删除旧名字</span><br><span class="line">更新相关inode和目录元数据</span><br></pre></td></tr></table></figure>
+
+<p>如果系统在中途崩溃，目录修改日志可以帮助恢复程序决定：</p>
+<ul>
+<li>应该完成剩余步骤</li>
+<li>应该撤销不完整步骤</li>
+<li>应如何修正inode链接计数</li>
+</ul>
+<p>这形成一个看似特殊的结构：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LFS本身已经采用日志结构</span><br><span class="line">        ↓</span><br><span class="line">复杂目录语义仍需要额外操作日志</span><br></pre></td></tr></table></figure>
+
+<p>原因在于：</p>
+<blockquote>
+<p>物理上的顺序写入只能证明某些块已写入，不能自动证明这些块共同表达了一个完整、合法的文件系统操作。</p>
+</blockquote>
+<p>崩溃一致性不仅是块级完整性问题，也是高层语义关系问题。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 顺序追加只能保证数据被依次写出，不能自动保证inode、目录项和链接计数的语义一致，因此仍需要目录修改日志。</p>
+<hr>
+<h1 id="十一、NAND-Flash的基本特性"><a href="#十一、NAND-Flash的基本特性" class="headerlink" title="十一、NAND Flash的基本特性"></a>十一、NAND Flash的基本特性</h1><p>LFS最初主要针对机械硬盘设计。将类似思想用于SSD时，必须理解NAND Flash的物理限制。</p>
+<p>闪存内部通常具有如下层次：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Package</span><br><span class="line">   ↓</span><br><span class="line">Die</span><br><span class="line">   ↓</span><br><span class="line">Plane</span><br><span class="line">   ↓</span><br><span class="line">Erase Block</span><br><span class="line">   ↓</span><br><span class="line">Page</span><br><span class="line">   ↓</span><br><span class="line">Cell</span><br></pre></td></tr></table></figure>
+
+<p>SSD控制器还通过多个Channel并行访问多个Die和Plane。</p>
+<hr>
+<h2 id="1-读取、写入与擦除单位不同"><a href="#1-读取、写入与擦除单位不同" class="headerlink" title="1. 读取、写入与擦除单位不同"></a>1. 读取、写入与擦除单位不同</h2><p>NAND Flash通常以Page为读写或编程单位，以更大的Erase Block为擦除单位。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NAND Page：8KB或16KB</span><br><span class="line">NAND Erase Block：4MB或8MB</span><br></pre></td></tr></table></figure>
+
+<p>具体大小随设备而变化，但关键关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">擦除单位远大于写入单位</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-闪存不能任意原地覆盖"><a href="#2-闪存不能任意原地覆盖" class="headerlink" title="2. 闪存不能任意原地覆盖"></a>2. 闪存不能任意原地覆盖</h2><p>已经写入的闪存页不能像内存一样随意改写。</p>
+<p>如果某个页需要更新，典型做法是：</p>
+<ol>
+<li>把新数据写入另一个空闲页。</li>
+<li>更新地址映射。</li>
+<li>将旧页标记为无效。</li>
+<li>之后通过垃圾回收统一擦除旧块。</li>
+</ol>
+<p>如果擦除块中仍存在有效页，垃圾回收还要：</p>
+<ol>
+<li>读取有效页。</li>
+<li>将其复制到其他位置。</li>
+<li>擦除整个块。</li>
+<li>重新使用该块。</li>
+</ol>
+<p>这一过程会产生写放大。</p>
+<hr>
+<h2 id="3-擦写寿命"><a href="#3-擦写寿命" class="headerlink" title="3. 擦写寿命"></a>3. 擦写寿命</h2><p>闪存块能够承受的Program&#x2F;Erase Cycle有限。</p>
+<p>如果少数物理块被反复擦除，它们会比其他块更快损坏。</p>
+<p>因此SSD需要磨损均衡：</p>
+<blockquote>
+<p>将写入和擦除尽量分散到不同物理块，使设备整体寿命更加均衡。</p>
+</blockquote>
+<hr>
+<h2 id="4-SSD具有内部并行性"><a href="#4-SSD具有内部并行性" class="headerlink" title="4. SSD具有内部并行性"></a>4. SSD具有内部并行性</h2><p>SSD没有机械磁头，但它不是一个单线程存储设备。</p>
+<p>控制器可以通过多个：</p>
+<ul>
+<li>Channel</li>
+<li>Die</li>
+<li>Plane</li>
+</ul>
+<p>并行执行操作。</p>
+<p>因此，SSD性能不仅取决于是否顺序写，还取决于写入是否能分布到多个内部单元。</p>
+<p>如果文件系统只维持一个单一串行写入点，可能无法充分利用设备内部并行性。</p>
+<hr>
+<h2 id="5-Cell类型"><a href="#5-Cell类型" class="headerlink" title="5. Cell类型"></a>5. Cell类型</h2><p>按照每个Cell保存的比特数量，闪存可分为：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th align="right">每Cell比特数</th>
+<th>一般特征</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SLC</td>
+<td align="right">1</td>
+<td>速度快、耐久性高、成本高</td>
+</tr>
+<tr>
+<td>MLC</td>
+<td align="right">通常2</td>
+<td>容量与性能折中</td>
+</tr>
+<tr>
+<td>TLC</td>
+<td align="right">3</td>
+<td>密度更高、广泛使用</td>
+</tr>
+<tr>
+<td>QLC</td>
+<td align="right">4</td>
+<td>容量密度高、写入与寿命压力更大</td>
+</tr>
+</tbody></table>
+<p>每个Cell保存的状态越多，通常意味着：</p>
+<ul>
+<li>容量密度提高</li>
+<li>每GB成本下降</li>
+<li>编程更复杂</li>
+<li>误差容忍更困难</li>
+<li>写入性能和耐久性面临更大压力</li>
+</ul>
+<hr>
+<h1 id="十二、FTL：SSD内部的地址转换层"><a href="#十二、FTL：SSD内部的地址转换层" class="headerlink" title="十二、FTL：SSD内部的地址转换层"></a>十二、FTL：SSD内部的地址转换层</h1><p>操作系统把SSD视为普通块设备，并向其发送逻辑块地址。</p>
+<p>但SSD内部真正操作的是闪存页和擦除块。</p>
+<p>FTL，即Flash Translation Layer，负责完成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">主机逻辑块地址</span><br><span class="line">        ↓</span><br><span class="line">       FTL</span><br><span class="line">        ↓</span><br><span class="line">闪存物理页</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1-覆盖写如何被FTL处理"><a href="#1-覆盖写如何被FTL处理" class="headerlink" title="1. 覆盖写如何被FTL处理"></a>1. 覆盖写如何被FTL处理</h2><p>当操作系统要求覆盖某个逻辑块时，SSD可能执行：</p>
+<ol>
+<li>找到一个新的空闲物理页。</li>
+<li>将新数据写入该页。</li>
+<li>更新逻辑块到物理页的映射。</li>
+<li>将旧物理页标记为无效。</li>
+<li>在之后的垃圾回收中擦除旧页所在块。</li>
+</ol>
+<p>这与LFS的异地更新非常相似。</p>
+<hr>
+<h2 id="2-FTL的职责"><a href="#2-FTL的职责" class="headerlink" title="2. FTL的职责"></a>2. FTL的职责</h2><p>FTL通常负责：</p>
+<ul>
+<li>逻辑地址到物理地址映射</li>
+<li>异地更新</li>
+<li>垃圾回收</li>
+<li>磨损均衡</li>
+<li>坏块管理</li>
+<li>数据迁移</li>
+<li>内部并行调度</li>
+</ul>
+<p>因此，即使上层文件系统看起来在执行覆盖写，SSD内部也可能把它转化为异地写入。</p>
+<hr>
+<h2 id="3-有FTL为什么还需要闪存友好文件系统"><a href="#3-有FTL为什么还需要闪存友好文件系统" class="headerlink" title="3. 有FTL为什么还需要闪存友好文件系统"></a>3. 有FTL为什么还需要闪存友好文件系统</h2><p>FTL不能完全消除上层文件系统低效写入的代价。</p>
+<p>如果文件系统产生大量：</p>
+<ul>
+<li>小型随机写</li>
+<li>冷热数据混合</li>
+<li>反复元数据更新</li>
+<li>短生命周期数据</li>
+<li>无规律覆盖</li>
+</ul>
+<p>FTL就需要更频繁地：</p>
+<ul>
+<li>更新映射</li>
+<li>搬迁有效页</li>
+<li>执行垃圾回收</li>
+<li>擦除闪存块</li>
+</ul>
+<p>这会增加写放大并缩短设备寿命。</p>
+<p>因此，文件系统仍然需要尽量产生更适合闪存的写入模式。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> FTL把逻辑块映射到物理闪存页，并在设备内部执行异地更新和垃圾回收；但上层文件系统的访问模式仍会影响SSD性能和寿命。</p>
+<hr>
+<h1 id="十三、传统LFS在闪存上的两个问题"><a href="#十三、传统LFS在闪存上的两个问题" class="headerlink" title="十三、传统LFS在闪存上的两个问题"></a>十三、传统LFS在闪存上的两个问题</h1><p>LFS的异地更新与闪存天然契合，但传统LFS并不能直接发挥现代SSD的全部能力。</p>
+<hr>
+<h2 id="1-递归更新"><a href="#1-递归更新" class="headerlink" title="1. 递归更新"></a>1. 递归更新</h2><p>假设只修改文件的一个数据块。</p>
+<p>由于数据块写到了新位置，索引块中的地址必须更新；索引块写到新位置后，inode中的指针也要更新；inode移动后，inode map又要更新。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[修改一个数据块] --&gt; B[数据块位置改变]
+    B --&gt; C[更新索引node]
+    C --&gt; D[索引node位置改变]
+    D --&gt; E[更新inode]
+    E --&gt; F[inode位置改变]
+    F --&gt; G[更新inode map]
+  </pre></div>
+
+<p>这种位置变化沿索引层级向上传播，称为递归更新。</p>
+<p>用户只修改少量数据，却可能触发多层元数据重写。</p>
+<p>在写入寿命有限的闪存上，这类写放大尤其不利。</p>
+<hr>
+<h2 id="2-单一日志限制并行性"><a href="#2-单一日志限制并行性" class="headerlink" title="2. 单一日志限制并行性"></a>2. 单一日志限制并行性</h2><p>传统LFS通常强调一条连续日志，在一个日志尾部不断追加。</p>
+<p>对于机械硬盘，这可以最大限度减少寻道。</p>
+<p>但SSD具有多个并行通道。如果所有更新都集中在一个写入点，可能形成串行瓶颈。</p>
+<p>因此，更适合SSD的文件系统需要：</p>
+<ul>
+<li>多个并行日志</li>
+<li>多个当前写入段</li>
+<li>根据数据类型分流</li>
+<li>根据更新频率分流</li>
+</ul>
+<p>这正是F2FS的重要改进方向。</p>
+<hr>
+<h1 id="十四、F2FS：面向闪存的日志结构文件系统"><a href="#十四、F2FS：面向闪存的日志结构文件系统" class="headerlink" title="十四、F2FS：面向闪存的日志结构文件系统"></a>十四、F2FS：面向闪存的日志结构文件系统</h1><p>F2FS全称为Flash-Friendly File System。</p>
+<p>它继承了LFS的核心思想：</p>
+<ul>
+<li>异地更新</li>
+<li>顺序追加</li>
+<li>段式空间管理</li>
+<li>垃圾回收</li>
+<li>检查点恢复</li>
+</ul>
+<p>同时针对闪存加入了：</p>
+<ul>
+<li>NAT减少递归更新</li>
+<li>多日志提高并行性</li>
+<li>冷热数据分离减少垃圾回收开销</li>
+<li>面向闪存的段、区和管理结构</li>
+</ul>
+<hr>
+<h1 id="十五、NAT：用稳定Node-ID切断递归更新"><a href="#十五、NAT：用稳定Node-ID切断递归更新" class="headerlink" title="十五、NAT：用稳定Node ID切断递归更新"></a>十五、NAT：用稳定Node ID切断递归更新</h1><p>NAT是Node Address Table。</p>
+<p>它维护：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Node ID → 当前逻辑块地址</span><br></pre></td></tr></table></figure>
+
+<p>这里的Node不仅包括inode，还包括：</p>
+<ul>
+<li>直接node</li>
+<li>间接node</li>
+<li>其他索引node</li>
+</ul>
+<hr>
+<h2 id="1-传统指针结构"><a href="#1-传统指针结构" class="headerlink" title="1. 传统指针结构"></a>1. 传统指针结构</h2><p>传统结构中，父节点直接保存子节点位置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">父节点 → 子节点当前地址</span><br></pre></td></tr></table></figure>
+
+<p>子节点一旦移动，父节点就必须修改。</p>
+<p>父节点修改后也会移动，从而继续影响更高层节点。</p>
+<hr>
+<h2 id="2-引入NAT后的结构"><a href="#2-引入NAT后的结构" class="headerlink" title="2. 引入NAT后的结构"></a>2. 引入NAT后的结构</h2><p>F2FS让父节点保存稳定的Node ID，而不是容易变化的位置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">父节点</span><br><span class="line">   ↓</span><br><span class="line">子节点Node ID</span><br><span class="line">   ↓</span><br><span class="line">NAT</span><br><span class="line">   ↓</span><br><span class="line">子节点当前逻辑地址</span><br></pre></td></tr></table></figure>
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[父Node] --&gt; B[子Node ID]
+    B --&gt; C[NAT]
+    C --&gt; D[子Node当前位置]
+  </pre></div>
+
+<p>当子node被写入新位置时，只需更新：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NAT[Node ID] = 新地址</span><br></pre></td></tr></table></figure>
+
+<p>父node中的Node ID保持不变，不必逐层向上修改。</p>
+<hr>
+<h2 id="3-NAT减少了什么"><a href="#3-NAT减少了什么" class="headerlink" title="3. NAT减少了什么"></a>3. NAT减少了什么</h2><p>NAT不能让元数据更新完全消失。</p>
+<p>它做的是：</p>
+<blockquote>
+<p>把分散在多层父节点中的地址更新，集中到一张Node地址映射表中。</p>
+</blockquote>
+<p>因此，它能够显著减少因node移动导致的递归传播。</p>
+<hr>
+<h2 id="4-NAT自身仍需持久化"><a href="#4-NAT自身仍需持久化" class="headerlink" title="4. NAT自身仍需持久化"></a>4. NAT自身仍需持久化</h2><p>NAT也是文件系统元数据，需要：</p>
+<ul>
+<li>缓存</li>
+<li>更新</li>
+<li>写入</li>
+<li>崩溃恢复</li>
+</ul>
+<p>因此F2FS还要通过检查点和NAT相关管理机制保证其一致性。</p>
+<p>增加一层间接映射换来了较少的树形递归更新，但也增加了映射表管理成本。</p>
+<hr>
+<h1 id="十六、NAT与FTL不是同一映射"><a href="#十六、NAT与FTL不是同一映射" class="headerlink" title="十六、NAT与FTL不是同一映射"></a>十六、NAT与FTL不是同一映射</h1><p>NAT和FTL都执行地址转换，但位于不同层次。</p>
+<table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>NAT</th>
+<th>FTL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>所属层次</td>
+<td>F2FS文件系统</td>
+<td>SSD控制器或闪存管理层</td>
+</tr>
+<tr>
+<td>输入</td>
+<td>Node ID</td>
+<td>主机逻辑块地址</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>文件系统逻辑块地址</td>
+<td>闪存物理页</td>
+</tr>
+<tr>
+<td>主要作用</td>
+<td>找到node当前逻辑位置</td>
+<td>管理物理闪存布局</td>
+</tr>
+<tr>
+<td>维护者</td>
+<td>操作系统中的F2FS</td>
+<td>SSD固件或闪存软件</td>
+</tr>
+</tbody></table>
+<p>一次node访问可能经过：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Node ID</span><br><span class="line">   ↓ NAT</span><br><span class="line">逻辑块地址</span><br><span class="line">   ↓ FTL</span><br><span class="line">闪存物理页</span><br></pre></td></tr></table></figure>
+
+<p>二者共同使用间接映射思想，但解决的问题不同。</p>
+<p>NAT解决的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">文件系统中的node移动</span><br></pre></td></tr></table></figure>
+
+<p>FTL解决的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">逻辑块在物理闪存中的移动</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>❗ <strong>本节核心结论：</strong> NAT通过稳定Node ID定位可移动node，避免地址变化沿索引树递归传播；FTL则在更低层把逻辑块映射到物理闪存页。</p>
+<hr>
+<h1 id="十七、多日志与冷热数据分离"><a href="#十七、多日志与冷热数据分离" class="headerlink" title="十七、多日志与冷热数据分离"></a>十七、多日志与冷热数据分离</h1><p>F2FS并不只维护一个当前日志段，而是设置多个当前写入段，将不同类型和生命周期的数据分别写入。</p>
+<p>常见分类包括：</p>
+<ul>
+<li>热数据</li>
+<li>温数据</li>
+<li>冷数据</li>
+<li>热node</li>
+<li>温node</li>
+<li>冷node</li>
+</ul>
+<hr>
+<h2 id="1-为什么要区分冷热"><a href="#1-为什么要区分冷热" class="headerlink" title="1. 为什么要区分冷热"></a>1. 为什么要区分冷热</h2><p>热数据频繁更新，冷数据长期不变。</p>
+<p>如果把二者混在同一段中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">一个段：</span><br><span class="line">热数据A</span><br><span class="line">冷数据B</span><br><span class="line">热数据C</span><br><span class="line">冷数据D</span><br></pre></td></tr></table></figure>
+
+<p>一段时间后：</p>
+<ul>
+<li>A和C可能很快失效。</li>
+<li>B和D仍然有效。</li>
+</ul>
+<p>为了回收A和C留下的空间，垃圾回收必须反复搬迁B和D。</p>
+<p>这会增加写放大。</p>
+<hr>
+<h2 id="2-生命周期相似的数据放在一起"><a href="#2-生命周期相似的数据放在一起" class="headerlink" title="2. 生命周期相似的数据放在一起"></a>2. 生命周期相似的数据放在一起</h2><p>如果将热数据集中存放：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">热段：</span><br><span class="line">热数据A</span><br><span class="line">热数据C</span><br><span class="line">热数据E</span><br></pre></td></tr></table></figure>
+
+<p>这些内容更可能在相近时间失效，使整个段更容易被完整回收。</p>
+<p>冷数据则集中在冷段中，长期保持有效，减少不必要搬迁。</p>
+<p>因此，冷热分离的目标是：</p>
+<blockquote>
+<p>让同一个段中的数据具有尽可能相似的生命周期。</p>
+</blockquote>
+<hr>
+<h2 id="3-多日志与SSD并行性"><a href="#3-多日志与SSD并行性" class="headerlink" title="3. 多日志与SSD并行性"></a>3. 多日志与SSD并行性</h2><p>多个写入段还意味着多个逻辑写入流。</p>
+<p>底层FTL和SSD控制器可以把这些写入分散到：</p>
+<ul>
+<li>不同Channel</li>
+<li>不同Die</li>
+<li>不同Plane</li>
+</ul>
+<p>从而提高并行度。</p>
+<p>不过，文件系统无法完全直接控制SSD内部物理布局，最终效果还依赖FTL策略。</p>
+<p>多日志提供的是更有利的并行机会，而不是绝对物理位置保证。</p>
+<hr>
+<h1 id="十八、F2FS的空间层次"><a href="#十八、F2FS的空间层次" class="headerlink" title="十八、F2FS的空间层次"></a>十八、F2FS的空间层次</h1><p>F2FS从小到大组织为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Block</span><br><span class="line">  ↓</span><br><span class="line">Segment</span><br><span class="line">  ↓</span><br><span class="line">Section</span><br><span class="line">  ↓</span><br><span class="line">Zone</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1-Block"><a href="#1-Block" class="headerlink" title="1. Block"></a>1. Block</h2><p>F2FS Block通常约为4KB，是文件系统逻辑读写单位。</p>
+<hr>
+<h2 id="2-Segment"><a href="#2-Segment" class="headerlink" title="2. Segment"></a>2. Segment</h2><p>一个Segment由多个Block组成，典型大小约为2MB。</p>
+<p>Segment是顺序写入和状态统计的重要单位。</p>
+<hr>
+<h2 id="3-Section"><a href="#3-Section" class="headerlink" title="3. Section"></a>3. Section</h2><p>Section由多个Segment组成，常作为垃圾回收的较大单位。</p>
+<hr>
+<h2 id="4-Zone"><a href="#4-Zone" class="headerlink" title="4. Zone"></a>4. Zone</h2><p>Zone由多个Section组成，可以帮助文件系统进行更大范围的空间组织。</p>
+<hr>
+<h2 id="5-不同层次的“块”"><a href="#5-不同层次的“块”" class="headerlink" title="5. 不同层次的“块”"></a>5. 不同层次的“块”</h2><p>需要特别区分：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>所属层次</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F2FS Block</td>
+<td>文件系统</td>
+<td>逻辑读写块，通常约4KB</td>
+</tr>
+<tr>
+<td>F2FS Segment</td>
+<td>文件系统</td>
+<td>多个Block组成的顺序写区域</td>
+</tr>
+<tr>
+<td>NAND Page</td>
+<td>闪存硬件</td>
+<td>闪存编程和读取单位</td>
+</tr>
+<tr>
+<td>NAND Erase Block</td>
+<td>闪存硬件</td>
+<td>闪存擦除单位</td>
+</tr>
+</tbody></table>
+<p>F2FS Segment不必等于NAND Erase Block。</p>
+<p>文件系统看到的是逻辑块设备，底层物理映射由FTL控制。因此二者只能在设计上尽量协调，不能简单一一对应。</p>
+<hr>
+<h1 id="十九、F2FS的主要磁盘结构"><a href="#十九、F2FS的主要磁盘结构" class="headerlink" title="十九、F2FS的主要磁盘结构"></a>十九、F2FS的主要磁盘结构</h1><p>F2FS通常包含以下重要区域：</p>
+<ul>
+<li>CP：Checkpoint</li>
+<li>SIT：Segment Information Table</li>
+<li>NAT：Node Address Table</li>
+<li>SSA：Segment Summary Area</li>
+<li>Main Area：主要数据区域</li>
+</ul>
+<hr>
+<h2 id="1-CP"><a href="#1-CP" class="headerlink" title="1. CP"></a>1. CP</h2><p>Checkpoint保存恢复所需的关键状态，例如：</p>
+<ul>
+<li>当前有效版本</li>
+<li>NAT和SIT相关信息</li>
+<li>当前段位置</li>
+<li>文件系统状态</li>
+</ul>
+<p>它是崩溃恢复的重要起点。</p>
+<hr>
+<h2 id="2-SIT"><a href="#2-SIT" class="headerlink" title="2. SIT"></a>2. SIT</h2><p>SIT记录Segment状态，例如：</p>
+<ul>
+<li>有效块数量</li>
+<li>有效块位图</li>
+<li>段类型</li>
+<li>修改时间</li>
+</ul>
+<p>它帮助系统选择垃圾回收对象并管理空间。</p>
+<hr>
+<h2 id="3-NAT"><a href="#3-NAT" class="headerlink" title="3. NAT"></a>3. NAT</h2><p>NAT记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Node ID → 当前逻辑块地址</span><br></pre></td></tr></table></figure>
+
+<p>用于找到inode和各种索引node。</p>
+<hr>
+<h2 id="4-SSA"><a href="#4-SSA" class="headerlink" title="4. SSA"></a>4. SSA</h2><p>SSA保存Segment Summary，即段概要信息。</p>
+<p>它说明Main Area中每个块属于：</p>
+<ul>
+<li>哪个node</li>
+<li>哪个文件逻辑位置</li>
+<li>哪种数据类型</li>
+</ul>
+<p>主要用于垃圾回收和恢复。</p>
+<hr>
+<h2 id="5-Main-Area"><a href="#5-Main-Area" class="headerlink" title="5. Main Area"></a>5. Main Area</h2><p>Main Area保存：</p>
+<ul>
+<li>文件数据</li>
+<li>inode</li>
+<li>直接node</li>
+<li>间接node</li>
+</ul>
+<p>不同类型和温度的数据可以写入不同当前Segment。</p>
+<table>
+<thead>
+<tr>
+<th>结构</th>
+<th>主要作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CP</td>
+<td>提供崩溃恢复入口</td>
+</tr>
+<tr>
+<td>SIT</td>
+<td>管理段状态和有效块</td>
+</tr>
+<tr>
+<td>NAT</td>
+<td>定位node当前位置</td>
+</tr>
+<tr>
+<td>SSA</td>
+<td>记录段中块的身份</td>
+</tr>
+<tr>
+<td>Main Area</td>
+<td>保存文件数据和node</td>
+</tr>
+</tbody></table>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> F2FS通过CP、SIT、NAT和SSA分别管理恢复入口、段状态、node位置和块身份，Main Area则负责多日志追加文件数据与node。</p>
+<hr>
+<h1 id="二十、F2FS更新一个node的过程"><a href="#二十、F2FS更新一个node的过程" class="headerlink" title="二十、F2FS更新一个node的过程"></a>二十、F2FS更新一个node的过程</h1><p>假设某个node需要修改。</p>
+<p>传统结构可能需要：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">修改node</span><br><span class="line">    ↓</span><br><span class="line">node位置改变</span><br><span class="line">    ↓</span><br><span class="line">更新父node</span><br><span class="line">    ↓</span><br><span class="line">父node位置改变</span><br><span class="line">    ↓</span><br><span class="line">继续更新祖先</span><br></pre></td></tr></table></figure>
+
+<p>F2FS使用NAT后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">修改node</span><br><span class="line">    ↓</span><br><span class="line">把新node写入新逻辑块</span><br><span class="line">    ↓</span><br><span class="line">更新NAT中的Node ID映射</span><br><span class="line">    ↓</span><br><span class="line">父node仍引用相同Node ID</span><br></pre></td></tr></table></figure>
+
+<p>完整流程为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[修改node内容] --&gt; B[在新位置写入node]
+    B --&gt; C[更新NAT映射]
+    C --&gt; D[旧node变为无效]
+    D --&gt; E[父node无需因地址变化而更新]
+  </pre></div>
+
+<p>这样可以减少因地址改变产生的元数据级联更新。</p>
+<hr>
+<h1 id="二十一、F2FS的垃圾回收"><a href="#二十一、F2FS的垃圾回收" class="headerlink" title="二十一、F2FS的垃圾回收"></a>二十一、F2FS的垃圾回收</h1><p>F2FS同样需要回收包含无效块的Segment。</p>
+<p>垃圾回收大致包括：</p>
+<ol>
+<li>根据SIT选择回收目标。</li>
+<li>通过SSA识别段中各块身份。</li>
+<li>通过NAT、inode和其他结构判断块是否仍然有效。</li>
+<li>把有效块迁移到新的Segment。</li>
+<li>更新NAT或文件数据映射。</li>
+<li>释放旧Section或Segment。</li>
+</ol>
+<p>这与LFS段清理思想一致，但F2FS还要考虑：</p>
+<ul>
+<li>热冷分类</li>
+<li>前台与后台垃圾回收</li>
+<li>闪存写放大</li>
+<li>空间不足时的紧急回收</li>
+<li>与FTL垃圾回收的叠加</li>
+</ul>
+<hr>
+<h2 id="1-双重垃圾回收"><a href="#1-双重垃圾回收" class="headerlink" title="1. 双重垃圾回收"></a>1. 双重垃圾回收</h2><p>使用SSD时，可能同时存在两层垃圾回收：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">F2FS垃圾回收</span><br><span class="line">    ↓</span><br><span class="line">整理逻辑Segment</span><br><span class="line"></span><br><span class="line">FTL垃圾回收</span><br><span class="line">    ↓</span><br><span class="line">整理物理闪存擦除块</span><br></pre></td></tr></table></figure>
+
+<p>文件系统认为某些逻辑块已经释放，并不意味着底层物理页立即被擦除。</p>
+<p>FTL还需要根据自己的映射和物理块状态进行回收。</p>
+<p>如果两层策略配合不好，可能产生额外的数据搬迁。</p>
+<hr>
+<h1 id="二十二、LFS为什么不是“只写一次”"><a href="#二十二、LFS为什么不是“只写一次”" class="headerlink" title="二十二、LFS为什么不是“只写一次”"></a>二十二、LFS为什么不是“只写一次”</h1><p>LFS避免了带日志文件系统中的典型双写：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">先写日志</span><br><span class="line">再写正式位置</span><br></pre></td></tr></table></figure>
+
+<p>但LFS中的有效数据仍然可能因为以下原因多次写入：</p>
+<ul>
+<li>文件自身再次修改</li>
+<li>inode更新</li>
+<li>递归元数据更新</li>
+<li>段清理</li>
+<li>垃圾回收</li>
+<li>有效块搬迁</li>
+<li>检查点更新</li>
+</ul>
+<p>因此，“追加写”不等于“每份数据生命周期中只写一次”。</p>
+<p>更准确地说：</p>
+<blockquote>
+<p>LFS把前台更新组织成异地追加，但后台空间回收仍然可能重复搬迁有效数据。</p>
+</blockquote>
+<hr>
+<h1 id="二十三、关键概念对比"><a href="#二十三、关键概念对比" class="headerlink" title="二十三、关键概念对比"></a>二十三、关键概念对比</h1><h2 id="1-inode-map与NAT"><a href="#1-inode-map与NAT" class="headerlink" title="1. inode map与NAT"></a>1. inode map与NAT</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>inode map</th>
+<th>NAT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>典型系统</td>
+<td>Sprite LFS</td>
+<td>F2FS</td>
+</tr>
+<tr>
+<td>映射对象</td>
+<td>inode号</td>
+<td>广义Node ID</td>
+</tr>
+<tr>
+<td>定位目标</td>
+<td>inode当前位置</td>
+<td>inode及索引node当前位置</td>
+</tr>
+<tr>
+<td>主要目的</td>
+<td>找到移动后的inode</td>
+<td>减少node移动导致的递归更新</td>
+</tr>
+<tr>
+<td>覆盖范围</td>
+<td>主要是inode</td>
+<td>inode、直接node、间接node</td>
+</tr>
+</tbody></table>
+<p>NAT并不是inode map的简单改名。</p>
+<p>它扩展了映射对象，并通过稳定Node ID切断多级node之间的位置依赖。</p>
+<hr>
+<h2 id="2-inode-map与段概要"><a href="#2-inode-map与段概要" class="headerlink" title="2. inode map与段概要"></a>2. inode map与段概要</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>inode map</th>
+<th>段概要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查询方向</td>
+<td>inode号到inode位置</td>
+<td>物理块到所属对象</td>
+</tr>
+<tr>
+<td>主要场景</td>
+<td>正常文件访问</td>
+<td>垃圾回收和恢复</td>
+</tr>
+<tr>
+<td>回答问题</td>
+<td>inode现在在哪里</td>
+<td>这个块曾经属于谁</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-Checkpoint与增量日志"><a href="#3-Checkpoint与增量日志" class="headerlink" title="3. Checkpoint与增量日志"></a>3. Checkpoint与增量日志</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>Checkpoint</th>
+<th>检查点之后的日志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内容</td>
+<td>某一时刻的关键完整状态</td>
+<td>之后产生的增量更新</td>
+</tr>
+<tr>
+<td>作用</td>
+<td>快速恢复起点</td>
+<td>Roll-forward</td>
+</tr>
+<tr>
+<td>写入频率</td>
+<td>周期性</td>
+<td>持续产生</td>
+</tr>
+<tr>
+<td>恢复方式</td>
+<td>直接加载</td>
+<td>顺序扫描验证</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-LFS清理与FTL垃圾回收"><a href="#4-LFS清理与FTL垃圾回收" class="headerlink" title="4. LFS清理与FTL垃圾回收"></a>4. LFS清理与FTL垃圾回收</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>LFS或F2FS清理</th>
+<th>FTL垃圾回收</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>所属层次</td>
+<td>文件系统</td>
+<td>SSD控制器</td>
+</tr>
+<tr>
+<td>管理对象</td>
+<td>逻辑块和Segment</td>
+<td>物理页和擦除块</td>
+</tr>
+<tr>
+<td>有效性依据</td>
+<td>文件系统指针和元数据</td>
+<td>逻辑到物理映射</td>
+</tr>
+<tr>
+<td>主要目标</td>
+<td>回收文件系统逻辑空间</td>
+<td>回收可擦除物理空间</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="二十四、容易混淆的几个问题"><a href="#二十四、容易混淆的几个问题" class="headerlink" title="二十四、容易混淆的几个问题"></a>二十四、容易混淆的几个问题</h1><h2 id="1-追加写不自动保证崩溃一致性"><a href="#1-追加写不自动保证崩溃一致性" class="headerlink" title="1. 追加写不自动保证崩溃一致性"></a>1. 追加写不自动保证崩溃一致性</h2><p>即使所有内容按顺序追加，系统仍可能在以下状态崩溃：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">数据块已写</span><br><span class="line">inode未写</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">inode已写</span><br><span class="line">inode map未写</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">文件inode已写</span><br><span class="line">目录项未写</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">检查点只写了一半</span><br></pre></td></tr></table></figure>
+
+<p>因此仍需要：</p>
+<ul>
+<li>双检查点</li>
+<li>Roll-forward</li>
+<li>目录修改日志</li>
+<li>明确的持久化协议</li>
+</ul>
+<hr>
+<h2 id="2-无效块并不等于已经擦除"><a href="#2-无效块并不等于已经擦除" class="headerlink" title="2. 无效块并不等于已经擦除"></a>2. 无效块并不等于已经擦除</h2><p>LFS中旧块只是失去引用。</p>
+<p>在磁盘上，它可能仍然保留原始字节；在闪存上，它可能仍占据物理页。</p>
+<p>真正重新利用空间需要：</p>
+<ul>
+<li>文件系统段清理</li>
+<li>可能的FTL垃圾回收</li>
+<li>闪存块擦除</li>
+</ul>
+<hr>
+<h2 id="3-顺序写仍然可能产生写放大"><a href="#3-顺序写仍然可能产生写放大" class="headerlink" title="3. 顺序写仍然可能产生写放大"></a>3. 顺序写仍然可能产生写放大</h2><p>顺序写减少了随机写代价，但清理会搬迁有效数据。</p>
+<p>所以评价LFS不能只看前台写入，还要看：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户实际写入量</span><br><span class="line">    与</span><br><span class="line">设备最终物理写入量</span><br></pre></td></tr></table></figure>
+
+<p>之间的比例。</p>
+<hr>
+<h2 id="4-Segment不是NAND-Erase-Block"><a href="#4-Segment不是NAND-Erase-Block" class="headerlink" title="4. Segment不是NAND Erase Block"></a>4. Segment不是NAND Erase Block</h2><p>Segment是文件系统逻辑单位。</p>
+<p>Erase Block是闪存物理单位。</p>
+<p>由于FTL存在，文件系统通常不知道一个逻辑Segment最终对应哪些物理擦除块。</p>
+<hr>
+<h2 id="5-FTL不能替代文件系统优化"><a href="#5-FTL不能替代文件系统优化" class="headerlink" title="5. FTL不能替代文件系统优化"></a>5. FTL不能替代文件系统优化</h2><p>FTL可以处理异地更新，但无法无代价地消除上层产生的大量小写、冷热混合和频繁覆盖。</p>
+<p>低效文件系统写入最终仍会表现为：</p>
+<ul>
+<li>更多映射更新</li>
+<li>更多物理搬迁</li>
+<li>更多垃圾回收</li>
+<li>更高写放大</li>
+<li>更短设备寿命</li>
+</ul>
+<hr>
+<h1 id="二十五、统一理解：用映射换取可移动性"><a href="#二十五、统一理解：用映射换取可移动性" class="headerlink" title="二十五、统一理解：用映射换取可移动性"></a>二十五、统一理解：用映射换取可移动性</h1><p>LFS和F2FS中反复出现同一种设计思想：</p>
+<blockquote>
+<p>对象的位置可能改变，但对象的逻辑身份保持稳定；通过映射表把稳定身份转换为当前位置。</p>
+</blockquote>
+<p>在Sprite LFS中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">inode号</span><br><span class="line">   ↓</span><br><span class="line">inode map</span><br><span class="line">   ↓</span><br><span class="line">inode位置</span><br></pre></td></tr></table></figure>
+
+<p>在F2FS中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Node ID</span><br><span class="line">   ↓</span><br><span class="line">NAT</span><br><span class="line">   ↓</span><br><span class="line">node逻辑地址</span><br></pre></td></tr></table></figure>
+
+<p>在SSD内部：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">逻辑块地址</span><br><span class="line">   ↓</span><br><span class="line">FTL</span><br><span class="line">   ↓</span><br><span class="line">闪存物理地址</span><br></pre></td></tr></table></figure>
+
+<p>这些映射表使底层对象能够自由迁移：</p>
+<ul>
+<li>inode可以在日志中移动</li>
+<li>node可以在Segment之间移动</li>
+<li>逻辑块可以在闪存页之间移动</li>
+</ul>
+<p>代价是系统必须维护更多映射元数据，并保证映射本身的崩溃一致性。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[稳定逻辑身份] --&gt; B[映射层]
+    B --&gt; C[当前可变位置]
+    C --&gt; D[允许异地更新与迁移]
+    D --&gt; E[需要维护映射一致性]
+  </pre></div>
+
+<hr>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>日志结构文件系统将日志从临时恢复区域提升为文件系统的主要存储形式。</p>
+<p>它不再频繁覆盖固定位置，而是：</p>
+<ul>
+<li>把文件数据和元数据持续追加到日志末尾。</li>
+<li>使用inode map定位不断移动的inode。</li>
+<li>以Segment为单位保持顺序写。</li>
+<li>使用段概要判断块的身份和有效性。</li>
+<li>通过段清理搬迁有效数据并回收空间。</li>
+<li>通过双Checkpoint提供可信恢复起点。</li>
+<li>通过Roll-forward恢复检查点之后的完整修改。</li>
+<li>使用目录修改日志维护高层目录语义一致性。</li>
+</ul>
+<p>面对闪存设备，传统LFS仍存在递归更新和单日志并行度不足的问题。</p>
+<p>F2FS通过：</p>
+<ul>
+<li>NAT维护稳定Node ID到当前位置的映射。</li>
+<li>多日志将不同类型的数据分流。</li>
+<li>冷热数据分离减少垃圾回收时的有效数据搬迁。</li>
+<li>CP、SIT、NAT和SSA协同管理恢复、段状态、node位置与块身份。</li>
+</ul>
+<p>最终形成更适合SSD特性的日志结构设计。</p>
+<p>❗ <strong>LFS的核心不是简单地“把数据顺序写下去”，而是通过追加写、映射、清理和检查点，把不断变化的文件系统组织成一条可恢复、可回收的日志。</strong></p>
+<p>❗ <strong>F2FS的关键改进，则是在保持异地更新优势的同时，减少递归元数据更新，分离不同生命周期的数据，并尽可能利用闪存设备的内部并行性。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/')">第22讲 文件系统崩溃一致性II</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第22讲 文件系统崩溃一致性II&amp;url=http://example.com/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/&amp;pic=/cover/ken.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/vega_mbison.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/chunli.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第21讲 文件系统崩溃一致性I</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/vega_mbison.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">第23讲 设备管理</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8E%E6%97%A5%E5%BF%97%E5%88%B0%E9%97%AA%E5%AD%98%EF%BC%9A%E6%97%A5%E5%BF%97%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8EF2FS%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E6%8C%81%E7%BB%AD%E5%86%99%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text">从日志到闪存：日志结构文件系统与F2FS如何组织持续写入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">引言</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%B8%A6%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8E%E6%97%A5%E5%BF%97%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text">一、带日志文件系统与日志结构文件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-LFS%E4%B8%BA%E4%BB%80%E4%B9%88%E9%87%87%E7%94%A8%E8%BF%BD%E5%8A%A0%E5%86%99"><span class="toc-number">2.1.</span> <span class="toc-text">1. LFS为什么采用追加写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96%E7%BB%8F%E5%B8%B8%E8%A2%AB%E7%BC%93%E5%AD%98%E5%90%B8%E6%94%B6"><span class="toc-number">2.1.1.</span> <span class="toc-text">读取经常被缓存吸收</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%BA%E6%A2%B0%E7%A1%AC%E7%9B%98%E9%A1%BA%E5%BA%8F%E5%86%99%E8%BF%9C%E5%BF%AB%E4%BA%8E%E9%9A%8F%E6%9C%BA%E5%86%99"><span class="toc-number">2.1.2.</span> <span class="toc-text">机械硬盘顺序写远快于随机写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%BC%82%E5%9C%B0%E6%9B%B4%E6%96%B0"><span class="toc-number">2.2.</span> <span class="toc-text">2. 异地更新</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81inode-map%EF%BC%9A%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0%E4%B8%8D%E6%96%AD%E7%A7%BB%E5%8A%A8%E7%9A%84inode"><span class="toc-number">3.</span> <span class="toc-text">二、inode map：如何找到不断移动的inode</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-inode-map%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-number">3.1.</span> <span class="toc-text">1. inode map的工作方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-inode-map%E6%9C%AC%E8%BA%AB%E4%B9%9F%E4%BC%9A%E7%A7%BB%E5%8A%A8"><span class="toc-number">3.2.</span> <span class="toc-text">2. inode map本身也会移动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%E6%97%B6%E7%9A%84%E5%AE%8C%E6%95%B4%E6%9B%B4%E6%96%B0"><span class="toc-number">3.3.</span> <span class="toc-text">3. 创建文件时的完整更新</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%92%8Cinode"><span class="toc-number">3.3.1.</span> <span class="toc-text">写入文件数据和inode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E7%88%B6%E7%9B%AE%E5%BD%95"><span class="toc-number">3.3.2.</span> <span class="toc-text">更新父目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E6%98%A0%E5%B0%84"><span class="toc-number">3.3.3.</span> <span class="toc-text">更新映射</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%97%A0%E6%95%88%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%B7%B2%E5%88%A0%E9%99%A4"><span class="toc-number">3.4.</span> <span class="toc-text">4. 无效不等于已删除</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88LFS%E5%BF%85%E9%A1%BB%E8%BF%9B%E8%A1%8C%E7%A9%BA%E9%97%B4%E5%9B%9E%E6%94%B6"><span class="toc-number">4.</span> <span class="toc-text">三、为什么LFS必须进行空间回收</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Segment%EF%BC%9A%E9%A1%BA%E5%BA%8F%E5%86%99%E4%B8%8E%E7%A9%BA%E9%97%B4%E5%9B%9E%E6%94%B6%E7%9A%84%E6%8A%98%E4%B8%AD%E5%8D%95%E4%BD%8D"><span class="toc-number">5.</span> <span class="toc-text">四、Segment：顺序写与空间回收的折中单位</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%8C%89%E5%8D%95%E4%B8%AA%E5%9D%97%E5%9B%9E%E6%94%B6"><span class="toc-number">5.1.</span> <span class="toc-text">1. 为什么不按单个块回收</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E6%AF%8F%E6%AC%A1%E6%95%B4%E7%90%86%E6%95%B4%E4%B8%AA%E7%A3%81%E7%9B%98"><span class="toc-number">5.2.</span> <span class="toc-text">2. 为什么不能每次整理整个磁盘</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%AE%B5%E7%9A%84%E6%8A%98%E4%B8%AD"><span class="toc-number">5.3.</span> <span class="toc-text">3. 段的折中</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%AE%B5%E5%86%85%E5%86%99%E5%85%A5%E8%A7%84%E5%88%99"><span class="toc-number">5.4.</span> <span class="toc-text">4. 段内写入规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%AE%B5%E4%BD%BF%E7%94%A8%E8%A1%A8"><span class="toc-number">5.5.</span> <span class="toc-text">5. 段使用表</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%AE%B5%E6%A6%82%E8%A6%81%EF%BC%9A%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E5%9D%97%E6%98%AF%E5%90%A6%E4%BB%8D%E7%84%B6%E6%9C%89%E6%95%88"><span class="toc-number">6.</span> <span class="toc-text">五、段概要：如何判断块是否仍然有效</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%9C%89%E6%95%88%E6%80%A7%E7%9A%84%E5%88%A4%E6%96%AD%E6%A0%87%E5%87%86"><span class="toc-number">6.1.</span> <span class="toc-text">1. 有效性的判断标准</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-inode%E5%9D%97%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%9C%89%E6%95%88%E6%80%A7"><span class="toc-number">6.2.</span> <span class="toc-text">2. inode块如何判断有效性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%AE%B5%E6%A6%82%E8%A6%81%E4%B8%8E%E6%AE%B5%E4%BD%BF%E7%94%A8%E8%A1%A8"><span class="toc-number">6.3.</span> <span class="toc-text">3. 段概要与段使用表</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%AE%B5%E6%B8%85%E7%90%86"><span class="toc-number">7.</span> <span class="toc-text">六、段清理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%80%89%E6%8B%A9%E5%BE%85%E6%B8%85%E7%90%86%E6%AE%B5"><span class="toc-number">7.1.</span> <span class="toc-text">1. 选择待清理段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%AF%BB%E5%8F%96%E6%AE%B5%E4%B8%8E%E6%A6%82%E8%A6%81"><span class="toc-number">7.2.</span> <span class="toc-text">2. 读取段与概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%88%A4%E6%96%AD%E6%9C%89%E6%95%88%E5%9D%97"><span class="toc-number">7.3.</span> <span class="toc-text">3. 判断有效块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%90%AC%E8%BF%81%E6%9C%89%E6%95%88%E6%95%B0%E6%8D%AE"><span class="toc-number">7.4.</span> <span class="toc-text">4. 搬迁有效数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%9B%B4%E6%96%B0%E6%98%A0%E5%B0%84"><span class="toc-number">7.5.</span> <span class="toc-text">5. 更新映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E9%87%8A%E6%94%BE%E6%97%A7%E6%AE%B5"><span class="toc-number">7.6.</span> <span class="toc-text">6. 释放旧段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%B8%85%E7%90%86%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%86%99%E6%94%BE%E5%A4%A7"><span class="toc-number">7.7.</span> <span class="toc-text">7. 清理带来的写放大</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81Checkpoint%EF%BC%9A%E5%B4%A9%E6%BA%83%E6%81%A2%E5%A4%8D%E7%9A%84%E5%8F%AF%E4%BF%A1%E8%B5%B7%E7%82%B9"><span class="toc-number">8.</span> <span class="toc-text">七、Checkpoint：崩溃恢复的可信起点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%A3%80%E6%9F%A5%E7%82%B9%E4%BF%9D%E5%AD%98%E4%BB%80%E4%B9%88"><span class="toc-number">8.1.</span> <span class="toc-text">1. 检查点保存什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%A3%80%E6%9F%A5%E7%82%B9%E7%9A%84%E6%81%A2%E5%A4%8D%E6%B5%81%E7%A8%8B"><span class="toc-number">8.2.</span> <span class="toc-text">2. 检查点的恢复流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E4%B8%A4%E4%B8%AA%E6%A3%80%E6%9F%A5%E7%82%B9%E5%8C%BA%E5%9F%9F"><span class="toc-number">8.3.</span> <span class="toc-text">3. 为什么需要两个检查点区域</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AB%E3%80%81Roll-forward%EF%BC%9A%E6%81%A2%E5%A4%8D%E6%A3%80%E6%9F%A5%E7%82%B9%E4%B9%8B%E5%90%8E%E7%9A%84%E6%9B%B4%E6%96%B0"><span class="toc-number">9.</span> <span class="toc-text">八、Roll-forward：恢复检查点之后的更新</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%89%8D%E6%BB%9A%E6%81%A2%E5%A4%8D%E6%B5%81%E7%A8%8B"><span class="toc-number">9.1.</span> <span class="toc-text">1. 前滚恢复流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Checkpoint%E4%B8%8ERoll-forward%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">9.2.</span> <span class="toc-text">2. Checkpoint与Roll-forward的关系</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E9%A1%BA%E5%BA%8F%E8%BF%BD%E5%8A%A0%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BB%8D%E4%B8%8D%E8%83%BD%E8%87%AA%E5%8A%A8%E4%BF%9D%E8%AF%81%E7%9B%AE%E5%BD%95%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">10.</span> <span class="toc-text">九、顺序追加为什么仍不能自动保证目录一致性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E7%9B%AE%E5%BD%95%E4%BF%AE%E6%94%B9%E6%97%A5%E5%BF%97"><span class="toc-number">11.</span> <span class="toc-text">十、目录修改日志</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81NAND-Flash%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="toc-number">12.</span> <span class="toc-text">十一、NAND Flash的基本特性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%AF%BB%E5%8F%96%E3%80%81%E5%86%99%E5%85%A5%E4%B8%8E%E6%93%A6%E9%99%A4%E5%8D%95%E4%BD%8D%E4%B8%8D%E5%90%8C"><span class="toc-number">12.1.</span> <span class="toc-text">1. 读取、写入与擦除单位不同</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%97%AA%E5%AD%98%E4%B8%8D%E8%83%BD%E4%BB%BB%E6%84%8F%E5%8E%9F%E5%9C%B0%E8%A6%86%E7%9B%96"><span class="toc-number">12.2.</span> <span class="toc-text">2. 闪存不能任意原地覆盖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%93%A6%E5%86%99%E5%AF%BF%E5%91%BD"><span class="toc-number">12.3.</span> <span class="toc-text">3. 擦写寿命</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-SSD%E5%85%B7%E6%9C%89%E5%86%85%E9%83%A8%E5%B9%B6%E8%A1%8C%E6%80%A7"><span class="toc-number">12.4.</span> <span class="toc-text">4. SSD具有内部并行性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Cell%E7%B1%BB%E5%9E%8B"><span class="toc-number">12.5.</span> <span class="toc-text">5. Cell类型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81FTL%EF%BC%9ASSD%E5%86%85%E9%83%A8%E7%9A%84%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%E5%B1%82"><span class="toc-number">13.</span> <span class="toc-text">十二、FTL：SSD内部的地址转换层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%A6%86%E7%9B%96%E5%86%99%E5%A6%82%E4%BD%95%E8%A2%ABFTL%E5%A4%84%E7%90%86"><span class="toc-number">13.1.</span> <span class="toc-text">1. 覆盖写如何被FTL处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-FTL%E7%9A%84%E8%81%8C%E8%B4%A3"><span class="toc-number">13.2.</span> <span class="toc-text">2. FTL的职责</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%9C%89FTL%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E9%9C%80%E8%A6%81%E9%97%AA%E5%AD%98%E5%8F%8B%E5%A5%BD%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">13.3.</span> <span class="toc-text">3. 有FTL为什么还需要闪存友好文件系统</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E4%BC%A0%E7%BB%9FLFS%E5%9C%A8%E9%97%AA%E5%AD%98%E4%B8%8A%E7%9A%84%E4%B8%A4%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="toc-number">14.</span> <span class="toc-text">十三、传统LFS在闪存上的两个问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%80%92%E5%BD%92%E6%9B%B4%E6%96%B0"><span class="toc-number">14.1.</span> <span class="toc-text">1. 递归更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8D%95%E4%B8%80%E6%97%A5%E5%BF%97%E9%99%90%E5%88%B6%E5%B9%B6%E8%A1%8C%E6%80%A7"><span class="toc-number">14.2.</span> <span class="toc-text">2. 单一日志限制并行性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E5%9B%9B%E3%80%81F2FS%EF%BC%9A%E9%9D%A2%E5%90%91%E9%97%AA%E5%AD%98%E7%9A%84%E6%97%A5%E5%BF%97%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">15.</span> <span class="toc-text">十四、F2FS：面向闪存的日志结构文件系统</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%BA%94%E3%80%81NAT%EF%BC%9A%E7%94%A8%E7%A8%B3%E5%AE%9ANode-ID%E5%88%87%E6%96%AD%E9%80%92%E5%BD%92%E6%9B%B4%E6%96%B0"><span class="toc-number">16.</span> <span class="toc-text">十五、NAT：用稳定Node ID切断递归更新</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BC%A0%E7%BB%9F%E6%8C%87%E9%92%88%E7%BB%93%E6%9E%84"><span class="toc-number">16.1.</span> <span class="toc-text">1. 传统指针结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%BC%95%E5%85%A5NAT%E5%90%8E%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">16.2.</span> <span class="toc-text">2. 引入NAT后的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-NAT%E5%87%8F%E5%B0%91%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number">16.3.</span> <span class="toc-text">3. NAT减少了什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-NAT%E8%87%AA%E8%BA%AB%E4%BB%8D%E9%9C%80%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-number">16.4.</span> <span class="toc-text">4. NAT自身仍需持久化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E5%85%AD%E3%80%81NAT%E4%B8%8EFTL%E4%B8%8D%E6%98%AF%E5%90%8C%E4%B8%80%E6%98%A0%E5%B0%84"><span class="toc-number">17.</span> <span class="toc-text">十六、NAT与FTL不是同一映射</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%B8%83%E3%80%81%E5%A4%9A%E6%97%A5%E5%BF%97%E4%B8%8E%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E5%88%86%E7%A6%BB"><span class="toc-number">18.</span> <span class="toc-text">十七、多日志与冷热数据分离</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%8C%BA%E5%88%86%E5%86%B7%E7%83%AD"><span class="toc-number">18.1.</span> <span class="toc-text">1. 为什么要区分冷热</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9B%B8%E4%BC%BC%E7%9A%84%E6%95%B0%E6%8D%AE%E6%94%BE%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="toc-number">18.2.</span> <span class="toc-text">2. 生命周期相似的数据放在一起</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%A4%9A%E6%97%A5%E5%BF%97%E4%B8%8ESSD%E5%B9%B6%E8%A1%8C%E6%80%A7"><span class="toc-number">18.3.</span> <span class="toc-text">3. 多日志与SSD并行性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E5%85%AB%E3%80%81F2FS%E7%9A%84%E7%A9%BA%E9%97%B4%E5%B1%82%E6%AC%A1"><span class="toc-number">19.</span> <span class="toc-text">十八、F2FS的空间层次</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Block"><span class="toc-number">19.1.</span> <span class="toc-text">1. Block</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Segment"><span class="toc-number">19.2.</span> <span class="toc-text">2. Segment</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Section"><span class="toc-number">19.3.</span> <span class="toc-text">3. Section</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Zone"><span class="toc-number">19.4.</span> <span class="toc-text">4. Zone</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%B8%8D%E5%90%8C%E5%B1%82%E6%AC%A1%E7%9A%84%E2%80%9C%E5%9D%97%E2%80%9D"><span class="toc-number">19.5.</span> <span class="toc-text">5. 不同层次的“块”</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%B9%9D%E3%80%81F2FS%E7%9A%84%E4%B8%BB%E8%A6%81%E7%A3%81%E7%9B%98%E7%BB%93%E6%9E%84"><span class="toc-number">20.</span> <span class="toc-text">十九、F2FS的主要磁盘结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-CP"><span class="toc-number">20.1.</span> <span class="toc-text">1. CP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SIT"><span class="toc-number">20.2.</span> <span class="toc-text">2. SIT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-NAT"><span class="toc-number">20.3.</span> <span class="toc-text">3. NAT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-SSA"><span class="toc-number">20.4.</span> <span class="toc-text">4. SSA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Main-Area"><span class="toc-number">20.5.</span> <span class="toc-text">5. Main Area</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%8D%81%E3%80%81F2FS%E6%9B%B4%E6%96%B0%E4%B8%80%E4%B8%AAnode%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-number">21.</span> <span class="toc-text">二十、F2FS更新一个node的过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%8D%81%E4%B8%80%E3%80%81F2FS%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">22.</span> <span class="toc-text">二十一、F2FS的垃圾回收</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%8F%8C%E9%87%8D%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">22.1.</span> <span class="toc-text">1. 双重垃圾回收</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%8D%81%E4%BA%8C%E3%80%81LFS%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%98%AF%E2%80%9C%E5%8F%AA%E5%86%99%E4%B8%80%E6%AC%A1%E2%80%9D"><span class="toc-number">23.</span> <span class="toc-text">二十二、LFS为什么不是“只写一次”</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%8D%81%E4%B8%89%E3%80%81%E5%85%B3%E9%94%AE%E6%A6%82%E5%BF%B5%E5%AF%B9%E6%AF%94"><span class="toc-number">24.</span> <span class="toc-text">二十三、关键概念对比</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-inode-map%E4%B8%8ENAT"><span class="toc-number">24.1.</span> <span class="toc-text">1. inode map与NAT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-inode-map%E4%B8%8E%E6%AE%B5%E6%A6%82%E8%A6%81"><span class="toc-number">24.2.</span> <span class="toc-text">2. inode map与段概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Checkpoint%E4%B8%8E%E5%A2%9E%E9%87%8F%E6%97%A5%E5%BF%97"><span class="toc-number">24.3.</span> <span class="toc-text">3. Checkpoint与增量日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-LFS%E6%B8%85%E7%90%86%E4%B8%8EFTL%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">24.4.</span> <span class="toc-text">4. LFS清理与FTL垃圾回收</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%8D%81%E5%9B%9B%E3%80%81%E5%AE%B9%E6%98%93%E6%B7%B7%E6%B7%86%E7%9A%84%E5%87%A0%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="toc-number">25.</span> <span class="toc-text">二十四、容易混淆的几个问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%BF%BD%E5%8A%A0%E5%86%99%E4%B8%8D%E8%87%AA%E5%8A%A8%E4%BF%9D%E8%AF%81%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">25.1.</span> <span class="toc-text">1. 追加写不自动保证崩溃一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%97%A0%E6%95%88%E5%9D%97%E5%B9%B6%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%B7%B2%E7%BB%8F%E6%93%A6%E9%99%A4"><span class="toc-number">25.2.</span> <span class="toc-text">2. 无效块并不等于已经擦除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%A1%BA%E5%BA%8F%E5%86%99%E4%BB%8D%E7%84%B6%E5%8F%AF%E8%83%BD%E4%BA%A7%E7%94%9F%E5%86%99%E6%94%BE%E5%A4%A7"><span class="toc-number">25.3.</span> <span class="toc-text">3. 顺序写仍然可能产生写放大</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Segment%E4%B8%8D%E6%98%AFNAND-Erase-Block"><span class="toc-number">25.4.</span> <span class="toc-text">4. Segment不是NAND Erase Block</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-FTL%E4%B8%8D%E8%83%BD%E6%9B%BF%E4%BB%A3%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BC%98%E5%8C%96"><span class="toc-number">25.5.</span> <span class="toc-text">5. FTL不能替代文件系统优化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E5%8D%81%E4%BA%94%E3%80%81%E7%BB%9F%E4%B8%80%E7%90%86%E8%A7%A3%EF%BC%9A%E7%94%A8%E6%98%A0%E5%B0%84%E6%8D%A2%E5%8F%96%E5%8F%AF%E7%A7%BB%E5%8A%A8%E6%80%A7"><span class="toc-number">26.</span> <span class="toc-text">二十五、统一理解：用映射换取可移动性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">27.</span> <span class="toc-text">结论</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" title="第23讲 设备管理"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/vega_mbison.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第23讲 设备管理"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" title="第23讲 设备管理">第23讲 设备管理</a><time datetime="2026-06-23T04:13:38.000Z" title="Created 2026-06-23 12:13:38">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/" title="第22讲 文件系统崩溃一致性II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ken.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第22讲 文件系统崩溃一致性II"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/" title="第22讲 文件系统崩溃一致性II">第22讲 文件系统崩溃一致性II</a><time datetime="2026-06-23T04:13:31.000Z" title="Created 2026-06-23 12:13:31">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/" title="第21讲 文件系统崩溃一致性I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/chunli.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第21讲 文件系统崩溃一致性I"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/" title="第21讲 文件系统崩溃一致性I">第21讲 文件系统崩溃一致性I</a><time datetime="2026-06-23T04:13:22.000Z" title="Created 2026-06-23 12:13:22">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/" title="第20讲 文件系统II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/deejay.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第20讲 文件系统II"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/" title="第20讲 文件系统II">第20讲 文件系统II</a><time datetime="2026-06-23T04:13:15.000Z" title="Created 2026-06-23 12:13:15">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/" title="第19讲 文件系统I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第19讲 文件系统I"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/" title="第19讲 文件系统I">第19讲 文件系统I</a><time datetime="2026-06-23T04:13:06.000Z" title="Created 2026-06-23 12:13:06">2026-06-23</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">55</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

@@ -1,0 +1,1725 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>第20讲 文件系统II | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="第20讲 文件系统II"><meta name="application-name" content="第20讲 文件系统II"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="第20讲 文件系统II"><meta property="og:url" content="http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件引言文件系统的第一层任务，是把存储设备上的数据块组织成文件和目录。但文件被组织出来以后，操作系统仍然需要回答一系列更接近实际运行的问题：  一个文件能否拥有多个名字？ 进程如何引用已经打开的文件？ write()返回以后，数据是否已经写入硬盘？"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/deejay.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/deejay.png"><meta name="description" content="从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件引言文件系统的第一层任务，是把存储设备上的数据块组织成文件和目录。但文件被组织出来以后，操作系统仍然需要回答一系列更接近实际运行的问题：  一个文件能否拥有多个名字？ 进程如何引用已经打开的文件？ write()返回以后，数据是否已经写入硬盘？"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: '第20讲 文件系统II',
+  postAI: '',
+  pageFillDescription: '从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件, 引言, 一、文件名并不是文件本身, 1. 硬链接：同一个文件的多个名字, 2. 符号链接：保存路径的独立文件, 3. 硬链接与符号链接的区别, 4. 为什么FAT难以支持硬链接, 二、文件描述符：进程如何引用文件, 1. 为什么不能让fd直接指向inode, 2. 两次open为什么可以有独立偏移量, 3. fork以后为什么会共享偏移量, 4. 常见文件操作接口, 三、页缓存：文件访问为什么不必每次读取磁盘, 1. 干净页与脏页, 干净页, 脏页, 2. write成功意味着什么, 3. fsync的作用, 4. 页缓存的双重意义, 四、mmap：把文件接入虚拟内存, 1. mmap并不会立即读取整个文件, 2. 第一次访问时发生什么, 3. MAP_SHARED与文件修改, 4. mmap的优势, 随机访问更自然, 减少频繁系统调用, 减少一次用户态复制, 支持按需加载, 5. mmap不一定总是更快, 五、文件克隆与写时拷贝, 1. 写时拷贝, 2. 文件克隆与硬链接, 六、快照：保存某一时刻的文件系统状态, 1. 基于inode的快照思路, 2. 树形文件系统中的快照, 3. 克隆与快照, 七、VFS：统一不同文件系统, 1. 挂载：把多个文件系统接入一棵目录树, 2. VFS是什么, 3. VFS中的核心对象, superblock, inode, dentry, file, mount, 4. 函数表与多态分发, 5. 一次read的大致过程, 6. 磁盘结构与内存结构不是同一件事, 八、FUSE：把文件系统逻辑移到用户态, 1. FUSE的结构, 2. 一次FUSE读取请求, 3. FUSE的优缺点, 4. 文件系统接口不一定对应本地磁盘, 九、现代文件系统的扩展能力, 1. 加密, 2. 压缩, 3. 去重, 4. 校验, 5. 配额, 6. 多设备与软件RAID, 7. 子卷, 8. 事务与日志, 十、从规约到文件系统代码, 1. 功能规约, 前置条件, 后置条件, 不变量, 2. 并发规约, 3. 模块化规约, Rely, Guarantee, 4. 多智能体生成, 5. 规约不能替代验证, 十一、核心概念的统一关系, 结论从文件名到虚拟文件系统操作系统如何访问缓存与扩展文件引言文件系统的第一层任务是把存储设备上的数据块组织成文件和目录但文件被组织出来以后操作系统仍然需要回答一系列更接近实际运行的问题一个文件能否拥有多个名字进程如何引用已经打开的文件返回以后数据是否已经写入硬盘文件为什么可以像内存一样被访问复制大型文件为什么有时能够瞬间完成如何用同一组接口访问和网络文件系统文件系统是否一定要运行在内核中这些问题共同构成了文件系统的运行时机制从应用程序的角度看文件操作通常只是但在这些简单接口背后存在多个不同层次的对象文件名目录项打开文件对象文件描述符页缓存与数据块理解这些对象之间的关系是理解链接文件描述符页缓存文件克隆和的基础一文件名并不是文件本身在基于的文件系统中目录中保存的核心关系通常是文件名编号才负责保存文件的核心信息例如文件类型文件大小访问权限所有者时间信息数据块位置硬链接数量因此文件名只是用户进入文件的一个入口而不是文件实体本身更完整的关系是文件名目录项文件数据块一个可以被多个目录项引用因此同一个文件可以拥有多个名字这正是硬链接能够存在的基础硬链接同一个文件的多个名字假设执行文件系统中可能形成如下关系文件数据文件数据和指向同一个因此它们不是两个内容相同的文件而是同一个文件的两个名称这意味着二者具有相同的编号通过任意名称修改内容另一个名称也能看到修改两个名称地位相同不存在必须保留的原文件名如果执行文件系统通常只会删除名为的目录项并将中的硬链接计数减一只要仍然存在和文件数据就不能被回收因此的直接含义通常不是立即销毁文件数据而是删除一个文件名到的引用关系只有当硬链接计数降为零并且没有进程继续持有该文件的打开引用时相关和数据块才可以真正被释放符号链接保存路径的独立文件符号链接的机制与硬链接不同执行会创建一个新的特殊文件这个文件拥有自己的其内容主要是一段路径访问时系统会查找到对应的发现它是符号链接读取其中保存的目标路径按照该路径重新进行文件查找访问找到符号链接读取目标路径重新解析找到目标文件符号链接保存的是路径而不是目标文件的因此如果目标文件被删除移动或重命名符号链接可能失效成为悬空链接硬链接与符号链接的区别对比点硬链接符号链接本质新增一个指向同一的目录项新建一个保存目标路径的特殊文件与目标文件相同拥有独立文件身份本来就是同一个文件是两个不同文件删除目标名称其他硬链接仍然有效可能变成悬空链接是否依赖路径否是跨文件系统通常不可以可以链接目录通常受限制可以硬链接不能轻易跨文件系统是因为编号只在所属文件系统内部具有意义另一个文件系统拥有独立的空间无法直接引用当前文件系统中的符号链接保存的是普通路径字符串只要路径解析最终能够到达目标就可以跨越不同挂载的文件系统为什么难以支持硬链接没有独立于目录项存在的结构目录项通常直接保存文件名文件大小起始簇号时间等元数据如果简单创建两个目录项并让它们指向同一个起始簇簇簇会立即出现一致性问题两个目录项都保存文件大小哪一份是权威数据修改文件时间时应该更新哪个目录项删除时是否应该释放簇链如果释放簇链将指向已被回收的数据文件系统如何知道还有多少目录项引用这条簇链要支持可靠的硬链接就需要把共享元数据从目录项中抽离出来并增加引用计数目录项共享文件对象数据簇目录项这实际上已经接近的设计本节核心结论文件名只是目录中的引用硬链接让多个名称引用同一个符号链接则是一个保存目标路径的独立文件二文件描述符进程如何引用文件应用程序打开文件时返回的通常是一个较小的整数例如这个数字不是编号也不是磁盘地址它是当前进程文件描述符表中的一个索引完整关系可以表示为文件描述符进程文件描述符表打开文件对象文件数据为什么不能让直接指向回答的是这是哪个文件但一个进程打开文件以后还需要保存与本次打开有关的运行时状态例如当前读写偏移量打开模式是否追加写入状态标志引用计数这些信息不属于文件本身而属于某一次打开操作因此内核需要一个位于文件描述符和之间的对象即打开文件对象可以将几个对象的职责区分为对象代表的含义文件名用户访问文件时使用的名字文件的身份和核心元数据打开文件对象某一次打开操作的状态文件描述符进程引用打开文件对象的整数两次为什么可以有独立偏移量假设执行两次调用最终可能访问同一个但通常会建立两个不同的打开文件对象打开文件对象同一个打开文件对象因此和可以拥有不同的文件偏移量如果对应的偏移量向后移动字节而仍然可以从文件开头读取这说明是否共享文件偏移量取决于是否共享打开文件对象而不是是否指向同一个以后为什么会共享偏移量假设在之前打开文件会复制父进程的文件描述符表但复制后的表项仍然指向同一个打开文件对象父进程同一个打开文件对象子进程打开文件对象中保存着当前文件偏移量因此父子进程会共享该偏移量假设文件内容为父子进程各执行一次如果父进程先运行它可能读到子进程随后从偏移量继续读取如果子进程先运行则两段输出的归属可能反过来这里的共享与父子进程是否共享虚拟地址空间无关后的父子进程通常拥有独立地址空间但它们的文件描述符仍可引用同一个内核打开文件对象常见文件操作接口接口作用根据路径打开文件以目录文件描述符为基准打开文件从当前偏移量读取数据从当前偏移量写入数据调整当前文件偏移量根据路径获取目标文件属性获取符号链接本身的属性根据文件描述符获取文件属性释放文件描述符对打开文件对象的引用只是关闭当前进程中的一次打开引用不会删除磁盘上的文件即使文件名已经被删除只要某个进程仍持有打开文件对象文件数据仍可能继续存在并可被该进程读写直到最后一个引用被释放文件系统才能回收数据本节核心结论是进程文件描述符表的索引表示文件打开文件对象表示一次打开操作偏移量是否共享取决于打开文件对象是否共享三页缓存文件访问为什么不必每次读取磁盘存储设备的速度远低于内存如果每次都直接访问硬盘或文件访问性能会非常差因此操作系统使用内存中的页缓存保存最近访问过的文件数据应用调用页缓存中是否存在是从内存返回数据否从存储设备读取放入页缓存页缓存使重复读取能够直接从内存完成也使多个进程访问同一文件时可以共享缓存中的文件页面干净页与脏页页缓存中的页面可以分为干净页和脏页干净页干净页中的数据与持久化设备中的数据一致页缓存内容存储设备内容这种页面在内存紧张时可以直接丢弃因为以后仍然可以从磁盘重新读取脏页应用程序修改了页缓存但修改还没有写回设备页缓存内容存储设备内容此时页面被标记为脏页例如很多情况下内核先把数据写入页缓存然后将页面标记为脏页真正的设备写入可能由后台回写机制稍后完成成功意味着什么返回成功通常意味着内核已经接受了数据它不一定意味着数据已经稳定地写入持久化介质如果数据仍然停留在脏页中此时机器突然断电修改可能丢失因此系统需要区分两个时刻数据进入内核页缓存返回数据写入存储设备设备确认持久化这几个步骤不一定同步发生的作用当应用程序需要更强的持久性保证时可以调用它要求操作系统将该文件相关的脏数据以及必要的元数据同步到持久化设备典型过程是应用修改文件页缓存页面变脏调用写回文件数据写回必要元数据设备完成持久化数据库日志系统和关键配置程序不能只看到成功就认为数据绝对安全而需要设计合适的同步策略不过频繁调用会增加设备写入次数并降低性能因此持久性与性能之间通常需要权衡页缓存的双重意义页缓存不仅用于读取也用于写入对读取而言它减少重复磁盘访问对写入而言它允许系统合并延迟和批量执行延迟写回可以合并多个小写入对写入顺序进行优化减少设备操作次数让应用程序更快返回代价是系统中会暂时存在尚未持久化的脏数据本节核心结论成功通常只表示数据已进入内核页缓存通过脏页延迟写回提高性能用于在需要时要求数据持久化四把文件接入虚拟内存普通文件接口要求程序显式调用和提供了另一种方式将文件的一部分映射到进程虚拟地址空间映射建立以后程序可以像访问普通内存一样访问文件并不会立即读取整个文件调用时内核通常不会马上把整个文件装入物理内存它首先在进程虚拟地址空间中建立一个虚拟内存区域并记录起始虚拟地址映射长度访问权限对应文件文件起始偏移量映射方式此时部分虚拟页可能尚未建立有效页表映射可以抽象为虚拟内存区域起始地址结束地址读写权限对应文件文件偏移第一次访问时发生什么假设程序第一次访问映射区域中的某个地址如果相应页面尚未加载会触发缺页异常内核随后执行根据异常地址查找对应虚拟内存区域检查此次访问是否合法判断该区域对应哪个文件计算对应的文件页和文件偏移检查页缓存中是否已经存在该页面必要时从存储设备读取数据建立虚拟页到物理页的页表映射重新执行原来的内存访问指令虚拟内存系统页缓存存储设备访问映射地址缺页异常查找对应文件和偏移查询文件页面页面不在缓存读取数据块返回数据建立页表映射并恢复执行因此把文件系统与虚拟内存连接在一起文件偏移最终通过缺页异常转化为物理内存页面与文件修改如果使用对映射页面的修改会反映到共享的文件页面中并最终写回文件例如可能使对应页缓存页面变脏之后内核可以自动回写也可以由程序调用请求同步只会解除虚拟地址映射它不等于删除文件也不意味着文件数据一定被清除的优势随机访问更自然普通接口可能需要使用映射后可以直接减少频繁系统调用建立映射后每次读取一个小范围数据不必都显式调用减少一次用户态复制普通读取常涉及页缓存用户缓冲区而可以让页缓存中的文件页面直接映射进进程虚拟地址空间从而减少这一步复制但这不代表数据完全不需要移动文件数据仍然必须从存储设备进入物理内存支持按需加载只访问文件的一部分时系统只需要加载涉及的页面而不必读取完整文件不一定总是更快并非和的绝对替代品它会引入缺页异常处理页表建立与维护虚拟内存区域管理映射异常处理地址空间占用对于简单的顺序流式读取普通配合预读和较大缓冲区可能更加直接对比点使用方式显式系统调用通过内存地址访问文件位置文件偏移量虚拟地址偏移页面加载触发缺页异常触发数据复制通常复制到用户缓冲区可直接映射文件页面错误表现系统调用返回错误访问期间可能产生异常适合场景顺序简单流式操作随机访问大文件共享页面本节核心结论不是立即加载整个文件而是建立文件到虚拟地址空间的映射实际页面通常在首次访问时按需载入五文件克隆与写时拷贝普通文件复制必须把源文件内容完整读取并写入目标文件源文件页缓存用户缓冲区页缓存目标文件因此复制时间大致与文件大小成正比即使使用配合虽然可以减少系统调用和显式缓冲区管理但文件数据仍然需要真正复制现代文件系统可以提供文件克隆也称克隆时系统创建一个新的文件对象但暂时让两个文件共享相同的数据块文件共享数据块文件刚完成克隆时和拥有不同和是两个独立文件两者暂时引用相同数据块文件内容不需要立即完整复制因此大型文件的初始克隆可以几乎瞬间完成写时拷贝如果文件要修改共享数据块不能直接原地覆盖否则文件也会被改变文件系统会在写入发生时执行复制修改前数据块修改数据块时分配新数据块把的旧内容复制到修改让指向继续指向修改后数据块数据块这种机制称为即写时拷贝其核心思想是只在真正发生写入时复制被修改的部分而不是提前复制整个文件文件克隆与硬链接文件克隆和硬链接都可能共享底层数据但二者的文件身份完全不同对比点硬链接文件克隆相同不同文件数量一个文件多个名字两个独立文件修改内容所有名称看到相同变化修改时写时拷贝并分离删除一个名称只减少硬链接计数删除一个独立文件共享原因本来就是同一个文件系统主动共享数据块一句话概括硬链接是同一个文件拥有多个名字文件克隆是多个文件暂时共享相同数据六快照保存某一时刻的文件系统状态快照用于记录文件系统或子卷在某个时刻的状态假设创建快照继续修改文件希望恢复到状态最直接的方法是完整复制全部数据但代价很高现代快照通常利用写时拷贝创建快照时系统不立即复制所有数据而是让快照与当前文件系统共享原有数据块和元数据节点快照状态共享旧数据当前状态之后如果当前文件系统要修改某个共享对象就复制该对象并在新副本上修改快照继续引用旧版本基于的快照思路一种简化方案是保存一份表或关键元数据快照与当前文件系统共享现有数据块修改数据时执行写时拷贝这样快照创建速度主要取决于元数据处理而不是整个文件系统的数据量树形文件系统中的快照如果文件系统使用树结构管理元数据可以复制一个新的树根并让新旧树根共享绝大多数子节点快照根共享节点当前根共享节点新修改节点修改某个节点时系统只需要复制从树根到被修改节点相关的路径而不用复制整棵树这使快照具备两个特点创建速度快初始空间开销小随着后续修改增加快照与当前文件系统之间共享的数据逐渐减少额外空间占用才逐渐上升克隆与快照对比点文件克隆快照作用范围通常是单个文件文件系统子卷或目录树目标创建独立文件副本保存某一时刻的整体状态共享对象文件数据块元数据树和数据块分离方式写时拷贝写时拷贝典型用途快速复制大文件备份回滚系统恢复本节核心结论文件克隆和快照都通过共享旧数据并在写入时复制变化部分避免创建时进行完整数据复制七统一不同文件系统一台机器可能同时使用网络文件系统文件系统这些文件系统在磁盘格式目录结构和数据定位方式上可能完全不同但应用程序仍然使用相同接口实现这种统一性的核心是即虚拟文件系统挂载把多个文件系统接入一棵目录树不使用独立盘符区分文件系统而是把所有文件系统接入统一目录树例如其中根文件系统可能是可能挂载可能挂载把一个文件系统的根目录连接到现有目录树中的某个目录称为挂载挂载以后应用程序只看到一棵连续目录树不需要知道路径跨越了几个不同文件系统是什么是内核中的文件系统抽象层它定义一组统一对象和操作接口具体文件系统负责实现这些接口可以类比为抽象接口具体实现应用程序系统调用应用程序调用时并不直接调用或根据文件所属的具体文件系统选择相应实现中的核心对象代表一个已经挂载的文件系统实例它通常保存文件系统类型块大小根目录状态信息文件系统操作函数它回答的是当前正在管理的是哪个文件系统实例代表一个具体文件或目录的身份和核心元数据它回答的是这是哪个文件代表路径中的一个名称及其与的对应关系例如路径在路径解析过程中会涉及这些名称关系由表示并可被缓存加速代表一次具体打开操作通常保存当前文件偏移量打开标志文件操作函数指向路径或的引用它回答的是当前进程怎样使用这个文件表示文件系统之间的挂载关系例如当前文件系统挂载到哪个目录项父挂载与子挂载是什么关系路径解析何时跨越文件系统边界函数表与多态分发为不同对象定义统一操作例如操作可能包含可以提供自己的实现当需要在目录中创建文件时它调用统一的操作但函数指针最终指向如果目标目录属于其他文件系统就调用该文件系统提供的实现这是一种典型的运行时多态统一接口根据具体文件系统选择实现一次的大致过程应用调用进入系统调用层根据找到打开文件对象通过对象找到对应操作函数调用具体文件系统实现检查页缓存必要时读取块设备把数据返回应用程序如果目标文件属于文件系统后续请求还会被转发给用户态文件系统程序磁盘结构与内存结构不是同一件事文件系统在磁盘上保存的是持久化格式例如超级块表目录数据分配位图数据块但运行时还会建立大量内存结构缓存缓存页缓存挂载对象哈希表树结构块分配器状态磁盘结构适合长期保存内存结构适合快速查找和动态管理因此不能认为磁盘上的与内存中的对象完全等价内核中的对象通常还包含锁引用计数缓存状态和函数指针等运行时信息本节核心结论不是一种磁盘格式而是内核中的统一抽象层它通过统一对象和函数表让不同文件系统能够使用相同系统调用接口八把文件系统逻辑移到用户态传统文件系统通常运行在内核中这样可以减少上下文切换并获得较高性能但内核开发存在明显风险调试困难错误可能导致整个系统崩溃很难使用普通用户态库开发和实验门槛较高即允许开发者在用户态实现文件系统逻辑的结构通常包括用户态应用程序文件系统进程库内核态内核驱动用户态文件系统程序实现诸如等操作一次读取请求应用程序内核驱动用户态文件系统转交请求发送用户态请求执行读取逻辑返回结果返回数据返回与内核文件系统相比请求需要额外经历内核态与用户态之间的切换有时还会产生额外数据复制的优缺点优点代价开发方便请求路径更长容易调试用户态与内核态切换更多错误通常不会直接导致内核崩溃可能增加数据复制可以使用普通用户态库高并发性能需要额外优化适合快速原型通常低于纯内核实现性能体现的是一种系统设计权衡用一部分性能换取开发效率隔离性和灵活性文件系统接口不一定对应本地磁盘使文件和目录可以成为其他资源的统一接口例如把远程服务器目录表现为本地目录网盘客户端把云端对象表现为文件数据库内容可以表现为目录和文件动态生成的信息也可以通过文件接口访问这说明文件系统不只是一种磁盘数据格式也是一种通用命名与访问接口用户程序可以继续使用熟悉的而不必理解底层资源究竟来自本地磁盘网络服务还是数据库本节核心结论并没有绕过内核而是让把具体文件系统请求转发给用户态程序以性能成本换取可开发性和隔离性九现代文件系统的扩展能力现代文件系统除了保存和读取文件还可能提供多种高级功能加密文件系统可以对数据进行加密使存储设备上的内容以密文形式存在没有正确密钥即使直接读取磁盘数据也无法恢复原始内容压缩文件写入前可以先压缩从而减少存储空间占用减少实际数据量代价是增加计算并可能使随机修改更加复杂去重文件系统可以检测相同数据块并只保存一份内容文件相同数据块文件去重与文件克隆都可能共享数据块但去重通常是系统检测内容相同后自动合并而克隆是显式创建共享副本校验文件系统可以为数据或元数据保存校验信息用于检测介质损坏位翻转错误写入元数据破坏校验可以发现错误但是否能够恢复还取决于是否存在冗余副本配额配额限制用户用户组或子系统能够使用的存储资源例如最大空间最大文件数最大数量多设备与软件文件系统或存储层可以把多个设备组合起来实现容量扩展并行读写数据冗余故障容忍子卷子卷是在同一文件系统内部建立的逻辑独立区域它们可以拥有独立的快照配额和管理策略但不一定需要单独分区事务与日志文件系统操作通常会同时修改多个结构例如创建文件可能涉及分配目录项插入数据块分配位图更新如果操作执行到一半突然崩溃文件系统可能进入不一致状态事务或日志机制试图保证一组修改要么全部完成要么恢复到修改前状态这并不必然保证用户数据完全不丢失但可以保护文件系统结构不被部分更新破坏十从规约到文件系统代码文件系统属于复杂系统软件它涉及数据结构并发控制锁顺序错误恢复模块依赖持久化一致性直接用模糊自然语言要求大模型生成一个正确文件系统风险很高大模型可能忘记加锁在错误路径上漏掉解锁调用不存在的函数破坏数据结构不变量忽略模块之间的依赖生成可以编译但无法正确运行的代码因此更可靠的思路是先提供精确规约再让模型生成或补全实现功能规约功能规约可以描述前置条件函数调用前必须成立的条件例如目标目录已经加锁文件名符合长度限制输入路径合法后置条件函数结束后应当成立的条件例如成功时创建新插入目录项返回失败时不留下半初始化对象不修改原目录状态返回错误码不变量系统运行过程中始终必须保持的性质例如根始终存在同一数据块不能被错误分配给两个独立文件目录项不能指向已经释放的并发规约文件系统代码大量涉及共享状态因此只描述输入输出还不够还必须描述锁状态调用前持有哪些锁函数内部允许获取哪些锁返回时仍持有哪些锁错误路径是否释放所有锁可以与哪些操作并发锁的获取顺序是什么例如调用前持有的锁成功返回时释放持有失败返回时不持有任何锁这种规约比注意线程安全精确得多模块化规约大型文件系统不能由一个模块独立完成不同模块之间需要明确约定当前模块依赖其他模块保证什么例如块分配器不会重复分配正在使用的块路径解析模块返回的已增加引用计数缓存模块保证页面锁定期间不会被回收当前模块向其他模块保证什么例如返回成功时目录项一定已经可见返回失败时不修改共享状态所有错误路径都会释放锁引用计数变化符合接口约定这种方式可以降低模块耦合使不同开发者或智能体只需要理解有限范围多智能体生成复杂文件系统可以按模块拆分路径解析规约路径模块规约模块块分配规约分配模块缓存规约缓存模块之后再通过编译检查接口检查单元测试并发测试崩溃测试规约一致性检查发现并修复模块之间的问题多智能体的价值不只是同时生成更多代码而是利用清晰接口把系统分解成可以分别验证的部分规约不能替代验证规约可以减少歧义但不能自动保证实现正确生成后的文件系统仍需要单元测试集成测试并发压力测试崩溃恢复测试与参考实现进行行为对比人工代码审查必要时进行形式化验证正确关系是规约提高生成质量测试与验证确认实现是否满足要求而不是写出规约代码自动绝对正确本节核心结论大模型可以辅助生成文件系统代码但必须以精确规约模块接口和验证体系约束生成过程十一核心概念的统一关系文件系统运行时涉及多个容易混淆的对象对象所在层次作用文件名目录结构用户访问文件的名称内核内存表示名称到的路径关系文件系统与内核表示文件身份和核心元数据打开文件对象内核内存保存一次打开操作的偏移量和状态文件描述符进程引用打开文件对象的整数页缓存内核内存缓存文件内容数据块存储设备持久保存文件内容完整访问链条可以概括为路径名调用打开文件对象文件描述符页缓存存储设备数据块其中路径名解决怎样找到文件解决这是哪个文件打开文件对象解决这一次怎样使用文件解决进程用什么编号引用它页缓存解决怎样减少存储数据块负责最终持久化结论文件系统的运行机制远不只是把数据写进磁盘文件被创建以后操作系统还需要建立一套完整的运行时抽象目录项与分离文件名和文件身份硬链接允许一个拥有多个名字符号链接通过路径间接引用其他文件文件描述符让进程用简单整数引用内核打开文件对象打开文件对象保存偏移量和打开状态页缓存通过延迟写回提高性能在需要时强化持久性保证把文件页面接入虚拟地址空间写时拷贝让文件克隆和快照快速创建统一不同文件系统的接口允许文件系统逻辑运行在用户态规约与验证为自动生成复杂文件系统代码提供约束这些机制共同说明文件系统不是单纯的磁盘数据格式而是一套贯穿路径解析进程接口虚拟内存缓存管理持久化和系统扩展的综合抽象文件系统真正提供的不只是存储空间而是一套让进程能够命名访问共享缓存映射和持久化数据的统一运行环境',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-23 12:13:15',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">36</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">第20讲 文件系统II</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:15.000Z" title="Created 2026-06-23 12:13:15">2026-06-23</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:15.181Z" title="Updated 2026-06-23 12:13:15">2026-06-23</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">9.8k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>30min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/deejay.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/"><header><h1 id="CrawlerTitle" itemprop="name headline">第20讲 文件系统II</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:15.000Z" title="Created 2026-06-23 12:13:15">2026-06-23</time><time itemprop="dateCreated datePublished" datetime="2026-06-23T04:13:15.181Z" title="Updated 2026-06-23 12:13:15">2026-06-23</time></header><h1 id="从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件"><a href="#从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件" class="headerlink" title="从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件"></a>从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>文件系统的第一层任务，是把存储设备上的数据块组织成文件和目录。但文件被组织出来以后，操作系统仍然需要回答一系列更接近实际运行的问题：</p>
+<ul>
+<li>一个文件能否拥有多个名字？</li>
+<li>进程如何引用已经打开的文件？</li>
+<li><code>write()</code>返回以后，数据是否已经写入硬盘？</li>
+<li>文件为什么可以像内存一样被访问？</li>
+<li>复制大型文件为什么有时能够瞬间完成？</li>
+<li>Linux如何用同一组接口访问Ext4、FAT、NTFS和网络文件系统？</li>
+<li>文件系统是否一定要运行在内核中？</li>
+</ul>
+<p>这些问题共同构成了文件系统的运行时机制。</p>
+<p>从应用程序的角度看，文件操作通常只是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">open();</span><br><span class="line">read();</span><br><span class="line">write();</span><br><span class="line">mmap();</span><br><span class="line">close();</span><br></pre></td></tr></table></figure>
+
+<p>但在这些简单接口背后，存在多个不同层次的对象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">文件名</span><br><span class="line">  ↓</span><br><span class="line">目录项</span><br><span class="line">  ↓</span><br><span class="line">inode</span><br><span class="line">  ↓</span><br><span class="line">打开文件对象</span><br><span class="line">  ↓</span><br><span class="line">文件描述符</span><br><span class="line">  ↓</span><br><span class="line">页缓存与数据块</span><br></pre></td></tr></table></figure>
+
+<p>理解这些对象之间的关系，是理解链接、文件描述符、页缓存、<code>mmap</code>、文件克隆、VFS和FUSE的基础。</p>
+<hr>
+<h1 id="一、文件名并不是文件本身"><a href="#一、文件名并不是文件本身" class="headerlink" title="一、文件名并不是文件本身"></a>一、文件名并不是文件本身</h1><p>在基于inode的文件系统中，目录中保存的核心关系通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">文件名 → inode编号</span><br></pre></td></tr></table></figure>
+
+<p>inode才负责保存文件的核心信息，例如：</p>
+<ul>
+<li>文件类型</li>
+<li>文件大小</li>
+<li>访问权限</li>
+<li>所有者</li>
+<li>时间信息</li>
+<li>数据块位置</li>
+<li>硬链接数量</li>
+</ul>
+<p>因此，文件名只是用户进入文件的一个入口，而不是文件实体本身。</p>
+<p>更完整的关系是：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    N[文件名] --&gt; D[目录项]
+    D --&gt; I[inode]
+    I --&gt; B[文件数据块]
+  </pre></div>
+
+<p>一个inode可以被多个目录项引用，因此同一个文件可以拥有多个名字。这正是硬链接能够存在的基础。</p>
+<hr>
+<h2 id="1-硬链接：同一个文件的多个名字"><a href="#1-硬链接：同一个文件的多个名字" class="headerlink" title="1. 硬链接：同一个文件的多个名字"></a>1. 硬链接：同一个文件的多个名字</h2><p>假设执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> test.txt test2.txt</span><br></pre></td></tr></table></figure>
+
+<p>文件系统中可能形成如下关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">test.txt  ──→ inode 100 ──→ 文件数据</span><br><span class="line">test2.txt ──→ inode 100 ──→ 文件数据</span><br></pre></td></tr></table></figure>
+
+<p><code>test.txt</code>和<code>test2.txt</code>指向同一个inode，因此它们不是两个内容相同的文件，而是同一个文件的两个名称。</p>
+<p>这意味着：</p>
+<ul>
+<li>二者具有相同的inode编号。</li>
+<li>通过任意名称修改内容，另一个名称也能看到修改。</li>
+<li>两个名称地位相同。</li>
+<li>不存在必须保留的“原文件名”。</li>
+</ul>
+<p>如果执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> test.txt</span><br></pre></td></tr></table></figure>
+
+<p>文件系统通常只会删除名为<code>test.txt</code>的目录项，并将inode中的硬链接计数减一。</p>
+<p>只要<code>test2.txt</code>仍然存在，inode和文件数据就不能被回收。</p>
+<p>因此，<code>rm</code>的直接含义通常不是“立即销毁文件数据”，而是：</p>
+<blockquote>
+<p>删除一个文件名到inode的引用关系。</p>
+</blockquote>
+<p>只有当硬链接计数降为零，并且没有进程继续持有该文件的打开引用时，相关inode和数据块才可以真正被释放。</p>
+<hr>
+<h2 id="2-符号链接：保存路径的独立文件"><a href="#2-符号链接：保存路径的独立文件" class="headerlink" title="2. 符号链接：保存路径的独立文件"></a>2. 符号链接：保存路径的独立文件</h2><p>符号链接的机制与硬链接不同。</p>
+<p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s test.txt test3.txt</span><br></pre></td></tr></table></figure>
+
+<p>会创建一个新的特殊文件。这个文件拥有自己的inode，其内容主要是一段路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test.txt</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>test3.txt</code>时，系统会：</p>
+<ol>
+<li>查找到<code>test3.txt</code>对应的inode。</li>
+<li>发现它是符号链接。</li>
+<li>读取其中保存的目标路径。</li>
+<li>按照该路径重新进行文件查找。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[访问test3.txt] --&gt; B[找到符号链接inode]
+    B --&gt; C[读取目标路径test.txt]
+    C --&gt; D[重新解析test.txt]
+    D --&gt; E[找到目标文件]
+  </pre></div>
+
+<p>符号链接保存的是路径，而不是目标文件的inode。因此，如果目标文件被删除、移动或重命名，符号链接可能失效，成为悬空链接。</p>
+<hr>
+<h2 id="3-硬链接与符号链接的区别"><a href="#3-硬链接与符号链接的区别" class="headerlink" title="3. 硬链接与符号链接的区别"></a>3. 硬链接与符号链接的区别</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>硬链接</th>
+<th>符号链接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本质</td>
+<td>新增一个指向同一inode的目录项</td>
+<td>新建一个保存目标路径的特殊文件</td>
+</tr>
+<tr>
+<td>inode</td>
+<td>与目标文件相同</td>
+<td>拥有独立inode</td>
+</tr>
+<tr>
+<td>文件身份</td>
+<td>本来就是同一个文件</td>
+<td>是两个不同文件</td>
+</tr>
+<tr>
+<td>删除目标名称</td>
+<td>其他硬链接仍然有效</td>
+<td>可能变成悬空链接</td>
+</tr>
+<tr>
+<td>是否依赖路径</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>跨文件系统</td>
+<td>通常不可以</td>
+<td>可以</td>
+</tr>
+<tr>
+<td>链接目录</td>
+<td>通常受限制</td>
+<td>可以</td>
+</tr>
+</tbody></table>
+<p>硬链接不能轻易跨文件系统，是因为inode编号只在所属文件系统内部具有意义。另一个文件系统拥有独立的inode空间，无法直接引用当前文件系统中的inode。</p>
+<p>符号链接保存的是普通路径字符串，只要路径解析最终能够到达目标，就可以跨越不同挂载的文件系统。</p>
+<hr>
+<h2 id="4-为什么FAT难以支持硬链接"><a href="#4-为什么FAT难以支持硬链接" class="headerlink" title="4. 为什么FAT难以支持硬链接"></a>4. 为什么FAT难以支持硬链接</h2><p>FAT没有独立于目录项存在的inode结构。目录项通常直接保存：</p>
+<ul>
+<li>文件名</li>
+<li>文件大小</li>
+<li>起始簇号</li>
+<li>时间等元数据</li>
+</ul>
+<p>如果简单创建两个目录项，并让它们指向同一个起始簇：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FILE1.DAT → 簇2</span><br><span class="line">FILE2.DAT → 簇2</span><br></pre></td></tr></table></figure>
+
+<p>会立即出现一致性问题：</p>
+<ul>
+<li>两个目录项都保存文件大小，哪一份是权威数据？</li>
+<li>修改文件时间时应该更新哪个目录项？</li>
+<li>删除<code>FILE1.DAT</code>时，是否应该释放簇链？</li>
+<li>如果释放簇链，<code>FILE2.DAT</code>将指向已被回收的数据。</li>
+<li>文件系统如何知道还有多少目录项引用这条簇链？</li>
+</ul>
+<p>要支持可靠的硬链接，就需要把共享元数据从目录项中抽离出来，并增加引用计数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">目录项A ─┐</span><br><span class="line">         ├→ 共享文件对象 → 数据簇</span><br><span class="line">目录项B ─┘</span><br></pre></td></tr></table></figure>
+
+<p>这实际上已经接近inode的设计。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 文件名只是目录中的引用。硬链接让多个名称引用同一个inode；符号链接则是一个保存目标路径的独立文件。</p>
+<hr>
+<h1 id="二、文件描述符：进程如何引用文件"><a href="#二、文件描述符：进程如何引用文件" class="headerlink" title="二、文件描述符：进程如何引用文件"></a>二、文件描述符：进程如何引用文件</h1><p>应用程序打开文件时：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;test.txt&quot;</span>, O_RDWR);</span><br></pre></td></tr></table></figure>
+
+<p><code>open()</code>返回的<code>fd</code>通常是一个较小的整数，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3</span><br></pre></td></tr></table></figure>
+
+<p>这个数字不是inode编号，也不是磁盘地址。它是当前进程文件描述符表中的一个索引。</p>
+<p>完整关系可以表示为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    FD[文件描述符fd] --&gt; FDT[进程文件描述符表]
+    FDT --&gt; OF[打开文件对象]
+    OF --&gt; I[inode]
+    I --&gt; B[文件数据]
+  </pre></div>
+
+<hr>
+<h2 id="1-为什么不能让fd直接指向inode"><a href="#1-为什么不能让fd直接指向inode" class="headerlink" title="1. 为什么不能让fd直接指向inode"></a>1. 为什么不能让fd直接指向inode</h2><p>inode回答的是：</p>
+<blockquote>
+<p>这是哪个文件？</p>
+</blockquote>
+<p>但一个进程打开文件以后，还需要保存与“本次打开”有关的运行时状态，例如：</p>
+<ul>
+<li>当前读写偏移量</li>
+<li>打开模式</li>
+<li>是否追加写入</li>
+<li>状态标志</li>
+<li>引用计数</li>
+</ul>
+<p>这些信息不属于文件本身，而属于某一次打开操作。</p>
+<p>因此，内核需要一个位于文件描述符和inode之间的对象，即打开文件对象。</p>
+<p>可以将几个对象的职责区分为：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>代表的含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件名</td>
+<td>用户访问文件时使用的名字</td>
+</tr>
+<tr>
+<td>inode</td>
+<td>文件的身份和核心元数据</td>
+</tr>
+<tr>
+<td>打开文件对象</td>
+<td>某一次打开操作的状态</td>
+</tr>
+<tr>
+<td>文件描述符</td>
+<td>进程引用打开文件对象的整数</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="2-两次open为什么可以有独立偏移量"><a href="#2-两次open为什么可以有独立偏移量" class="headerlink" title="2. 两次open为什么可以有独立偏移量"></a>2. 两次open为什么可以有独立偏移量</h2><p>假设执行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd1 = open(<span class="string">&quot;test.txt&quot;</span>, O_RDONLY);</span><br><span class="line"><span class="type">int</span> fd2 = open(<span class="string">&quot;test.txt&quot;</span>, O_RDONLY);</span><br></pre></td></tr></table></figure>
+
+<p>两次调用最终可能访问同一个inode，但通常会建立两个不同的打开文件对象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fd1 → 打开文件对象1 ─┐</span><br><span class="line">                     ├→ 同一个inode</span><br><span class="line">fd2 → 打开文件对象2 ─┘</span><br></pre></td></tr></table></figure>
+
+<p>因此，<code>fd1</code>和<code>fd2</code>可以拥有不同的文件偏移量。</p>
+<p>如果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">read(fd1, buf, <span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p><code>fd1</code>对应的偏移量向后移动10字节，而<code>fd2</code>仍然可以从文件开头读取。</p>
+<p>这说明：</p>
+<blockquote>
+<p>是否共享文件偏移量，取决于是否共享打开文件对象，而不是是否指向同一个inode。</p>
+</blockquote>
+<hr>
+<h2 id="3-fork以后为什么会共享偏移量"><a href="#3-fork以后为什么会共享偏移量" class="headerlink" title="3. fork以后为什么会共享偏移量"></a>3. fork以后为什么会共享偏移量</h2><p>假设在<code>fork()</code>之前打开文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;test.txt&quot;</span>, O_RDONLY);</span><br><span class="line">fork();</span><br></pre></td></tr></table></figure>
+
+<p><code>fork()</code>会复制父进程的文件描述符表，但复制后的表项仍然指向同一个打开文件对象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">父进程fd ─┐</span><br><span class="line">          ├→ 同一个打开文件对象 → inode</span><br><span class="line">子进程fd ─┘</span><br></pre></td></tr></table></figure>
+
+<p>打开文件对象中保存着当前文件偏移量，因此父子进程会共享该偏移量。</p>
+<p>假设文件内容为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abcdefghijklmnopqrstuvwxyz</span><br></pre></td></tr></table></figure>
+
+<p>父子进程各执行一次：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">read(fd, buf, <span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p>如果父进程先运行，它可能读到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abcdefghij</span><br></pre></td></tr></table></figure>
+
+<p>子进程随后从偏移量10继续读取：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">klmnopqrst</span><br></pre></td></tr></table></figure>
+
+<p>如果子进程先运行，则两段输出的归属可能反过来。</p>
+<p>这里的共享与父子进程是否共享虚拟地址空间无关。<code>fork()</code>后的父子进程通常拥有独立地址空间，但它们的文件描述符仍可引用同一个内核打开文件对象。</p>
+<hr>
+<h2 id="4-常见文件操作接口"><a href="#4-常见文件操作接口" class="headerlink" title="4. 常见文件操作接口"></a>4. 常见文件操作接口</h2><table>
+<thead>
+<tr>
+<th>接口</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>open</code></td>
+<td>根据路径打开文件</td>
+</tr>
+<tr>
+<td><code>openat</code></td>
+<td>以目录文件描述符为基准打开文件</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>从当前偏移量读取数据</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>从当前偏移量写入数据</td>
+</tr>
+<tr>
+<td><code>lseek</code></td>
+<td>调整当前文件偏移量</td>
+</tr>
+<tr>
+<td><code>stat</code></td>
+<td>根据路径获取目标文件属性</td>
+</tr>
+<tr>
+<td><code>lstat</code></td>
+<td>获取符号链接本身的属性</td>
+</tr>
+<tr>
+<td><code>fstat</code></td>
+<td>根据文件描述符获取文件属性</td>
+</tr>
+<tr>
+<td><code>close</code></td>
+<td>释放文件描述符对打开文件对象的引用</td>
+</tr>
+</tbody></table>
+<p><code>close(fd)</code>只是关闭当前进程中的一次打开引用，不会删除磁盘上的文件。</p>
+<p>即使文件名已经被删除，只要某个进程仍持有打开文件对象，文件数据仍可能继续存在并可被该进程读写。直到最后一个引用被释放，文件系统才能回收数据。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> fd是进程文件描述符表的索引；inode表示文件，打开文件对象表示一次打开操作。偏移量是否共享，取决于打开文件对象是否共享。</p>
+<hr>
+<h1 id="三、页缓存：文件访问为什么不必每次读取磁盘"><a href="#三、页缓存：文件访问为什么不必每次读取磁盘" class="headerlink" title="三、页缓存：文件访问为什么不必每次读取磁盘"></a>三、页缓存：文件访问为什么不必每次读取磁盘</h1><p>存储设备的速度远低于内存。如果每次<code>read()</code>都直接访问硬盘或SSD，文件访问性能会非常差。</p>
+<p>因此，操作系统使用内存中的页缓存保存最近访问过的文件数据。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[应用调用read] --&gt; B{页缓存中是否存在}
+    B -- 是 --&gt; C[从内存返回数据]
+    B -- 否 --&gt; D[从存储设备读取]
+    D --&gt; E[放入页缓存]
+    E --&gt; C
+  </pre></div>
+
+<p>页缓存使重复读取能够直接从内存完成，也使多个进程访问同一文件时可以共享缓存中的文件页面。</p>
+<hr>
+<h2 id="1-干净页与脏页"><a href="#1-干净页与脏页" class="headerlink" title="1. 干净页与脏页"></a>1. 干净页与脏页</h2><p>页缓存中的页面可以分为干净页和脏页。</p>
+<h3 id="干净页"><a href="#干净页" class="headerlink" title="干净页"></a>干净页</h3><p>干净页中的数据与持久化设备中的数据一致：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">页缓存内容 = 存储设备内容</span><br></pre></td></tr></table></figure>
+
+<p>这种页面在内存紧张时可以直接丢弃，因为以后仍然可以从磁盘重新读取。</p>
+<h3 id="脏页"><a href="#脏页" class="headerlink" title="脏页"></a>脏页</h3><p>应用程序修改了页缓存，但修改还没有写回设备：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">页缓存内容 ≠ 存储设备内容</span><br></pre></td></tr></table></figure>
+
+<p>此时页面被标记为脏页。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">write(fd, <span class="string">&quot;hello&quot;</span>, <span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<p>很多情况下，内核先把数据写入页缓存，然后将页面标记为脏页。真正的设备写入可能由后台回写机制稍后完成。</p>
+<hr>
+<h2 id="2-write成功意味着什么"><a href="#2-write成功意味着什么" class="headerlink" title="2. write成功意味着什么"></a>2. write成功意味着什么</h2><p><code>write()</code>返回成功通常意味着：</p>
+<blockquote>
+<p>内核已经接受了数据。</p>
+</blockquote>
+<p>它不一定意味着：</p>
+<blockquote>
+<p>数据已经稳定地写入持久化介质。</p>
+</blockquote>
+<p>如果数据仍然停留在脏页中，此时机器突然断电，修改可能丢失。</p>
+<p>因此，系统需要区分两个时刻：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">数据进入内核页缓存</span><br><span class="line">          ↓</span><br><span class="line">write返回</span><br><span class="line">          ↓</span><br><span class="line">数据写入存储设备</span><br><span class="line">          ↓</span><br><span class="line">设备确认持久化</span><br></pre></td></tr></table></figure>
+
+<p>这几个步骤不一定同步发生。</p>
+<hr>
+<h2 id="3-fsync的作用"><a href="#3-fsync的作用" class="headerlink" title="3. fsync的作用"></a>3. fsync的作用</h2><p>当应用程序需要更强的持久性保证时，可以调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fsync(fd);</span><br></pre></td></tr></table></figure>
+
+<p>它要求操作系统将该文件相关的脏数据以及必要的元数据同步到持久化设备。</p>
+<p>典型过程是：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[应用修改文件] --&gt; B[页缓存页面变脏]
+    B --&gt; C[调用fsync]
+    C --&gt; D[写回文件数据]
+    D --&gt; E[写回必要元数据]
+    E --&gt; F[设备完成持久化]
+  </pre></div>
+
+<p>数据库、日志系统和关键配置程序不能只看到<code>write()</code>成功就认为数据绝对安全，而需要设计合适的同步策略。</p>
+<p>不过，频繁调用<code>fsync()</code>会增加设备写入次数并降低性能。因此，持久性与性能之间通常需要权衡。</p>
+<hr>
+<h2 id="4-页缓存的双重意义"><a href="#4-页缓存的双重意义" class="headerlink" title="4. 页缓存的双重意义"></a>4. 页缓存的双重意义</h2><p>页缓存不仅用于读取，也用于写入。</p>
+<ul>
+<li>对读取而言，它减少重复磁盘访问。</li>
+<li>对写入而言，它允许系统合并、延迟和批量执行I&#x2F;O。</li>
+</ul>
+<p>延迟写回可以：</p>
+<ul>
+<li>合并多个小写入。</li>
+<li>对写入顺序进行优化。</li>
+<li>减少设备操作次数。</li>
+<li>让应用程序更快返回。</li>
+</ul>
+<p>代价是系统中会暂时存在尚未持久化的脏数据。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> <code>write()</code>成功通常只表示数据已进入内核；页缓存通过脏页延迟写回提高性能，<code>fsync()</code>用于在需要时要求数据持久化。</p>
+<hr>
+<h1 id="四、mmap：把文件接入虚拟内存"><a href="#四、mmap：把文件接入虚拟内存" class="headerlink" title="四、mmap：把文件接入虚拟内存"></a>四、mmap：把文件接入虚拟内存</h1><p>普通文件接口要求程序显式调用<code>read()</code>和<code>write()</code>。<code>mmap()</code>提供了另一种方式：将文件的一部分映射到进程虚拟地址空间。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *addr = mmap(</span><br><span class="line">    <span class="literal">NULL</span>,</span><br><span class="line">    length,</span><br><span class="line">    PROT_READ | PROT_WRITE,</span><br><span class="line">    MAP_SHARED,</span><br><span class="line">    fd,</span><br><span class="line">    <span class="number">0</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>映射建立以后，程序可以像访问普通内存一样访问文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> x = ((<span class="type">char</span> *)addr)[<span class="number">100</span>];</span><br><span class="line">((<span class="type">char</span> *)addr)[<span class="number">200</span>] = <span class="string">&#x27;A&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="1-mmap并不会立即读取整个文件"><a href="#1-mmap并不会立即读取整个文件" class="headerlink" title="1. mmap并不会立即读取整个文件"></a>1. mmap并不会立即读取整个文件</h2><p>调用<code>mmap()</code>时，内核通常不会马上把整个文件装入物理内存。</p>
+<p>它首先在进程虚拟地址空间中建立一个虚拟内存区域，并记录：</p>
+<ul>
+<li>起始虚拟地址</li>
+<li>映射长度</li>
+<li>访问权限</li>
+<li>对应文件</li>
+<li>文件起始偏移量</li>
+<li>映射方式</li>
+</ul>
+<p>此时，部分虚拟页可能尚未建立有效页表映射。</p>
+<p>可以抽象为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">虚拟内存区域</span><br><span class="line">├── 起始地址</span><br><span class="line">├── 结束地址</span><br><span class="line">├── 读写权限</span><br><span class="line">├── 对应文件</span><br><span class="line">└── 文件偏移</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-第一次访问时发生什么"><a href="#2-第一次访问时发生什么" class="headerlink" title="2. 第一次访问时发生什么"></a>2. 第一次访问时发生什么</h2><p>假设程序第一次访问映射区域中的某个地址：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> x = ((<span class="type">char</span> *)addr)[<span class="number">5000</span>];</span><br></pre></td></tr></table></figure>
+
+<p>如果相应页面尚未加载，CPU会触发缺页异常。</p>
+<p>内核随后执行：</p>
+<ol>
+<li>根据异常地址查找对应虚拟内存区域。</li>
+<li>检查此次访问是否合法。</li>
+<li>判断该区域对应哪个文件。</li>
+<li>计算对应的文件页和文件偏移。</li>
+<li>检查页缓存中是否已经存在该页面。</li>
+<li>必要时从存储设备读取数据。</li>
+<li>建立虚拟页到物理页的页表映射。</li>
+<li>重新执行原来的内存访问指令。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant CPU
+    participant VM as 虚拟内存系统
+    participant Cache as 页缓存
+    participant Disk as 存储设备
+
+    CPU-&gt;&gt;VM: 访问映射地址
+    VM--&gt;&gt;CPU: 缺页异常
+    VM-&gt;&gt;VM: 查找对应文件和偏移
+    VM-&gt;&gt;Cache: 查询文件页面
+    alt 页面不在缓存
+        Cache-&gt;&gt;Disk: 读取数据块
+        Disk--&gt;&gt;Cache: 返回数据
+    end
+    VM-&gt;&gt;CPU: 建立页表映射并恢复执行
+  </pre></div>
+
+<p>因此，<code>mmap()</code>把文件系统与虚拟内存连接在一起：文件偏移最终通过缺页异常转化为物理内存页面。</p>
+<hr>
+<h2 id="3-MAP-SHARED与文件修改"><a href="#3-MAP-SHARED与文件修改" class="headerlink" title="3. MAP_SHARED与文件修改"></a>3. MAP_SHARED与文件修改</h2><p>如果使用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MAP_SHARED</span><br></pre></td></tr></table></figure>
+
+<p>对映射页面的修改会反映到共享的文件页面中，并最终写回文件。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">((<span class="type">char</span> *)addr)[<span class="number">0</span>] = <span class="string">&#x27;A&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可能使对应页缓存页面变脏。之后，内核可以自动回写，也可以由程序调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msync(addr, length, MS_SYNC);</span><br></pre></td></tr></table></figure>
+
+<p>请求同步。</p>
+<p><code>munmap()</code>只会解除虚拟地址映射：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">munmap(addr, length);</span><br></pre></td></tr></table></figure>
+
+<p>它不等于删除文件，也不意味着文件数据一定被清除。</p>
+<hr>
+<h2 id="4-mmap的优势"><a href="#4-mmap的优势" class="headerlink" title="4. mmap的优势"></a>4. mmap的优势</h2><h3 id="随机访问更自然"><a href="#随机访问更自然" class="headerlink" title="随机访问更自然"></a>随机访问更自然</h3><p>普通接口可能需要：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lseek(fd, offset, SEEK_SET);</span><br><span class="line">read(fd, buf, size);</span><br></pre></td></tr></table></figure>
+
+<p>使用映射后可以直接：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = addr[offset];</span><br></pre></td></tr></table></figure>
+
+<h3 id="减少频繁系统调用"><a href="#减少频繁系统调用" class="headerlink" title="减少频繁系统调用"></a>减少频繁系统调用</h3><p>建立映射后，每次读取一个小范围数据不必都显式调用<code>read()</code>。</p>
+<h3 id="减少一次用户态复制"><a href="#减少一次用户态复制" class="headerlink" title="减少一次用户态复制"></a>减少一次用户态复制</h3><p>普通读取常涉及：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">页缓存 → 用户缓冲区</span><br></pre></td></tr></table></figure>
+
+<p>而<code>mmap()</code>可以让页缓存中的文件页面直接映射进进程虚拟地址空间，从而减少这一步复制。</p>
+<p>但这不代表数据完全不需要移动。文件数据仍然必须从存储设备进入物理内存。</p>
+<h3 id="支持按需加载"><a href="#支持按需加载" class="headerlink" title="支持按需加载"></a>支持按需加载</h3><p>只访问文件的一部分时，系统只需要加载涉及的页面，而不必读取完整文件。</p>
+<hr>
+<h2 id="5-mmap不一定总是更快"><a href="#5-mmap不一定总是更快" class="headerlink" title="5. mmap不一定总是更快"></a>5. mmap不一定总是更快</h2><p><code>mmap()</code>并非<code>read()</code>和<code>write()</code>的绝对替代品。</p>
+<p>它会引入：</p>
+<ul>
+<li>缺页异常处理</li>
+<li>页表建立与维护</li>
+<li>虚拟内存区域管理</li>
+<li>映射异常处理</li>
+<li>地址空间占用</li>
+</ul>
+<p>对于简单的顺序流式读取，普通<code>read()</code>配合预读和较大缓冲区可能更加直接。</p>
+<table>
+<thead>
+<tr>
+<th>对比点</th>
+<th><code>read/write</code></th>
+<th><code>mmap</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>使用方式</td>
+<td>显式系统调用</td>
+<td>通过内存地址访问</td>
+</tr>
+<tr>
+<td>文件位置</td>
+<td>文件偏移量</td>
+<td>虚拟地址偏移</td>
+</tr>
+<tr>
+<td>页面加载</td>
+<td><code>read</code>触发</td>
+<td>缺页异常触发</td>
+</tr>
+<tr>
+<td>数据复制</td>
+<td>通常复制到用户缓冲区</td>
+<td>可直接映射文件页面</td>
+</tr>
+<tr>
+<td>错误表现</td>
+<td>系统调用返回错误</td>
+<td>访问期间可能产生异常</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>顺序I&#x2F;O、简单流式操作</td>
+<td>随机访问、大文件、共享页面</td>
+</tr>
+</tbody></table>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> <code>mmap()</code>不是立即加载整个文件，而是建立文件到虚拟地址空间的映射；实际页面通常在首次访问时按需载入。</p>
+<hr>
+<h1 id="五、文件克隆与写时拷贝"><a href="#五、文件克隆与写时拷贝" class="headerlink" title="五、文件克隆与写时拷贝"></a>五、文件克隆与写时拷贝</h1><p>普通文件复制必须把源文件内容完整读取并写入目标文件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">源文件 → 页缓存 → 用户缓冲区 → 页缓存 → 目标文件</span><br></pre></td></tr></table></figure>
+
+<p>因此复制时间大致与文件大小成正比。</p>
+<p>即使使用<code>mmap()</code>配合<code>memcpy()</code>，虽然可以减少系统调用和显式缓冲区管理，但文件数据仍然需要真正复制。</p>
+<p>现代文件系统可以提供文件克隆，也称reflink。克隆时，系统创建一个新的文件对象，但暂时让两个文件共享相同的数据块。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">文件A inode ─┐</span><br><span class="line">             ├→ 共享数据块</span><br><span class="line">文件B inode ─┘</span><br></pre></td></tr></table></figure>
+
+<p>刚完成克隆时：</p>
+<ul>
+<li>A和B拥有不同inode。</li>
+<li>A和B是两个独立文件。</li>
+<li>两者暂时引用相同数据块。</li>
+<li>文件内容不需要立即完整复制。</li>
+</ul>
+<p>因此，大型文件的初始克隆可以几乎瞬间完成。</p>
+<hr>
+<h2 id="1-写时拷贝"><a href="#1-写时拷贝" class="headerlink" title="1. 写时拷贝"></a>1. 写时拷贝</h2><p>如果文件B要修改共享数据块，不能直接原地覆盖，否则文件A也会被改变。</p>
+<p>文件系统会在写入发生时执行复制：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">修改前：</span><br><span class="line"></span><br><span class="line">A ─┐</span><br><span class="line">   ├→ 数据块X</span><br><span class="line">B ─┘</span><br></pre></td></tr></table></figure>
+
+<p>B修改数据块X时：</p>
+<ol>
+<li>分配新数据块Y。</li>
+<li>把X的旧内容复制到Y。</li>
+<li>修改Y。</li>
+<li>让B指向Y。</li>
+<li>A继续指向X。</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">修改后：</span><br><span class="line"></span><br><span class="line">A → 数据块X</span><br><span class="line">B → 数据块Y</span><br></pre></td></tr></table></figure>
+
+<p>这种机制称为Copy-on-Write，即写时拷贝。</p>
+<p>其核心思想是：</p>
+<blockquote>
+<p>只在真正发生写入时复制被修改的部分，而不是提前复制整个文件。</p>
+</blockquote>
+<hr>
+<h2 id="2-文件克隆与硬链接"><a href="#2-文件克隆与硬链接" class="headerlink" title="2. 文件克隆与硬链接"></a>2. 文件克隆与硬链接</h2><p>文件克隆和硬链接都可能共享底层数据，但二者的文件身份完全不同。</p>
+<table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>硬链接</th>
+<th>文件克隆</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>inode</td>
+<td>相同</td>
+<td>不同</td>
+</tr>
+<tr>
+<td>文件数量</td>
+<td>一个文件，多个名字</td>
+<td>两个独立文件</td>
+</tr>
+<tr>
+<td>修改内容</td>
+<td>所有名称看到相同变化</td>
+<td>修改时写时拷贝并分离</td>
+</tr>
+<tr>
+<td>删除一个名称</td>
+<td>只减少硬链接计数</td>
+<td>删除一个独立文件</td>
+</tr>
+<tr>
+<td>共享原因</td>
+<td>本来就是同一个inode</td>
+<td>文件系统主动共享数据块</td>
+</tr>
+</tbody></table>
+<p>一句话概括：</p>
+<blockquote>
+<p>硬链接是同一个文件拥有多个名字；文件克隆是多个文件暂时共享相同数据。</p>
+</blockquote>
+<hr>
+<h1 id="六、快照：保存某一时刻的文件系统状态"><a href="#六、快照：保存某一时刻的文件系统状态" class="headerlink" title="六、快照：保存某一时刻的文件系统状态"></a>六、快照：保存某一时刻的文件系统状态</h1><p>快照用于记录文件系统或子卷在某个时刻的状态。</p>
+<p>假设：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">t0：创建快照</span><br><span class="line">t1：继续修改文件</span><br><span class="line">t2：希望恢复到t0状态</span><br></pre></td></tr></table></figure>
+
+<p>最直接的方法是完整复制全部数据，但代价很高。</p>
+<p>现代快照通常利用写时拷贝。创建快照时，系统不立即复制所有数据，而是让快照与当前文件系统共享原有数据块和元数据节点。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">快照状态 ─┐</span><br><span class="line">          ├→ 共享旧数据</span><br><span class="line">当前状态 ─┘</span><br></pre></td></tr></table></figure>
+
+<p>之后，如果当前文件系统要修改某个共享对象，就复制该对象并在新副本上修改。快照继续引用旧版本。</p>
+<hr>
+<h2 id="1-基于inode的快照思路"><a href="#1-基于inode的快照思路" class="headerlink" title="1. 基于inode的快照思路"></a>1. 基于inode的快照思路</h2><p>一种简化方案是：</p>
+<ol>
+<li>保存一份inode表或关键元数据。</li>
+<li>快照与当前文件系统共享现有数据块。</li>
+<li>修改数据时执行写时拷贝。</li>
+</ol>
+<p>这样，快照创建速度主要取决于元数据处理，而不是整个文件系统的数据量。</p>
+<hr>
+<h2 id="2-树形文件系统中的快照"><a href="#2-树形文件系统中的快照" class="headerlink" title="2. 树形文件系统中的快照"></a>2. 树形文件系统中的快照</h2><p>如果文件系统使用树结构管理元数据，可以复制一个新的树根，并让新旧树根共享绝大多数子节点。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    SR[快照根] --&gt; A[共享节点A]
+    CR[当前根] --&gt; A
+    SR --&gt; B[共享节点B]
+    CR --&gt; B
+    CR --&gt; C[新修改节点]
+  </pre></div>
+
+<p>修改某个节点时，系统只需要复制从树根到被修改节点相关的路径，而不用复制整棵树。</p>
+<p>这使快照具备两个特点：</p>
+<ul>
+<li>创建速度快。</li>
+<li>初始空间开销小。</li>
+</ul>
+<p>随着后续修改增加，快照与当前文件系统之间共享的数据逐渐减少，额外空间占用才逐渐上升。</p>
+<hr>
+<h2 id="3-克隆与快照"><a href="#3-克隆与快照" class="headerlink" title="3. 克隆与快照"></a>3. 克隆与快照</h2><table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>文件克隆</th>
+<th>快照</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>作用范围</td>
+<td>通常是单个文件</td>
+<td>文件系统、子卷或目录树</td>
+</tr>
+<tr>
+<td>目标</td>
+<td>创建独立文件副本</td>
+<td>保存某一时刻的整体状态</td>
+</tr>
+<tr>
+<td>共享对象</td>
+<td>文件数据块</td>
+<td>元数据树和数据块</td>
+</tr>
+<tr>
+<td>分离方式</td>
+<td>写时拷贝</td>
+<td>写时拷贝</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>快速复制大文件</td>
+<td>备份、回滚、系统恢复</td>
+</tr>
+</tbody></table>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 文件克隆和快照都通过共享旧数据并在写入时复制变化部分，避免创建时进行完整数据复制。</p>
+<hr>
+<h1 id="七、VFS：统一不同文件系统"><a href="#七、VFS：统一不同文件系统" class="headerlink" title="七、VFS：统一不同文件系统"></a>七、VFS：统一不同文件系统</h1><p>一台Linux机器可能同时使用：</p>
+<ul>
+<li>Ext4</li>
+<li>FAT32</li>
+<li>exFAT</li>
+<li>NTFS</li>
+<li>网络文件系统</li>
+<li>FUSE文件系统</li>
+</ul>
+<p>这些文件系统在磁盘格式、目录结构和数据定位方式上可能完全不同，但应用程序仍然使用相同接口：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">open();</span><br><span class="line">read();</span><br><span class="line">write();</span><br><span class="line">mkdir();</span><br><span class="line">unlink();</span><br></pre></td></tr></table></figure>
+
+<p>实现这种统一性的核心是VFS，即Virtual File System，虚拟文件系统。</p>
+<hr>
+<h2 id="1-挂载：把多个文件系统接入一棵目录树"><a href="#1-挂载：把多个文件系统接入一棵目录树" class="headerlink" title="1. 挂载：把多个文件系统接入一棵目录树"></a>1. 挂载：把多个文件系统接入一棵目录树</h2><p>Linux不使用独立盘符区分文件系统，而是把所有文件系统接入统一目录树。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/</span><br><span class="line">├── home</span><br><span class="line">├── var</span><br><span class="line">└── mnt</span><br><span class="line">    ├── usb</span><br><span class="line">    └── windows</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li>根文件系统可能是Ext4。</li>
+<li><code>/mnt/usb</code>可能挂载FAT32。</li>
+<li><code>/mnt/windows</code>可能挂载NTFS。</li>
+</ul>
+<p>把一个文件系统的根目录连接到现有目录树中的某个目录，称为挂载。</p>
+<p>挂载以后，应用程序只看到一棵连续目录树，不需要知道路径跨越了几个不同文件系统。</p>
+<hr>
+<h2 id="2-VFS是什么"><a href="#2-VFS是什么" class="headerlink" title="2. VFS是什么"></a>2. VFS是什么</h2><p>VFS是Linux内核中的文件系统抽象层。</p>
+<p>它定义一组统一对象和操作接口，具体文件系统负责实现这些接口。</p>
+<p>可以类比为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">VFS：抽象接口</span><br><span class="line">Ext4、FAT、NTFS、FUSE：具体实现</span><br></pre></td></tr></table></figure>
+
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[应用程序] --&gt; B[系统调用]
+    B --&gt; C[VFS]
+    C --&gt; D[Ext4]
+    C --&gt; E[FAT]
+    C --&gt; F[NTFS]
+    C --&gt; G[FUSE]
+  </pre></div>
+
+<p>应用程序调用<code>read()</code>时，并不直接调用<code>ext4_read()</code>或<code>fat_read()</code>。VFS根据文件所属的具体文件系统，选择相应实现。</p>
+<hr>
+<h2 id="3-VFS中的核心对象"><a href="#3-VFS中的核心对象" class="headerlink" title="3. VFS中的核心对象"></a>3. VFS中的核心对象</h2><h3 id="superblock"><a href="#superblock" class="headerlink" title="superblock"></a>superblock</h3><p>代表一个已经挂载的文件系统实例。</p>
+<p>它通常保存：</p>
+<ul>
+<li>文件系统类型</li>
+<li>块大小</li>
+<li>根目录</li>
+<li>状态信息</li>
+<li>文件系统操作函数</li>
+</ul>
+<p>它回答的是：</p>
+<blockquote>
+<p>当前正在管理的是哪个文件系统实例？</p>
+</blockquote>
+<h3 id="inode"><a href="#inode" class="headerlink" title="inode"></a>inode</h3><p>代表一个具体文件或目录的身份和核心元数据。</p>
+<p>它回答的是：</p>
+<blockquote>
+<p>这是哪个文件？</p>
+</blockquote>
+<h3 id="dentry"><a href="#dentry" class="headerlink" title="dentry"></a>dentry</h3><p>代表路径中的一个名称及其与inode的对应关系。</p>
+<p>例如路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/home/aster/test.txt</span><br></pre></td></tr></table></figure>
+
+<p>在路径解析过程中会涉及：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">home → aster → test.txt</span><br></pre></td></tr></table></figure>
+
+<p>这些名称关系由dentry表示，并可被dentry缓存加速。</p>
+<h3 id="file"><a href="#file" class="headerlink" title="file"></a>file</h3><p>代表一次具体打开操作，通常保存：</p>
+<ul>
+<li>当前文件偏移量</li>
+<li>打开标志</li>
+<li>文件操作函数</li>
+<li>指向路径或inode的引用</li>
+</ul>
+<p>它回答的是：</p>
+<blockquote>
+<p>当前进程怎样使用这个文件？</p>
+</blockquote>
+<h3 id="mount"><a href="#mount" class="headerlink" title="mount"></a>mount</h3><p>表示文件系统之间的挂载关系，例如：</p>
+<ul>
+<li>当前文件系统挂载到哪个目录项。</li>
+<li>父挂载与子挂载是什么关系。</li>
+<li>路径解析何时跨越文件系统边界。</li>
+</ul>
+<hr>
+<h2 id="4-函数表与多态分发"><a href="#4-函数表与多态分发" class="headerlink" title="4. 函数表与多态分发"></a>4. 函数表与多态分发</h2><p>VFS为不同对象定义统一操作，例如inode操作可能包含：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> (*create)(...);</span><br><span class="line">    <span class="type">int</span> (*link)(...);</span><br><span class="line">    <span class="type">int</span> (*unlink)(...);</span><br><span class="line">    <span class="type">int</span> (*mkdir)(...);</span><br><span class="line">    <span class="type">int</span> (*rmdir)(...);</span><br><span class="line">    <span class="type">int</span> (*rename)(...);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Ext4可以提供自己的实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">inode_operations</span> <span class="title">ext4_dir_inode_operations</span> =</span> &#123;</span><br><span class="line">    .create = ext4_create,</span><br><span class="line">    .link   = ext4_link,</span><br><span class="line">    .unlink = ext4_unlink,</span><br><span class="line">    .mkdir  = ext4_mkdir,</span><br><span class="line">    .rmdir  = ext4_rmdir,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>当VFS需要在Ext4目录中创建文件时，它调用统一的<code>create</code>操作，但函数指针最终指向<code>ext4_create</code>。</p>
+<p>如果目标目录属于其他文件系统，就调用该文件系统提供的实现。</p>
+<p>这是一种典型的运行时多态：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">统一接口</span><br><span class="line">   ↓</span><br><span class="line">根据具体文件系统选择实现</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-一次read的大致过程"><a href="#5-一次read的大致过程" class="headerlink" title="5. 一次read的大致过程"></a>5. 一次read的大致过程</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">应用调用read(fd, buf, size)</span><br><span class="line">          ↓</span><br><span class="line">进入系统调用层</span><br><span class="line">          ↓</span><br><span class="line">根据fd找到打开文件对象</span><br><span class="line">          ↓</span><br><span class="line">通过file对象找到对应操作函数</span><br><span class="line">          ↓</span><br><span class="line">VFS调用具体文件系统实现</span><br><span class="line">          ↓</span><br><span class="line">检查页缓存</span><br><span class="line">          ↓</span><br><span class="line">必要时读取块设备</span><br><span class="line">          ↓</span><br><span class="line">把数据返回应用程序</span><br></pre></td></tr></table></figure>
+
+<p>如果目标文件属于FUSE文件系统，后续请求还会被转发给用户态文件系统程序。</p>
+<hr>
+<h2 id="6-磁盘结构与内存结构不是同一件事"><a href="#6-磁盘结构与内存结构不是同一件事" class="headerlink" title="6. 磁盘结构与内存结构不是同一件事"></a>6. 磁盘结构与内存结构不是同一件事</h2><p>文件系统在磁盘上保存的是持久化格式，例如：</p>
+<ul>
+<li>超级块</li>
+<li>inode表</li>
+<li>目录数据</li>
+<li>分配位图</li>
+<li>数据块</li>
+</ul>
+<p>但Linux运行时还会建立大量内存结构：</p>
+<ul>
+<li>inode缓存</li>
+<li>dentry缓存</li>
+<li>页缓存</li>
+<li>挂载对象</li>
+<li>哈希表</li>
+<li>树结构</li>
+<li>块分配器状态</li>
+</ul>
+<p>磁盘结构适合长期保存，内存结构适合快速查找和动态管理。</p>
+<p>因此不能认为磁盘上的inode与内存中的inode对象完全等价。内核中的对象通常还包含锁、引用计数、缓存状态和函数指针等运行时信息。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> VFS不是一种磁盘格式，而是内核中的统一抽象层。它通过统一对象和函数表，让不同文件系统能够使用相同系统调用接口。</p>
+<hr>
+<h1 id="八、FUSE：把文件系统逻辑移到用户态"><a href="#八、FUSE：把文件系统逻辑移到用户态" class="headerlink" title="八、FUSE：把文件系统逻辑移到用户态"></a>八、FUSE：把文件系统逻辑移到用户态</h1><p>传统文件系统通常运行在内核中。这样可以减少上下文切换并获得较高性能，但内核开发存在明显风险：</p>
+<ul>
+<li>调试困难。</li>
+<li>错误可能导致整个系统崩溃。</li>
+<li>很难使用普通用户态库。</li>
+<li>开发和实验门槛较高。</li>
+</ul>
+<p>FUSE，即Filesystem in Userspace，允许开发者在用户态实现文件系统逻辑。</p>
+<hr>
+<h2 id="1-FUSE的结构"><a href="#1-FUSE的结构" class="headerlink" title="1. FUSE的结构"></a>1. FUSE的结构</h2><p>FUSE通常包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">用户态：</span><br><span class="line">应用程序</span><br><span class="line">FUSE文件系统进程</span><br><span class="line">FUSE库</span><br><span class="line"></span><br><span class="line">内核态：</span><br><span class="line">VFS</span><br><span class="line">FUSE内核驱动</span><br></pre></td></tr></table></figure>
+
+<p>用户态文件系统程序实现诸如：</p>
+<ul>
+<li><code>getattr</code></li>
+<li><code>open</code></li>
+<li><code>read</code></li>
+<li><code>write</code></li>
+<li><code>mkdir</code></li>
+<li><code>unlink</code></li>
+</ul>
+<p>等操作。</p>
+<hr>
+<h2 id="2-一次FUSE读取请求"><a href="#2-一次FUSE读取请求" class="headerlink" title="2. 一次FUSE读取请求"></a>2. 一次FUSE读取请求</h2><div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant App as 应用程序
+    participant VFS
+    participant Driver as FUSE内核驱动
+    participant FS as 用户态文件系统
+
+    App-&gt;&gt;VFS: read()
+    VFS-&gt;&gt;Driver: 转交FUSE请求
+    Driver-&gt;&gt;FS: 发送用户态请求
+    FS-&gt;&gt;FS: 执行读取逻辑
+    FS--&gt;&gt;Driver: 返回结果
+    Driver--&gt;&gt;VFS: 返回数据
+    VFS--&gt;&gt;App: read返回
+  </pre></div>
+
+<p>与内核文件系统相比，FUSE请求需要额外经历内核态与用户态之间的切换，有时还会产生额外数据复制。</p>
+<hr>
+<h2 id="3-FUSE的优缺点"><a href="#3-FUSE的优缺点" class="headerlink" title="3. FUSE的优缺点"></a>3. FUSE的优缺点</h2><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开发方便</td>
+<td>请求路径更长</td>
+</tr>
+<tr>
+<td>容易调试</td>
+<td>用户态与内核态切换更多</td>
+</tr>
+<tr>
+<td>错误通常不会直接导致内核崩溃</td>
+<td>可能增加数据复制</td>
+</tr>
+<tr>
+<td>可以使用普通用户态库</td>
+<td>高并发性能需要额外优化</td>
+</tr>
+<tr>
+<td>适合快速原型</td>
+<td>通常低于纯内核实现性能</td>
+</tr>
+</tbody></table>
+<p>FUSE体现的是一种系统设计权衡：</p>
+<blockquote>
+<p>用一部分性能换取开发效率、隔离性和灵活性。</p>
+</blockquote>
+<hr>
+<h2 id="4-文件系统接口不一定对应本地磁盘"><a href="#4-文件系统接口不一定对应本地磁盘" class="headerlink" title="4. 文件系统接口不一定对应本地磁盘"></a>4. 文件系统接口不一定对应本地磁盘</h2><p>FUSE使“文件和目录”可以成为其他资源的统一接口。</p>
+<p>例如：</p>
+<ul>
+<li>SSHFS把远程服务器目录表现为本地目录。</li>
+<li>网盘客户端把云端对象表现为文件。</li>
+<li>数据库内容可以表现为目录和文件。</li>
+<li>动态生成的信息也可以通过文件接口访问。</li>
+</ul>
+<p>这说明文件系统不只是一种磁盘数据格式，也是一种通用命名与访问接口。</p>
+<p>用户程序可以继续使用熟悉的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">open();</span><br><span class="line">read();</span><br><span class="line">write();</span><br></pre></td></tr></table></figure>
+
+<p>而不必理解底层资源究竟来自本地磁盘、网络服务还是数据库。</p>
+<hr>
+<p>❗ <strong>本节核心结论：</strong> FUSE并没有绕过内核，而是让VFS把具体文件系统请求转发给用户态程序，以性能成本换取可开发性和隔离性。</p>
+<hr>
+<h1 id="九、现代文件系统的扩展能力"><a href="#九、现代文件系统的扩展能力" class="headerlink" title="九、现代文件系统的扩展能力"></a>九、现代文件系统的扩展能力</h1><p>现代文件系统除了保存和读取文件，还可能提供多种高级功能。</p>
+<h2 id="1-加密"><a href="#1-加密" class="headerlink" title="1. 加密"></a>1. 加密</h2><p>文件系统可以对数据进行加密，使存储设备上的内容以密文形式存在。没有正确密钥，即使直接读取磁盘数据，也无法恢复原始内容。</p>
+<h2 id="2-压缩"><a href="#2-压缩" class="headerlink" title="2. 压缩"></a>2. 压缩</h2><p>文件写入前可以先压缩，从而：</p>
+<ul>
+<li>减少存储空间占用。</li>
+<li>减少实际I&#x2F;O数据量。</li>
+</ul>
+<p>代价是增加CPU计算，并可能使随机修改更加复杂。</p>
+<h2 id="3-去重"><a href="#3-去重" class="headerlink" title="3. 去重"></a>3. 去重</h2><p>文件系统可以检测相同数据块，并只保存一份内容：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">文件A ─┐</span><br><span class="line">       ├→ 相同数据块</span><br><span class="line">文件B ─┘</span><br></pre></td></tr></table></figure>
+
+<p>去重与文件克隆都可能共享数据块，但去重通常是系统检测内容相同后自动合并，而克隆是显式创建共享副本。</p>
+<h2 id="4-校验"><a href="#4-校验" class="headerlink" title="4. 校验"></a>4. 校验</h2><p>文件系统可以为数据或元数据保存校验信息，用于检测：</p>
+<ul>
+<li>介质损坏</li>
+<li>位翻转</li>
+<li>错误写入</li>
+<li>元数据破坏</li>
+</ul>
+<p>校验可以发现错误，但是否能够恢复，还取决于是否存在冗余副本。</p>
+<h2 id="5-配额"><a href="#5-配额" class="headerlink" title="5. 配额"></a>5. 配额</h2><p>配额限制用户、用户组或子系统能够使用的存储资源，例如：</p>
+<ul>
+<li>最大空间</li>
+<li>最大文件数</li>
+<li>最大inode数量</li>
+</ul>
+<h2 id="6-多设备与软件RAID"><a href="#6-多设备与软件RAID" class="headerlink" title="6. 多设备与软件RAID"></a>6. 多设备与软件RAID</h2><p>文件系统或存储层可以把多个设备组合起来，实现：</p>
+<ul>
+<li>容量扩展</li>
+<li>并行读写</li>
+<li>数据冗余</li>
+<li>故障容忍</li>
+</ul>
+<h2 id="7-子卷"><a href="#7-子卷" class="headerlink" title="7. 子卷"></a>7. 子卷</h2><p>子卷是在同一文件系统内部建立的逻辑独立区域。它们可以拥有独立的快照、配额和管理策略，但不一定需要单独分区。</p>
+<h2 id="8-事务与日志"><a href="#8-事务与日志" class="headerlink" title="8. 事务与日志"></a>8. 事务与日志</h2><p>文件系统操作通常会同时修改多个结构，例如创建文件可能涉及：</p>
+<ul>
+<li>inode分配</li>
+<li>目录项插入</li>
+<li>数据块分配</li>
+<li>位图更新</li>
+</ul>
+<p>如果操作执行到一半突然崩溃，文件系统可能进入不一致状态。</p>
+<p>事务或日志机制试图保证：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">一组修改要么全部完成</span><br><span class="line">要么恢复到修改前状态</span><br></pre></td></tr></table></figure>
+
+<p>这并不必然保证用户数据完全不丢失，但可以保护文件系统结构不被部分更新破坏。</p>
+<hr>
+<h1 id="十、从规约到文件系统代码"><a href="#十、从规约到文件系统代码" class="headerlink" title="十、从规约到文件系统代码"></a>十、从规约到文件系统代码</h1><p>文件系统属于复杂系统软件。它涉及：</p>
+<ul>
+<li>数据结构</li>
+<li>并发控制</li>
+<li>锁顺序</li>
+<li>错误恢复</li>
+<li>模块依赖</li>
+<li>持久化一致性</li>
+</ul>
+<p>直接用模糊自然语言要求大模型“生成一个正确文件系统”，风险很高。</p>
+<p>大模型可能：</p>
+<ul>
+<li>忘记加锁。</li>
+<li>在错误路径上漏掉解锁。</li>
+<li>调用不存在的函数。</li>
+<li>破坏数据结构不变量。</li>
+<li>忽略模块之间的依赖。</li>
+<li>生成可以编译但无法正确运行的代码。</li>
+</ul>
+<p>因此，更可靠的思路是先提供精确规约，再让模型生成或补全实现。</p>
+<hr>
+<h2 id="1-功能规约"><a href="#1-功能规约" class="headerlink" title="1. 功能规约"></a>1. 功能规约</h2><p>功能规约可以描述：</p>
+<h3 id="前置条件"><a href="#前置条件" class="headerlink" title="前置条件"></a>前置条件</h3><p>函数调用前必须成立的条件。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">目标目录已经加锁</span><br><span class="line">文件名符合长度限制</span><br><span class="line">输入路径合法</span><br></pre></td></tr></table></figure>
+
+<h3 id="后置条件"><a href="#后置条件" class="headerlink" title="后置条件"></a>后置条件</h3><p>函数结束后应当成立的条件。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">成功时：</span><br><span class="line">- 创建新inode</span><br><span class="line">- 插入目录项</span><br><span class="line">- 返回0</span><br><span class="line"></span><br><span class="line">失败时：</span><br><span class="line">- 不留下半初始化对象</span><br><span class="line">- 不修改原目录状态</span><br><span class="line">- 返回错误码</span><br></pre></td></tr></table></figure>
+
+<h3 id="不变量"><a href="#不变量" class="headerlink" title="不变量"></a>不变量</h3><p>系统运行过程中始终必须保持的性质。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">根inode始终存在</span><br><span class="line">同一数据块不能被错误分配给两个独立文件</span><br><span class="line">目录项不能指向已经释放的inode</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-并发规约"><a href="#2-并发规约" class="headerlink" title="2. 并发规约"></a>2. 并发规约</h2><p>文件系统代码大量涉及共享状态，因此只描述输入输出还不够，还必须描述锁状态：</p>
+<ul>
+<li>调用前持有哪些锁。</li>
+<li>函数内部允许获取哪些锁。</li>
+<li>返回时仍持有哪些锁。</li>
+<li>错误路径是否释放所有锁。</li>
+<li>可以与哪些操作并发。</li>
+<li>锁的获取顺序是什么。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">调用locate前：</span><br><span class="line">持有cur的锁</span><br><span class="line"></span><br><span class="line">成功返回target时：</span><br><span class="line">释放cur</span><br><span class="line">持有target</span><br><span class="line"></span><br><span class="line">失败返回NULL时：</span><br><span class="line">不持有任何锁</span><br></pre></td></tr></table></figure>
+
+<p>这种规约比“注意线程安全”精确得多。</p>
+<hr>
+<h2 id="3-模块化规约"><a href="#3-模块化规约" class="headerlink" title="3. 模块化规约"></a>3. 模块化规约</h2><p>大型文件系统不能由一个模块独立完成。不同模块之间需要明确约定。</p>
+<h3 id="Rely"><a href="#Rely" class="headerlink" title="Rely"></a>Rely</h3><p>当前模块依赖其他模块保证什么。</p>
+<p>例如：</p>
+<ul>
+<li>块分配器不会重复分配正在使用的块。</li>
+<li>路径解析模块返回的inode已增加引用计数。</li>
+<li>缓存模块保证页面锁定期间不会被回收。</li>
+</ul>
+<h3 id="Guarantee"><a href="#Guarantee" class="headerlink" title="Guarantee"></a>Guarantee</h3><p>当前模块向其他模块保证什么。</p>
+<p>例如：</p>
+<ul>
+<li>返回成功时目录项一定已经可见。</li>
+<li>返回失败时不修改共享状态。</li>
+<li>所有错误路径都会释放锁。</li>
+<li>inode引用计数变化符合接口约定。</li>
+</ul>
+<p>这种方式可以降低模块耦合，使不同开发者或智能体只需要理解有限范围。</p>
+<hr>
+<h2 id="4-多智能体生成"><a href="#4-多智能体生成" class="headerlink" title="4. 多智能体生成"></a>4. 多智能体生成</h2><p>复杂文件系统可以按模块拆分：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">路径解析规约 → Agent A → 路径模块</span><br><span class="line">inode规约   → Agent B → inode模块</span><br><span class="line">块分配规约   → Agent C → 分配模块</span><br><span class="line">缓存规约     → Agent D → 缓存模块</span><br></pre></td></tr></table></figure>
+
+<p>之后再通过：</p>
+<ul>
+<li>编译检查</li>
+<li>接口检查</li>
+<li>单元测试</li>
+<li>并发测试</li>
+<li>崩溃测试</li>
+<li>规约一致性检查</li>
+</ul>
+<p>发现并修复模块之间的问题。</p>
+<p>多智能体的价值不只是“同时生成更多代码”，而是利用清晰接口把系统分解成可以分别验证的部分。</p>
+<hr>
+<h2 id="5-规约不能替代验证"><a href="#5-规约不能替代验证" class="headerlink" title="5. 规约不能替代验证"></a>5. 规约不能替代验证</h2><p>规约可以减少歧义，但不能自动保证实现正确。</p>
+<p>生成后的文件系统仍需要：</p>
+<ul>
+<li>单元测试</li>
+<li>集成测试</li>
+<li>并发压力测试</li>
+<li>崩溃恢复测试</li>
+<li>与参考实现进行行为对比</li>
+<li>人工代码审查</li>
+<li>必要时进行形式化验证</li>
+</ul>
+<p>正确关系是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">规约</span><br><span class="line">  ↓</span><br><span class="line">提高生成质量</span><br><span class="line">  ↓</span><br><span class="line">测试与验证</span><br><span class="line">  ↓</span><br><span class="line">确认实现是否满足要求</span><br></pre></td></tr></table></figure>
+
+<p>而不是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">写出规约</span><br><span class="line">  ↓</span><br><span class="line">代码自动绝对正确</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>❗ <strong>本节核心结论：</strong> 大模型可以辅助生成文件系统代码，但必须以精确规约、模块接口和验证体系约束生成过程。</p>
+<hr>
+<h1 id="十一、核心概念的统一关系"><a href="#十一、核心概念的统一关系" class="headerlink" title="十一、核心概念的统一关系"></a>十一、核心概念的统一关系</h1><p>文件系统运行时涉及多个容易混淆的对象。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>所在层次</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件名</td>
+<td>目录结构</td>
+<td>用户访问文件的名称</td>
+</tr>
+<tr>
+<td>dentry</td>
+<td>内核内存</td>
+<td>表示名称到inode的路径关系</td>
+</tr>
+<tr>
+<td>inode</td>
+<td>文件系统与内核</td>
+<td>表示文件身份和核心元数据</td>
+</tr>
+<tr>
+<td>打开文件对象</td>
+<td>内核内存</td>
+<td>保存一次打开操作的偏移量和状态</td>
+</tr>
+<tr>
+<td>文件描述符</td>
+<td>进程</td>
+<td>引用打开文件对象的整数</td>
+</tr>
+<tr>
+<td>页缓存</td>
+<td>内核内存</td>
+<td>缓存文件内容</td>
+</tr>
+<tr>
+<td>数据块</td>
+<td>存储设备</td>
+<td>持久保存文件内容</td>
+</tr>
+</tbody></table>
+<p>完整访问链条可以概括为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    P[路径名] --&gt; D[dentry]
+    D --&gt; I[inode]
+    O[open调用] --&gt; F[打开文件对象]
+    FD[文件描述符] --&gt; F
+    F --&gt; I
+    I --&gt; C[页缓存]
+    C --&gt; B[存储设备数据块]
+  </pre></div>
+
+<p>其中：</p>
+<ul>
+<li>路径名解决“怎样找到文件”。</li>
+<li>inode解决“这是哪个文件”。</li>
+<li>打开文件对象解决“这一次怎样使用文件”。</li>
+<li>fd解决“进程用什么编号引用它”。</li>
+<li>页缓存解决“怎样减少存储I&#x2F;O”。</li>
+<li>数据块负责最终持久化。</li>
+</ul>
+<hr>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>文件系统的运行机制远不只是把数据写进磁盘。</p>
+<p>文件被创建以后，操作系统还需要建立一套完整的运行时抽象：</p>
+<ul>
+<li>目录项与inode分离文件名和文件身份。</li>
+<li>硬链接允许一个inode拥有多个名字。</li>
+<li>符号链接通过路径间接引用其他文件。</li>
+<li>文件描述符让进程用简单整数引用内核打开文件对象。</li>
+<li>打开文件对象保存偏移量和打开状态。</li>
+<li>页缓存通过延迟写回提高I&#x2F;O性能。</li>
+<li><code>fsync()</code>在需要时强化持久性保证。</li>
+<li><code>mmap()</code>把文件页面接入虚拟地址空间。</li>
+<li>写时拷贝让文件克隆和快照快速创建。</li>
+<li>VFS统一不同文件系统的接口。</li>
+<li>FUSE允许文件系统逻辑运行在用户态。</li>
+<li>规约与验证为自动生成复杂文件系统代码提供约束。</li>
+</ul>
+<p>这些机制共同说明，文件系统不是单纯的磁盘数据格式，而是一套贯穿路径解析、进程接口、虚拟内存、缓存管理、持久化和系统扩展的综合抽象。</p>
+<p>❗ <strong>文件系统真正提供的，不只是存储空间，而是一套让进程能够命名、访问、共享、缓存、映射和持久化数据的统一运行环境。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/')">第20讲 文件系统II</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=第20讲 文件系统II&amp;url=http://example.com/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/&amp;pic=/cover/deejay.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/vega_mbison.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第19讲 文件系统I</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/chunli.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">第21讲 文件系统崩溃一致性I</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8E%E6%96%87%E4%BB%B6%E5%90%8D%E5%88%B0%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%AE%BF%E9%97%AE%E3%80%81%E7%BC%93%E5%AD%98%E4%B8%8E%E6%89%A9%E5%B1%95%E6%96%87%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">从文件名到虚拟文件系统：操作系统如何访问、缓存与扩展文件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">引言</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%96%87%E4%BB%B6%E5%90%8D%E5%B9%B6%E4%B8%8D%E6%98%AF%E6%96%87%E4%BB%B6%E6%9C%AC%E8%BA%AB"><span class="toc-number">2.</span> <span class="toc-text">一、文件名并不是文件本身</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%A1%AC%E9%93%BE%E6%8E%A5%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E7%9A%84%E5%A4%9A%E4%B8%AA%E5%90%8D%E5%AD%97"><span class="toc-number">2.1.</span> <span class="toc-text">1. 硬链接：同一个文件的多个名字</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%EF%BC%9A%E4%BF%9D%E5%AD%98%E8%B7%AF%E5%BE%84%E7%9A%84%E7%8B%AC%E7%AB%8B%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">2. 符号链接：保存路径的独立文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%A1%AC%E9%93%BE%E6%8E%A5%E4%B8%8E%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">2.3.</span> <span class="toc-text">3. 硬链接与符号链接的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%B8%BA%E4%BB%80%E4%B9%88FAT%E9%9A%BE%E4%BB%A5%E6%94%AF%E6%8C%81%E7%A1%AC%E9%93%BE%E6%8E%A5"><span class="toc-number">2.4.</span> <span class="toc-text">4. 为什么FAT难以支持硬链接</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%9A%E8%BF%9B%E7%A8%8B%E5%A6%82%E4%BD%95%E5%BC%95%E7%94%A8%E6%96%87%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">二、文件描述符：进程如何引用文件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E8%AE%A9fd%E7%9B%B4%E6%8E%A5%E6%8C%87%E5%90%91inode"><span class="toc-number">3.1.</span> <span class="toc-text">1. 为什么不能让fd直接指向inode</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%A4%E6%AC%A1open%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AF%E4%BB%A5%E6%9C%89%E7%8B%AC%E7%AB%8B%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="toc-number">3.2.</span> <span class="toc-text">2. 两次open为什么可以有独立偏移量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-fork%E4%BB%A5%E5%90%8E%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%85%B1%E4%BA%AB%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="toc-number">3.3.</span> <span class="toc-text">3. fork以后为什么会共享偏移量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B8%B8%E8%A7%81%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.4.</span> <span class="toc-text">4. 常见文件操作接口</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%A1%B5%E7%BC%93%E5%AD%98%EF%BC%9A%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%BF%85%E6%AF%8F%E6%AC%A1%E8%AF%BB%E5%8F%96%E7%A3%81%E7%9B%98"><span class="toc-number">4.</span> <span class="toc-text">三、页缓存：文件访问为什么不必每次读取磁盘</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%B9%B2%E5%87%80%E9%A1%B5%E4%B8%8E%E8%84%8F%E9%A1%B5"><span class="toc-number">4.1.</span> <span class="toc-text">1. 干净页与脏页</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B2%E5%87%80%E9%A1%B5"><span class="toc-number">4.1.1.</span> <span class="toc-text">干净页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%84%8F%E9%A1%B5"><span class="toc-number">4.1.2.</span> <span class="toc-text">脏页</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-write%E6%88%90%E5%8A%9F%E6%84%8F%E5%91%B3%E7%9D%80%E4%BB%80%E4%B9%88"><span class="toc-number">4.2.</span> <span class="toc-text">2. write成功意味着什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-fsync%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">3. fsync的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%A1%B5%E7%BC%93%E5%AD%98%E7%9A%84%E5%8F%8C%E9%87%8D%E6%84%8F%E4%B9%89"><span class="toc-number">4.4.</span> <span class="toc-text">4. 页缓存的双重意义</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81mmap%EF%BC%9A%E6%8A%8A%E6%96%87%E4%BB%B6%E6%8E%A5%E5%85%A5%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">5.</span> <span class="toc-text">四、mmap：把文件接入虚拟内存</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-mmap%E5%B9%B6%E4%B8%8D%E4%BC%9A%E7%AB%8B%E5%8D%B3%E8%AF%BB%E5%8F%96%E6%95%B4%E4%B8%AA%E6%96%87%E4%BB%B6"><span class="toc-number">5.1.</span> <span class="toc-text">1. mmap并不会立即读取整个文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%AC%AC%E4%B8%80%E6%AC%A1%E8%AE%BF%E9%97%AE%E6%97%B6%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88"><span class="toc-number">5.2.</span> <span class="toc-text">2. 第一次访问时发生什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-MAP-SHARED%E4%B8%8E%E6%96%87%E4%BB%B6%E4%BF%AE%E6%94%B9"><span class="toc-number">5.3.</span> <span class="toc-text">3. MAP_SHARED与文件修改</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-mmap%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="toc-number">5.4.</span> <span class="toc-text">4. mmap的优势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%9B%B4%E8%87%AA%E7%84%B6"><span class="toc-number">5.4.1.</span> <span class="toc-text">随机访问更自然</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%8F%E5%B0%91%E9%A2%91%E7%B9%81%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">5.4.2.</span> <span class="toc-text">减少频繁系统调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%8F%E5%B0%91%E4%B8%80%E6%AC%A1%E7%94%A8%E6%88%B7%E6%80%81%E5%A4%8D%E5%88%B6"><span class="toc-number">5.4.3.</span> <span class="toc-text">减少一次用户态复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%AF%E6%8C%81%E6%8C%89%E9%9C%80%E5%8A%A0%E8%BD%BD"><span class="toc-number">5.4.4.</span> <span class="toc-text">支持按需加载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-mmap%E4%B8%8D%E4%B8%80%E5%AE%9A%E6%80%BB%E6%98%AF%E6%9B%B4%E5%BF%AB"><span class="toc-number">5.5.</span> <span class="toc-text">5. mmap不一定总是更快</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%96%87%E4%BB%B6%E5%85%8B%E9%9A%86%E4%B8%8E%E5%86%99%E6%97%B6%E6%8B%B7%E8%B4%9D"><span class="toc-number">6.</span> <span class="toc-text">五、文件克隆与写时拷贝</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%86%99%E6%97%B6%E6%8B%B7%E8%B4%9D"><span class="toc-number">6.1.</span> <span class="toc-text">1. 写时拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%87%E4%BB%B6%E5%85%8B%E9%9A%86%E4%B8%8E%E7%A1%AC%E9%93%BE%E6%8E%A5"><span class="toc-number">6.2.</span> <span class="toc-text">2. 文件克隆与硬链接</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%BF%AB%E7%85%A7%EF%BC%9A%E4%BF%9D%E5%AD%98%E6%9F%90%E4%B8%80%E6%97%B6%E5%88%BB%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%8A%B6%E6%80%81"><span class="toc-number">7.</span> <span class="toc-text">六、快照：保存某一时刻的文件系统状态</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E4%BA%8Einode%E7%9A%84%E5%BF%AB%E7%85%A7%E6%80%9D%E8%B7%AF"><span class="toc-number">7.1.</span> <span class="toc-text">1. 基于inode的快照思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%A0%91%E5%BD%A2%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E5%BF%AB%E7%85%A7"><span class="toc-number">7.2.</span> <span class="toc-text">2. 树形文件系统中的快照</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%85%8B%E9%9A%86%E4%B8%8E%E5%BF%AB%E7%85%A7"><span class="toc-number">7.3.</span> <span class="toc-text">3. 克隆与快照</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81VFS%EF%BC%9A%E7%BB%9F%E4%B8%80%E4%B8%8D%E5%90%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">8.</span> <span class="toc-text">七、VFS：统一不同文件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%8C%82%E8%BD%BD%EF%BC%9A%E6%8A%8A%E5%A4%9A%E4%B8%AA%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%85%A5%E4%B8%80%E6%A3%B5%E7%9B%AE%E5%BD%95%E6%A0%91"><span class="toc-number">8.1.</span> <span class="toc-text">1. 挂载：把多个文件系统接入一棵目录树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-VFS%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">8.2.</span> <span class="toc-text">2. VFS是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-VFS%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AF%B9%E8%B1%A1"><span class="toc-number">8.3.</span> <span class="toc-text">3. VFS中的核心对象</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#superblock"><span class="toc-number">8.3.1.</span> <span class="toc-text">superblock</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#inode"><span class="toc-number">8.3.2.</span> <span class="toc-text">inode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dentry"><span class="toc-number">8.3.3.</span> <span class="toc-text">dentry</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#file"><span class="toc-number">8.3.4.</span> <span class="toc-text">file</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mount"><span class="toc-number">8.3.5.</span> <span class="toc-text">mount</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%87%BD%E6%95%B0%E8%A1%A8%E4%B8%8E%E5%A4%9A%E6%80%81%E5%88%86%E5%8F%91"><span class="toc-number">8.4.</span> <span class="toc-text">4. 函数表与多态分发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%B8%80%E6%AC%A1read%E7%9A%84%E5%A4%A7%E8%87%B4%E8%BF%87%E7%A8%8B"><span class="toc-number">8.5.</span> <span class="toc-text">5. 一次read的大致过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%A3%81%E7%9B%98%E7%BB%93%E6%9E%84%E4%B8%8E%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84%E4%B8%8D%E6%98%AF%E5%90%8C%E4%B8%80%E4%BB%B6%E4%BA%8B"><span class="toc-number">8.6.</span> <span class="toc-text">6. 磁盘结构与内存结构不是同一件事</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AB%E3%80%81FUSE%EF%BC%9A%E6%8A%8A%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E9%80%BB%E8%BE%91%E7%A7%BB%E5%88%B0%E7%94%A8%E6%88%B7%E6%80%81"><span class="toc-number">9.</span> <span class="toc-text">八、FUSE：把文件系统逻辑移到用户态</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-FUSE%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">9.1.</span> <span class="toc-text">1. FUSE的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%80%E6%AC%A1FUSE%E8%AF%BB%E5%8F%96%E8%AF%B7%E6%B1%82"><span class="toc-number">9.2.</span> <span class="toc-text">2. 一次FUSE读取请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-FUSE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">9.3.</span> <span class="toc-text">3. FUSE的优缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3%E4%B8%8D%E4%B8%80%E5%AE%9A%E5%AF%B9%E5%BA%94%E6%9C%AC%E5%9C%B0%E7%A3%81%E7%9B%98"><span class="toc-number">9.4.</span> <span class="toc-text">4. 文件系统接口不一定对应本地磁盘</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E7%8E%B0%E4%BB%A3%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%89%A9%E5%B1%95%E8%83%BD%E5%8A%9B"><span class="toc-number">10.</span> <span class="toc-text">九、现代文件系统的扩展能力</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%8A%A0%E5%AF%86"><span class="toc-number">10.1.</span> <span class="toc-text">1. 加密</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8E%8B%E7%BC%A9"><span class="toc-number">10.2.</span> <span class="toc-text">2. 压缩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8E%BB%E9%87%8D"><span class="toc-number">10.3.</span> <span class="toc-text">3. 去重</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%A0%A1%E9%AA%8C"><span class="toc-number">10.4.</span> <span class="toc-text">4. 校验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%85%8D%E9%A2%9D"><span class="toc-number">10.5.</span> <span class="toc-text">5. 配额</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%A4%9A%E8%AE%BE%E5%A4%87%E4%B8%8E%E8%BD%AF%E4%BB%B6RAID"><span class="toc-number">10.6.</span> <span class="toc-text">6. 多设备与软件RAID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%AD%90%E5%8D%B7"><span class="toc-number">10.7.</span> <span class="toc-text">7. 子卷</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%BA%8B%E5%8A%A1%E4%B8%8E%E6%97%A5%E5%BF%97"><span class="toc-number">10.8.</span> <span class="toc-text">8. 事务与日志</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%BB%8E%E8%A7%84%E7%BA%A6%E5%88%B0%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%A0%81"><span class="toc-number">11.</span> <span class="toc-text">十、从规约到文件系统代码</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%8A%9F%E8%83%BD%E8%A7%84%E7%BA%A6"><span class="toc-number">11.1.</span> <span class="toc-text">1. 功能规约</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">11.1.1.</span> <span class="toc-text">前置条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">11.1.2.</span> <span class="toc-text">后置条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%8F%98%E9%87%8F"><span class="toc-number">11.1.3.</span> <span class="toc-text">不变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%B9%B6%E5%8F%91%E8%A7%84%E7%BA%A6"><span class="toc-number">11.2.</span> <span class="toc-text">2. 并发规约</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%A8%A1%E5%9D%97%E5%8C%96%E8%A7%84%E7%BA%A6"><span class="toc-number">11.3.</span> <span class="toc-text">3. 模块化规约</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Rely"><span class="toc-number">11.3.1.</span> <span class="toc-text">Rely</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Guarantee"><span class="toc-number">11.3.2.</span> <span class="toc-text">Guarantee</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E7%94%9F%E6%88%90"><span class="toc-number">11.4.</span> <span class="toc-text">4. 多智能体生成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%A7%84%E7%BA%A6%E4%B8%8D%E8%83%BD%E6%9B%BF%E4%BB%A3%E9%AA%8C%E8%AF%81"><span class="toc-number">11.5.</span> <span class="toc-text">5. 规约不能替代验证</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E7%9A%84%E7%BB%9F%E4%B8%80%E5%85%B3%E7%B3%BB"><span class="toc-number">12.</span> <span class="toc-text">十一、核心概念的统一关系</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">13.</span> <span class="toc-text">结论</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" title="第23讲 设备管理"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/vega_mbison.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第23讲 设备管理"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" title="第23讲 设备管理">第23讲 设备管理</a><time datetime="2026-06-23T04:13:38.000Z" title="Created 2026-06-23 12:13:38">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/" title="第22讲 文件系统崩溃一致性II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ken.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第22讲 文件系统崩溃一致性II"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC22%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7II/" title="第22讲 文件系统崩溃一致性II">第22讲 文件系统崩溃一致性II</a><time datetime="2026-06-23T04:13:31.000Z" title="Created 2026-06-23 12:13:31">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/" title="第21讲 文件系统崩溃一致性I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/chunli.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第21讲 文件系统崩溃一致性I"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC21%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B4%A9%E6%BA%83%E4%B8%80%E8%87%B4%E6%80%A7I/" title="第21讲 文件系统崩溃一致性I">第21讲 文件系统崩溃一致性I</a><time datetime="2026-06-23T04:13:22.000Z" title="Created 2026-06-23 12:13:22">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/" title="第20讲 文件系统II"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/deejay.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第20讲 文件系统II"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC20%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FII/" title="第20讲 文件系统II">第20讲 文件系统II</a><time datetime="2026-06-23T04:13:15.000Z" title="Created 2026-06-23 12:13:15">2026-06-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/" title="第19讲 文件系统I"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/gouki_akuma.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第19讲 文件系统I"/></a><div class="content"><a class="title" href="/2026/06/23/%E7%AC%AC19%E8%AE%B2-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FI/" title="第19讲 文件系统I">第19讲 文件系统I</a><time datetime="2026-06-23T04:13:06.000Z" title="Created 2026-06-23 12:13:06">2026-06-23</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">55</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
