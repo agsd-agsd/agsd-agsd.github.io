@@ -1,0 +1,1383 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法"><meta name="application-name" content="Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法"><meta property="og:url" content="http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法引言：转发表是怎样产生的网络层的数据平面解决的是分组的实际转发问题：当一个分组到达路由器后，路由器读取分组首部、查询转发表，并将分组送往相应的输出端口。 但是，数据平面使用的转发表并不是凭空产生的。在执行转发之前，网络还必"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/dhalsim.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/dhalsim.png"><meta name="description" content="Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法引言：转发表是怎样产生的网络层的数据平面解决的是分组的实际转发问题：当一个分组到达路由器后，路由器读取分组首部、查询转发表，并将分组送往相应的输出端口。 但是，数据平面使用的转发表并不是凭空产生的。在执行转发之前，网络还必"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法',
+  postAI: '',
+  pageFillDescription: 'Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法, 引言：转发表是怎样产生的, 1. 控制平面与数据平面的分工, 1.1 数据平面负责本地转发, 1.2 控制平面负责全局路径决策, 2. 两种控制平面组织方式, 2.1 传统的 per-router 控制平面, 2.2 SDN 的逻辑集中控制平面, 3. 路由协议究竟在计算什么, 3.1 路径与好路径, 3.2 为什么通常计算网络到网络的路径, 4. 将网络抽象为带权图, 4.1 图模型, 4.2 为什么图抽象有效, 4.3 最短路径树, 5. 路由算法应满足的基本要求, 6. 路由算法的主要分类, 6.1 按掌握的信息范围分类, 6.2 按适应变化的方式分类, 7. 链路状态路由的完整工作过程, 7.1 核心思想, 7.2 第一步：发现相邻节点, 7.3 第二步：测量链路代价, 7.4 第三步：生成链路状态分组, 7.5 第四步：向全网泛洪, 7.6 第五步：计算最短路径, 8. 泛洪为什么需要控制, 8.1 无控制泛洪的问题, 8.2 Age 字段, 8.3 序列号, 8.4 可靠泛洪, 8.5 典型链路状态协议, 9. Dijkstra 算法的基本思想, 9.1 算法目标, 9.2 常用符号, 9.3 初始化, 9.4 迭代过程, 9.5 为什么每次选择最小的临时节点, 10. 如何阅读 Dijkstra 计算表, Step 0：初始化, 后续步骤：选择与更新, 根据前驱恢复路径, 11. 从最短路径树生成转发表, 12. Dijkstra 与链路状态路由的复杂度, 12.1 算法复杂度, 12.2 消息复杂度, 13. 三种全局与集中不能混淆, 13.1 LS 的全局信息, 13.2 Dijkstra 的集中式, 13.3 SDN 的逻辑集中, 14. 常见误区, 14.1 路由器是否一开始就知道全网拓扑, 14.2 Dijkstra 是否只在中央服务器运行, 14.3 链路状态分组是否属于用户数据, 14.4 Dijkstra 为什么得到一棵树, 14.5 D(v) 与 p(v) 是否相同, 14.6 动态路由是否为每个分组重新算路, 15. 知识结构总览, 16. 复习清单, 结论网络层控制平面链路状态路由与算法引言转发表是怎样产生的网络层的数据平面解决的是分组的实际转发问题当一个分组到达路由器后路由器读取分组首部查询转发表并将分组送往相应的输出端口但是数据平面使用的转发表并不是凭空产生的在执行转发之前网络还必须回答一个更基础的问题分组从源网络到目的网络应该经过哪些路由器这正是控制平面要解决的问题控制平面通过路由协议收集网络状态利用路由算法计算合适的端到端路径并根据计算结果生成路由表或转发表本章的核心逻辑可以概括为收集网络状态建立网络拓扑运行路由算法得到最短路径树生成路由表或转发表数据平面执行转发核心主线链路状态路由首先让路由器获得一张全网地图再由每台路由器运行算法计算最短路径最后将计算结果转化为能够直接执行的转发表控制平面与数据平面的分工数据平面负责本地转发数据平面关注的是分组到达一台具体路由器之后的处理过程它需要回答应该查询哪一项转发表分组应该进入哪个输出端口如何排队交换和发送该分组因此转发是一种局部操作每台路由器只需要根据已有的转发表决定当前分组的下一跳控制平面负责全局路径决策控制平面关注的是分组在整个网络中的路径它需要回答从源网络到目的网络可以经过哪些路由器哪一条路径的代价更低链路发生故障后应该如何改道路由表应该怎样更新假设从路由器到目的路由器存在多条路径数据平面只能执行已经确定的下一跳而不能独立判断哪一条完整路径更合适路径选择必须由控制平面提前完成对比维度路由转发所属平面控制平面数据平面关注范围端到端的全局路径单台路由器的本地输出端口主要输入网络拓扑链路代价路由信息分组首部转发表主要输出路由表转发表将分组送入指定输出端口直观类比规划完整行程到达路口后按导航转弯关键区分路由负责计算路径转发负责执行路径前者产生决策后者使用决策两种控制平面组织方式控制平面可以采用传统的逐路由器控制方式也可以采用软件定义网络中的逻辑集中控制方式传统的控制平面在传统网络中每台路由器内部都运行路由协议和路由算法各路由器之间交换控制信息并根据获得的信息独立计算自己的路由表它的基本过程是路由器路由算法路由器路由算法路由器路由算法每台路由器同时具有数据平面功能执行分组转发控制平面功能交换路由信息并计算路径的逻辑集中控制平面在软件定义网络中主要控制逻辑位于远程控制器网络设备中的本地控制代理与控制器通信接收控制器下发的流表或转发规则对比维度传统控制平面控制平面控制逻辑位置分布在各台路由器内部逻辑上集中在远程控制器信息交换方式路由器之间运行路由协议本地控制代理与控制器通信路由计算方式各路由器分别计算控制器统一计算或协调数据平面行为根据本地生成的表转发根据控制器下发的规则转发所说的集中通常是逻辑集中并不意味着现实中只能部署一台控制器为了可靠性和性能控制器可以由多个物理节点组成但对网络设备呈现统一的控制逻辑本节核心结论传统控制平面把路由计算分布在各台路由器中将控制逻辑集中到控制器两者都需要最终向数据平面提供可执行的转发规则路由协议究竟在计算什么路径与好路径路由协议需要确定从发送方到接收方的路径这里的路径可以理解为分组从源网络前往目的网络时依次经过的路由器序列所谓好路径并不一定只有一种评价标准它可能表示总链路代价最小经过的路由器数量最少可用带宽更高时延更低拥塞程度更低可靠性更高更符合运营商的管理策略因此最短路径中的短通常指代价最小而不一定是物理距离最近或经过节点最少为什么通常计算网络到网络的路径互联网包含大量主机如果路由器为每一对主机分别计算和保存路径路由表规模与计算开销都会难以承受因此路由系统通常围绕网络前缀或子网进行计算源网络中间路由器目的网络当分组到达目的网络的网关路由器后网关再通过链路层机制把数据交付给具体主机在以太网中这一步通常涉及地址到地址的解析以及帧的本地传输由此可以形成以下逻辑链条路由协议交换信息路由算法计算路径生成路由表形成转发表数据平面查询并转发需要注意以下概念的区别路由协议规定路由器之间交换哪些信息以及如何交换路由算法根据已有信息计算路径路由表或转发表保存计算结果转发依据表项处理具体分组关键结论路由协议不是转发动作本身而是为路由计算提供信息路由算法不是路由表而是产生路由表的计算过程将网络抽象为带权图图模型为了使用成熟的算法计算路径可以把路由器网络抽象为带权图其中表示节点集合通常对应路由器表示边集合通常对应路由器之间的链路表示节点到节点的直接链路代价如果与不直接相连则可令例如边上的数字表示链路代价链路代价可以由网络运营者配置例如所有链路统一设为此时算法倾向于选择跳数最少的路径使用带宽的倒数使高带宽链路具有更低代价根据时延拥塞程度或管理策略设置不同代价为什么图抽象有效完成图抽象后路由问题就转化为经典的最短路径问题已知网络拓扑各条链路的代价和一个源节点求源节点到其他节点的最低代价路径这种抽象把复杂的实际网络压缩为节点边代价三个要素使路由系统能够应用等图算法最短路径树当路由器以自己为源节点计算到所有其他节点的最短路径时得到的不是一条孤立路径而是一棵最短路径树例如从到多个目标节点的路径可能是这些路径共享前缀把所有路径合并后就形成以为根的最短路径树最短路径树能够直接帮助路由器确定下一跳到目的节点的路径首先经过则输出链路为到目的节点的路径都首先经过则对应的输出链路都为本节核心结论图模型把路由选择转化为带权图上的最短路径问题最短路径树进一步把端到端路径转化为每个目的地对应的第一跳路由算法应满足的基本要求路由算法不能只追求数学意义上的最优还必须考虑实际网络的运行条件原则含义实际要求正确性能够将分组送往正确目标避免错误路由黑洞和不可达路径简单性算法与协议不能过于复杂降低计算通信和实现成本健壮性能适应故障与网络变化链路或路由器失效后能够重新计算稳定性路由不应频繁振荡避免路径在多个选择间反复切换公平性不应长期不合理地牺牲部分节点合理分配网络资源最优性路径应在指定指标下尽可能优可能追求最低代价也可能接受近似最优这些要求之间可能存在冲突例如频繁根据实时拥塞调整路径可能提高瞬时性能却降低稳定性采用复杂算法可能得到更优路径却增加控制开销完全追求全局最优可能对某些流量或节点不公平因此真实路由系统通常是在最优性稳定性复杂度与可管理性之间进行折中关键判断路由算法的价值不只在于算出理论最短路还在于能够以可接受的代价稳定地适应真实网络路由算法的主要分类按掌握的信息范围分类路由算法可以分为链路状态算法和距离向量算法对比维度链路状态距离向量路由器掌握的信息完整网络拓扑和链路代价邻居信息及邻居通告的距离信息交换范围链路状态向全网传播主要在相邻路由器之间交换计算方式获得全网地图后独立运行最短路径算法根据邻居信息反复迭代更新典型思想先获得地图再计算路线不看完整地图通过邻居逐渐学习信息属性全局信息分布式局部信息链路状态算法中每台路由器最终都会获得完整拓扑距离向量算法中路由器不需要掌握完整网络结构而是根据邻居提供的信息逐步更新自己到各目的地的距离按适应变化的方式分类路由还可以分为静态路由和动态路由对比维度静态路由动态路由路由产生方式人工配置或事先计算由路由协议自动学习更新速度通常较慢可周期性或事件触发更新自适应能力较弱较强管理成本小规模网络中较低初始配置复杂但适合大规模网络典型场景结构简单变化较少的网络规模大拓扑经常变化的网络动态路由并不意味着每转发一个分组都重新计算路径它表示路由表可以随着网络拓扑或链路状态变化而更新本节核心结论与的根本区别在于路由器获得的信息范围和计算方式静态与动态的区别则在于路由能否根据网络变化自动更新链路状态路由的完整工作过程核心思想链路状态路由的基本思想是每台路由器将自己与邻居之间的链路状态传播给全网使所有路由器最终获得相同或近似一致的拓扑数据库然后各自运行最短路径算法这一过程可以分为两个阶段发现邻居测量链路代价生成链路状态分组向全网可靠泛洪建立链路状态数据库运行算法生成路由表前四个步骤负责收集和传播信息后续步骤负责在完整拓扑上计算路径第一步发现相邻节点每台路由器首先要识别与自己直接连接的路由器并获得邻居的标识或网络地址此时路由器掌握的仍然只是局部信息自己连接了哪些邻居哪个接口通向哪个邻居邻居是否仍然可达第二步测量链路代价路由器需要为每条直接链路确定代价代价可以来自管理员配置链路带宽传播或排队时延网络负载其他策略性指标链路代价是后续最短路径计算的基础第三步生成链路状态分组路由器把自己的局部链路信息封装为链路状态分组该分组通常描述产生该信息的路由器它有哪些直接邻居到各邻居的链路代价序列号生存时间或年龄字段链路状态分组属于控制信息不是普通用户数据它的作用是帮助路由器建立拓扑数据库而不是承载用户应用数据第四步向全网泛洪链路状态分组需要传播到网络中的其他路由器路由器收到新的链路状态信息后会继续向其他接口转发使信息逐渐扩散到整个网络最终每台路由器都能够获得所有路由器发布的链路状态并重建完整拓扑第五步计算最短路径当链路状态数据库建立后每台路由器以自己为源节点运行算法得到到其他节点的最低代价路径并根据最短路径树生成路由表机制与算法不能混为一谈对比维度链路状态协议过程算法解决的问题如何获得全网拓扑和链路代价如何在已知图上计算最短路径主要操作发现邻居测量代价生成并泛洪信息选择最小代价节点并更新路径输入本地链路状态与其他路由器的通告完整带权图输出链路状态数据库最短路径树是否负责传播信息是否关键区分是一整套路由信息获取与传播机制只是其中用于路径计算的算法泛洪为什么需要控制无控制泛洪的问题网络中通常存在环路如果路由器对收到的链路状态分组不加判断地继续转发同一个分组可能沿不同路径反复传播造成重复分组大量增加控制流量占用链路带宽路由器反复处理相同信息极端情况下形成广播风暴旧拓扑信息长期无法消失字段链路状态分组可以带有年龄或生存时间字段该字段会随时间或每次转发而减小当其降为零时相关信息被丢弃字段解决的是如何防止控制分组以及过期拓扑信息永久存在于网络中它的作用类似数据报中的序列号每个链路状态分组通常带有序列号路由器可以通过序列号判断该分组是否比数据库中的版本更新是否已经处理过同一版本收到的是新信息还是重复信息旧信息是否应该被丢弃序列号解决的是版本识别和重复抑制问题可靠泛洪为了确保链路状态信息能够到达所有路由器可以对泛洪过程加入确认与重传机制接收方确认收到新的链路状态信息未收到确认时发送方可以再次发送路由器只继续传播更新或尚未处理的信息通过序列号确认和重传可以在控制重复传播的同时提高拓扑数据库的一致性典型链路状态协议常见的链路状态协议包括它们都遵循传播链路状态建立拓扑数据库运行最短路径算法的基本思想但在报文格式层次化组织和工程实现上有所不同本节核心结论泛洪负责让每台路由器获得全网状态但必须使用序列号和可靠传输机制抑制重复清除旧信息并保证传播完整性算法的基本思想算法目标算法用于在链路代价非负的带权图中计算一个源节点到其他所有节点的最低代价路径在链路状态路由中每台路由器都可以获得相同的网络拓扑以自己为源节点运行得到自己的最短路径树生成适用于自己的路由表被称为全局或集中式算法是因为算法运行时需要完整的拓扑和链路代价它不意味着全网只能由一台中央设备计算常用符号设源节点为符号含义节点到的直接链路代价不相邻时为无穷大当前已知的从源节点到节点的最低代价估计当前路径中节点的前驱节点已经确定最短路径的节点集合其中用于判断哪条路径更短用于恢复完整路径中节点的最短路径已经最终确定初始化算法开始时对于其他每个节点如果与直接相连否则此时算法只知道源节点到直接邻居的代价迭代过程每一轮执行以下操作在所有不属于的节点中选择最小的节点将加入检查经过是否能缩短到其邻居的路径如果能够缩短则更新和重复上述过程直到所有节点都进入路径更新公式为它比较两种方案保持原有路径代价为先从源节点到达再沿链路到达代价为如果后一种代价更小则为什么每次选择最小的临时节点在链路代价非负的条件下当前所有未确定节点中最小的节点不可能再通过其他未确定节点得到更短路径假设还要绕过另一个尚未确定的节点再到达由于后续链路代价不会为负新路径只会更长或相等因此可以安全地把的最短路径固定下来算法的过程可以概括为初始化源节点及邻居距离选择当前最小的未确定节点将该节点加入用该节点更新邻居距离是否还有未确定节点是否得到最短路径树本节核心结论每轮固定一个当前代价最小的节点再利用该节点尝试改进其他路径保存代价保存路径结构如何阅读计算表课件中的表格通常每一行表示一轮迭代阅读时应关注三个问题哪些节点已经进入哪个临时节点的值最小加入该节点后哪些其他节点的和前驱发生了变化以源节点为例初始化到直接邻居的值等于链路代价到非邻居节点的值为无穷大直接邻居的前驱为后续步骤选择与更新每一轮选择值最小的临时节点将其加入通过该节点尝试更新其他节点在表格下一行记录新的和根据前驱恢复路径假设最终得到从向前追溯逆序后得到完整路径因此告诉我们路径总成本及其他前驱记录告诉我们实际经过哪些节点从最短路径树生成转发表的输出是以当前路由器为根的最短路径树但数据平面不需要保存每条完整路径执行转发时路由器最关心的是要到达某个目的地第一跳应该走哪个邻居假设从出发的最短路径结果如下目的节点最短路径的第一跳则可以生成类似的转发表目的地输出链路或下一跳尽管到的完整路径不同但它们从出发时都先经过所以可以共享同一个下一跳这说明最短路径树在控制平面与数据平面之间起到了转换作用完整网络拓扑最短路径树提取各目的地第一跳转发表关键结论控制平面计算完整路径但数据平面通常只需要知道下一跳或输出接口与链路状态路由的复杂度算法复杂度如果网络中有个节点普通数组实现需要反复扫描所有未确定节点选择当前值最小者总比较次数大致为因此时间复杂度为如果使用优先队列等更高效的数据结构在合适的图表示下复杂度可以降低到近似更严格的复杂度还会受到边数和具体数据结构影响但核心思想是避免每轮线性扫描全部节点消息复杂度链路状态协议不仅有本地计算成本还有控制信息传播成本每台路由器都需要把自己的链路状态传播给其他路由器在简单分析中每个路由器产生链路状态信息信息需要扩散到全网整体控制消息量可达到约的数量级因此链路状态路由的成本包括两个部分的本地计算成本链路状态泛洪的通信成本本节核心结论路由的开销不能只看的运行时间还要考虑全网泛洪带来的控制消息成本三种全局与集中不能混淆本章中会同时出现全局信息集中式算法和逻辑集中控制等表述但它们指向不同层面概念实际含义是全局信息算法每台路由器最终获得完整拓扑和链路代价是集中式算法单次算法运行需要以完整图作为输入是逻辑集中控制平面网络控制逻辑由控制器统一管理的全局信息中可以没有唯一的中央计算节点每台路由器通过泛洪获得全网信息并分别运行算法的集中式这里的集中式描述算法需要完整输入而不是描述算法一定在哪里执行多台路由器可以分别运行的逻辑集中描述的是控制架构路由和流表计算主要由控制器承担网络设备侧主要负责执行关键区分信息是全局的算法输入是集中的控制架构是逻辑集中的分别属于信息范围算法模型和系统架构三个层面常见误区路由器是否一开始就知道全网拓扑不是路由器最初只知道自己的邻居和本地链路它必须通过链路状态泛洪逐渐收集其他路由器的信息才能建立完整拓扑是否只在中央服务器运行不是只要每台路由器拥有完整的链路状态数据库就可以分别以自己为源节点运行链路状态分组是否属于用户数据不是链路状态分组属于控制平面报文目的是同步拓扑信息用户数据报属于数据平面处理的对象为什么得到一棵树因为从同一个源节点出发的多条最短路径往往共享前缀把这些路径合并就形成一棵以源节点为根的最短路径树与是否相同二者用途不同记录当前最低代价记录路径中的前驱节点没有无法比较路径长短没有只能知道代价不能恢复完整路径动态路由是否为每个分组重新算路不是动态路由根据拓扑变化周期性通告或链路状态变化更新路由表大量普通分组仍然直接查询现有转发表知识结构总览网络层控制平面控制架构路由协议与算法路径计算传统逻辑集中链路状态距离向量静态路由动态路由带权图链路代价最短路径树路由表或转发表这张图体现了本章的完整关系控制平面决定网络路径路由协议负责交换控制信息通过泛洪形成全局拓扑在拓扑上计算最短路径最短路径树被转化为下一跳表项数据平面依据表项完成实际转发复习清单完成本章学习后应能够回答以下问题数据平面与控制平面的核心区别是什么为什么说转发是本地动作而路由是全局动作传统控制平面与控制平面有何区别的逻辑集中为什么不等于只有一台服务器路由协议中的好路径可以采用哪些衡量标准为什么互联网路由通常面向网络前缀而不是每台具体主机路由协议路由算法路由表和转发分别承担什么职责在图中和分别表示什么如果两个节点不直接相连链路代价应如何表示什么是最短路径树为什么路由算法不仅要考虑最优性还要考虑稳定性和健壮性与在信息范围和计算方式上有何区别静态路由与动态路由有何区别路由的五个基本步骤是什么泛洪为什么可能产生广播风暴字段序列号和确认机制分别解决什么问题链路状态协议过程与算法有何区别和分别表示什么为什么每轮选择当前值最小的节点更新公式表达了什么如何通过前驱节点恢复完整最短路径为什么多个不同目的地可能对应相同的下一跳的算法复杂度和泛洪的消息复杂度分别是什么的全局信息的集中式和的逻辑集中有何不同结论网络层控制平面的根本任务是为数据平面的高速转发提供正确稳定且可更新的路径决策链路状态路由通过邻居发现代价测量链路状态分组生成和可靠泛洪使每台路由器逐步获得完整的网络拓扑随后每台路由器以自己为源节点运行算法计算到其他节点的最低代价路径并将最短路径树转化为目的地与下一跳之间的映射因此本章的完整逻辑可以压缩为局部链路状态全网拓扑数据库最短路径计算最短路径树路由表或转发表数据平面逐跳转发最终结论控制平面负责回答应该走哪条路数据平面负责回答当前这一跳从哪个端口出去负责获得地图负责在地图上算路转发表则把计算结果转化为路由器能够高速执行的下一跳决策',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-25 23:04:56',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">46</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-25T15:04:56.000Z" title="Created 2026-06-25 23:04:56">2026-06-25</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-25T15:04:56.157Z" title="Updated 2026-06-25 23:04:56">2026-06-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">8k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>25min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/dhalsim.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:04:56.000Z" title="Created 2026-06-25 23:04:56">2026-06-25</time><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:04:56.157Z" title="Updated 2026-06-25 23:04:56">2026-06-25</time></header><h1 id="Chapter-5-1：网络层控制平面、链路状态路由与-Dijkstra-算法"><a href="#Chapter-5-1：网络层控制平面、链路状态路由与-Dijkstra-算法" class="headerlink" title="Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法"></a>Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法</h1><h2 id="引言：转发表是怎样产生的"><a href="#引言：转发表是怎样产生的" class="headerlink" title="引言：转发表是怎样产生的"></a>引言：转发表是怎样产生的</h2><p>网络层的数据平面解决的是分组的实际转发问题：当一个分组到达路由器后，路由器读取分组首部、查询转发表，并将分组送往相应的输出端口。</p>
+<p>但是，数据平面使用的转发表并不是凭空产生的。在执行转发之前，网络还必须回答一个更基础的问题：</p>
+<blockquote>
+<p>分组从源网络到目的网络，应该经过哪些路由器？</p>
+</blockquote>
+<p>这正是控制平面要解决的问题。控制平面通过路由协议收集网络状态，利用路由算法计算合适的端到端路径，并根据计算结果生成路由表或转发表。</p>
+<p>本章的核心逻辑可以概括为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[收集网络状态] --&gt; B[建立网络拓扑]
+    B --&gt; C[运行路由算法]
+    C --&gt; D[得到最短路径树]
+    D --&gt; E[生成路由表或转发表]
+    E --&gt; F[数据平面执行转发]
+  </pre></div>
+
+<p><strong>❗核心主线：</strong> 链路状态路由首先让路由器获得一张全网地图，再由每台路由器运行 Dijkstra 算法计算最短路径，最后将计算结果转化为能够直接执行的转发表。</p>
+<hr>
+<h2 id="1-控制平面与数据平面的分工"><a href="#1-控制平面与数据平面的分工" class="headerlink" title="1. 控制平面与数据平面的分工"></a>1. 控制平面与数据平面的分工</h2><h3 id="1-1-数据平面负责本地转发"><a href="#1-1-数据平面负责本地转发" class="headerlink" title="1.1 数据平面负责本地转发"></a>1.1 数据平面负责本地转发</h3><p>数据平面关注的是分组到达一台具体路由器之后的处理过程。它需要回答：</p>
+<ul>
+<li>应该查询哪一项转发表？</li>
+<li>分组应该进入哪个输出端口？</li>
+<li>如何排队、交换和发送该分组？</li>
+</ul>
+<p>因此，转发是一种局部操作。每台路由器只需要根据已有的转发表，决定当前分组的下一跳。</p>
+<h3 id="1-2-控制平面负责全局路径决策"><a href="#1-2-控制平面负责全局路径决策" class="headerlink" title="1.2 控制平面负责全局路径决策"></a>1.2 控制平面负责全局路径决策</h3><p>控制平面关注的是分组在整个网络中的路径。它需要回答：</p>
+<ul>
+<li>从源网络到目的网络可以经过哪些路由器？</li>
+<li>哪一条路径的代价更低？</li>
+<li>链路发生故障后应该如何改道？</li>
+<li>路由表应该怎样更新？</li>
+</ul>
+<p>假设从路由器 <code>A</code> 到目的路由器 <code>Z</code> 存在多条路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">A → B → C → Z</span><br><span class="line">A → D → E → Z</span><br><span class="line">A → F → G → H → Z</span><br></pre></td></tr></table></figure>
+
+<p>数据平面只能执行已经确定的下一跳，而不能独立判断哪一条完整路径更合适。路径选择必须由控制平面提前完成。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>路由 Routing</th>
+<th>转发 Forwarding</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>所属平面</td>
+<td>控制平面</td>
+<td>数据平面</td>
+</tr>
+<tr>
+<td>关注范围</td>
+<td>端到端的全局路径</td>
+<td>单台路由器的本地输出端口</td>
+</tr>
+<tr>
+<td>主要输入</td>
+<td>网络拓扑、链路代价、路由信息</td>
+<td>分组首部、转发表</td>
+</tr>
+<tr>
+<td>主要输出</td>
+<td>路由表、转发表</td>
+<td>将分组送入指定输出端口</td>
+</tr>
+<tr>
+<td>直观类比</td>
+<td>规划完整行程</td>
+<td>到达路口后按导航转弯</td>
+</tr>
+</tbody></table>
+<p><strong>❗关键区分：</strong> 路由负责计算路径，转发负责执行路径。前者产生决策，后者使用决策。</p>
+<hr>
+<h2 id="2-两种控制平面组织方式"><a href="#2-两种控制平面组织方式" class="headerlink" title="2. 两种控制平面组织方式"></a>2. 两种控制平面组织方式</h2><p>控制平面可以采用传统的逐路由器控制方式，也可以采用软件定义网络中的逻辑集中控制方式。</p>
+<h3 id="2-1-传统的-per-router-控制平面"><a href="#2-1-传统的-per-router-控制平面" class="headerlink" title="2.1 传统的 per-router 控制平面"></a>2.1 传统的 per-router 控制平面</h3><p>在传统网络中，每台路由器内部都运行路由协议和路由算法。各路由器之间交换控制信息，并根据获得的信息独立计算自己的路由表。</p>
+<p>它的基本过程是：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    R1[路由器 R1&lt;br&#x2F;&gt;路由算法] &lt;--&gt; R2[路由器 R2&lt;br&#x2F;&gt;路由算法]
+    R2 &lt;--&gt; R3[路由器 R3&lt;br&#x2F;&gt;路由算法]
+    R1 &lt;--&gt; R3
+  </pre></div>
+
+<p>每台路由器同时具有：</p>
+<ul>
+<li>数据平面功能：执行分组转发；</li>
+<li>控制平面功能：交换路由信息并计算路径。</li>
+</ul>
+<h3 id="2-2-SDN-的逻辑集中控制平面"><a href="#2-2-SDN-的逻辑集中控制平面" class="headerlink" title="2.2 SDN 的逻辑集中控制平面"></a>2.2 SDN 的逻辑集中控制平面</h3><p>在软件定义网络中，主要控制逻辑位于远程控制器。网络设备中的本地控制代理与控制器通信，接收控制器下发的流表或转发规则。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>传统 per-router 控制平面</th>
+<th>SDN 控制平面</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制逻辑位置</td>
+<td>分布在各台路由器内部</td>
+<td>逻辑上集中在远程控制器</td>
+</tr>
+<tr>
+<td>信息交换方式</td>
+<td>路由器之间运行路由协议</td>
+<td>本地控制代理与控制器通信</td>
+</tr>
+<tr>
+<td>路由计算方式</td>
+<td>各路由器分别计算</td>
+<td>控制器统一计算或协调</td>
+</tr>
+<tr>
+<td>数据平面行为</td>
+<td>根据本地生成的表转发</td>
+<td>根据控制器下发的规则转发</td>
+</tr>
+</tbody></table>
+<p>SDN 所说的“集中”通常是逻辑集中，并不意味着现实中只能部署一台控制器。为了可靠性和性能，控制器可以由多个物理节点组成，但对网络设备呈现统一的控制逻辑。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>传统控制平面把路由计算分布在各台路由器中；SDN 将控制逻辑集中到控制器。两者都需要最终向数据平面提供可执行的转发规则。</p>
+<hr>
+<h2 id="3-路由协议究竟在计算什么"><a href="#3-路由协议究竟在计算什么" class="headerlink" title="3. 路由协议究竟在计算什么"></a>3. 路由协议究竟在计算什么</h2><h3 id="3-1-路径与“好路径”"><a href="#3-1-路径与“好路径”" class="headerlink" title="3.1 路径与“好路径”"></a>3.1 路径与“好路径”</h3><p>路由协议需要确定从发送方到接收方的路径。这里的路径可以理解为：</p>
+<blockquote>
+<p>分组从源网络前往目的网络时依次经过的路由器序列。</p>
+</blockquote>
+<p>所谓“好路径”并不一定只有一种评价标准。它可能表示：</p>
+<ul>
+<li>总链路代价最小；</li>
+<li>经过的路由器数量最少；</li>
+<li>可用带宽更高；</li>
+<li>时延更低；</li>
+<li>拥塞程度更低；</li>
+<li>可靠性更高；</li>
+<li>更符合运营商的管理策略。</li>
+</ul>
+<p>因此，最短路径中的“短”通常指代价最小，而不一定是物理距离最近或经过节点最少。</p>
+<h3 id="3-2-为什么通常计算网络到网络的路径"><a href="#3-2-为什么通常计算网络到网络的路径" class="headerlink" title="3.2 为什么通常计算网络到网络的路径"></a>3.2 为什么通常计算网络到网络的路径</h3><p>互联网包含大量主机。如果路由器为每一对主机分别计算和保存路径，路由表规模与计算开销都会难以承受。</p>
+<p>因此，路由系统通常围绕网络前缀或子网进行计算：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">源网络 → 中间路由器 → 目的网络</span><br></pre></td></tr></table></figure>
+
+<p>当分组到达目的网络的网关路由器后，网关再通过链路层机制把数据交付给具体主机。在以太网中，这一步通常涉及 IP 地址到 MAC 地址的解析以及帧的本地传输。</p>
+<p>由此可以形成以下逻辑链条：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[路由协议交换信息] --&gt; B[路由算法计算路径]
+    B --&gt; C[生成路由表]
+    C --&gt; D[形成转发表]
+    D --&gt; E[数据平面查询并转发]
+  </pre></div>
+
+<p>需要注意以下概念的区别：</p>
+<ul>
+<li><strong>路由协议</strong>：规定路由器之间交换哪些信息以及如何交换；</li>
+<li><strong>路由算法</strong>：根据已有信息计算路径；</li>
+<li><strong>路由表或转发表</strong>：保存计算结果；</li>
+<li><strong>转发</strong>：依据表项处理具体分组。</li>
+</ul>
+<p><strong>❗关键结论：</strong> 路由协议不是转发动作本身，而是为路由计算提供信息；路由算法不是路由表，而是产生路由表的计算过程。</p>
+<hr>
+<h2 id="4-将网络抽象为带权图"><a href="#4-将网络抽象为带权图" class="headerlink" title="4. 将网络抽象为带权图"></a>4. 将网络抽象为带权图</h2><h3 id="4-1-图模型"><a href="#4-1-图模型" class="headerlink" title="4.1 图模型"></a>4.1 图模型</h3><p>为了使用成熟的算法计算路径，可以把路由器网络抽象为带权图：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">G = (N, E)</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>N</code> 表示节点集合，通常对应路由器；</li>
+<li><code>E</code> 表示边集合，通常对应路由器之间的链路；</li>
+<li><code>c(i, j)</code> 表示节点 <code>i</code> 到节点 <code>j</code> 的直接链路代价；</li>
+<li>如果 <code>i</code> 与 <code>j</code> 不直接相连，则可令 <code>c(i, j) = ∞</code>。</li>
+</ul>
+<p>例如：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    U((u)) -- 2 --&gt; V((v))
+    U -- 1 --&gt; X((x))
+    X -- 2 --&gt; Y((y))
+    X -- 3 --&gt; W((w))
+    Y -- 1 --&gt; Z((z))
+    W -- 2 --&gt; Z
+  </pre></div>
+
+<p>边上的数字表示链路代价。链路代价可以由网络运营者配置，例如：</p>
+<ul>
+<li>所有链路统一设为 <code>1</code>，此时算法倾向于选择跳数最少的路径；</li>
+<li>使用带宽的倒数，使高带宽链路具有更低代价；</li>
+<li>根据时延、拥塞程度或管理策略设置不同代价。</li>
+</ul>
+<h3 id="4-2-为什么图抽象有效"><a href="#4-2-为什么图抽象有效" class="headerlink" title="4.2 为什么图抽象有效"></a>4.2 为什么图抽象有效</h3><p>完成图抽象后，路由问题就转化为经典的最短路径问题：</p>
+<blockquote>
+<p>已知网络拓扑、各条链路的代价和一个源节点，求源节点到其他节点的最低代价路径。</p>
+</blockquote>
+<p>这种抽象把复杂的实际网络压缩为“节点—边—代价”三个要素，使路由系统能够应用 Dijkstra 等图算法。</p>
+<h3 id="4-3-最短路径树"><a href="#4-3-最短路径树" class="headerlink" title="4.3 最短路径树"></a>4.3 最短路径树</h3><p>当路由器以自己为源节点计算到所有其他节点的最短路径时，得到的不是一条孤立路径，而是一棵最短路径树。</p>
+<p>例如，从 <code>u</code> 到多个目标节点的路径可能是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">u → x</span><br><span class="line">u → x → y</span><br><span class="line">u → x → w</span><br><span class="line">u → x → y → z</span><br></pre></td></tr></table></figure>
+
+<p>这些路径共享前缀 <code>u → x</code>。把所有路径合并后，就形成以 <code>u</code> 为根的最短路径树。</p>
+<p>最短路径树能够直接帮助路由器确定下一跳：</p>
+<ul>
+<li>到目的节点 <code>v</code> 的路径首先经过 <code>v</code>，则输出链路为 <code>(u, v)</code>；</li>
+<li>到目的节点 <code>y</code>、<code>w</code>、<code>z</code> 的路径都首先经过 <code>x</code>，则对应的输出链路都为 <code>(u, x)</code>。</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>图模型把路由选择转化为带权图上的最短路径问题；最短路径树进一步把端到端路径转化为每个目的地对应的第一跳。</p>
+<hr>
+<h2 id="5-路由算法应满足的基本要求"><a href="#5-路由算法应满足的基本要求" class="headerlink" title="5. 路由算法应满足的基本要求"></a>5. 路由算法应满足的基本要求</h2><p>路由算法不能只追求数学意义上的最优，还必须考虑实际网络的运行条件。</p>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>含义</th>
+<th>实际要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正确性</td>
+<td>能够将分组送往正确目标</td>
+<td>避免错误路由、黑洞和不可达路径</td>
+</tr>
+<tr>
+<td>简单性</td>
+<td>算法与协议不能过于复杂</td>
+<td>降低计算、通信和实现成本</td>
+</tr>
+<tr>
+<td>健壮性</td>
+<td>能适应故障与网络变化</td>
+<td>链路或路由器失效后能够重新计算</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>路由不应频繁振荡</td>
+<td>避免路径在多个选择间反复切换</td>
+</tr>
+<tr>
+<td>公平性</td>
+<td>不应长期不合理地牺牲部分节点</td>
+<td>合理分配网络资源</td>
+</tr>
+<tr>
+<td>最优性</td>
+<td>路径应在指定指标下尽可能优</td>
+<td>可能追求最低代价，也可能接受近似最优</td>
+</tr>
+</tbody></table>
+<p>这些要求之间可能存在冲突。例如：</p>
+<ul>
+<li>频繁根据实时拥塞调整路径，可能提高瞬时性能，却降低稳定性；</li>
+<li>采用复杂算法可能得到更优路径，却增加控制开销；</li>
+<li>完全追求全局最优，可能对某些流量或节点不公平。</li>
+</ul>
+<p>因此，真实路由系统通常是在最优性、稳定性、复杂度与可管理性之间进行折中。</p>
+<p><strong>❗关键判断：</strong> 路由算法的价值不只在于算出理论最短路，还在于能够以可接受的代价稳定地适应真实网络。</p>
+<hr>
+<h2 id="6-路由算法的主要分类"><a href="#6-路由算法的主要分类" class="headerlink" title="6. 路由算法的主要分类"></a>6. 路由算法的主要分类</h2><h3 id="6-1-按掌握的信息范围分类"><a href="#6-1-按掌握的信息范围分类" class="headerlink" title="6.1 按掌握的信息范围分类"></a>6.1 按掌握的信息范围分类</h3><p>路由算法可以分为链路状态算法和距离向量算法。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>链路状态 LS</th>
+<th>距离向量 DV</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路由器掌握的信息</td>
+<td>完整网络拓扑和链路代价</td>
+<td>邻居信息及邻居通告的距离</td>
+</tr>
+<tr>
+<td>信息交换范围</td>
+<td>链路状态向全网传播</td>
+<td>主要在相邻路由器之间交换</td>
+</tr>
+<tr>
+<td>计算方式</td>
+<td>获得全网地图后独立运行最短路径算法</td>
+<td>根据邻居信息反复迭代更新</td>
+</tr>
+<tr>
+<td>典型思想</td>
+<td>先获得地图，再计算路线</td>
+<td>不看完整地图，通过邻居逐渐学习</td>
+</tr>
+<tr>
+<td>信息属性</td>
+<td>全局信息</td>
+<td>分布式局部信息</td>
+</tr>
+</tbody></table>
+<p>链路状态算法中，每台路由器最终都会获得完整拓扑。距离向量算法中，路由器不需要掌握完整网络结构，而是根据邻居提供的信息逐步更新自己到各目的地的距离。</p>
+<h3 id="6-2-按适应变化的方式分类"><a href="#6-2-按适应变化的方式分类" class="headerlink" title="6.2 按适应变化的方式分类"></a>6.2 按适应变化的方式分类</h3><p>路由还可以分为静态路由和动态路由。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>静态路由</th>
+<th>动态路由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路由产生方式</td>
+<td>人工配置或事先计算</td>
+<td>由路由协议自动学习</td>
+</tr>
+<tr>
+<td>更新速度</td>
+<td>通常较慢</td>
+<td>可周期性或事件触发更新</td>
+</tr>
+<tr>
+<td>自适应能力</td>
+<td>较弱</td>
+<td>较强</td>
+</tr>
+<tr>
+<td>管理成本</td>
+<td>小规模网络中较低</td>
+<td>初始配置复杂，但适合大规模网络</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>结构简单、变化较少的网络</td>
+<td>规模大、拓扑经常变化的网络</td>
+</tr>
+</tbody></table>
+<p>动态路由并不意味着每转发一个分组都重新计算路径。它表示路由表可以随着网络拓扑或链路状态变化而更新。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>LS 与 DV 的根本区别在于路由器获得的信息范围和计算方式；静态与动态的区别则在于路由能否根据网络变化自动更新。</p>
+<hr>
+<h2 id="7-链路状态路由的完整工作过程"><a href="#7-链路状态路由的完整工作过程" class="headerlink" title="7. 链路状态路由的完整工作过程"></a>7. 链路状态路由的完整工作过程</h2><h3 id="7-1-核心思想"><a href="#7-1-核心思想" class="headerlink" title="7.1 核心思想"></a>7.1 核心思想</h3><p>链路状态路由的基本思想是：</p>
+<blockquote>
+<p>每台路由器将自己与邻居之间的链路状态传播给全网，使所有路由器最终获得相同或近似一致的拓扑数据库，然后各自运行最短路径算法。</p>
+</blockquote>
+<p>这一过程可以分为两个阶段：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[发现邻居] --&gt; B[测量链路代价]
+    B --&gt; C[生成链路状态分组]
+    C --&gt; D[向全网可靠泛洪]
+    D --&gt; E[建立链路状态数据库]
+    E --&gt; F[运行 Dijkstra 算法]
+    F --&gt; G[生成路由表]
+  </pre></div>
+
+<p>前四个步骤负责收集和传播信息，后续步骤负责在完整拓扑上计算路径。</p>
+<h3 id="7-2-第一步：发现相邻节点"><a href="#7-2-第一步：发现相邻节点" class="headerlink" title="7.2 第一步：发现相邻节点"></a>7.2 第一步：发现相邻节点</h3><p>每台路由器首先要识别与自己直接连接的路由器，并获得邻居的标识或网络地址。</p>
+<p>此时，路由器掌握的仍然只是局部信息：</p>
+<ul>
+<li>自己连接了哪些邻居；</li>
+<li>哪个接口通向哪个邻居；</li>
+<li>邻居是否仍然可达。</li>
+</ul>
+<h3 id="7-3-第二步：测量链路代价"><a href="#7-3-第二步：测量链路代价" class="headerlink" title="7.3 第二步：测量链路代价"></a>7.3 第二步：测量链路代价</h3><p>路由器需要为每条直接链路确定代价。代价可以来自：</p>
+<ul>
+<li>管理员配置；</li>
+<li>链路带宽；</li>
+<li>传播或排队时延；</li>
+<li>网络负载；</li>
+<li>其他策略性指标。</li>
+</ul>
+<p>链路代价是后续最短路径计算的基础。</p>
+<h3 id="7-4-第三步：生成链路状态分组"><a href="#7-4-第三步：生成链路状态分组" class="headerlink" title="7.4 第三步：生成链路状态分组"></a>7.4 第三步：生成链路状态分组</h3><p>路由器把自己的局部链路信息封装为链路状态分组。该分组通常描述：</p>
+<ul>
+<li>产生该信息的路由器；</li>
+<li>它有哪些直接邻居；</li>
+<li>到各邻居的链路代价；</li>
+<li>序列号；</li>
+<li>生存时间或年龄字段。</li>
+</ul>
+<p>链路状态分组属于控制信息，不是普通用户数据。它的作用是帮助路由器建立拓扑数据库，而不是承载用户应用数据。</p>
+<h3 id="7-5-第四步：向全网泛洪"><a href="#7-5-第四步：向全网泛洪" class="headerlink" title="7.5 第四步：向全网泛洪"></a>7.5 第四步：向全网泛洪</h3><p>链路状态分组需要传播到网络中的其他路由器。路由器收到新的链路状态信息后，会继续向其他接口转发，使信息逐渐扩散到整个网络。</p>
+<p>最终，每台路由器都能够获得所有路由器发布的链路状态，并重建完整拓扑。</p>
+<h3 id="7-6-第五步：计算最短路径"><a href="#7-6-第五步：计算最短路径" class="headerlink" title="7.6 第五步：计算最短路径"></a>7.6 第五步：计算最短路径</h3><p>当链路状态数据库建立后，每台路由器以自己为源节点运行 Dijkstra 算法，得到到其他节点的最低代价路径，并根据最短路径树生成路由表。</p>
+<p>LS 机制与 Dijkstra 算法不能混为一谈：</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>链路状态协议过程</th>
+<th>Dijkstra 算法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解决的问题</td>
+<td>如何获得全网拓扑和链路代价</td>
+<td>如何在已知图上计算最短路径</td>
+</tr>
+<tr>
+<td>主要操作</td>
+<td>发现邻居、测量代价、生成并泛洪信息</td>
+<td>选择最小代价节点并更新路径</td>
+</tr>
+<tr>
+<td>输入</td>
+<td>本地链路状态与其他路由器的通告</td>
+<td>完整带权图</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>链路状态数据库</td>
+<td>最短路径树</td>
+</tr>
+<tr>
+<td>是否负责传播信息</td>
+<td>是</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<p><strong>❗关键区分：</strong> LS 是一整套路由信息获取与传播机制；Dijkstra 只是其中用于路径计算的算法。</p>
+<hr>
+<h2 id="8-泛洪为什么需要控制"><a href="#8-泛洪为什么需要控制" class="headerlink" title="8. 泛洪为什么需要控制"></a>8. 泛洪为什么需要控制</h2><h3 id="8-1-无控制泛洪的问题"><a href="#8-1-无控制泛洪的问题" class="headerlink" title="8.1 无控制泛洪的问题"></a>8.1 无控制泛洪的问题</h3><p>网络中通常存在环路。如果路由器对收到的链路状态分组不加判断地继续转发，同一个分组可能沿不同路径反复传播，造成：</p>
+<ul>
+<li>重复分组大量增加；</li>
+<li>控制流量占用链路带宽；</li>
+<li>路由器反复处理相同信息；</li>
+<li>极端情况下形成广播风暴；</li>
+<li>旧拓扑信息长期无法消失。</li>
+</ul>
+<h3 id="8-2-Age-字段"><a href="#8-2-Age-字段" class="headerlink" title="8.2 Age 字段"></a>8.2 Age 字段</h3><p>链路状态分组可以带有年龄或生存时间字段。该字段会随时间或每次转发而减小，当其降为零时，相关信息被丢弃。</p>
+<p>Age 字段解决的是：</p>
+<blockquote>
+<p>如何防止控制分组以及过期拓扑信息永久存在于网络中。</p>
+</blockquote>
+<p>它的作用类似 IP 数据报中的 TTL。</p>
+<h3 id="8-3-序列号"><a href="#8-3-序列号" class="headerlink" title="8.3 序列号"></a>8.3 序列号</h3><p>每个链路状态分组通常带有序列号。路由器可以通过序列号判断：</p>
+<ul>
+<li>该分组是否比数据库中的版本更新；</li>
+<li>是否已经处理过同一版本；</li>
+<li>收到的是新信息还是重复信息；</li>
+<li>旧信息是否应该被丢弃。</li>
+</ul>
+<p>序列号解决的是版本识别和重复抑制问题。</p>
+<h3 id="8-4-可靠泛洪"><a href="#8-4-可靠泛洪" class="headerlink" title="8.4 可靠泛洪"></a>8.4 可靠泛洪</h3><p>为了确保链路状态信息能够到达所有路由器，可以对泛洪过程加入确认与重传机制：</p>
+<ul>
+<li>接收方确认收到新的链路状态信息；</li>
+<li>未收到确认时，发送方可以再次发送；</li>
+<li>路由器只继续传播更新或尚未处理的信息。</li>
+</ul>
+<p>通过 Age、序列号、确认和重传，可以在控制重复传播的同时提高拓扑数据库的一致性。</p>
+<h3 id="8-5-典型链路状态协议"><a href="#8-5-典型链路状态协议" class="headerlink" title="8.5 典型链路状态协议"></a>8.5 典型链路状态协议</h3><p>常见的链路状态协议包括：</p>
+<ul>
+<li>OSPF；</li>
+<li>IS-IS。</li>
+</ul>
+<p>它们都遵循“传播链路状态—建立拓扑数据库—运行最短路径算法”的基本思想，但在报文格式、层次化组织和工程实现上有所不同。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>泛洪负责让每台路由器获得全网状态，但必须使用 Age、序列号和可靠传输机制抑制重复、清除旧信息并保证传播完整性。</p>
+<hr>
+<h2 id="9-Dijkstra-算法的基本思想"><a href="#9-Dijkstra-算法的基本思想" class="headerlink" title="9. Dijkstra 算法的基本思想"></a>9. Dijkstra 算法的基本思想</h2><h3 id="9-1-算法目标"><a href="#9-1-算法目标" class="headerlink" title="9.1 算法目标"></a>9.1 算法目标</h3><p>Dijkstra 算法用于在链路代价非负的带权图中，计算一个源节点到其他所有节点的最低代价路径。</p>
+<p>在链路状态路由中，每台路由器都可以：</p>
+<ol>
+<li>获得相同的网络拓扑；</li>
+<li>以自己为源节点运行 Dijkstra；</li>
+<li>得到自己的最短路径树；</li>
+<li>生成适用于自己的路由表。</li>
+</ol>
+<p>Dijkstra 被称为全局或集中式算法，是因为算法运行时需要完整的拓扑和链路代价。它不意味着全网只能由一台中央设备计算。</p>
+<h3 id="9-2-常用符号"><a href="#9-2-常用符号" class="headerlink" title="9.2 常用符号"></a>9.2 常用符号</h3><p>设源节点为 <code>u</code>。</p>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>c(i, j)</code></td>
+<td>节点 <code>i</code> 到 <code>j</code> 的直接链路代价；不相邻时为无穷大</td>
+</tr>
+<tr>
+<td><code>D(v)</code></td>
+<td>当前已知的从源节点 <code>u</code> 到节点 <code>v</code> 的最低代价估计</td>
+</tr>
+<tr>
+<td><code>p(v)</code></td>
+<td>当前路径中节点 <code>v</code> 的前驱节点</td>
+</tr>
+<tr>
+<td><code>N&#39;</code></td>
+<td>已经确定最短路径的节点集合</td>
+</tr>
+</tbody></table>
+<p>其中：</p>
+<ul>
+<li><code>D(v)</code> 用于判断哪条路径更短；</li>
+<li><code>p(v)</code> 用于恢复完整路径；</li>
+<li><code>N&#39;</code> 中节点的最短路径已经最终确定。</li>
+</ul>
+<h3 id="9-3-初始化"><a href="#9-3-初始化" class="headerlink" title="9.3 初始化"></a>9.3 初始化</h3><p>算法开始时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">N&#x27; = &#123;u&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于其他每个节点 <code>v</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">如果 v 与 u 直接相连：</span><br><span class="line">    D(v) = c(u, v)</span><br><span class="line">    p(v) = u</span><br><span class="line">否则：</span><br><span class="line">    D(v) = ∞</span><br></pre></td></tr></table></figure>
+
+<p>此时，算法只知道源节点到直接邻居的代价。</p>
+<h3 id="9-4-迭代过程"><a href="#9-4-迭代过程" class="headerlink" title="9.4 迭代过程"></a>9.4 迭代过程</h3><p>每一轮执行以下操作：</p>
+<ol>
+<li>在所有不属于 <code>N&#39;</code> 的节点中，选择 <code>D(w)</code> 最小的节点 <code>w</code>；</li>
+<li>将 <code>w</code> 加入 <code>N&#39;</code>；</li>
+<li>检查经过 <code>w</code> 是否能缩短到其邻居 <code>v</code> 的路径；</li>
+<li>如果能够缩短，则更新 <code>D(v)</code> 和 <code>p(v)</code>；</li>
+<li>重复上述过程，直到所有节点都进入 <code>N&#39;</code>。</li>
+</ol>
+<p>路径更新公式为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D(v) = min(D(v), D(w) + c(w, v))</span><br></pre></td></tr></table></figure>
+
+<p>它比较两种方案：</p>
+<ul>
+<li>保持原有路径，代价为 <code>D(v)</code>；</li>
+<li>先从源节点到达 <code>w</code>，再沿链路 <code>(w, v)</code> 到达 <code>v</code>，代价为 <code>D(w) + c(w, v)</code>。</li>
+</ul>
+<p>如果后一种代价更小，则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">D(v) = D(w) + c(w, v)</span><br><span class="line">p(v) = w</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-5-为什么每次选择最小的临时节点"><a href="#9-5-为什么每次选择最小的临时节点" class="headerlink" title="9.5 为什么每次选择最小的临时节点"></a>9.5 为什么每次选择最小的临时节点</h3><p>在链路代价非负的条件下，当前所有未确定节点中，<code>D(w)</code> 最小的节点不可能再通过其他未确定节点得到更短路径。</p>
+<p>假设还要绕过另一个尚未确定的节点再到达 <code>w</code>，由于后续链路代价不会为负，新路径只会更长或相等。因此，可以安全地把 <code>w</code> 的最短路径固定下来。</p>
+<p>算法的过程可以概括为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[初始化源节点及邻居距离] --&gt; B[选择当前 D 最小的未确定节点]
+    B --&gt; C[将该节点加入 N&#39;]
+    C --&gt; D[用该节点更新邻居距离]
+    D --&gt; E{是否还有未确定节点}
+    E -- 是 --&gt; B
+    E -- 否 --&gt; F[得到最短路径树]
+  </pre></div>
+
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>Dijkstra 每轮固定一个当前代价最小的节点，再利用该节点尝试改进其他路径。<code>D(v)</code> 保存代价，<code>p(v)</code> 保存路径结构。</p>
+<hr>
+<h2 id="10-如何阅读-Dijkstra-计算表"><a href="#10-如何阅读-Dijkstra-计算表" class="headerlink" title="10. 如何阅读 Dijkstra 计算表"></a>10. 如何阅读 Dijkstra 计算表</h2><p>课件中的 Dijkstra 表格通常每一行表示一轮迭代。阅读时应关注三个问题：</p>
+<ul>
+<li>哪些节点已经进入 <code>N&#39;</code>？</li>
+<li>哪个临时节点的 <code>D</code> 值最小？</li>
+<li>加入该节点后，哪些其他节点的 <code>D</code> 和前驱发生了变化？</li>
+</ul>
+<p>以源节点 <code>u</code> 为例：</p>
+<h3 id="Step-0：初始化"><a href="#Step-0：初始化" class="headerlink" title="Step 0：初始化"></a>Step 0：初始化</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">N&#x27; = &#123;u&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>到直接邻居的 <code>D</code> 值等于链路代价；</li>
+<li>到非邻居节点的 <code>D</code> 值为无穷大；</li>
+<li>直接邻居的前驱为 <code>u</code>。</li>
+</ul>
+<h3 id="后续步骤：选择与更新"><a href="#后续步骤：选择与更新" class="headerlink" title="后续步骤：选择与更新"></a>后续步骤：选择与更新</h3><p>每一轮：</p>
+<ol>
+<li>选择 <code>D</code> 值最小的临时节点；</li>
+<li>将其加入 <code>N&#39;</code>；</li>
+<li>通过该节点尝试更新其他节点；</li>
+<li>在表格下一行记录新的 <code>D(v)</code> 和 <code>p(v)</code>。</li>
+</ol>
+<h3 id="根据前驱恢复路径"><a href="#根据前驱恢复路径" class="headerlink" title="根据前驱恢复路径"></a>根据前驱恢复路径</h3><p>假设最终得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p(z) = y</span><br><span class="line">p(y) = x</span><br><span class="line">p(x) = u</span><br></pre></td></tr></table></figure>
+
+<p>从 <code>z</code> 向前追溯：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z ← y ← x ← u</span><br></pre></td></tr></table></figure>
+
+<p>逆序后得到完整路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u → x → y → z</span><br></pre></td></tr></table></figure>
+
+<p>因此：</p>
+<ul>
+<li><code>D(z)</code> 告诉我们路径总成本；</li>
+<li><code>p(z)</code> 及其他前驱记录告诉我们实际经过哪些节点。</li>
+</ul>
+<hr>
+<h2 id="11-从最短路径树生成转发表"><a href="#11-从最短路径树生成转发表" class="headerlink" title="11. 从最短路径树生成转发表"></a>11. 从最短路径树生成转发表</h2><p>Dijkstra 的输出是以当前路由器为根的最短路径树，但数据平面不需要保存每条完整路径。执行转发时，路由器最关心的是：</p>
+<blockquote>
+<p>要到达某个目的地，第一跳应该走哪个邻居？</p>
+</blockquote>
+<p>假设从 <code>u</code> 出发的最短路径结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>目的节点</th>
+<th>最短路径</th>
+<th><code>u</code> 的第一跳</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>v</code></td>
+<td><code>u → v</code></td>
+<td><code>v</code></td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td><code>u → x</code></td>
+<td><code>x</code></td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td><code>u → x → y</code></td>
+<td><code>x</code></td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td><code>u → x → w</code></td>
+<td><code>x</code></td>
+</tr>
+<tr>
+<td><code>z</code></td>
+<td><code>u → x → y → z</code></td>
+<td><code>x</code></td>
+</tr>
+</tbody></table>
+<p>则可以生成类似的转发表：</p>
+<table>
+<thead>
+<tr>
+<th>目的地</th>
+<th>输出链路或下一跳</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>v</code></td>
+<td><code>(u, v)</code></td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td><code>(u, x)</code></td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td><code>(u, x)</code></td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td><code>(u, x)</code></td>
+</tr>
+<tr>
+<td><code>z</code></td>
+<td><code>(u, x)</code></td>
+</tr>
+</tbody></table>
+<p>尽管到 <code>y</code>、<code>w</code>、<code>z</code> 的完整路径不同，但它们从 <code>u</code> 出发时都先经过 <code>x</code>，所以可以共享同一个下一跳。</p>
+<p>这说明最短路径树在控制平面与数据平面之间起到了转换作用：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[完整网络拓扑] --&gt; B[Dijkstra]
+    B --&gt; C[最短路径树]
+    C --&gt; D[提取各目的地第一跳]
+    D --&gt; E[转发表]
+  </pre></div>
+
+<p><strong>❗关键结论：</strong> 控制平面计算完整路径，但数据平面通常只需要知道下一跳或输出接口。</p>
+<hr>
+<h2 id="12-Dijkstra-与链路状态路由的复杂度"><a href="#12-Dijkstra-与链路状态路由的复杂度" class="headerlink" title="12. Dijkstra 与链路状态路由的复杂度"></a>12. Dijkstra 与链路状态路由的复杂度</h2><h3 id="12-1-算法复杂度"><a href="#12-1-算法复杂度" class="headerlink" title="12.1 算法复杂度"></a>12.1 算法复杂度</h3><p>如果网络中有 <code>n</code> 个节点，普通数组实现需要反复扫描所有未确定节点，选择当前 <code>D</code> 值最小者。</p>
+<p>总比较次数大致为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">n + (n - 1) + ... + 1</span><br></pre></td></tr></table></figure>
+
+<p>因此时间复杂度为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n²)</span><br></pre></td></tr></table></figure>
+
+<p>如果使用优先队列等更高效的数据结构，在合适的图表示下，复杂度可以降低到近似：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">O(n log n)</span><br></pre></td></tr></table></figure>
+
+<p>更严格的复杂度还会受到边数和具体数据结构影响，但核心思想是避免每轮线性扫描全部节点。</p>
+<h3 id="12-2-消息复杂度"><a href="#12-2-消息复杂度" class="headerlink" title="12.2 消息复杂度"></a>12.2 消息复杂度</h3><p>链路状态协议不仅有本地计算成本，还有控制信息传播成本。每台路由器都需要把自己的链路状态传播给其他路由器。</p>
+<p>在简单分析中：</p>
+<ul>
+<li>每个路由器产生链路状态信息；</li>
+<li>信息需要扩散到全网；</li>
+<li>整体控制消息量可达到约 <code>O(n²)</code> 的数量级。</li>
+</ul>
+<p>因此，链路状态路由的成本包括两个部分：</p>
+<ul>
+<li>Dijkstra 的本地计算成本；</li>
+<li>链路状态泛洪的通信成本。</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>LS 路由的开销不能只看 Dijkstra 的运行时间，还要考虑全网泛洪带来的控制消息成本。</p>
+<hr>
+<h2 id="13-三种“全局”与“集中”不能混淆"><a href="#13-三种“全局”与“集中”不能混淆" class="headerlink" title="13. 三种“全局”与“集中”不能混淆"></a>13. 三种“全局”与“集中”不能混淆</h2><p>本章中会同时出现“全局信息”“集中式算法”和“逻辑集中控制”等表述，但它们指向不同层面。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>实际含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LS 是全局信息算法</td>
+<td>每台路由器最终获得完整拓扑和链路代价</td>
+</tr>
+<tr>
+<td>Dijkstra 是集中式算法</td>
+<td>单次算法运行需要以完整图作为输入</td>
+</tr>
+<tr>
+<td>SDN 是逻辑集中控制平面</td>
+<td>网络控制逻辑由控制器统一管理</td>
+</tr>
+</tbody></table>
+<h3 id="13-1-LS-的全局信息"><a href="#13-1-LS-的全局信息" class="headerlink" title="13.1 LS 的全局信息"></a>13.1 LS 的全局信息</h3><p>LS 中可以没有唯一的中央计算节点。每台路由器通过泛洪获得全网信息，并分别运行算法。</p>
+<h3 id="13-2-Dijkstra-的集中式"><a href="#13-2-Dijkstra-的集中式" class="headerlink" title="13.2 Dijkstra 的集中式"></a>13.2 Dijkstra 的集中式</h3><p>这里的“集中式”描述算法需要完整输入，而不是描述算法一定在哪里执行。多台路由器可以分别运行 Dijkstra。</p>
+<h3 id="13-3-SDN-的逻辑集中"><a href="#13-3-SDN-的逻辑集中" class="headerlink" title="13.3 SDN 的逻辑集中"></a>13.3 SDN 的逻辑集中</h3><p>SDN 描述的是控制架构。路由和流表计算主要由控制器承担，网络设备侧主要负责执行。</p>
+<p><strong>❗关键区分：</strong> 信息是全局的、算法输入是集中的、控制架构是逻辑集中的，分别属于信息范围、算法模型和系统架构三个层面。</p>
+<hr>
+<h2 id="14-常见误区"><a href="#14-常见误区" class="headerlink" title="14. 常见误区"></a>14. 常见误区</h2><h3 id="14-1-路由器是否一开始就知道全网拓扑"><a href="#14-1-路由器是否一开始就知道全网拓扑" class="headerlink" title="14.1 路由器是否一开始就知道全网拓扑"></a>14.1 路由器是否一开始就知道全网拓扑</h3><p>不是。路由器最初只知道自己的邻居和本地链路。它必须通过链路状态泛洪逐渐收集其他路由器的信息，才能建立完整拓扑。</p>
+<h3 id="14-2-Dijkstra-是否只在中央服务器运行"><a href="#14-2-Dijkstra-是否只在中央服务器运行" class="headerlink" title="14.2 Dijkstra 是否只在中央服务器运行"></a>14.2 Dijkstra 是否只在中央服务器运行</h3><p>不是。只要每台路由器拥有完整的链路状态数据库，就可以分别以自己为源节点运行 Dijkstra。</p>
+<h3 id="14-3-链路状态分组是否属于用户数据"><a href="#14-3-链路状态分组是否属于用户数据" class="headerlink" title="14.3 链路状态分组是否属于用户数据"></a>14.3 链路状态分组是否属于用户数据</h3><p>不是。链路状态分组属于控制平面报文，目的是同步拓扑信息；用户 IP 数据报属于数据平面处理的对象。</p>
+<h3 id="14-4-Dijkstra-为什么得到一棵树"><a href="#14-4-Dijkstra-为什么得到一棵树" class="headerlink" title="14.4 Dijkstra 为什么得到一棵树"></a>14.4 Dijkstra 为什么得到一棵树</h3><p>因为从同一个源节点出发的多条最短路径往往共享前缀。把这些路径合并，就形成一棵以源节点为根的最短路径树。</p>
+<h3 id="14-5-D-v-与-p-v-是否相同"><a href="#14-5-D-v-与-p-v-是否相同" class="headerlink" title="14.5 D(v) 与 p(v) 是否相同"></a>14.5 <code>D(v)</code> 与 <code>p(v)</code> 是否相同</h3><p>二者用途不同：</p>
+<ul>
+<li><code>D(v)</code> 记录当前最低代价；</li>
+<li><code>p(v)</code> 记录路径中的前驱节点。</li>
+</ul>
+<p>没有 <code>D(v)</code>，无法比较路径长短；没有 <code>p(v)</code>，只能知道代价，不能恢复完整路径。</p>
+<h3 id="14-6-动态路由是否为每个分组重新算路"><a href="#14-6-动态路由是否为每个分组重新算路" class="headerlink" title="14.6 动态路由是否为每个分组重新算路"></a>14.6 动态路由是否为每个分组重新算路</h3><p>不是。动态路由根据拓扑变化、周期性通告或链路状态变化更新路由表。大量普通分组仍然直接查询现有转发表。</p>
+<hr>
+<h2 id="15-知识结构总览"><a href="#15-知识结构总览" class="headerlink" title="15. 知识结构总览"></a>15. 知识结构总览</h2><div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[网络层控制平面] --&gt; B[控制架构]
+    A --&gt; C[路由协议与算法]
+    A --&gt; D[路径计算]
+
+    B --&gt; B1[传统 per-router]
+    B --&gt; B2[SDN 逻辑集中]
+
+    C --&gt; C1[LS 链路状态]
+    C --&gt; C2[DV 距离向量]
+    C --&gt; C3[静态路由]
+    C --&gt; C4[动态路由]
+
+    D --&gt; D1[带权图 G &#x3D; N,E]
+    D1 --&gt; D2[链路代价]
+    D2 --&gt; D3[Dijkstra]
+    D3 --&gt; D4[最短路径树]
+    D4 --&gt; D5[路由表或转发表]
+  </pre></div>
+
+<p>这张图体现了本章的完整关系：</p>
+<ul>
+<li>控制平面决定网络路径；</li>
+<li>路由协议负责交换控制信息；</li>
+<li>LS 通过泛洪形成全局拓扑；</li>
+<li>Dijkstra 在拓扑上计算最短路径；</li>
+<li>最短路径树被转化为下一跳表项；</li>
+<li>数据平面依据表项完成实际转发。</li>
+</ul>
+<hr>
+<h2 id="16-复习清单"><a href="#16-复习清单" class="headerlink" title="16. 复习清单"></a>16. 复习清单</h2><p>完成本章学习后，应能够回答以下问题：</p>
+<ul>
+<li>数据平面与控制平面的核心区别是什么？</li>
+<li>为什么说转发是本地动作，而路由是全局动作？</li>
+<li>传统 per-router 控制平面与 SDN 控制平面有何区别？</li>
+<li>SDN 的“逻辑集中”为什么不等于只有一台服务器？</li>
+<li>路由协议中的“好路径”可以采用哪些衡量标准？</li>
+<li>为什么互联网路由通常面向网络前缀，而不是每台具体主机？</li>
+<li>路由协议、路由算法、路由表和转发分别承担什么职责？</li>
+<li>在图 <code>G = (N, E)</code> 中，<code>N</code>、<code>E</code> 和 <code>c(i, j)</code> 分别表示什么？</li>
+<li>如果两个节点不直接相连，链路代价应如何表示？</li>
+<li>什么是最短路径树？</li>
+<li>为什么路由算法不仅要考虑最优性，还要考虑稳定性和健壮性？</li>
+<li>LS 与 DV 在信息范围和计算方式上有何区别？</li>
+<li>静态路由与动态路由有何区别？</li>
+<li>LS 路由的五个基本步骤是什么？</li>
+<li>泛洪为什么可能产生广播风暴？</li>
+<li>Age 字段、序列号和确认机制分别解决什么问题？</li>
+<li>链路状态协议过程与 Dijkstra 算法有何区别？</li>
+<li><code>N&#39;</code>、<code>D(v)</code>、<code>p(v)</code> 和 <code>c(i, j)</code> 分别表示什么？</li>
+<li>为什么 Dijkstra 每轮选择当前 <code>D</code> 值最小的节点？</li>
+<li>更新公式 <code>D(v) = min(D(v), D(w) + c(w, v))</code> 表达了什么？</li>
+<li>如何通过前驱节点恢复完整最短路径？</li>
+<li>为什么多个不同目的地可能对应相同的下一跳？</li>
+<li>Dijkstra 的算法复杂度和 LS 泛洪的消息复杂度分别是什么？</li>
+<li>LS 的全局信息、Dijkstra 的集中式和 SDN 的逻辑集中有何不同？</li>
+</ul>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>网络层控制平面的根本任务，是为数据平面的高速转发提供正确、稳定且可更新的路径决策。</p>
+<p>链路状态路由通过邻居发现、代价测量、链路状态分组生成和可靠泛洪，使每台路由器逐步获得完整的网络拓扑。随后，每台路由器以自己为源节点运行 Dijkstra 算法，计算到其他节点的最低代价路径，并将最短路径树转化为目的地与下一跳之间的映射。</p>
+<p>因此，本章的完整逻辑可以压缩为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">局部链路状态</span><br><span class="line">    ↓</span><br><span class="line">全网拓扑数据库</span><br><span class="line">    ↓</span><br><span class="line">Dijkstra 最短路径计算</span><br><span class="line">    ↓</span><br><span class="line">最短路径树</span><br><span class="line">    ↓</span><br><span class="line">路由表或转发表</span><br><span class="line">    ↓</span><br><span class="line">数据平面逐跳转发</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗最终结论：</strong> 控制平面负责回答“应该走哪条路”，数据平面负责回答“当前这一跳从哪个端口出去”。LS 负责获得地图，Dijkstra 负责在地图上算路，转发表则把计算结果转化为路由器能够高速执行的下一跳决策。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/')">Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法&amp;url=http://example.com/2026/06/25/Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95/&amp;pic=/cover/dhalsim.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/23/%E7%AC%AC23%E8%AE%B2-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/marisa.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">第23讲 设备管理</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/25/Chapter-5-2%EF%BC%9A%E8%B7%9D%E7%A6%BB%E5%90%91%E9%87%8F%E8%B7%AF%E7%94%B1%E3%80%81Bellman-Ford-%E6%96%B9%E7%A8%8B%E4%B8%8E%E8%B7%AF%E7%94%B1%E7%8E%AF%E8%B7%AF/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ehonda.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 5-2：距离向量路由、Bellman-Ford 方程与路由环路</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-5-1%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%81%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E4%B8%8E-Dijkstra-%E7%AE%97%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">Chapter 5-1：网络层控制平面、链路状态路由与 Dijkstra 算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E8%BD%AC%E5%8F%91%E8%A1%A8%E6%98%AF%E6%80%8E%E6%A0%B7%E4%BA%A7%E7%94%9F%E7%9A%84"><span class="toc-number">1.1.</span> <span class="toc-text">引言：转发表是怎样产生的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E7%9A%84%E5%88%86%E5%B7%A5"><span class="toc-number">1.2.</span> <span class="toc-text">1. 控制平面与数据平面的分工</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E8%B4%9F%E8%B4%A3%E6%9C%AC%E5%9C%B0%E8%BD%AC%E5%8F%91"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1 数据平面负责本地转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E8%B4%9F%E8%B4%A3%E5%85%A8%E5%B1%80%E8%B7%AF%E5%BE%84%E5%86%B3%E7%AD%96"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2 控制平面负责全局路径决策</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%A4%E7%A7%8D%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E7%BB%84%E7%BB%87%E6%96%B9%E5%BC%8F"><span class="toc-number">1.3.</span> <span class="toc-text">2. 两种控制平面组织方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E4%BC%A0%E7%BB%9F%E7%9A%84-per-router-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1 传统的 per-router 控制平面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-SDN-%E7%9A%84%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2 SDN 的逻辑集中控制平面</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%B7%AF%E7%94%B1%E5%8D%8F%E8%AE%AE%E7%A9%B6%E7%AB%9F%E5%9C%A8%E8%AE%A1%E7%AE%97%E4%BB%80%E4%B9%88"><span class="toc-number">1.4.</span> <span class="toc-text">3. 路由协议究竟在计算什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E8%B7%AF%E5%BE%84%E4%B8%8E%E2%80%9C%E5%A5%BD%E8%B7%AF%E5%BE%84%E2%80%9D"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1 路径与“好路径”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%9A%E5%B8%B8%E8%AE%A1%E7%AE%97%E7%BD%91%E7%BB%9C%E5%88%B0%E7%BD%91%E7%BB%9C%E7%9A%84%E8%B7%AF%E5%BE%84"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2 为什么通常计算网络到网络的路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B0%86%E7%BD%91%E7%BB%9C%E6%8A%BD%E8%B1%A1%E4%B8%BA%E5%B8%A6%E6%9D%83%E5%9B%BE"><span class="toc-number">1.5.</span> <span class="toc-text">4. 将网络抽象为带权图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%9B%BE%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1 图模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9B%BE%E6%8A%BD%E8%B1%A1%E6%9C%89%E6%95%88"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2 为什么图抽象有效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E6%A0%91"><span class="toc-number">1.5.3.</span> <span class="toc-text">4.3 最短路径树</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%B7%AF%E7%94%B1%E7%AE%97%E6%B3%95%E5%BA%94%E6%BB%A1%E8%B6%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E8%A6%81%E6%B1%82"><span class="toc-number">1.6.</span> <span class="toc-text">5. 路由算法应满足的基本要求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%B7%AF%E7%94%B1%E7%AE%97%E6%B3%95%E7%9A%84%E4%B8%BB%E8%A6%81%E5%88%86%E7%B1%BB"><span class="toc-number">1.7.</span> <span class="toc-text">6. 路由算法的主要分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%8C%89%E6%8E%8C%E6%8F%A1%E7%9A%84%E4%BF%A1%E6%81%AF%E8%8C%83%E5%9B%B4%E5%88%86%E7%B1%BB"><span class="toc-number">1.7.1.</span> <span class="toc-text">6.1 按掌握的信息范围分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E6%8C%89%E9%80%82%E5%BA%94%E5%8F%98%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F%E5%88%86%E7%B1%BB"><span class="toc-number">1.7.2.</span> <span class="toc-text">6.2 按适应变化的方式分类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E7%9A%84%E5%AE%8C%E6%95%B4%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B"><span class="toc-number">1.8.</span> <span class="toc-text">7. 链路状态路由的完整工作过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">1.8.1.</span> <span class="toc-text">7.1 核心思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%8F%91%E7%8E%B0%E7%9B%B8%E9%82%BB%E8%8A%82%E7%82%B9"><span class="toc-number">1.8.2.</span> <span class="toc-text">7.2 第一步：发现相邻节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E6%B5%8B%E9%87%8F%E9%93%BE%E8%B7%AF%E4%BB%A3%E4%BB%B7"><span class="toc-number">1.8.3.</span> <span class="toc-text">7.3 第二步：测量链路代价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E7%94%9F%E6%88%90%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E5%88%86%E7%BB%84"><span class="toc-number">1.8.4.</span> <span class="toc-text">7.4 第三步：生成链路状态分组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E5%90%91%E5%85%A8%E7%BD%91%E6%B3%9B%E6%B4%AA"><span class="toc-number">1.8.5.</span> <span class="toc-text">7.5 第四步：向全网泛洪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9A%E8%AE%A1%E7%AE%97%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84"><span class="toc-number">1.8.6.</span> <span class="toc-text">7.6 第五步：计算最短路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%B3%9B%E6%B4%AA%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%8E%A7%E5%88%B6"><span class="toc-number">1.9.</span> <span class="toc-text">8. 泛洪为什么需要控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E6%97%A0%E6%8E%A7%E5%88%B6%E6%B3%9B%E6%B4%AA%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.9.1.</span> <span class="toc-text">8.1 无控制泛洪的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-Age-%E5%AD%97%E6%AE%B5"><span class="toc-number">1.9.2.</span> <span class="toc-text">8.2 Age 字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E5%BA%8F%E5%88%97%E5%8F%B7"><span class="toc-number">1.9.3.</span> <span class="toc-text">8.3 序列号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E5%8F%AF%E9%9D%A0%E6%B3%9B%E6%B4%AA"><span class="toc-number">1.9.4.</span> <span class="toc-text">8.4 可靠泛洪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-%E5%85%B8%E5%9E%8B%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.9.5.</span> <span class="toc-text">8.5 典型链路状态协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Dijkstra-%E7%AE%97%E6%B3%95%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="toc-number">1.10.</span> <span class="toc-text">9. Dijkstra 算法的基本思想</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E7%AE%97%E6%B3%95%E7%9B%AE%E6%A0%87"><span class="toc-number">1.10.1.</span> <span class="toc-text">9.1 算法目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E5%B8%B8%E7%94%A8%E7%AC%A6%E5%8F%B7"><span class="toc-number">1.10.2.</span> <span class="toc-text">9.2 常用符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.10.3.</span> <span class="toc-text">9.3 初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-%E8%BF%AD%E4%BB%A3%E8%BF%87%E7%A8%8B"><span class="toc-number">1.10.4.</span> <span class="toc-text">9.4 迭代过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-5-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%AF%8F%E6%AC%A1%E9%80%89%E6%8B%A9%E6%9C%80%E5%B0%8F%E7%9A%84%E4%B8%B4%E6%97%B6%E8%8A%82%E7%82%B9"><span class="toc-number">1.10.5.</span> <span class="toc-text">9.5 为什么每次选择最小的临时节点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E5%A6%82%E4%BD%95%E9%98%85%E8%AF%BB-Dijkstra-%E8%AE%A1%E7%AE%97%E8%A1%A8"><span class="toc-number">1.11.</span> <span class="toc-text">10. 如何阅读 Dijkstra 计算表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-0%EF%BC%9A%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">1.11.1.</span> <span class="toc-text">Step 0：初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E7%BB%AD%E6%AD%A5%E9%AA%A4%EF%BC%9A%E9%80%89%E6%8B%A9%E4%B8%8E%E6%9B%B4%E6%96%B0"><span class="toc-number">1.11.2.</span> <span class="toc-text">后续步骤：选择与更新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%8D%AE%E5%89%8D%E9%A9%B1%E6%81%A2%E5%A4%8D%E8%B7%AF%E5%BE%84"><span class="toc-number">1.11.3.</span> <span class="toc-text">根据前驱恢复路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E4%BB%8E%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E6%A0%91%E7%94%9F%E6%88%90%E8%BD%AC%E5%8F%91%E8%A1%A8"><span class="toc-number">1.12.</span> <span class="toc-text">11. 从最短路径树生成转发表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-Dijkstra-%E4%B8%8E%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1%E7%9A%84%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">1.13.</span> <span class="toc-text">12. Dijkstra 与链路状态路由的复杂度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E7%AE%97%E6%B3%95%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">1.13.1.</span> <span class="toc-text">12.1 算法复杂度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-%E6%B6%88%E6%81%AF%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">1.13.2.</span> <span class="toc-text">12.2 消息复杂度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E4%B8%89%E7%A7%8D%E2%80%9C%E5%85%A8%E5%B1%80%E2%80%9D%E4%B8%8E%E2%80%9C%E9%9B%86%E4%B8%AD%E2%80%9D%E4%B8%8D%E8%83%BD%E6%B7%B7%E6%B7%86"><span class="toc-number">1.14.</span> <span class="toc-text">13. 三种“全局”与“集中”不能混淆</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-LS-%E7%9A%84%E5%85%A8%E5%B1%80%E4%BF%A1%E6%81%AF"><span class="toc-number">1.14.1.</span> <span class="toc-text">13.1 LS 的全局信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-Dijkstra-%E7%9A%84%E9%9B%86%E4%B8%AD%E5%BC%8F"><span class="toc-number">1.14.2.</span> <span class="toc-text">13.2 Dijkstra 的集中式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-SDN-%E7%9A%84%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD"><span class="toc-number">1.14.3.</span> <span class="toc-text">13.3 SDN 的逻辑集中</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="toc-number">1.15.</span> <span class="toc-text">14. 常见误区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E8%B7%AF%E7%94%B1%E5%99%A8%E6%98%AF%E5%90%A6%E4%B8%80%E5%BC%80%E5%A7%8B%E5%B0%B1%E7%9F%A5%E9%81%93%E5%85%A8%E7%BD%91%E6%8B%93%E6%89%91"><span class="toc-number">1.15.1.</span> <span class="toc-text">14.1 路由器是否一开始就知道全网拓扑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-Dijkstra-%E6%98%AF%E5%90%A6%E5%8F%AA%E5%9C%A8%E4%B8%AD%E5%A4%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%90%E8%A1%8C"><span class="toc-number">1.15.2.</span> <span class="toc-text">14.2 Dijkstra 是否只在中央服务器运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E5%88%86%E7%BB%84%E6%98%AF%E5%90%A6%E5%B1%9E%E4%BA%8E%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE"><span class="toc-number">1.15.3.</span> <span class="toc-text">14.3 链路状态分组是否属于用户数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-Dijkstra-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BE%97%E5%88%B0%E4%B8%80%E6%A3%B5%E6%A0%91"><span class="toc-number">1.15.4.</span> <span class="toc-text">14.4 Dijkstra 为什么得到一棵树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-5-D-v-%E4%B8%8E-p-v-%E6%98%AF%E5%90%A6%E7%9B%B8%E5%90%8C"><span class="toc-number">1.15.5.</span> <span class="toc-text">14.5 D(v) 与 p(v) 是否相同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-6-%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%E6%98%AF%E5%90%A6%E4%B8%BA%E6%AF%8F%E4%B8%AA%E5%88%86%E7%BB%84%E9%87%8D%E6%96%B0%E7%AE%97%E8%B7%AF"><span class="toc-number">1.15.6.</span> <span class="toc-text">14.6 动态路由是否为每个分组重新算路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E7%9F%A5%E8%AF%86%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">1.16.</span> <span class="toc-text">15. 知识结构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-%E5%A4%8D%E4%B9%A0%E6%B8%85%E5%8D%95"><span class="toc-number">1.17.</span> <span class="toc-text">16. 复习清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.18.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-2：从密码学工具到网络纵深防御"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御">Chapter 8-2：从密码学工具到网络纵深防御</a><time datetime="2026-06-25T15:06:24.000Z" title="Created 2026-06-25 23:06:24">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</a><time datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:05:27.000Z" title="Created 2026-06-25 23:05:27">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</a><time datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

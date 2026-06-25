@@ -1,0 +1,1443 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 6-2：MAC 地址、ARP、以太网与交换机 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 6-2：MAC 地址、ARP、以太网与交换机"><meta name="application-name" content="Chapter 6-2：MAC 地址、ARP、以太网与交换机"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 6-2：MAC 地址、ARP、以太网与交换机"><meta property="og:url" content="http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 6-2：MAC 地址、ARP、以太网与交换机引言：IP 数据报如何真正到达下一台设备网络层可以根据目的 IP 地址选择路径，但路径选择本身并不能让数据直接出现在下一台设备中。数据报每经过一条具体链路，都必须先被封装成链路层帧，再由网卡、交换机和传输介质完成实际交付。 这就产生了几个相"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/marisa.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/marisa.png"><meta name="description" content="Chapter 6-2：MAC 地址、ARP、以太网与交换机引言：IP 数据报如何真正到达下一台设备网络层可以根据目的 IP 地址选择路径，但路径选择本身并不能让数据直接出现在下一台设备中。数据报每经过一条具体链路，都必须先被封装成链路层帧，再由网卡、交换机和传输介质完成实际交付。 这就产生了几个相"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 6-2：MAC 地址、ARP、以太网与交换机',
+  postAI: '',
+  pageFillDescription: 'Chapter 6-2：MAC 地址、ARP、以太网与交换机, 引言：IP 数据报如何真正到达下一台设备, 1. 为什么同时需要 IP 地址和 MAC 地址, 1.1 IP 地址解决全网路径问题, 1.2 MAC 地址解决当前链路的交付问题, 1.3 为什么不能只使用 MAC 地址, 1.4 为什么不能只使用 IP 地址, 1.5 身份与位置的类比, 2. 地址绑定在接口而不是抽象地绑定在设备上, 3. ARP：从 IP 地址找到 MAC 地址, 3.1 ARP 表, 3.2 ARP 查询过程, 3.3 为什么 ARP 请求使用广播, 3.4 为什么 ARP 回复通常可以单播, 3.5 ARP 与 DNS 的区别, 4. 同一局域网中的通信, 5. 跨局域网通信：目的 MAC 为什么是网关, 5.1 第一跳的地址, 5.2 路由器收到帧后做什么, 5.3 每一跳中的地址变化, 6. 以太网：局域网中的具体链路层技术, 6.1 以太网帧结构, 6.2 Type 字段, 6.3 前同步码, 6.4 CRC 与不可靠服务, 7. 从共享以太网到交换式以太网, 8. 交换机为什么对主机透明, 8.1 主机不需要知道什么, 8.2 交换机如何做到透明, 8.3 透明不等于没有影响, 9. 交换机的自学习机制, 9.1 为什么学习源 MAC 地址, 9.2 表项为什么需要过期, 9.3 多台主机可以对应同一端口, 10. 过滤、转发与泛洪, 10.1 转发, 10.2 过滤, 10.3 泛洪, 10.4 三种行为的直观区别, 11. 泛洪与广播的区别, 12. ARP 表与交换表不能混淆, 13. 交换机与路由器的区别, 13.1 为什么路由器不是透明的交换设备, 13.2 两者如何协同, 14. 一次完整的跨网络通信过程, 14.1 获得目的 IP, 14.2 判断是否位于本地子网, 14.3 获得网关 MAC 地址, 14.4 构造第一跳帧, 14.5 交换机转发, 14.6 路由器处理, 14.7 到达目标网络, 15. 常见理解误区, 15.1 目的 IP 是 B所以目的 MAC 也一定是 B, 15.2 ARP 可以解析互联网中任意主机的 MAC 地址, 15.3 MAC 地址可以代替 IP 地址进行互联网路由, 15.4 交换机根据源 MAC 决定往哪里转发, 15.5 交换机泛洪时会把目的地址改成广播地址, 15.6 过滤表示帧发生错误, 15.7 以太网具有 CRC所以能够保证可靠交付, 15.8 交换机透明意味着交换机没有地址, 结论地址以太网与交换机引言数据报如何真正到达下一台设备网络层可以根据目的地址选择路径但路径选择本身并不能让数据直接出现在下一台设备中数据报每经过一条具体链路都必须先被封装成链路层帧再由网卡交换机和传输介质完成实际交付这就产生了几个相互关联的问题已知目的地址后为什么还需要目的地址发送方如何找到下一跳接口的地址数据报跨越路由器时哪些地址会变化交换机如何知道帧应当从哪个端口发出为什么主机通常不需要知道交换机的存在这一节的核心主线可以概括为网络层确定下一跳获得下一跳地址以太网封装链路层帧交换机根据地址转发帧到达下一跳接口地址负责描述网络层位置地址负责完成当前链路上的接口交付则负责连接这两个地址体系本节核心结论一个数据报在每一跳上都要装入新的链路层帧地址维持端到端意义而地址服务于当前链路上的具体交付为什么同时需要地址和地址地址和地址看起来都在标识网络设备但它们解决的并不是同一个问题地址所属层次主要作用地址网络层描述接口在网络中的逻辑位置支持跨网络路由地址链路层标识当前链路上的接口支持帧的一跳交付地址解决全网路径问题地址具有层次结构以地址和子网前缀为例地址的一部分表示网络另一部分表示该网络中的接口路由器不需要为互联网中的每个接口保存一条独立记录而可以按照地址前缀聚合路由例如一条路由表项可以表示所有目的地址属于的分组都从某个接口转发这种结构使网络能够逐层组织和扩展地址可以类比为通信地址国家城市学校建筑房间路由器可以先根据较大的地址范围决定方向再逐步接近目标网络地址解决当前链路的交付问题地址是链路层接口使用的地址以太网地址通常为常以十六进制形式表示例如在一条以太网链路上发送方必须在帧中写入目的地址使网卡和交换机知道该帧要交给哪个接口地址更接近接口的身份标识它本身通常不携带明确的网络位置结构不能像前缀那样直接用于大规模分层路由为什么不能只使用地址假设整个互联网只使用平面的地址路由器将很难根据地址判断一个接口属于哪个网络一组地址是否可以聚合到达某个地址应选择哪条分层路径由于缺少类似网络前缀的结构路由设备可能需要记录大量具体接口的位置转发表规模和网络管理复杂度都会显著增加因此地址适合当前链路中的局部交付却不适合作为互联网范围内的主要路由地址为什么不能只使用地址理论上可以设计一种仅依靠逻辑地址完成所有工作的网络但在现有分层体系中链路层需要有自己的封装寻址和转发机制链路层可能采用以太网或其他技术不同链路有自己的帧格式接口标识方式介质访问规则差错检测机制将链路层地址与网络层地址分离后网络层可以保持相对统一而底层链路技术可以独立变化同一个数据报可以先经过再经过以太网最后经过另一种链路而不需要让层直接处理每种物理网络的具体细节身份与位置的类比一种常见类比是地址接口是谁地址接口现在位于哪个网络也可以理解为地址身份标识地址通信地址不过这个类比只是帮助理解真正重要的是二者的协议分工而不是把地址理解为人的永久身份证两种地址并存的根本原因是网络层的全局路由问题与链路层的局部交付问题需要不同的地址结构本节核心结论地址必须具有适合路由和聚合的层次结构地址则服务于具体链路中的接口识别将二者分开有利于网络分层和底层技术独立演化地址绑定在接口而不是抽象地绑定在设备上讨论地址和地址时更准确的对象是网络接口一台普通主机可能同时具有一个有线以太网接口一个接口一个虚拟网络接口一个接口这些接口可以分别拥有不同的地址和链路层地址路由器通常拥有多个接口因为它需要连接多个不同网络每个接口也会拥有自己所在网络中的地址和地址因此不应简单地说一台计算机只有一个地址和一个地址更准确的说法是一个参与通信的网络接口通常具有对应的网络层地址和链路层地址这对于理解路由器尤其重要路由器收到一个帧时帧的目的地址指向的是路由器某个具体接口而不是笼统地指向整台路由器本节核心结论地址和地址主要标识网络接口一台主机或路由器可以拥有多个接口因此也可能拥有多个地址和地址从地址找到地址发送方的应用程序通常通过域名或地址指定通信对象但以太网帧必须填写目的地址因此发送方经常面临下面的状态已知下一跳地址但不知道下一跳地址即地址解析协议用于完成地址地址表主机和路由器会维护表其中保存近期学习到的与映射表项可以抽象表示为地址地址剩余有效时间例如地址地址状态动态动态表是一种缓存而不是永久可靠的数据库表项具有过期时间原因包括接口可能离开当前网络地址可能重新分配网卡可能更换网络拓扑或设备状态可能变化如果表项永久存在旧映射可能长期误导发送方查询过程假设主机要向同一局域网中的主机发送数据的的已知的但表中没有的地址整个过程如下查询本地表没有找到对应的地址构造请求请求使用以太网广播地址当前广播域中的所有接口都会收到该请求各接口检查请求中的目标地址只有拥有的需要回复把自己的地址发送给将映射写入表使用的地址构造真正的数据帧主机局域网主机查询表广播谁拥有的收到请求单播回复的缓存映射发送以太网数据帧为什么请求使用广播在发出查询时正是因为不知道的地址所以无法定向构造一个只发给的普通单播帧因此它只能询问当前广播域中的所有节点谁拥有这个地址广播地址表示该帧需要被当前广播域中的所有接口接收为什么回复通常可以单播收到请求后可以从请求内容中知道的地址的地址因此已经知道回复应该发给哪个地址没有必要再次广播这反映了广播和单播的不同使用场景不知道目标接口在哪里时需要广播查询已知目标地址后可以直接单播回复与的区别和都带有解析的含义但二者工作目标不同协议映射关系主要作用范围域名地址应用访问和互联网命名地址地址本地链路交付一次典型访问可能先后经历域名目的地址路由判断下一跳地址下一跳地址帮助应用找到目的帮助链路层找到下一跳接口本节核心结论是网络层寻址与链路层寻址之间的桥梁它通过广播请求和通常为单播的回复动态维护到的缓存映射同一局域网中的通信假设主机和主机位于同一个子网和以太网广播域中要发送的数据报包含源的目的的网络层根据目的和子网掩码判断位于本地子网不需要先经过路由器接下来通过获得的地址并构造以太网帧源的目的的载荷发给的数据报因此在同一局域网通信时字段对应对象目的最终目的主机目的最终目的主机的接口层和链路层在这一跳上指向同一个主机但二者仍然属于不同协议层主机目的目的交换机根据的转发主机交换机参与了帧的中间转发但在构造帧时仍然填写的而不是交换机的本节核心结论同一子网通信时发送方通过获得目标主机的地址并将帧直接寻址到目标主机接口跨局域网通信目的为什么是网关假设主机要向远端主机发送数据而二者不在同一个子网通过子网判断发现目的不属于本地子网因此不能在当前局域网中直接寻找的地址原因很简单链路层帧只能在当前链路或当前广播域中传播远端的接口并不位于当前连接的以太网中即使知道的地址这个帧也无法直接穿过路由器到达必须先把数据交给默认网关第一跳的地址创建的数据报源的目的的创建的第一跳以太网帧源的目的默认网关接口的载荷目的仍然是的数据报这里必须区分两个目的网络层目的仍然是远端主机当前链路目的则是第一跳路由器路由器收到帧后做什么默认网关收到帧后检查帧的目的确认该帧发给自己的接口验证帧的差错检测字段去掉原来的以太网头部和尾部取出内部数据报根据目的查询转发表选择输出接口和下一跳获得下一跳接口的地址创建一个新的链路层帧把原数据报封装进新帧并发送因此旧帧不会原封不动地穿过路由器每一跳中的地址变化假设路径为路由器路由器各跳的地址关系可以表示为链路源目的源目的入接口出接口入接口出接口在普通转发场景中源和目的通常保持端到端意义源和目的随链路变化每个路由器都拆除旧帧并创建新帧主机路由器路由器主机地址表示端到端通信关系地址表示当前一跳的发送接口和接收接口本节核心结论跨子网通信时发送方不会把第一帧直接寻址到远端主机而是寻址到默认网关路由器每经过一跳都会重新封装链路层帧以太网局域网中的具体链路层技术以太网是广泛使用的局域网技术它定义了以太网帧格式地址字段上层协议标识差错检测方式一系列物理介质和传输速率规范以太网并不是互联网本身而是互联网中承载数据报的一类链路层技术以太网帧结构典型以太网帧包含前同步码目的地址源地址类型字段数据载荷字段作用前同步码帮助接收方识别帧到来并进行同步目的地址标识当前链路上的接收接口源地址标识当前链路上的发送接口类型指出载荷应交给哪个上层协议数据通常承载数据报检测帧在传输中是否发生错误字段接收方从以太网帧中取出载荷后需要知道应把它交给哪个上层协议字段起到协议分用作用例如它可以表明载荷属于或其他协议其作用类似于这份数据接下来应交给哪个处理模块前同步码发送方和接收方的硬件时钟不可能天然完全一致接收方需要从输入信号中恢复节奏并判断有效帧即将开始前同步码用于帮助接收方进行比特级同步和帧起始识别与不可靠服务以太网帧尾部具有字段用于检测传输错误如果接收方发现校验不通过通常会丢弃该帧但是以太网依然被称为提供无连接不可靠的服务原因是发送帧前通常不建立链路层连接接收方不会为每个正确帧发送确认发现错误后通常只是丢弃基本以太网机制不保证发送方自动重传帧也可能因为缓存溢出等原因丢失因此能够检测错误能够保证可靠交付负责发现部分错误但不负责确认和恢复如果上层使用可以通过端到端确认和重传恢复缺失的数据如果上层协议本身不提供可靠性丢失可能直接反映到应用差错检测只说明以太网有能力识别部分损坏帧不代表以太网能够保证帧最终到达本节核心结论以太网定义了帧的组织和交付方式它通过检测错误但基本服务仍然是无连接不可靠的从共享以太网到交换式以太网早期总线型以太网中多台设备共享一条介质如果两台设备同时发送就可能发生冲突所有设备位于同一个较大的碰撞域中任一时刻通常只能有一个节点成功发送现代以太网通常采用星型拓扑主机主机交换机主机主机每台主机通过独立链路连接交换机交换机可以在不同端口之间同时转发多个互不冲突的帧这种结构带来的变化包括每条端口链路可以形成独立的通信范围多组主机可以同时通信带宽不再由所有节点完全共享传统共享介质中的碰撞问题显著减弱交换机并不是简单的信号放大设备它会读取帧头根据目的地址决定帧的去向本节核心结论交换式以太网将一个大的共享冲突环境拆分为多个独立链路使局域网能够进行更高效的并行通信交换机为什么对主机透明交换机对主机透明并不意味着交换机没有实际作用而是指普通主机在发送以太网帧时不需要把交换机当成协议中的目标节点也不需要知道交换机内部如何转发假设和连接在同一台交换机上构造帧时写入源目的不会写目的交换机请交换机再转发给交换机自动读取该帧的目的并决定从哪个端口发出从的协议视角看它像是在当前局域网中直接向发送帧主机不需要知道什么普通主机通常不需要知道局域网中有几台交换机每台交换机的端口编号交换表中保存了什么帧具体经过了哪些交换机交换机之间的内部转发路径主机只需要知道目标接口的地址交换机如何做到透明交换机依靠自学习自动建立转发表而不要求主机主动登记交换机收到帧后会观察源地址并记录该地址来自哪个端口因此主机不必发送特殊消息告诉交换机我的地址位于端口交换机通过正常数据流量自行推断透明不等于没有影响交换机虽然对主机的普通发送流程透明但仍然会影响实际转发性能网络拥塞广播传播划分安全策略链路故障后的路径透明只表示其存在不需要在普通主机的基本发送逻辑中显式体现透明的核心是主机不必把交换机当成通信终点也不必参与交换机的内部转发表维护本节核心结论主机只负责按目标地址发送帧交换机自动完成中间转发因此交换机在普通链路层通信中对主机表现为透明交换机的自学习机制交换机维护一张交换表也称地址表表项通常包含地址输出端口时间信息例如地址端口为什么学习源地址假设交换机从端口收到一个帧源目的交换机可以立即确定可以从端口到达因为这个帧确实是从端口进入的因此它记录端口交换机不能仅凭目的推断在哪里因为这个帧并不是从发来的所以自学习观察的是帧从哪个端口进入以及该帧的源是什么表项为什么需要过期主机可能被移动到另一个端口断开连接通过其他交换机路径出现更换网络拓扑如果旧表项永不过期交换机可能继续向错误端口转发因此动态学习的表项通常带有老化机制长时间没有再次观察到某个源后对应记录会被删除多台主机可以对应同一端口如果一个交换机端口连接的是另一台交换机那么远端的多台主机发送的帧都会从这个端口进入本地交换机可能学到端口端口端口这并不矛盾交换表表达的是要到达这些地址应当从端口的方向继续走它不要求一个端口只能对应一个主机本节核心结论交换机通过帧的源和输入端口学习网络位置交换表记录的是到达某个地址的方向而不一定是该主机直接连接的物理端口过滤转发与泛洪交换机收到一个帧后通常执行以下逻辑根据源学习或更新交换表使用目的查询交换表根据查询结果选择过滤转发或泛洪收到帧学习源与输入端口目的是否在交换表中否向除输入端口外的其他端口泛洪是目标端口是否等于输入端口是过滤不继续转发否仅向目标端口转发转发假设帧从端口进入目的为交换表中记录端口交换机知道位于端口的方向因此只把帧从端口发出这就是转发已知目标方向因此进行选择性定向发送交换机不需要把帧复制到其他无关端口从而减少局域网中的无效流量过滤假设帧从端口进入交换表显示目的端口这说明目标也位于输入端口对应的网络方向在共享网段的场景中帧已经在该网段上传播目标可以直接接收交换机无需再把它转发到其他端口因此交换机选择不继续转发这称为过滤过滤中的丢弃并不表示帧错误也不表示通信失败而是表示该帧没有必要通过交换机传播到其他端口泛洪如果交换表中没有目的的记录交换机不知道目标位于哪个方向为了使帧仍有机会到达目标交换机会将帧复制到除输入端口以外的其他端口这称为泛洪例如帧从端口进入交换机会发送到端口端口端口但不会再从端口原路发回当目标主机回复时交换机可以通过回复帧的源学习目标的位置之后再发送给该目标时就可以进行精确转发三种行为的直观区别行为交换机是否知道目标位置处理方式过滤知道且目标在输入端口方向不向其他端口传播转发知道且目标在另一端口方向只发往对应端口泛洪不知道除输入端口外全部发送可以压缩为过滤不用继续送转发知道往哪里送泛洪不知道只能多方向尝试过滤不是错误丢弃泛洪也不是普通广播它们都是交换机根据当前转发表状态采取的转发决策本节核心结论交换机知道目标在其他端口时执行转发知道目标在来路方向时执行过滤不知道目标位置时执行泛洪泛洪与广播的区别泛洪产生的外在效果和广播相似多个端口都会收到帧但二者的原因和地址含义不同对比项广播泛洪目的广播地址原来的单播目的发起原因发送方希望所有节点接收交换机不知道目标位置决策主体发送主机或上层协议交换机是否可能随学习减少广播仍需传播未知单播泛洪可因学习而减少例如请求使用目的地址这是广播帧交换机会把它转发到广播域中的其他端口因为发送方明确希望所有节点检查该请求而未知单播帧的目的可能是交换机只是暂时不知道这个地址在哪个端口因此进行泛洪帧的目的地址并没有变成广播地址本节核心结论广播是发送方明确面向所有节点的通信方式泛洪是交换机在未知目标位置时采取的临时转发策略表与交换表不能混淆表和交换表都会保存地址映射但它们位于不同设备中解决不同问题对比项表交换表常见所在位置主机路由器接口交换机映射关系端口解决的问题下一跳接口的是什么帧应从哪个端口转发建立方式请求和回复观察源自学习是否老化是是假设要给发送帧使用表确定的地址将的写入帧交换机使用交换表确定所在端口交换机将帧转发到该端口可以理解为主机使用表构造帧交换机使用交换表转发帧本节核心结论表帮助发送方回答目的是什么交换表帮助交换机回答这个应从哪个端口到达交换机与路由器的区别交换机和路由器都执行存储与转发但它们处理的协议层次和地址不同对比项交换机路由器主要层次链路层网络层处理单位帧数据报查看的主要地址目的目的使用的表交换表路由表转发表主要作用局域网内部连接和转发连接不同网络并选择下一跳是否重新封装帧通常转发原帧拆除旧帧并创建新帧对普通主机是否透明通常是通常作为明确的默认网关为什么路由器不是透明的交换设备当主机发现目的不在本地子网时必须明确选择默认网关作为下一跳第一帧的目的就是路由器接口的因此路由器在网络层意义上是主机明确知道的下一跳设备交换机不同主机通常不需要把交换机设置为下一跳也不会把普通数据帧寻址到交换机本身两者如何协同跨网络通信中两类设备可能连续工作主机以目的转发交换机将帧送到网关接口路由器根据目的选择下一网络另一侧交换机根据新的目的转发目的主机交换机负责在当前链路中传递帧路由器负责连接不同网络并重新开始下一跳链路层交付本节核心结论交换机根据地址在局域网内部转发帧路由器根据地址连接不同网络并在每一跳重新封装链路层帧一次完整的跨网络通信过程假设主机要访问远端主机获得目的如果应用使用域名首先通过获得的地址判断是否位于本地子网使用自己的地址和子网掩码判断是否属于本地子网由于位于远端网络决定把数据交给默认网关获得网关地址查询表如果没有默认网关对应的地址发送广播请求网关回复自己的地址将其写入缓存构造第一跳帧数据报源目的以太网帧源目的默认网关交换机转发接入交换机收到帧后学习的源查询网关如果已知则定向转发如果未知则暂时泛洪路由器处理网关收到帧后去除以太网封装检查目的地址查询转发表确定下一跳必要时通过获得下一跳创建新的链路层帧把同一个数据报继续发送到达目标网络最后一台路由器发现位于直连网络使用获得的并构造最后一跳帧源最后一台路由器目的源目的交换机最终把该帧交给主机接入交换机默认网关中间网络主机判断不在本地子网获取网关帧根据网关转发解封装并查询目的重新封装后逐跳转发最后一跳目的为本节核心结论跨网络通信是网络层逐跳决策与链路层逐跳封装共同完成的每一跳都可能使用新的地址和新的帧但数据报始终朝着相同的目的前进常见理解误区目的是所以目的也一定是错误只有位于当前链路时目的才是跨子网通信的第一跳中目的目的默认网关可以解析互联网中任意主机的地址错误主要作用于当前本地链路发送远端数据时主机解析的是默认网关的而不是远端主机的地址可以代替地址进行互联网路由错误地址通常缺少适合大规模路由聚合的层次结构主要用于当前链路内的交付交换机根据源决定往哪里转发不准确交换机使用源学习地址位置使用目的决定帧的转发方向交换机泛洪时会把目的地址改成广播地址错误未知单播泛洪不会修改原有目的只是将同一个帧复制到多个输出端口过滤表示帧发生错误错误过滤可能只是因为目标位于输入端口方向没有必要把帧继续传播到其他端口以太网具有所以能够保证可靠交付错误提供差错检测但基本以太网不会对每个帧确认也不会保证自动重传交换机透明意味着交换机没有地址错误交换机为了管理配置或运行某些控制协议可以拥有自己的地址透明只是表示普通数据帧不需要把交换机作为通信终点结论地址以太网和交换机共同完成了局域网中的链路层交付它们之间不是四个彼此独立的概念而是一条连续机制网络层根据目的判断最终位置和下一跳将下一跳解析为地址发送方把数据报封装进以太网帧交换机根据目的查询交换表交换机选择过滤转发或泛洪帧到达下一跳接口如果下一跳是路由器路由器拆除旧帧并为下一段链路重新封装其中最关键的地址规律是地址面向端到端的网络层通信地址面向当前一跳的链路层交付最关键的两张表是表交换表端口最关键的交换机决策是目标在来路方向过滤目标在其他已知端口转发目标位置未知泛洪最终核心结论地址使数据能够在多个网络之间寻找方向地址使数据能够在每一条具体链路上到达下一接口和交换机则分别完成地址解析与帧转发',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-25 23:05:18',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">46</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 6-2：MAC 地址、ARP、以太网与交换机</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:18.000Z" title="Created 2026-06-25 23:05:18">2026-06-25</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:18.551Z" title="Updated 2026-06-25 23:05:18">2026-06-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">8.8k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>28min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/marisa.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 6-2：MAC 地址、ARP、以太网与交换机</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:18.000Z" title="Created 2026-06-25 23:05:18">2026-06-25</time><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:18.551Z" title="Updated 2026-06-25 23:05:18">2026-06-25</time></header><h1 id="Chapter-6-2：MAC-地址、ARP、以太网与交换机"><a href="#Chapter-6-2：MAC-地址、ARP、以太网与交换机" class="headerlink" title="Chapter 6-2：MAC 地址、ARP、以太网与交换机"></a>Chapter 6-2：MAC 地址、ARP、以太网与交换机</h1><h2 id="引言：IP-数据报如何真正到达下一台设备"><a href="#引言：IP-数据报如何真正到达下一台设备" class="headerlink" title="引言：IP 数据报如何真正到达下一台设备"></a>引言：IP 数据报如何真正到达下一台设备</h2><p>网络层可以根据目的 IP 地址选择路径，但路径选择本身并不能让数据直接出现在下一台设备中。数据报每经过一条具体链路，都必须先被封装成链路层帧，再由网卡、交换机和传输介质完成实际交付。</p>
+<p>这就产生了几个相互关联的问题：</p>
+<ul>
+<li>已知目的 IP 地址后，为什么还需要目的 MAC 地址？</li>
+<li>发送方如何找到下一跳接口的 MAC 地址？</li>
+<li>IP 数据报跨越路由器时，哪些地址会变化？</li>
+<li>交换机如何知道帧应当从哪个端口发出？</li>
+<li>为什么主机通常不需要知道交换机的存在？</li>
+</ul>
+<p>这一节的核心主线可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">网络层确定下一跳</span><br><span class="line">        ↓</span><br><span class="line">ARP 获得下一跳 MAC 地址</span><br><span class="line">        ↓</span><br><span class="line">以太网封装链路层帧</span><br><span class="line">        ↓</span><br><span class="line">交换机根据 MAC 地址转发</span><br><span class="line">        ↓</span><br><span class="line">帧到达下一跳接口</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗ IP 地址负责描述网络层位置，MAC 地址负责完成当前链路上的接口交付，ARP 则负责连接这两个地址体系。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>一个 IP 数据报在每一跳上都要装入新的链路层帧。IP 地址维持端到端意义，而 MAC 地址服务于当前链路上的具体交付。</p>
+<hr>
+<h2 id="1-为什么同时需要-IP-地址和-MAC-地址"><a href="#1-为什么同时需要-IP-地址和-MAC-地址" class="headerlink" title="1. 为什么同时需要 IP 地址和 MAC 地址"></a>1. 为什么同时需要 IP 地址和 MAC 地址</h2><p>IP 地址和 MAC 地址看起来都在标识网络设备，但它们解决的并不是同一个问题。</p>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>所属层次</th>
+<th>主要作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IP 地址</td>
+<td>网络层</td>
+<td>描述接口在网络中的逻辑位置，支持跨网络路由</td>
+</tr>
+<tr>
+<td>MAC 地址</td>
+<td>链路层</td>
+<td>标识当前链路上的接口，支持帧的一跳交付</td>
+</tr>
+</tbody></table>
+<h3 id="1-1-IP-地址解决全网路径问题"><a href="#1-1-IP-地址解决全网路径问题" class="headerlink" title="1.1 IP 地址解决全网路径问题"></a>1.1 IP 地址解决全网路径问题</h3><p>IP 地址具有层次结构。以 IPv4 地址和子网前缀为例，地址的一部分表示网络，另一部分表示该网络中的接口。</p>
+<p>路由器不需要为互联网中的每个接口保存一条独立记录，而可以按照地址前缀聚合路由。</p>
+<p>例如，一条路由表项可以表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">所有目的地址属于 192.168.10.0/24 的分组，都从某个接口转发</span><br></pre></td></tr></table></figure>
+
+<p>这种结构使网络能够逐层组织和扩展。</p>
+<p>IP 地址可以类比为通信地址：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">国家 → 城市 → 学校 → 建筑 → 房间</span><br></pre></td></tr></table></figure>
+
+<p>路由器可以先根据较大的地址范围决定方向，再逐步接近目标网络。</p>
+<h3 id="1-2-MAC-地址解决当前链路的交付问题"><a href="#1-2-MAC-地址解决当前链路的交付问题" class="headerlink" title="1.2 MAC 地址解决当前链路的交付问题"></a>1.2 MAC 地址解决当前链路的交付问题</h3><p>MAC 地址是链路层接口使用的地址。以太网 MAC 地址通常为 48 bit，常以十六进制形式表示，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1A-2F-BB-76-09-AD</span><br></pre></td></tr></table></figure>
+
+<p>在一条以太网链路上，发送方必须在帧中写入目的 MAC 地址，使网卡和交换机知道该帧要交给哪个接口。</p>
+<p>MAC 地址更接近接口的身份标识。它本身通常不携带明确的网络位置结构，不能像 IP 前缀那样直接用于大规模分层路由。</p>
+<h3 id="1-3-为什么不能只使用-MAC-地址"><a href="#1-3-为什么不能只使用-MAC-地址" class="headerlink" title="1.3 为什么不能只使用 MAC 地址"></a>1.3 为什么不能只使用 MAC 地址</h3><p>假设整个互联网只使用平面的 MAC 地址，路由器将很难根据地址判断：</p>
+<ul>
+<li>一个接口属于哪个网络；</li>
+<li>一组地址是否可以聚合；</li>
+<li>到达某个地址应选择哪条分层路径。</li>
+</ul>
+<p>由于缺少类似 IP 网络前缀的结构，路由设备可能需要记录大量具体接口的位置，转发表规模和网络管理复杂度都会显著增加。</p>
+<p>因此，MAC 地址适合当前链路中的局部交付，却不适合作为互联网范围内的主要路由地址。</p>
+<h3 id="1-4-为什么不能只使用-IP-地址"><a href="#1-4-为什么不能只使用-IP-地址" class="headerlink" title="1.4 为什么不能只使用 IP 地址"></a>1.4 为什么不能只使用 IP 地址</h3><p>理论上可以设计一种仅依靠逻辑地址完成所有工作的网络，但在现有分层体系中，链路层需要有自己的封装、寻址和转发机制。</p>
+<p>链路层可能采用以太网、Wi-Fi 或其他技术。不同链路有自己的：</p>
+<ul>
+<li>帧格式；</li>
+<li>接口标识方式；</li>
+<li>介质访问规则；</li>
+<li>差错检测机制。</li>
+</ul>
+<p>将链路层地址与网络层地址分离后，网络层可以保持相对统一，而底层链路技术可以独立变化。</p>
+<p>同一个 IP 数据报可以先经过 Wi-Fi，再经过以太网，最后经过另一种链路，而不需要让 IP 层直接处理每种物理网络的具体细节。</p>
+<h3 id="1-5-身份与位置的类比"><a href="#1-5-身份与位置的类比" class="headerlink" title="1.5 身份与位置的类比"></a>1.5 身份与位置的类比</h3><p>一种常见类比是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MAC 地址：接口是谁</span><br><span class="line">IP 地址：接口现在位于哪个网络</span><br></pre></td></tr></table></figure>
+
+<p>也可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MAC 地址 ≈ 身份标识</span><br><span class="line">IP 地址 ≈ 通信地址</span><br></pre></td></tr></table></figure>
+
+<p>不过，这个类比只是帮助理解。真正重要的是二者的协议分工，而不是把 MAC 地址理解为人的永久身份证。</p>
+<p><strong>❗ 两种地址并存的根本原因，是网络层的全局路由问题与链路层的局部交付问题需要不同的地址结构。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>IP 地址必须具有适合路由和聚合的层次结构；MAC 地址则服务于具体链路中的接口识别。将二者分开，有利于网络分层和底层技术独立演化。</p>
+<hr>
+<h2 id="2-地址绑定在接口，而不是抽象地绑定在设备上"><a href="#2-地址绑定在接口，而不是抽象地绑定在设备上" class="headerlink" title="2. 地址绑定在接口，而不是抽象地绑定在设备上"></a>2. 地址绑定在接口，而不是抽象地绑定在设备上</h2><p>讨论 IP 地址和 MAC 地址时，更准确的对象是网络接口。</p>
+<p>一台普通主机可能同时具有：</p>
+<ul>
+<li>一个有线以太网接口；</li>
+<li>一个 Wi-Fi 接口；</li>
+<li>一个虚拟网络接口；</li>
+<li>一个 VPN 接口。</li>
+</ul>
+<p>这些接口可以分别拥有不同的 IP 地址和链路层地址。</p>
+<p>路由器通常拥有多个接口，因为它需要连接多个不同网络。每个接口也会拥有自己所在网络中的 IP 地址和 MAC 地址。</p>
+<p>因此，不应简单地说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一台计算机只有一个 IP 地址和一个 MAC 地址</span><br></pre></td></tr></table></figure>
+
+<p>更准确的说法是：</p>
+<blockquote>
+<p>一个参与 IP 通信的网络接口通常具有对应的网络层地址和链路层地址。</p>
+</blockquote>
+<p>这对于理解路由器尤其重要。路由器收到一个帧时，帧的目的 MAC 地址指向的是路由器某个具体接口，而不是笼统地指向“整台路由器”。</p>
+<hr>
+<p>❗ 本节核心结论：<br>IP 地址和 MAC 地址主要标识网络接口。一台主机或路由器可以拥有多个接口，因此也可能拥有多个 IP 地址和 MAC 地址。</p>
+<hr>
+<h2 id="3-ARP：从-IP-地址找到-MAC-地址"><a href="#3-ARP：从-IP-地址找到-MAC-地址" class="headerlink" title="3. ARP：从 IP 地址找到 MAC 地址"></a>3. ARP：从 IP 地址找到 MAC 地址</h2><p>发送方的应用程序通常通过域名或 IP 地址指定通信对象，但以太网帧必须填写目的 MAC 地址。</p>
+<p>因此，发送方经常面临下面的状态：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">已知下一跳 IP 地址</span><br><span class="line">但不知道下一跳 MAC 地址</span><br></pre></td></tr></table></figure>
+
+<p>ARP 即 Address Resolution Protocol，地址解析协议，用于完成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IP 地址 → MAC 地址</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-ARP-表"><a href="#3-1-ARP-表" class="headerlink" title="3.1 ARP 表"></a>3.1 ARP 表</h3><p>主机和路由器会维护 ARP 表，其中保存近期学习到的 IP 与 MAC 映射。</p>
+<p>表项可以抽象表示为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;IP 地址，MAC 地址，剩余有效时间&gt;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>IP 地址</th>
+<th>MAC 地址</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.1.1</td>
+<td>AA-AA-AA-AA-AA-AA</td>
+<td>动态</td>
+</tr>
+<tr>
+<td>192.168.1.20</td>
+<td>BB-BB-BB-BB-BB-BB</td>
+<td>动态</td>
+</tr>
+</tbody></table>
+<p>ARP 表是一种缓存，而不是永久可靠的数据库。</p>
+<p>表项具有过期时间，原因包括：</p>
+<ul>
+<li>接口可能离开当前网络；</li>
+<li>IP 地址可能重新分配；</li>
+<li>网卡可能更换；</li>
+<li>网络拓扑或设备状态可能变化。</li>
+</ul>
+<p>如果表项永久存在，旧映射可能长期误导发送方。</p>
+<h3 id="3-2-ARP-查询过程"><a href="#3-2-ARP-查询过程" class="headerlink" title="3.2 ARP 查询过程"></a>3.2 ARP 查询过程</h3><p>假设主机 A 要向同一局域网中的主机 B 发送数据：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A 的 IP：192.168.1.10</span><br><span class="line">B 的 IP：192.168.1.20</span><br></pre></td></tr></table></figure>
+
+<p>A 已知 B 的 IP，但 ARP 表中没有 B 的 MAC 地址。</p>
+<p>整个过程如下：</p>
+<ol>
+<li>A 查询本地 ARP 表。</li>
+<li>A 没有找到 <code>192.168.1.20</code> 对应的 MAC 地址。</li>
+<li>A 构造 ARP 请求。</li>
+<li>ARP 请求使用以太网广播地址：</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FF-FF-FF-FF-FF-FF</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>当前广播域中的所有接口都会收到该请求。</li>
+<li>各接口检查请求中的目标 IP 地址。</li>
+<li>只有拥有 <code>192.168.1.20</code> 的 B 需要回复。</li>
+<li>B 把自己的 MAC 地址发送给 A。</li>
+<li>A 将映射写入 ARP 表。</li>
+<li>A 使用 B 的 MAC 地址构造真正的数据帧。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant A as 主机 A
+    participant LAN as 局域网
+    participant B as 主机 B
+
+    A-&gt;&gt;A: 查询 ARP 表
+    A-&gt;&gt;LAN: 广播：谁拥有 B 的 IP？
+    LAN-&gt;&gt;B: B 收到 ARP 请求
+    B-&gt;&gt;A: 单播回复 B 的 MAC
+    A-&gt;&gt;A: 缓存 IP-MAC 映射
+    A-&gt;&gt;B: 发送以太网数据帧
+  </pre></div>
+
+<h3 id="3-3-为什么-ARP-请求使用广播"><a href="#3-3-为什么-ARP-请求使用广播" class="headerlink" title="3.3 为什么 ARP 请求使用广播"></a>3.3 为什么 ARP 请求使用广播</h3><p>A 在发出查询时，正是因为不知道 B 的 MAC 地址，所以无法定向构造一个只发给 B 的普通单播帧。</p>
+<p>因此，它只能询问当前广播域中的所有节点：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">谁拥有这个 IP 地址？</span><br></pre></td></tr></table></figure>
+
+<p>广播地址表示该帧需要被当前广播域中的所有接口接收。</p>
+<h3 id="3-4-为什么-ARP-回复通常可以单播"><a href="#3-4-为什么-ARP-回复通常可以单播" class="headerlink" title="3.4 为什么 ARP 回复通常可以单播"></a>3.4 为什么 ARP 回复通常可以单播</h3><p>B 收到 ARP 请求后，可以从请求内容中知道：</p>
+<ul>
+<li>A 的 IP 地址；</li>
+<li>A 的 MAC 地址。</li>
+</ul>
+<p>因此，B 已经知道回复应该发给哪个 MAC 地址，没有必要再次广播。</p>
+<p>这反映了广播和单播的不同使用场景：</p>
+<ul>
+<li>不知道目标接口在哪里时，需要广播查询；</li>
+<li>已知目标 MAC 地址后，可以直接单播回复。</li>
+</ul>
+<h3 id="3-5-ARP-与-DNS-的区别"><a href="#3-5-ARP-与-DNS-的区别" class="headerlink" title="3.5 ARP 与 DNS 的区别"></a>3.5 ARP 与 DNS 的区别</h3><p>ARP 和 DNS 都带有“解析”的含义，但二者工作目标不同。</p>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>映射关系</th>
+<th>主要作用范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DNS</td>
+<td>域名 → IP 地址</td>
+<td>应用访问和互联网命名</td>
+</tr>
+<tr>
+<td>ARP</td>
+<td>IP 地址 → MAC 地址</td>
+<td>IPv4 本地链路交付</td>
+</tr>
+</tbody></table>
+<p>一次典型访问可能先后经历：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">域名</span><br><span class="line">  ↓ DNS</span><br><span class="line">目的 IP 地址</span><br><span class="line">  ↓ 路由判断</span><br><span class="line">下一跳 IP 地址</span><br><span class="line">  ↓ ARP</span><br><span class="line">下一跳 MAC 地址</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗ DNS 帮助应用找到目的 IP，ARP 帮助链路层找到下一跳接口。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>ARP 是网络层寻址与链路层寻址之间的桥梁。它通过广播请求和通常为单播的回复，动态维护 IP 到 MAC 的缓存映射。</p>
+<hr>
+<h2 id="4-同一局域网中的通信"><a href="#4-同一局域网中的通信" class="headerlink" title="4. 同一局域网中的通信"></a>4. 同一局域网中的通信</h2><p>假设主机 A 和主机 B 位于同一个 IP 子网和以太网广播域中。</p>
+<p>A 要发送的数据报包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">源 IP：A 的 IP</span><br><span class="line">目的 IP：B 的 IP</span><br></pre></td></tr></table></figure>
+
+<p>网络层根据目的 IP 和子网掩码判断：B 位于本地子网，不需要先经过路由器。</p>
+<p>A 接下来通过 ARP 获得 B 的 MAC 地址，并构造以太网帧：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">源 MAC：A 的 MAC</span><br><span class="line">目的 MAC：B 的 MAC</span><br><span class="line">载荷：发给 B 的 IP 数据报</span><br></pre></td></tr></table></figure>
+
+<p>因此，在同一局域网通信时：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>对应对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目的 IP</td>
+<td>最终目的主机 B</td>
+</tr>
+<tr>
+<td>目的 MAC</td>
+<td>最终目的主机 B 的接口</td>
+</tr>
+</tbody></table>
+<p>IP 层和链路层在这一跳上指向同一个主机，但二者仍然属于不同协议层。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[主机 A] --&gt;|目的 IP&#x3D;B&lt;br&#x2F;&gt;目的 MAC&#x3D;B| SW[交换机]
+    SW --&gt;|根据 B 的 MAC 转发| B[主机 B]
+  </pre></div>
+
+<p>交换机参与了帧的中间转发，但 A 在构造帧时仍然填写 B 的 MAC，而不是交换机的 MAC。</p>
+<hr>
+<p>❗ 本节核心结论：<br>同一子网通信时，发送方通过 ARP 获得目标主机的 MAC 地址，并将帧直接寻址到目标主机接口。</p>
+<hr>
+<h2 id="5-跨局域网通信：目的-MAC-为什么是网关"><a href="#5-跨局域网通信：目的-MAC-为什么是网关" class="headerlink" title="5. 跨局域网通信：目的 MAC 为什么是网关"></a>5. 跨局域网通信：目的 MAC 为什么是网关</h2><p>假设主机 A 要向远端主机 B 发送数据，而二者不在同一个子网。</p>
+<p>A 通过子网判断发现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 IP 不属于本地子网</span><br></pre></td></tr></table></figure>
+
+<p>因此，A 不能在当前局域网中直接寻找 B 的 MAC 地址。</p>
+<p>原因很简单：链路层帧只能在当前链路或当前广播域中传播。远端 B 的接口并不位于 A 当前连接的以太网中，即使 A 知道 B 的 MAC 地址，这个帧也无法直接穿过路由器到达 B。</p>
+<p>A 必须先把数据交给默认网关。</p>
+<h3 id="5-1-第一跳的地址"><a href="#5-1-第一跳的地址" class="headerlink" title="5.1 第一跳的地址"></a>5.1 第一跳的地址</h3><p>A 创建的 IP 数据报：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">源 IP：A 的 IP</span><br><span class="line">目的 IP：B 的 IP</span><br></pre></td></tr></table></figure>
+
+<p>A 创建的第一跳以太网帧：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">源 MAC：A 的 MAC</span><br><span class="line">目的 MAC：默认网关接口的 MAC</span><br><span class="line">载荷：目的 IP 仍然是 B 的 IP 数据报</span><br></pre></td></tr></table></figure>
+
+<p>这里必须区分两个“目的”：</p>
+<ul>
+<li>网络层目的仍然是远端主机 B；</li>
+<li>当前链路目的则是第一跳路由器。</li>
+</ul>
+<h3 id="5-2-路由器收到帧后做什么"><a href="#5-2-路由器收到帧后做什么" class="headerlink" title="5.2 路由器收到帧后做什么"></a>5.2 路由器收到帧后做什么</h3><p>默认网关收到帧后：</p>
+<ol>
+<li>检查帧的目的 MAC，确认该帧发给自己的接口。</li>
+<li>验证帧的差错检测字段。</li>
+<li>去掉原来的以太网头部和尾部。</li>
+<li>取出内部 IP 数据报。</li>
+<li>根据目的 IP 查询转发表。</li>
+<li>选择输出接口和下一跳。</li>
+<li>获得下一跳接口的 MAC 地址。</li>
+<li>创建一个新的链路层帧。</li>
+<li>把原 IP 数据报封装进新帧并发送。</li>
+</ol>
+<p>因此，旧帧不会原封不动地穿过路由器。</p>
+<h3 id="5-3-每一跳中的地址变化"><a href="#5-3-每一跳中的地址变化" class="headerlink" title="5.3 每一跳中的地址变化"></a>5.3 每一跳中的地址变化</h3><p>假设路径为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A → 路由器 R1 → 路由器 R2 → B</span><br></pre></td></tr></table></figure>
+
+<p>各跳的地址关系可以表示为：</p>
+<table>
+<thead>
+<tr>
+<th>链路</th>
+<th>源 MAC</th>
+<th>目的 MAC</th>
+<th>源 IP</th>
+<th>目的 IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A → R1</td>
+<td>A</td>
+<td>R1 入接口</td>
+<td>A</td>
+<td>B</td>
+</tr>
+<tr>
+<td>R1 → R2</td>
+<td>R1 出接口</td>
+<td>R2 入接口</td>
+<td>A</td>
+<td>B</td>
+</tr>
+<tr>
+<td>R2 → B</td>
+<td>R2 出接口</td>
+<td>B</td>
+<td>A</td>
+<td>B</td>
+</tr>
+</tbody></table>
+<p>在普通转发场景中：</p>
+<ul>
+<li>源 IP 和目的 IP通常保持端到端意义；</li>
+<li>源 MAC 和目的 MAC随链路变化；</li>
+<li>每个路由器都拆除旧帧并创建新帧。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[主机 A] --&gt;|MAC: A→R1&lt;br&#x2F;&gt;IP: A→B| R1[路由器 R1]
+    R1 --&gt;|MAC: R1→R2&lt;br&#x2F;&gt;IP: A→B| R2[路由器 R2]
+    R2 --&gt;|MAC: R2→B&lt;br&#x2F;&gt;IP: A→B| B[主机 B]
+  </pre></div>
+
+<p><strong>❗ IP 地址表示端到端通信关系，MAC 地址表示当前一跳的发送接口和接收接口。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>跨子网通信时，发送方不会把第一帧直接寻址到远端主机，而是寻址到默认网关。路由器每经过一跳都会重新封装链路层帧。</p>
+<hr>
+<h2 id="6-以太网：局域网中的具体链路层技术"><a href="#6-以太网：局域网中的具体链路层技术" class="headerlink" title="6. 以太网：局域网中的具体链路层技术"></a>6. 以太网：局域网中的具体链路层技术</h2><p>以太网是广泛使用的局域网技术。它定义了：</p>
+<ul>
+<li>以太网帧格式；</li>
+<li>MAC 地址字段；</li>
+<li>上层协议标识；</li>
+<li>差错检测方式；</li>
+<li>一系列物理介质和传输速率规范。</li>
+</ul>
+<p>以太网并不是“互联网本身”，而是互联网中承载 IP 数据报的一类链路层技术。</p>
+<h2 id="6-1-以太网帧结构"><a href="#6-1-以太网帧结构" class="headerlink" title="6.1 以太网帧结构"></a>6.1 以太网帧结构</h2><p>典型以太网帧包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">前同步码</span><br><span class="line">目的 MAC 地址</span><br><span class="line">源 MAC 地址</span><br><span class="line">类型字段</span><br><span class="line">数据载荷</span><br><span class="line">CRC/FCS</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>前同步码</td>
+<td>帮助接收方识别帧到来并进行同步</td>
+</tr>
+<tr>
+<td>目的地址</td>
+<td>标识当前链路上的接收接口</td>
+</tr>
+<tr>
+<td>源地址</td>
+<td>标识当前链路上的发送接口</td>
+</tr>
+<tr>
+<td>类型</td>
+<td>指出载荷应交给哪个上层协议</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>通常承载 IP 数据报</td>
+</tr>
+<tr>
+<td>CRC&#x2F;FCS</td>
+<td>检测帧在传输中是否发生错误</td>
+</tr>
+</tbody></table>
+<h3 id="6-2-Type-字段"><a href="#6-2-Type-字段" class="headerlink" title="6.2 Type 字段"></a>6.2 Type 字段</h3><p>接收方从以太网帧中取出载荷后，需要知道应把它交给哪个上层协议。</p>
+<p>Type 字段起到协议分用作用。例如，它可以表明载荷属于 IPv4、ARP 或其他协议。</p>
+<p>其作用类似于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这份数据接下来应交给哪个处理模块</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-3-前同步码"><a href="#6-3-前同步码" class="headerlink" title="6.3 前同步码"></a>6.3 前同步码</h3><p>发送方和接收方的硬件时钟不可能天然完全一致。接收方需要从输入信号中恢复节奏，并判断有效帧即将开始。</p>
+<p>前同步码用于帮助接收方进行比特级同步和帧起始识别。</p>
+<h3 id="6-4-CRC-与不可靠服务"><a href="#6-4-CRC-与不可靠服务" class="headerlink" title="6.4 CRC 与不可靠服务"></a>6.4 CRC 与不可靠服务</h3><p>以太网帧尾部具有 CRC&#x2F;FCS 字段，用于检测传输错误。</p>
+<p>如果接收方发现校验不通过，通常会丢弃该帧。</p>
+<p>但是，以太网依然被称为提供无连接、不可靠的服务，原因是：</p>
+<ul>
+<li>发送帧前通常不建立链路层连接；</li>
+<li>接收方不会为每个正确帧发送确认；</li>
+<li>发现错误后通常只是丢弃；</li>
+<li>基本以太网机制不保证发送方自动重传；</li>
+<li>帧也可能因为缓存溢出等原因丢失。</li>
+</ul>
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">能够检测错误 ≠ 能够保证可靠交付</span><br></pre></td></tr></table></figure>
+
+<p>CRC 负责发现部分错误，但不负责确认和恢复。</p>
+<p>如果上层使用 TCP，TCP 可以通过端到端确认和重传恢复缺失的数据；如果上层协议本身不提供可靠性，丢失可能直接反映到应用。</p>
+<p><strong>❗ 差错检测只说明以太网有能力识别部分损坏帧，不代表以太网能够保证帧最终到达。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>以太网定义了帧的组织和交付方式。它通过 CRC 检测错误，但基本服务仍然是无连接、不可靠的。</p>
+<hr>
+<h2 id="7-从共享以太网到交换式以太网"><a href="#7-从共享以太网到交换式以太网" class="headerlink" title="7. 从共享以太网到交换式以太网"></a>7. 从共享以太网到交换式以太网</h2><p>早期总线型以太网中，多台设备共享一条介质。如果两台设备同时发送，就可能发生冲突。</p>
+<p>所有设备位于同一个较大的碰撞域中，任一时刻通常只能有一个节点成功发送。</p>
+<p>现代以太网通常采用星型拓扑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">主机 ─┐</span><br><span class="line">主机 ─┼─ 交换机</span><br><span class="line">主机 ─┤</span><br><span class="line">主机 ─┘</span><br></pre></td></tr></table></figure>
+
+<p>每台主机通过独立链路连接交换机。交换机可以在不同端口之间同时转发多个互不冲突的帧。</p>
+<p>这种结构带来的变化包括：</p>
+<ul>
+<li>每条端口链路可以形成独立的通信范围；</li>
+<li>多组主机可以同时通信；</li>
+<li>带宽不再由所有节点完全共享；</li>
+<li>传统共享介质中的碰撞问题显著减弱。</li>
+</ul>
+<p>交换机并不是简单的信号放大设备。它会读取帧头，根据目的 MAC 地址决定帧的去向。</p>
+<hr>
+<p>❗ 本节核心结论：<br>交换式以太网将一个大的共享冲突环境拆分为多个独立链路，使局域网能够进行更高效的并行通信。</p>
+<hr>
+<h2 id="8-交换机为什么对主机透明"><a href="#8-交换机为什么对主机透明" class="headerlink" title="8. 交换机为什么对主机透明"></a>8. 交换机为什么对主机透明</h2><p>“交换机对主机透明”并不意味着交换机没有实际作用，而是指：</p>
+<blockquote>
+<p>普通主机在发送以太网帧时，不需要把交换机当成协议中的目标节点，也不需要知道交换机内部如何转发。</p>
+</blockquote>
+<p>假设 A 和 B 连接在同一台交换机上。</p>
+<p>A 构造帧时写入：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">源 MAC：A</span><br><span class="line">目的 MAC：B</span><br></pre></td></tr></table></figure>
+
+<p>A 不会写：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">目的 MAC：交换机</span><br><span class="line">请交换机再转发给 B</span><br></pre></td></tr></table></figure>
+
+<p>交换机自动读取该帧的目的 MAC，并决定从哪个端口发出。</p>
+<p>从 A 的协议视角看，它像是在当前局域网中直接向 B 发送帧。</p>
+<h3 id="8-1-主机不需要知道什么"><a href="#8-1-主机不需要知道什么" class="headerlink" title="8.1 主机不需要知道什么"></a>8.1 主机不需要知道什么</h3><p>普通主机通常不需要知道：</p>
+<ul>
+<li>局域网中有几台交换机；</li>
+<li>每台交换机的端口编号；</li>
+<li>交换表中保存了什么；</li>
+<li>帧具体经过了哪些交换机；</li>
+<li>交换机之间的内部转发路径。</li>
+</ul>
+<p>主机只需要知道目标接口的 MAC 地址。</p>
+<h3 id="8-2-交换机如何做到透明"><a href="#8-2-交换机如何做到透明" class="headerlink" title="8.2 交换机如何做到透明"></a>8.2 交换机如何做到透明</h3><p>交换机依靠自学习自动建立转发表，而不要求主机主动登记。</p>
+<p>交换机收到帧后会观察源 MAC 地址，并记录该地址来自哪个端口。</p>
+<p>因此，主机不必发送特殊消息告诉交换机：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我的 MAC 地址位于端口 3</span><br></pre></td></tr></table></figure>
+
+<p>交换机通过正常数据流量自行推断。</p>
+<h3 id="8-3-透明不等于没有影响"><a href="#8-3-透明不等于没有影响" class="headerlink" title="8.3 透明不等于没有影响"></a>8.3 透明不等于没有影响</h3><p>交换机虽然对主机的普通发送流程透明，但仍然会影响：</p>
+<ul>
+<li>实际转发性能；</li>
+<li>网络拥塞；</li>
+<li>广播传播；</li>
+<li>VLAN 划分；</li>
+<li>安全策略；</li>
+<li>链路故障后的路径。</li>
+</ul>
+<p>“透明”只表示其存在不需要在普通主机的基本发送逻辑中显式体现。</p>
+<p><strong>❗ 透明的核心是主机不必把交换机当成通信终点，也不必参与交换机的内部转发表维护。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>主机只负责按目标 MAC 地址发送帧，交换机自动完成中间转发，因此交换机在普通链路层通信中对主机表现为透明。</p>
+<hr>
+<h2 id="9-交换机的自学习机制"><a href="#9-交换机的自学习机制" class="headerlink" title="9. 交换机的自学习机制"></a>9. 交换机的自学习机制</h2><p>交换机维护一张交换表，也称 MAC 地址表。表项通常包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MAC 地址 → 输出端口 → 时间信息</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>MAC 地址</th>
+<th align="right">端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td>B</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td>C</td>
+<td align="right">4</td>
+</tr>
+</tbody></table>
+<h3 id="9-1-为什么学习源-MAC-地址"><a href="#9-1-为什么学习源-MAC-地址" class="headerlink" title="9.1 为什么学习源 MAC 地址"></a>9.1 为什么学习源 MAC 地址</h3><p>假设交换机从端口 1 收到一个帧：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">源 MAC：A</span><br><span class="line">目的 MAC：B</span><br></pre></td></tr></table></figure>
+
+<p>交换机可以立即确定：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A 可以从端口 1 到达</span><br></pre></td></tr></table></figure>
+
+<p>因为这个帧确实是从端口 1 进入的。</p>
+<p>因此，它记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">A → 端口 1</span><br></pre></td></tr></table></figure>
+
+<p>交换机不能仅凭目的 MAC 推断 B 在哪里，因为这个帧并不是从 B 发来的。</p>
+<p>所以自学习观察的是：</p>
+<blockquote>
+<p>帧从哪个端口进入，以及该帧的源 MAC 是什么。</p>
+</blockquote>
+<h3 id="9-2-表项为什么需要过期"><a href="#9-2-表项为什么需要过期" class="headerlink" title="9.2 表项为什么需要过期"></a>9.2 表项为什么需要过期</h3><p>主机可能：</p>
+<ul>
+<li>被移动到另一个端口；</li>
+<li>断开连接；</li>
+<li>通过其他交换机路径出现；</li>
+<li>更换网络拓扑。</li>
+</ul>
+<p>如果旧表项永不过期，交换机可能继续向错误端口转发。</p>
+<p>因此，动态学习的表项通常带有老化机制。长时间没有再次观察到某个源 MAC 后，对应记录会被删除。</p>
+<h3 id="9-3-多台主机可以对应同一端口"><a href="#9-3-多台主机可以对应同一端口" class="headerlink" title="9.3 多台主机可以对应同一端口"></a>9.3 多台主机可以对应同一端口</h3><p>如果一个交换机端口连接的是另一台交换机，那么远端的多台主机发送的帧都会从这个端口进入。</p>
+<p>本地交换机可能学到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">A → 端口 5</span><br><span class="line">B → 端口 5</span><br><span class="line">C → 端口 5</span><br></pre></td></tr></table></figure>
+
+<p>这并不矛盾。交换表表达的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">要到达这些 MAC 地址，应当从端口 5 的方向继续走</span><br></pre></td></tr></table></figure>
+
+<p>它不要求一个端口只能对应一个主机。</p>
+<hr>
+<p>❗ 本节核心结论：<br>交换机通过帧的源 MAC 和输入端口学习网络位置。交换表记录的是到达某个 MAC 地址的方向，而不一定是该主机直接连接的物理端口。</p>
+<hr>
+<h2 id="10-过滤、转发与泛洪"><a href="#10-过滤、转发与泛洪" class="headerlink" title="10. 过滤、转发与泛洪"></a>10. 过滤、转发与泛洪</h2><p>交换机收到一个帧后，通常执行以下逻辑：</p>
+<ol>
+<li>根据源 MAC 学习或更新交换表。</li>
+<li>使用目的 MAC 查询交换表。</li>
+<li>根据查询结果选择过滤、转发或泛洪。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[收到帧] --&gt; B[学习源 MAC 与输入端口]
+    B --&gt; C{目的 MAC 是否在交换表中}
+    C -- 否 --&gt; D[向除输入端口外的其他端口泛洪]
+    C -- 是 --&gt; E{目标端口是否等于输入端口}
+    E -- 是 --&gt; F[过滤：不继续转发]
+    E -- 否 --&gt; G[仅向目标端口转发]
+  </pre></div>
+
+<h3 id="10-1-转发"><a href="#10-1-转发" class="headerlink" title="10.1 转发"></a>10.1 转发</h3><p>假设帧从端口 1 进入，目的 MAC 为 B。</p>
+<p>交换表中记录：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">B → 端口 4</span><br></pre></td></tr></table></figure>
+
+<p>交换机知道 B 位于端口 4 的方向，因此只把帧从端口 4 发出。</p>
+<p>这就是转发：</p>
+<blockquote>
+<p>已知目标方向，因此进行选择性、定向发送。</p>
+</blockquote>
+<p>交换机不需要把帧复制到其他无关端口，从而减少局域网中的无效流量。</p>
+<h3 id="10-2-过滤"><a href="#10-2-过滤" class="headerlink" title="10.2 过滤"></a>10.2 过滤</h3><p>假设帧从端口 1 进入，交换表显示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 MAC B → 端口 1</span><br></pre></td></tr></table></figure>
+
+<p>这说明目标也位于输入端口对应的网络方向。</p>
+<p>在共享网段的场景中，帧已经在该网段上传播，目标可以直接接收，交换机无需再把它转发到其他端口。</p>
+<p>因此，交换机选择不继续转发。</p>
+<p>这称为过滤。</p>
+<p>过滤中的“丢弃”并不表示帧错误，也不表示通信失败，而是表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">该帧没有必要通过交换机传播到其他端口</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-3-泛洪"><a href="#10-3-泛洪" class="headerlink" title="10.3 泛洪"></a>10.3 泛洪</h3><p>如果交换表中没有目的 MAC 的记录，交换机不知道目标位于哪个方向。</p>
+<p>为了使帧仍有机会到达目标，交换机会将帧复制到除输入端口以外的其他端口。</p>
+<p>这称为泛洪。</p>
+<p>例如，帧从端口 1 进入，交换机会发送到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">端口 2、端口 3、端口 4……</span><br></pre></td></tr></table></figure>
+
+<p>但不会再从端口 1 原路发回。</p>
+<p>当目标主机回复时，交换机可以通过回复帧的源 MAC 学习目标的位置。之后再发送给该目标时，就可以进行精确转发。</p>
+<h3 id="10-4-三种行为的直观区别"><a href="#10-4-三种行为的直观区别" class="headerlink" title="10.4 三种行为的直观区别"></a>10.4 三种行为的直观区别</h3><table>
+<thead>
+<tr>
+<th>行为</th>
+<th>交换机是否知道目标位置</th>
+<th>处理方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>过滤</td>
+<td>知道，且目标在输入端口方向</td>
+<td>不向其他端口传播</td>
+</tr>
+<tr>
+<td>转发</td>
+<td>知道，且目标在另一端口方向</td>
+<td>只发往对应端口</td>
+</tr>
+<tr>
+<td>泛洪</td>
+<td>不知道</td>
+<td>除输入端口外全部发送</td>
+</tr>
+</tbody></table>
+<p>可以压缩为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">过滤：不用继续送</span><br><span class="line">转发：知道往哪里送</span><br><span class="line">泛洪：不知道，只能多方向尝试</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗ 过滤不是错误丢弃，泛洪也不是普通广播；它们都是交换机根据当前转发表状态采取的转发决策。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>交换机知道目标在其他端口时执行转发，知道目标在来路方向时执行过滤，不知道目标位置时执行泛洪。</p>
+<hr>
+<h2 id="11-泛洪与广播的区别"><a href="#11-泛洪与广播的区别" class="headerlink" title="11. 泛洪与广播的区别"></a>11. 泛洪与广播的区别</h2><p>泛洪产生的外在效果和广播相似：多个端口都会收到帧。但二者的原因和地址含义不同。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>广播</th>
+<th>泛洪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>目的 MAC</td>
+<td>广播地址</td>
+<td>原来的单播目的 MAC</td>
+</tr>
+<tr>
+<td>发起原因</td>
+<td>发送方希望所有节点接收</td>
+<td>交换机不知道目标位置</td>
+</tr>
+<tr>
+<td>决策主体</td>
+<td>发送主机或上层协议</td>
+<td>交换机</td>
+</tr>
+<tr>
+<td>是否可能随学习减少</td>
+<td>广播仍需传播</td>
+<td>未知单播泛洪可因学习而减少</td>
+</tr>
+</tbody></table>
+<p>例如 ARP 请求使用目的地址：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FF-FF-FF-FF-FF-FF</span><br></pre></td></tr></table></figure>
+
+<p>这是广播帧。交换机会把它转发到广播域中的其他端口，因为发送方明确希望所有节点检查该请求。</p>
+<p>而未知单播帧的目的 MAC 可能是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">11-22-33-44-55-66</span><br></pre></td></tr></table></figure>
+
+<p>交换机只是暂时不知道这个地址在哪个端口，因此进行泛洪。帧的目的地址并没有变成广播地址。</p>
+<hr>
+<p>❗ 本节核心结论：<br>广播是发送方明确面向所有节点的通信方式；泛洪是交换机在未知目标位置时采取的临时转发策略。</p>
+<hr>
+<h2 id="12-ARP-表与交换表不能混淆"><a href="#12-ARP-表与交换表不能混淆" class="headerlink" title="12. ARP 表与交换表不能混淆"></a>12. ARP 表与交换表不能混淆</h2><p>ARP 表和交换表都会保存地址映射，但它们位于不同设备中，解决不同问题。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>ARP 表</th>
+<th>交换表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>常见所在位置</td>
+<td>主机、路由器接口</td>
+<td>交换机</td>
+</tr>
+<tr>
+<td>映射关系</td>
+<td>IP → MAC</td>
+<td>MAC → 端口</td>
+</tr>
+<tr>
+<td>解决的问题</td>
+<td>下一跳接口的 MAC 是什么</td>
+<td>帧应从哪个端口转发</td>
+</tr>
+<tr>
+<td>建立方式</td>
+<td>ARP 请求和回复</td>
+<td>观察源 MAC 自学习</td>
+</tr>
+<tr>
+<td>是否老化</td>
+<td>是</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<p>假设 A 要给 B 发送帧：</p>
+<ol>
+<li>A 使用 ARP 表确定 B 的 MAC 地址。</li>
+<li>A 将 B 的 MAC 写入帧。</li>
+<li>交换机使用交换表确定 B 所在端口。</li>
+<li>交换机将帧转发到该端口。</li>
+</ol>
+<p>可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机使用 ARP 表构造帧</span><br><span class="line">交换机使用交换表转发帧</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>❗ 本节核心结论：<br>ARP 表帮助发送方回答“目的 MAC 是什么”，交换表帮助交换机回答“这个 MAC 应从哪个端口到达”。</p>
+<hr>
+<h2 id="13-交换机与路由器的区别"><a href="#13-交换机与路由器的区别" class="headerlink" title="13. 交换机与路由器的区别"></a>13. 交换机与路由器的区别</h2><p>交换机和路由器都执行存储与转发，但它们处理的协议层次和地址不同。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>交换机</th>
+<th>路由器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要层次</td>
+<td>链路层</td>
+<td>网络层</td>
+</tr>
+<tr>
+<td>处理单位</td>
+<td>帧</td>
+<td>IP 数据报</td>
+</tr>
+<tr>
+<td>查看的主要地址</td>
+<td>目的 MAC</td>
+<td>目的 IP</td>
+</tr>
+<tr>
+<td>使用的表</td>
+<td>交换表</td>
+<td>路由表、转发表</td>
+</tr>
+<tr>
+<td>主要作用</td>
+<td>局域网内部连接和转发</td>
+<td>连接不同网络并选择下一跳</td>
+</tr>
+<tr>
+<td>是否重新封装帧</td>
+<td>通常转发原帧</td>
+<td>拆除旧帧并创建新帧</td>
+</tr>
+<tr>
+<td>对普通主机是否透明</td>
+<td>通常是</td>
+<td>通常作为明确的默认网关</td>
+</tr>
+</tbody></table>
+<h3 id="13-1-为什么路由器不是透明的交换设备"><a href="#13-1-为什么路由器不是透明的交换设备" class="headerlink" title="13.1 为什么路由器不是透明的交换设备"></a>13.1 为什么路由器不是透明的交换设备</h3><p>当主机发现目的 IP 不在本地子网时，必须明确选择默认网关作为下一跳。</p>
+<p>第一帧的目的 MAC 就是路由器接口的 MAC。</p>
+<p>因此，路由器在网络层意义上是主机明确知道的下一跳设备。</p>
+<p>交换机不同。主机通常不需要把交换机设置为下一跳，也不会把普通数据帧寻址到交换机本身。</p>
+<h3 id="13-2-两者如何协同"><a href="#13-2-两者如何协同" class="headerlink" title="13.2 两者如何协同"></a>13.2 两者如何协同</h3><p>跨网络通信中，两类设备可能连续工作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">主机</span><br><span class="line">  ↓ 以目的 MAC 转发</span><br><span class="line">交换机</span><br><span class="line">  ↓ 将帧送到网关接口</span><br><span class="line">路由器</span><br><span class="line">  ↓ 根据目的 IP 选择下一网络</span><br><span class="line">另一侧交换机</span><br><span class="line">  ↓ 根据新的目的 MAC 转发</span><br><span class="line">目的主机</span><br></pre></td></tr></table></figure>
+
+<p>交换机负责在当前链路中传递帧，路由器负责连接不同网络并重新开始下一跳链路层交付。</p>
+<hr>
+<p>❗ 本节核心结论：<br>交换机根据 MAC 地址在局域网内部转发帧；路由器根据 IP 地址连接不同网络，并在每一跳重新封装链路层帧。</p>
+<hr>
+<h2 id="14-一次完整的跨网络通信过程"><a href="#14-一次完整的跨网络通信过程" class="headerlink" title="14. 一次完整的跨网络通信过程"></a>14. 一次完整的跨网络通信过程</h2><p>假设主机 A 要访问远端主机 B。</p>
+<h3 id="14-1-获得目的-IP"><a href="#14-1-获得目的-IP" class="headerlink" title="14.1 获得目的 IP"></a>14.1 获得目的 IP</h3><p>如果应用使用域名，A 首先通过 DNS 获得 B 的 IP 地址。</p>
+<h3 id="14-2-判断是否位于本地子网"><a href="#14-2-判断是否位于本地子网" class="headerlink" title="14.2 判断是否位于本地子网"></a>14.2 判断是否位于本地子网</h3><p>A 使用自己的 IP 地址和子网掩码判断 B 是否属于本地子网。</p>
+<p>由于 B 位于远端网络，A 决定把数据交给默认网关。</p>
+<h3 id="14-3-获得网关-MAC-地址"><a href="#14-3-获得网关-MAC-地址" class="headerlink" title="14.3 获得网关 MAC 地址"></a>14.3 获得网关 MAC 地址</h3><p>A 查询 ARP 表。如果没有默认网关 IP 对应的 MAC 地址，A 发送 ARP 广播请求。</p>
+<p>网关回复自己的 MAC 地址，A 将其写入 ARP 缓存。</p>
+<h3 id="14-4-构造第一跳帧"><a href="#14-4-构造第一跳帧" class="headerlink" title="14.4 构造第一跳帧"></a>14.4 构造第一跳帧</h3><p>IP 数据报：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">源 IP：A</span><br><span class="line">目的 IP：B</span><br></pre></td></tr></table></figure>
+
+<p>以太网帧：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">源 MAC：A</span><br><span class="line">目的 MAC：默认网关</span><br></pre></td></tr></table></figure>
+
+<h3 id="14-5-交换机转发"><a href="#14-5-交换机转发" class="headerlink" title="14.5 交换机转发"></a>14.5 交换机转发</h3><p>接入交换机收到帧后：</p>
+<ol>
+<li>学习 A 的源 MAC；</li>
+<li>查询网关 MAC；</li>
+<li>如果已知则定向转发；</li>
+<li>如果未知则暂时泛洪。</li>
+</ol>
+<h3 id="14-6-路由器处理"><a href="#14-6-路由器处理" class="headerlink" title="14.6 路由器处理"></a>14.6 路由器处理</h3><p>网关收到帧后：</p>
+<ol>
+<li>去除以太网封装；</li>
+<li>检查 IP 目的地址 B；</li>
+<li>查询转发表；</li>
+<li>确定下一跳；</li>
+<li>必要时通过 ARP获得下一跳 MAC；</li>
+<li>创建新的链路层帧；</li>
+<li>把同一个 IP 数据报继续发送。</li>
+</ol>
+<h3 id="14-7-到达目标网络"><a href="#14-7-到达目标网络" class="headerlink" title="14.7 到达目标网络"></a>14.7 到达目标网络</h3><p>最后一台路由器发现 B 位于直连网络，使用 ARP 获得 B 的 MAC，并构造最后一跳帧：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">源 MAC：最后一台路由器</span><br><span class="line">目的 MAC：B</span><br><span class="line">源 IP：A</span><br><span class="line">目的 IP：B</span><br></pre></td></tr></table></figure>
+
+<p>交换机最终把该帧交给 B。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant A as 主机 A
+    participant S1 as 接入交换机
+    participant R as 默认网关
+    participant NET as 中间网络
+    participant B as 主机 B
+
+    A-&gt;&gt;A: 判断 B 不在本地子网
+    A-&gt;&gt;A: ARP 获取网关 MAC
+    A-&gt;&gt;S1: 帧：MAC A→R，IP A→B
+    S1-&gt;&gt;R: 根据网关 MAC 转发
+    R-&gt;&gt;R: 解封装并查询目的 IP
+    R-&gt;&gt;NET: 重新封装后逐跳转发
+    NET-&gt;&gt;B: 最后一跳：目的 MAC 为 B
+  </pre></div>
+
+<hr>
+<p>❗ 本节核心结论：<br>跨网络通信是网络层逐跳决策与链路层逐跳封装共同完成的。每一跳都可能使用新的 MAC 地址和新的帧，但数据报始终朝着相同的目的 IP 前进。</p>
+<hr>
+<h2 id="15-常见理解误区"><a href="#15-常见理解误区" class="headerlink" title="15. 常见理解误区"></a>15. 常见理解误区</h2><h3 id="15-1-目的-IP-是-B，所以目的-MAC-也一定是-B"><a href="#15-1-目的-IP-是-B，所以目的-MAC-也一定是-B" class="headerlink" title="15.1 目的 IP 是 B，所以目的 MAC 也一定是 B"></a>15.1 目的 IP 是 B，所以目的 MAC 也一定是 B</h3><p>错误。</p>
+<p>只有 B 位于当前链路时，目的 MAC 才是 B。跨子网通信的第一跳中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">目的 IP = B</span><br><span class="line">目的 MAC = 默认网关</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-2-ARP-可以解析互联网中任意主机的-MAC-地址"><a href="#15-2-ARP-可以解析互联网中任意主机的-MAC-地址" class="headerlink" title="15.2 ARP 可以解析互联网中任意主机的 MAC 地址"></a>15.2 ARP 可以解析互联网中任意主机的 MAC 地址</h3><p>错误。</p>
+<p>ARP 主要作用于当前本地链路。发送远端数据时，主机解析的是默认网关的 MAC，而不是远端主机的 MAC。</p>
+<h3 id="15-3-MAC-地址可以代替-IP-地址进行互联网路由"><a href="#15-3-MAC-地址可以代替-IP-地址进行互联网路由" class="headerlink" title="15.3 MAC 地址可以代替 IP 地址进行互联网路由"></a>15.3 MAC 地址可以代替 IP 地址进行互联网路由</h3><p>错误。</p>
+<p>MAC 地址通常缺少适合大规模路由聚合的层次结构，主要用于当前链路内的交付。</p>
+<h3 id="15-4-交换机根据源-MAC-决定往哪里转发"><a href="#15-4-交换机根据源-MAC-决定往哪里转发" class="headerlink" title="15.4 交换机根据源 MAC 决定往哪里转发"></a>15.4 交换机根据源 MAC 决定往哪里转发</h3><p>不准确。</p>
+<p>交换机使用源 MAC 学习地址位置，使用目的 MAC 决定帧的转发方向。</p>
+<h3 id="15-5-交换机泛洪时会把目的地址改成广播地址"><a href="#15-5-交换机泛洪时会把目的地址改成广播地址" class="headerlink" title="15.5 交换机泛洪时会把目的地址改成广播地址"></a>15.5 交换机泛洪时会把目的地址改成广播地址</h3><p>错误。</p>
+<p>未知单播泛洪不会修改原有目的 MAC，只是将同一个帧复制到多个输出端口。</p>
+<h3 id="15-6-过滤表示帧发生错误"><a href="#15-6-过滤表示帧发生错误" class="headerlink" title="15.6 过滤表示帧发生错误"></a>15.6 过滤表示帧发生错误</h3><p>错误。</p>
+<p>过滤可能只是因为目标位于输入端口方向，没有必要把帧继续传播到其他端口。</p>
+<h3 id="15-7-以太网具有-CRC，所以能够保证可靠交付"><a href="#15-7-以太网具有-CRC，所以能够保证可靠交付" class="headerlink" title="15.7 以太网具有 CRC，所以能够保证可靠交付"></a>15.7 以太网具有 CRC，所以能够保证可靠交付</h3><p>错误。</p>
+<p>CRC 提供差错检测，但基本以太网不会对每个帧确认，也不会保证自动重传。</p>
+<h3 id="15-8-交换机透明意味着交换机没有地址"><a href="#15-8-交换机透明意味着交换机没有地址" class="headerlink" title="15.8 交换机透明意味着交换机没有地址"></a>15.8 交换机透明意味着交换机没有地址</h3><p>错误。</p>
+<p>交换机为了管理、配置或运行某些控制协议，可以拥有自己的地址。“透明”只是表示普通数据帧不需要把交换机作为通信终点。</p>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>MAC 地址、ARP、以太网和交换机共同完成了局域网中的链路层交付。</p>
+<p>它们之间不是四个彼此独立的概念，而是一条连续机制：</p>
+<ol>
+<li>网络层根据目的 IP 判断最终位置和下一跳。</li>
+<li>ARP 将下一跳 IP 解析为 MAC 地址。</li>
+<li>发送方把 IP 数据报封装进以太网帧。</li>
+<li>交换机根据目的 MAC 查询交换表。</li>
+<li>交换机选择过滤、转发或泛洪。</li>
+<li>帧到达下一跳接口。</li>
+<li>如果下一跳是路由器，路由器拆除旧帧并为下一段链路重新封装。</li>
+</ol>
+<p>其中最关键的地址规律是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP 地址：面向端到端的网络层通信</span><br><span class="line">MAC 地址：面向当前一跳的链路层交付</span><br></pre></td></tr></table></figure>
+
+<p>最关键的两张表是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ARP 表：IP → MAC</span><br><span class="line">交换表：MAC → 端口</span><br></pre></td></tr></table></figure>
+
+<p>最关键的交换机决策是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">目标在来路方向：过滤</span><br><span class="line">目标在其他已知端口：转发</span><br><span class="line">目标位置未知：泛洪</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗ 最终核心结论：IP 地址使数据能够在多个网络之间寻找方向，MAC 地址使数据能够在每一条具体链路上到达下一接口；ARP 和交换机则分别完成地址解析与帧转发。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/')">Chapter 6-2：MAC 地址、ARP、以太网与交换机</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 6-2：MAC 地址、ARP、以太网与交换机&amp;url=http://example.com/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/&amp;pic=/cover/marisa.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/25/Chapter-6-1%EF%BC%9A%E9%93%BE%E8%B7%AF%E5%B1%82%E3%80%81%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E4%B8%8E%E5%A4%9A%E8%B7%AF%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jp.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 6-1：链路层、差错控制与多路访问协议</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="toc-number">1.</span> <span class="toc-text">Chapter 6-2：MAC 地址、ARP、以太网与交换机</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80%EF%BC%9AIP-%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%A6%82%E4%BD%95%E7%9C%9F%E6%AD%A3%E5%88%B0%E8%BE%BE%E4%B8%8B%E4%B8%80%E5%8F%B0%E8%AE%BE%E5%A4%87"><span class="toc-number">1.1.</span> <span class="toc-text">引言：IP 数据报如何真正到达下一台设备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%90%8C%E6%97%B6%E9%9C%80%E8%A6%81-IP-%E5%9C%B0%E5%9D%80%E5%92%8C-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.2.</span> <span class="toc-text">1. 为什么同时需要 IP 地址和 MAC 地址</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-IP-%E5%9C%B0%E5%9D%80%E8%A7%A3%E5%86%B3%E5%85%A8%E7%BD%91%E8%B7%AF%E5%BE%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1 IP 地址解决全网路径问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-MAC-%E5%9C%B0%E5%9D%80%E8%A7%A3%E5%86%B3%E5%BD%93%E5%89%8D%E9%93%BE%E8%B7%AF%E7%9A%84%E4%BA%A4%E4%BB%98%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2 MAC 地址解决当前链路的交付问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%8F%AA%E4%BD%BF%E7%94%A8-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.2.3.</span> <span class="toc-text">1.3 为什么不能只使用 MAC 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%8F%AA%E4%BD%BF%E7%94%A8-IP-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.2.4.</span> <span class="toc-text">1.4 为什么不能只使用 IP 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-%E8%BA%AB%E4%BB%BD%E4%B8%8E%E4%BD%8D%E7%BD%AE%E7%9A%84%E7%B1%BB%E6%AF%94"><span class="toc-number">1.2.5.</span> <span class="toc-text">1.5 身份与位置的类比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%9C%B0%E5%9D%80%E7%BB%91%E5%AE%9A%E5%9C%A8%E6%8E%A5%E5%8F%A3%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E6%8A%BD%E8%B1%A1%E5%9C%B0%E7%BB%91%E5%AE%9A%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%8A"><span class="toc-number">1.3.</span> <span class="toc-text">2. 地址绑定在接口，而不是抽象地绑定在设备上</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-ARP%EF%BC%9A%E4%BB%8E-IP-%E5%9C%B0%E5%9D%80%E6%89%BE%E5%88%B0-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.4.</span> <span class="toc-text">3. ARP：从 IP 地址找到 MAC 地址</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-ARP-%E8%A1%A8"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1 ARP 表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-ARP-%E6%9F%A5%E8%AF%A2%E8%BF%87%E7%A8%8B"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2 ARP 查询过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E4%B8%BA%E4%BB%80%E4%B9%88-ARP-%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%B9%BF%E6%92%AD"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.3 为什么 ARP 请求使用广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E4%B8%BA%E4%BB%80%E4%B9%88-ARP-%E5%9B%9E%E5%A4%8D%E9%80%9A%E5%B8%B8%E5%8F%AF%E4%BB%A5%E5%8D%95%E6%92%AD"><span class="toc-number">1.4.4.</span> <span class="toc-text">3.4 为什么 ARP 回复通常可以单播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-ARP-%E4%B8%8E-DNS-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.4.5.</span> <span class="toc-text">3.5 ARP 与 DNS 的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%90%8C%E4%B8%80%E5%B1%80%E5%9F%9F%E7%BD%91%E4%B8%AD%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="toc-number">1.5.</span> <span class="toc-text">4. 同一局域网中的通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%B7%A8%E5%B1%80%E5%9F%9F%E7%BD%91%E9%80%9A%E4%BF%A1%EF%BC%9A%E7%9B%AE%E7%9A%84-MAC-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E7%BD%91%E5%85%B3"><span class="toc-number">1.6.</span> <span class="toc-text">5. 跨局域网通信：目的 MAC 为什么是网关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E7%AC%AC%E4%B8%80%E8%B7%B3%E7%9A%84%E5%9C%B0%E5%9D%80"><span class="toc-number">1.6.1.</span> <span class="toc-text">5.1 第一跳的地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E8%B7%AF%E7%94%B1%E5%99%A8%E6%94%B6%E5%88%B0%E5%B8%A7%E5%90%8E%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.6.2.</span> <span class="toc-text">5.2 路由器收到帧后做什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%AF%8F%E4%B8%80%E8%B7%B3%E4%B8%AD%E7%9A%84%E5%9C%B0%E5%9D%80%E5%8F%98%E5%8C%96"><span class="toc-number">1.6.3.</span> <span class="toc-text">5.3 每一跳中的地址变化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E4%BB%A5%E5%A4%AA%E7%BD%91%EF%BC%9A%E5%B1%80%E5%9F%9F%E7%BD%91%E4%B8%AD%E7%9A%84%E5%85%B7%E4%BD%93%E9%93%BE%E8%B7%AF%E5%B1%82%E6%8A%80%E6%9C%AF"><span class="toc-number">1.7.</span> <span class="toc-text">6. 以太网：局域网中的具体链路层技术</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%B8%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.8.</span> <span class="toc-text">6.1 以太网帧结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-Type-%E5%AD%97%E6%AE%B5"><span class="toc-number">1.8.1.</span> <span class="toc-text">6.2 Type 字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%89%8D%E5%90%8C%E6%AD%A5%E7%A0%81"><span class="toc-number">1.8.2.</span> <span class="toc-text">6.3 前同步码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-CRC-%E4%B8%8E%E4%B8%8D%E5%8F%AF%E9%9D%A0%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.8.3.</span> <span class="toc-text">6.4 CRC 与不可靠服务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E4%BB%8E%E5%85%B1%E4%BA%AB%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%88%B0%E4%BA%A4%E6%8D%A2%E5%BC%8F%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="toc-number">1.9.</span> <span class="toc-text">7. 从共享以太网到交换式以太网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AF%B9%E4%B8%BB%E6%9C%BA%E9%80%8F%E6%98%8E"><span class="toc-number">1.10.</span> <span class="toc-text">8. 交换机为什么对主机透明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E4%B8%BB%E6%9C%BA%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E4%BB%80%E4%B9%88"><span class="toc-number">1.10.1.</span> <span class="toc-text">8.1 主机不需要知道什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E9%80%8F%E6%98%8E"><span class="toc-number">1.10.2.</span> <span class="toc-text">8.2 交换机如何做到透明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E9%80%8F%E6%98%8E%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%B2%A1%E6%9C%89%E5%BD%B1%E5%93%8D"><span class="toc-number">1.10.3.</span> <span class="toc-text">8.3 透明不等于没有影响</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E7%9A%84%E8%87%AA%E5%AD%A6%E4%B9%A0%E6%9C%BA%E5%88%B6"><span class="toc-number">1.11.</span> <span class="toc-text">9. 交换机的自学习机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AD%A6%E4%B9%A0%E6%BA%90-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.11.1.</span> <span class="toc-text">9.1 为什么学习源 MAC 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E8%A1%A8%E9%A1%B9%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%BF%87%E6%9C%9F"><span class="toc-number">1.11.2.</span> <span class="toc-text">9.2 表项为什么需要过期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E5%A4%9A%E5%8F%B0%E4%B8%BB%E6%9C%BA%E5%8F%AF%E4%BB%A5%E5%AF%B9%E5%BA%94%E5%90%8C%E4%B8%80%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.11.3.</span> <span class="toc-text">9.3 多台主机可以对应同一端口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E8%BF%87%E6%BB%A4%E3%80%81%E8%BD%AC%E5%8F%91%E4%B8%8E%E6%B3%9B%E6%B4%AA"><span class="toc-number">1.12.</span> <span class="toc-text">10. 过滤、转发与泛洪</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E8%BD%AC%E5%8F%91"><span class="toc-number">1.12.1.</span> <span class="toc-text">10.1 转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E8%BF%87%E6%BB%A4"><span class="toc-number">1.12.2.</span> <span class="toc-text">10.2 过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E6%B3%9B%E6%B4%AA"><span class="toc-number">1.12.3.</span> <span class="toc-text">10.3 泛洪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E4%B8%89%E7%A7%8D%E8%A1%8C%E4%B8%BA%E7%9A%84%E7%9B%B4%E8%A7%82%E5%8C%BA%E5%88%AB"><span class="toc-number">1.12.4.</span> <span class="toc-text">10.4 三种行为的直观区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E6%B3%9B%E6%B4%AA%E4%B8%8E%E5%B9%BF%E6%92%AD%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.13.</span> <span class="toc-text">11. 泛洪与广播的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-ARP-%E8%A1%A8%E4%B8%8E%E4%BA%A4%E6%8D%A2%E8%A1%A8%E4%B8%8D%E8%83%BD%E6%B7%B7%E6%B7%86"><span class="toc-number">1.14.</span> <span class="toc-text">12. ARP 表与交换表不能混淆</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E4%B8%8E%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.15.</span> <span class="toc-text">13. 交换机与路由器的区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%B7%AF%E7%94%B1%E5%99%A8%E4%B8%8D%E6%98%AF%E9%80%8F%E6%98%8E%E7%9A%84%E4%BA%A4%E6%8D%A2%E8%AE%BE%E5%A4%87"><span class="toc-number">1.15.1.</span> <span class="toc-text">13.1 为什么路由器不是透明的交换设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E4%B8%A4%E8%80%85%E5%A6%82%E4%BD%95%E5%8D%8F%E5%90%8C"><span class="toc-number">1.15.2.</span> <span class="toc-text">13.2 两者如何协同</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E7%9A%84%E8%B7%A8%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">1.16.</span> <span class="toc-text">14. 一次完整的跨网络通信过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E8%8E%B7%E5%BE%97%E7%9B%AE%E7%9A%84-IP"><span class="toc-number">1.16.1.</span> <span class="toc-text">14.1 获得目的 IP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E4%BD%8D%E4%BA%8E%E6%9C%AC%E5%9C%B0%E5%AD%90%E7%BD%91"><span class="toc-number">1.16.2.</span> <span class="toc-text">14.2 判断是否位于本地子网</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E8%8E%B7%E5%BE%97%E7%BD%91%E5%85%B3-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.16.3.</span> <span class="toc-text">14.3 获得网关 MAC 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-%E6%9E%84%E9%80%A0%E7%AC%AC%E4%B8%80%E8%B7%B3%E5%B8%A7"><span class="toc-number">1.16.4.</span> <span class="toc-text">14.4 构造第一跳帧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-5-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E8%BD%AC%E5%8F%91"><span class="toc-number">1.16.5.</span> <span class="toc-text">14.5 交换机转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-6-%E8%B7%AF%E7%94%B1%E5%99%A8%E5%A4%84%E7%90%86"><span class="toc-number">1.16.6.</span> <span class="toc-text">14.6 路由器处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-7-%E5%88%B0%E8%BE%BE%E7%9B%AE%E6%A0%87%E7%BD%91%E7%BB%9C"><span class="toc-number">1.16.7.</span> <span class="toc-text">14.7 到达目标网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E5%B8%B8%E8%A7%81%E7%90%86%E8%A7%A3%E8%AF%AF%E5%8C%BA"><span class="toc-number">1.17.</span> <span class="toc-text">15. 常见理解误区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E7%9B%AE%E7%9A%84-IP-%E6%98%AF-B%EF%BC%8C%E6%89%80%E4%BB%A5%E7%9B%AE%E7%9A%84-MAC-%E4%B9%9F%E4%B8%80%E5%AE%9A%E6%98%AF-B"><span class="toc-number">1.17.1.</span> <span class="toc-text">15.1 目的 IP 是 B，所以目的 MAC 也一定是 B</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-2-ARP-%E5%8F%AF%E4%BB%A5%E8%A7%A3%E6%9E%90%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%AD%E4%BB%BB%E6%84%8F%E4%B8%BB%E6%9C%BA%E7%9A%84-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.17.2.</span> <span class="toc-text">15.2 ARP 可以解析互联网中任意主机的 MAC 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-3-MAC-%E5%9C%B0%E5%9D%80%E5%8F%AF%E4%BB%A5%E4%BB%A3%E6%9B%BF-IP-%E5%9C%B0%E5%9D%80%E8%BF%9B%E8%A1%8C%E4%BA%92%E8%81%94%E7%BD%91%E8%B7%AF%E7%94%B1"><span class="toc-number">1.17.3.</span> <span class="toc-text">15.3 MAC 地址可以代替 IP 地址进行互联网路由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-4-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E6%A0%B9%E6%8D%AE%E6%BA%90-MAC-%E5%86%B3%E5%AE%9A%E5%BE%80%E5%93%AA%E9%87%8C%E8%BD%AC%E5%8F%91"><span class="toc-number">1.17.4.</span> <span class="toc-text">15.4 交换机根据源 MAC 决定往哪里转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-5-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E6%B3%9B%E6%B4%AA%E6%97%B6%E4%BC%9A%E6%8A%8A%E7%9B%AE%E7%9A%84%E5%9C%B0%E5%9D%80%E6%94%B9%E6%88%90%E5%B9%BF%E6%92%AD%E5%9C%B0%E5%9D%80"><span class="toc-number">1.17.5.</span> <span class="toc-text">15.5 交换机泛洪时会把目的地址改成广播地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-6-%E8%BF%87%E6%BB%A4%E8%A1%A8%E7%A4%BA%E5%B8%A7%E5%8F%91%E7%94%9F%E9%94%99%E8%AF%AF"><span class="toc-number">1.17.6.</span> <span class="toc-text">15.6 过滤表示帧发生错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-7-%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%85%B7%E6%9C%89-CRC%EF%BC%8C%E6%89%80%E4%BB%A5%E8%83%BD%E5%A4%9F%E4%BF%9D%E8%AF%81%E5%8F%AF%E9%9D%A0%E4%BA%A4%E4%BB%98"><span class="toc-number">1.17.7.</span> <span class="toc-text">15.7 以太网具有 CRC，所以能够保证可靠交付</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-8-%E4%BA%A4%E6%8D%A2%E6%9C%BA%E9%80%8F%E6%98%8E%E6%84%8F%E5%91%B3%E7%9D%80%E4%BA%A4%E6%8D%A2%E6%9C%BA%E6%B2%A1%E6%9C%89%E5%9C%B0%E5%9D%80"><span class="toc-number">1.17.8.</span> <span class="toc-text">15.8 交换机透明意味着交换机没有地址</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.18.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-2：从密码学工具到网络纵深防御"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御">Chapter 8-2：从密码学工具到网络纵深防御</a><time datetime="2026-06-25T15:06:24.000Z" title="Created 2026-06-25 23:06:24">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</a><time datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:05:27.000Z" title="Created 2026-06-25 23:05:27">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</a><time datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

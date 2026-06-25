@@ -1,0 +1,1558 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><meta name="application-name" content="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><meta property="og:url" content="http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程引言：从简单局域网走向真实的大规模网络前面的链路层内容主要讨论了一个相对简单的环境：主机通过以太网和交换机组成局域网，交换机根据 MAC 地址转发帧，ARP 则帮助发送方根据 IP 地址获得下一跳的 MAC 地址。 但真实"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/guile.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/guile.png"><meta name="description" content="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程引言：从简单局域网走向真实的大规模网络前面的链路层内容主要讨论了一个相对简单的环境：主机通过以太网和交换机组成局域网，交换机根据 MAC 地址转发帧，ARP 则帮助发送方根据 IP 地址获得下一跳的 MAC 地址。 但真实"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程',
+  postAI: '',
+  pageFillDescription: 'Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程, 引言：从简单局域网走向真实的大规模网络, 1. VLAN：在一套物理网络上建立多个逻辑局域网, 1.1 为什么大型局域网需要 VLAN, 广播范围过大, 组织结构与物理位置绑定, 安全边界模糊, 网络管理困难, 2. 基于端口的 VLAN, 2.1 VLAN 内部通信, 2.2 不同 VLAN 为什么不能直接二层通信, 2.3 VLAN 与安全性的边界, 3. VLAN 与 IP 子网, 4. 多交换机环境中的 VLAN, 4.1 每个 VLAN 单独布线为什么不可扩展, 5. Access 端口、Trunk 端口与 802.1Q, 5.1 Access 端口, 5.2 Trunk 端口, 5.3 802.1Q 标签, 5.4 标签如何完成跨交换机 VLAN 转发, 5.5 Trunk 不是更快的链路, 6. MPLS：在 IP 转发之外增加标签化路径, 6.1 普通 IP 转发, 6.2 MPLS 标签转发, 7. MPLS 为什么不仅仅是为了提高查表速度, 7.1 普通 IP 路由的局限, 7.2 MPLS 提供的灵活性, 8. MPLS 流量工程, 8.1 最短路径不一定是最佳路径, 8.2 约束路径计算, 8.3 LSP, 8.4 流量工程的主要价值, 9. MPLS、QoS 与 VPN, 9.1 QoS, 9.2 MPLS VPN, 10. 数据中心网络：连接大规模服务器集群, 10.1 为什么数据中心网络不同于普通局域网, 11. 数据中心的分层结构, 11.1 服务器机架, 11.2 ToR 交换机, 11.3 汇聚层和核心层, 11.4 边界路由器, 12. 数据中心为什么需要多路径, 12.1 吞吐量受限, 12.2 故障风险过高, 12.3 不相交路径, 12.4 多路径不等于自动高效, 13. 负载均衡器：把请求交给合适的服务器, 13.1 为什么需要负载均衡, 13.2 为什么称为应用层路由, 13.3 负载均衡器隐藏了什么, 14. 一次 Web 页面请求为什么涉及多个协议, 15. 第一步：DHCP 获取网络配置, 15.1 为什么需要广播, 15.2 DHCP 交付的信息, 16. 第二步：ARP 获取第一跳路由器的 MAC 地址, 17. 第三步：DNS 查询目标服务器 IP, 17.1 DNS 不返回网页, 18. 第四步：TCP 建立可靠连接, 19. 第五步：HTTP 请求和响应, 20. 完整封装关系, 21. VLAN、MPLS 与数据中心网络的关系, 21.1 VLAN 的逻辑抽象, 21.2 MPLS 的逻辑抽象, 21.3 数据中心的逻辑抽象, 22. 常见理解误区, 22.1 VLAN 就是多买几台交换机, 22.2 接在同一台交换机上的设备必然可以直接通信, 22.3 不同 VLAN 之间永远不能通信, 22.4 Trunk 是速度更快的网线, 22.5 所有主机发送的帧都必须携带 802.1Q 标签, 22.6 MPLS 标签取代了 IP 地址, 22.7 MPLS 只是更快的路由查表技术, 22.8 MPLS 路径必须是最短路径, 22.9 数据中心中所有请求都由同一台服务器处理, 22.10 负载均衡器就是普通交换机, 22.11 DNS 返回网页内容, 22.12 访问远端服务器时以太网目的 MAC 是远端服务器, 结论数据中心网络与请求全过程引言从简单局域网走向真实的大规模网络前面的链路层内容主要讨论了一个相对简单的环境主机通过以太网和交换机组成局域网交换机根据地址转发帧则帮助发送方根据地址获得下一跳的地址但真实网络远比一个普通局域网复杂随着设备数量组织规模和业务类型不断增加网络开始面临四类新的问题一个物理交换网络中如何隔离不同部门租户或安全区域仅按照目的地址转发无法满足路径控制需求时怎么办数据中心内部有数万台服务器如何组织拓扑并分配请求用户访问一个网页时等协议如何连续配合这些问题分别对应四个主题组织和隔离大型局域网通过标签提供更灵活的转发路径数据中心网络连接和管理大规模服务器集群请求全过程将多层协议串成一次完整通信本章不是若干独立技术的简单罗列而是在回答一个逐步扩大的问题当网络从单个局域网扩展到企业网络运营商网络和大型数据中心时如何继续保持隔离性可控性可扩展性和端到端通信能力本节核心结论和数据中心网络分别从二层逻辑隔离标签化路径控制和大规模服务架构三个角度扩展传统网络一次访问则把这些底层机制与上层协议连接起来在一套物理网络上建立多个逻辑局域网是即虚拟局域网它的核心思想是不改变或少改变物理布线通过交换机配置将同一套物理基础设施划分成多个相互隔离的逻辑局域网例如一台交换机有个端口可以配置为端口计算机系端口电子系端口行政部门虽然这些主机可能连接在同一台物理交换机上但在二层逻辑上它们被划分到了不同的局域网中从通信效果看一台支持的交换机可以表现得像多台相互独立的虚拟交换机同一台物理交换机计算机系电子系行政部门主机主机主机主机这张图的重点是物理设备可以共享但不同的二层通信范围彼此隔离为什么大型局域网需要如果所有设备都放在一个巨大的二层广播域中会出现几个问题广播范围过大和某些未知单播帧会在广播域内传播设备越多广播和泛洪流量影响的节点越多即使一条广播消息只占很少带宽当主机数量和协议活动不断增加时整个局域网都可能受到影响组织结构与物理位置绑定没有时一个部门的主机往往需要接入特定交换机或特定物理网络如果计算机系的人员搬到另一栋楼但仍希望使用计算机系的网络策略就可能需要重新布线或调整大量网络设备可以让逻辑归属与物理位置分离安全边界模糊如果不同部门访客设备和服务器都处于同一个二层网络中它们会共享广播流量也更容易直接发生链路层交互可以提供基础的二层隔离使不同用户组不能默认直接互通网络管理困难网络管理员通常希望针对不同群体应用不同的地址规划配置访问控制策略带宽或优先级策略安全审计规则为这些逻辑分组提供了清晰边界的主要价值不是节省几根网线而是把逻辑组织关系从物理布线中解耦本节核心结论通过逻辑划分缩小广播域改善安全隔离并允许用户或设备在物理位置变化后继续保留原有网络归属基于端口的常见的实现方式是基于交换机端口划分管理员把每个端口配置为属于某个普通主机接入端口后会自动被归入该端口对应的例如交换机端口逻辑部门计算机系电子系访客网络当端口上的主机发送广播帧时交换机只会把它传播到的其他相关端口而不会传播到或因此改变了交换机内部的转发边界传统单一所有端口属于同一广播域配置后每个是独立广播域内部通信同一中的主机可以通过交换机完成普通二层通信交换机会学习源地址查询目的地址在该范围内转发过滤或泛洪交换表中的地址学习也必须结合理解两个不同中即使出现相同或相似的二层环境其流量也不能被直接混合不同为什么不能直接二层通信不同在逻辑上被视为不同的局域网因此位于的主机不能仅凭交换机二层转发直接向的主机发送帧这是隔离机制本身的结果而不是设备故障不同之间要通信必须经过网络层设备例如路由器三层交换机集成了路由功能的交换设备通信过程类似于两个不同物理局域网之间的通信主机网关三层路由网关主机与安全性的边界能够提供二层隔离但它不是完整的安全系统可以阻止不同逻辑网络默认直接交换二层帧但只要配置了间路由不同仍可能通信是否允许某种通信需要结合路由策略防火墙身份认证终端安全策略因此更准确的说法是提供网络分段和基础隔离安全策略决定不同分段之间允许哪些流量通过本节核心结论同一内可以依靠二层交换通信不同之间默认隔离必须经过三层路由才能互通与子网与子网经常一一对应但它们不是同一个概念对比项子网所属层次链路层网络层标识方式前缀与子网掩码主要作用划分二层广播域组织地址和路由边界内部通信二层交换视为本地网络跨边界通信需要三层设备需要路由例如这种设计非常常见因为它能让二层边界和三层边界保持一致中的主机使用中的主机使用两个网络之间通过路由器或三层交换机转发但从概念上说是二层逻辑网络子网是三层地址范围不能仅因为二者经常对应就把它们当成同一种机制规定广播帧可以传播到哪里子网规定哪些地址被视为同一本地网络本节核心结论和子网分别定义二层和三层边界实际网络常让一个对应一个子网以简化地址管理和路由设计多交换机环境中的只有一台交换机时划分相对简单问题在于实际组织通常使用多台交换机而且同一个的主机可能分布在不同交换机上例如交换机上有主机交换机上也有主机交换机和之间需要传输流量如果两台交换机之间的链路还需要同时承载等流量就必须区分每个帧属于哪个每个单独布线为什么不可扩展一种简单方法是使用一条交换机间链路使用另一条链路再使用一条链路但数量增加时需要的物理端口和链路也线性增加假设有个就可能需要条独立的交换机间连接这会导致端口消耗严重布线复杂管理成本高扩展困难因此需要让一条链路同时承载多个的帧这就是链路端口端口与端口端口通常连接普通终端例如个人电脑打印机普通服务器网络摄像头一个端口通常归属于一个普通终端发送和接收的以太网帧一般不需要携带标签终端可以完全不知道的存在交换机根据接入端口判断该帧属于哪个端口端口通常用于连接交换机与交换机交换机与路由器交换机与三层交换设备需要同时处理多个的服务器或虚拟化主机一条链路可以同时承载多个的流量但这会产生一个问题接收方如何知道每个帧属于哪个解决方法是在帧中加入标签标签定义了在以太网帧中插入标签的方式标签中包含的重要信息包括优先级等控制信息通常占因此可以表示大量编号简化后的帧结构可以表示为普通以太网帧目的源标记帧目的源由于插入标签会改变帧内容帧的差错检测值也需要重新计算标签如何完成跨交换机转发假设的主机位于交换机另一台主机位于交换机过程如下发送普通以太网帧到的端口根据输入端口判断该帧属于将帧发送到端口时加入标签收到标记帧后读取只在的范围内查询和转发帧从所在的端口发出时标签通常被移除收到普通以太网帧主机交换机交换机主机未标记以太网帧根据端口识别标记帧根据在内转发移除标签后的普通帧不是更快的链路的关键特征不是传输速率更高而是一条逻辑或物理链路可以携带多个的帧并利用标签区分其所属网络一条链路可能速度很高也可能速度普通是否属于取决于它是否承载并区分多个而不是单纯取决于带宽本节核心结论端口通常承载一个并连接普通主机端口利用标签在一条链路上同时传输多个的流量在转发之外增加标签化路径是即多协议标签交换它的基本思想是给进入网络的分组附加一个短标签使中间设备能够根据标签而不是仅根据目的地址进行转发标签通常位于链路层头部与头部之间链路层头部标签头部传输层数据因此有时被描述为位于传统第二层和第三层之间的机制普通转发普通路由器通常根据目的地址进行最长前缀匹配对于同一个目的地址分组一般按照由路由协议和转发表确定的路径转发简化表示为目的最长前缀匹配输出接口和下一跳这种机制通用灵活支撑了互联网的基本运行但它的路径选择通常以目的地址为核心不能天然表达复杂的业务要求标签转发在网络中入口设备可以根据分组类型源地址目的地址业务类别或运营策略为分组分配标签中间标签交换路由器主要执行输入标签查转发表输出标签输出接口它不一定需要在每一跳重新进行完整的最长前缀匹配一个典型过程包括分组进入域入口路由器压入标签中间设备读取标签中间设备把旧标签替换为新标签分组沿标签交换路径前进出口设备移除标签分组恢复为普通转发这种标签操作通常称为压入标签交换标签弹出标签普通分组标签入口标签交换路由器标签交换路由器出口标签普通分组标签不会替代地址头仍然保留标签只是为域内部提供另一种转发依据本节核心结论在保留数据报的基础上增加标签使运营商能够通过标签交换路径实现更可控的转发为什么不仅仅是为了提高查表速度早期优势之一是固定长度标签查找可能比复杂的前缀匹配更高效但现代路由硬件已经能够高速执行查表因此理解时更重要的是它提供的路径控制和业务能力普通路由的局限假设网络中存在两条路径路径较短但已经拥塞路径稍长但有大量空闲带宽普通路由协议往往根据预设度量选择成本较低的路径如果大量流量都被导向路径就可能出现一条链路拥塞另一条链路闲置总体资源利用率不高重要业务延迟增加此外仅根据目的地址进行转发很难表达同一目的地的语音流量走低延迟路径普通下载流量走成本较低路径高优先级客户使用独立逻辑路径某类业务必须避开特定链路提供的灵活性入口路由器可以把不同业务划分到不同的转发等价类并分配不同标签因此即使两个分组具有相同目的也可以因为业务类别来源或策略不同而进入不同的标签交换路径对比项普通转发转发核心查表依据目的前缀标签路径主要受什么影响路由协议和目的地址标签映射和运营策略同一目的地能否走不同路径可以通过额外机制实现但不天然更容易按业务区分典型用途通用互联网路由流量工程快速恢复本节核心结论的现代价值主要不在于标签比查得快而在于它让运营商能够按业务策略建立和管理路径流量工程流量工程关注的不只是分组能否到达目的地而是如何让网络流量按照整体资源状况和业务需求分布到合适路径上简称可以让网络建立满足特定约束的标签交换路径最短路径不一定是最佳路径在传统路由中路径通常根据跳数链路成本或其他度量计算但对于特定业务来说最短路径不一定最好例如最短路径可能没有足够剩余带宽某条路径可能不支持所需服务等级某条链路可能风险较高某些业务需要经过或避开指定节点重要业务需要预留资源可以把这些条件纳入路径选择约束路径计算的典型逻辑是收集链路带宽状态和属性建立流量工程数据库根据业务约束计算可行路径建立标签交换路径必要时预留带宽或其他资源把流量映射到该路径路径计算可能使用即它不是简单寻找数学意义上的最短路径而是在满足约束的可用路径中进行选择是即标签交换路径它可以理解为网络中预先建立或逻辑确定的一条标签转发通道分组进入后中间设备根据标签连续转发不必让每个分组独立决定完全不同的路径流量工程的主要价值可以支持绕开拥塞链路使用原本闲置的备用路径为关键业务分配带宽区分不同优先级建立主路径和备份路径在故障时快速切换高优先级业务还可能在资源紧张时抢占低优先级隧道资源这不意味着所有网络都必然提供绝对的端到端性能保证而是说明运营商能够以比普通目的地址路由更明确的方式规划和控制资源流量工程的目标不是让每个分组都走最短路而是让整个网络按照业务需求更合理地使用资源本节核心结论通过约束路径计算标签交换路径和资源管理让网络从能到达进一步发展为沿合适路径到达与常与和结合使用是即服务质量不同业务对网络的需求不同业务主要需求实时语音低延迟低抖动视频会议较高带宽低丢包文件下载吞吐量重要对短期延迟不敏感控制系统高可靠性和稳定时延标签和业务分类可以帮助网络区分这些流量并将其放入不同路径或优先级队列但标签本身不自动产生带宽和低延迟仍然需要设备队列资源规划和策略配置共同实现运营商可以利用构建不同客户之间逻辑隔离的多个企业可以共享同一套运营商物理基础设施但在逻辑上拥有独立的路由和转发环境其基本价值是共享物理网络逻辑隔离的客户网络这与有一定相似性二者都在共享基础设施上提供逻辑隔离但作用范围和技术层次不同对比项常见范围企业局域网园区网运营商网络广域网主要标识标签及相关信息主要作用二层广播域划分跨地域客户网络隔离与互联常见设备交换机提供商边缘路由器路由器本节核心结论可以作为流量工程和运营商的承载基础但最终服务能力仍依赖完整的路由资源和策略体系数据中心网络连接大规模服务器集群数据中心是集中部署计算存储和网络资源的基础设施一个大型数据中心可能拥有数万甚至数十万台服务器运行云计算服务搜索引擎电商平台短视频与流媒体分布式数据库训练与推理微服务系统数据中心网络必须连接这些服务器并支持它们与外部用户及彼此之间进行高吞吐低延迟通信为什么数据中心网络不同于普通局域网普通办公室网络的主要通信模式可能是终端互联网而数据中心内部常存在大量服务器间通信服务器服务器存储节点计算节点微服务微服务训练节点训练节点因此数据中心网络不仅要处理外部用户访问还要处理大量东西向流量其主要挑战包括服务器数量巨大请求量变化剧烈内部通信频繁单点故障不可接受链路带宽容易成为瓶颈服务需要动态扩缩容网络必须支持多租户隔离数据中心的分层结构一种经典的数据中心网络结构包括服务器交换机汇聚层交换机核心层交换机边界路由器外部网络服务器机架服务器通常被集中安装在机架中一个机架可能包含多台服务器每台服务器通过网线连接到机架顶部交换机交换机是即机架顶部交换机它负责连接同一机架中的服务器汇聚机架内的上行流量将服务器连接到数据中心更高层网络可以把理解为一个服务器机架的网络出口汇聚层和核心层多个交换机可能连接到更高层交换机高层交换机负责连接不同机架提供到数据中心其他区域的路径汇聚到边界网络的流量建立冗余连接边界路由器边界路由器连接数据中心内部网络与外部互联网或其他专用网络它负责对外发布可达性接收外部请求执行边界路由策略与运营商网络连接互联网边界路由器核心交换机核心交换机汇聚交换机汇聚交换机服务器机架服务器机架服务器机架服务器机架本节核心结论数据中心通常通过机架汇聚或核心设备和边界路由器组成分层网络使海量服务器能够被有组织地连接起来数据中心为什么需要多路径如果任意两台服务器之间只有一条路径会产生两个严重问题吞吐量受限大量流量集中在少数链路上时这些链路会成为瓶颈而其他区域可能仍有空闲容量多条路径可以让不同流量分散到不同链路提高网络总吞吐量故障风险过高交换机端口光模块和链路都可能故障如果通信只有唯一通路任意单点故障都可能造成大范围服务中断多路径和冗余连接允许网络在部分组件失效后继续运行不相交路径如果两条备用路径仍共享同一个关键交换机那么该交换机故障时两条路径都会同时中断因此网络设计常希望提供尽量不相交的路径使它们不共享关键链路或设备多路径不等于自动高效物理上存在多条路径并不意味着流量一定会被合理分配还需要路由或转发算法等价多路径机制流量调度拥塞控制故障检测路径切换策略多路径同时服务于性能和可靠性既可以并行承载流量也可以在故障时提供替代通道本节核心结论数据中心通过冗余互连和多路径避免单链路瓶颈与单点故障但路径资源必须配合合适的调度和拥塞控制才能充分利用负载均衡器把请求交给合适的服务器用户访问一个大型网站时通常不会直接指定某一台具体服务器用户看到的是统一的域名或服务地址但数据中心内部可能有成百上千台服务器共同提供服务负载均衡器负责接收或识别外部请求从多个后端服务器中选择目标将请求转交给被选中的服务器将响应返回给客户端对客户端隐藏内部服务器结构为什么需要负载均衡如果所有请求都集中到一台服务器服务器可能过载单机故障会导致服务中断扩容能力有限其他服务器资源无法利用负载均衡器可以根据不同指标选择服务器例如当前连接数或内存负载响应时间会话一致性地理位置服务实例健康状态为什么称为应用层路由网络层路由器主要根据地址选择下一跳负载均衡器可能进一步检查域名头部服务类型用户会话它可以根据应用层信息把不同请求交给不同后端因此常被描述为应用层路由或四层七层负载均衡设备负载均衡器隐藏了什么对外部客户端而言服务可能只有一个统一地址客户端通常不需要知道数据中心内有多少台服务器具体是哪台服务器处理请求服务器是否发生扩容或替换内部网络如何组织某台服务器故障后请求被迁移到哪里这种抽象使服务端可以在不改变客户端使用方式的前提下动态调整内部资源本节核心结论负载均衡器把统一服务入口映射到多个后端服务器在提高吞吐量和可用性的同时对客户端隐藏数据中心内部结构一次页面请求为什么涉及多个协议用户在浏览器中输入一个网址看起来只是一个简单动作但计算机必须依次解决多个问题我能使用什么地址我的默认网关是谁服务器在哪里目标域名对应什么如何可靠连接服务器如何请求网页内容这些问题由不同协议负责阶段协议解决的问题网络配置主机的网关和是什么本地链路寻址下一跳的地址是什么域名解析域名对应什么地址可靠连接如何建立可靠字节流应用请求请求和返回什么内容跨网络转发数据报沿哪些下一跳前进每跳传输帧如何在当前链路交付因此一次网页访问是协议栈分层协作的结果而不是单独完成的第一步获取网络配置一台刚连接校园网络的笔记本可能还不知道自己应使用什么地址子网掩码是什么默认网关地址是什么服务器地址是什么即用于动态提供这些配置为什么需要广播客户端刚接入网络时可能既不知道服务器的位置也没有可正常使用的地址因此初始消息通常使用广播方式发送封装关系可以表示为消息数据报数据报以太网广播帧物理信号以太网目的地址通常是交付的信息服务器可以向客户端提供客户端地址子网掩码默认网关服务器地址租期其他网络参数获得这些配置后主机才能判断目标是否位于本地子网并知道访问外部网络时应把分组交给哪个路由器不负责传输网页也不负责域名解析它首先让主机具备正常参与网络通信的基本配置本节核心结论解决的是主机刚接入网络时的初始化问题使主机获得自己的地址网关和等必要参数第二步获取第一跳路由器的地址假设客户端已经知道服务器的地址但服务器位于外部网络客户端根据子网判断发现服务器不在本地子网因此查询必须先交给默认网关数据报中可以填写目的服务器但以太网帧还需要填写当前一跳的目的地址这一跳的接收方不是远端服务器而是默认网关因此客户端通过查询谁拥有默认网关的地址请返回你的地址路由器接口回复自己的地址后客户端把映射写入缓存随后构造帧目的服务器目的默认网关访问外部网络时帧的目的是第一跳路由器而不是远端服务器本节核心结论将默认网关的地址解析为地址使客户端能够把外部流量的第一跳帧交给路由器第三步查询目标服务器浏览器使用的是域名例如网络不能直接根据域名转发因此客户端需要通过获取对应的地址查询的封装过程通常是查询或以太网或帧在本地链路上目的默认网关在网络层目的服务器交换机根据目的将帧送到网关路由器取出数据报再根据目的逐跳转发到服务器服务器返回域名对应的记录客户端由此获得服务器的地址不返回网页的任务只是名称解析它返回的是类似下面的信息某个地址真正的网页内容要在后续连接建立后通过请求获得本节核心结论将人类易读的域名转换为网络层可以使用的地址但它不建立连接也不传输网页内容第四步建立可靠连接浏览器获得服务器地址后需要与服务器建立通信传统和通常运行在之上因此客户端首先建立连接经典三次握手包括客户端服务器服务器客户端客户端服务器三次握手的主要作用包括确认双方具备发送和接收能力同步初始序列号建立连接状态协商部分参数每个报文段都会继续被封装报文段数据报当前链路的帧当分组经过不同路由器时层继续面向服务器每一跳的源和目的会变化路由器不断拆除旧帧并创建新帧本节核心结论三次握手在客户端和服务器之间建立端到端连接状态而实际握手报文仍需依赖路由和逐跳链路层交付第五步请求和响应连接建立后浏览器才能通过连接发送请求请求可能包含请求方法目标资源路径主机名浏览器支持的信息其他请求头简化表示为服务器收到请求后处理资源并返回响应响应中可能包含状态码内容类型缓存信息图片脚本或样式资源的引用浏览器收到后通常还会继续请求页面引用的其他资源因此一次打开网页可能产生多次或交互课件中的主线可以简化为客户端服务器默认网关服务器服务器获取网关和配置返回网络参数查询网关返回网关查询域名对应返回服务器这张图省略了大量中间路由器和链路细节但保留了协议调用顺序本节核心结论负责表达应用层请求与响应但它依赖的连接的路由的本地寻址和链路层的逐跳传输完整封装关系一次请求在客户端内部会逐层封装请求添加首部报文段添加首部数据报添加以太网首部和尾部以太网帧转换为信号物理层比特接收端执行反向过程物理信号以太网帧去除链路层封装数据报去除首部数据重组字节流请求每一层只处理自己负责的头部和语义层次主要信息请求什么资源属于哪个连接如何可靠传输最终目标主机是谁当前一跳交给哪个接口物理层如何表现为真实信号分层协议的意义在于每一层解决一种相对独立的问题再通过封装共同完成通信本节核心结论一次请求会被逐层封装为报文段数据报和链路层帧接收端再逐层解封装恢复应用数据与数据中心网络的关系和数据中心网络作用于不同范围但都体现了同一种系统设计思想在共享的物理基础设施之上建立逻辑结构从而提升隔离性可控性和资源利用率技术主要范围核心问题局域网园区网如何划分二层广播域运营商网广域网如何按标签和业务策略控制路径数据中心网络大规模服务器集群如何高效可靠地连接和调度海量服务器的逻辑抽象一台物理交换机可以被划分为多个逻辑局域网的逻辑抽象一套物理运营商网络可以承载多条逻辑标签路径和多个客户数据中心的逻辑抽象大量物理服务器可以被负载均衡器包装成一个统一服务底层多条物理路径则被组织成高可用网络这些机制都在减少上层对底层物理细节的依赖本节核心结论三类技术虽然工作层次和应用场景不同但都通过逻辑化和抽象化使共享网络基础设施能够服务不同组织业务和规模需求常见理解误区就是多买几台交换机错误是在共享物理交换基础设施上进行逻辑划分其效果类似多个独立局域网但不一定对应多台物理交换机接在同一台交换机上的设备必然可以直接通信错误如果设备属于不同它们默认不能通过二层交换直接互通不同之间永远不能通信错误不同可以通过路由器或三层交换机进行三层转发是否允许通信由路由和安全策略决定是速度更快的网线错误的关键是能够在一条链路上承载多个并使用标签区分帧所属的所有主机发送的帧都必须携带标签错误普通主机连接的端口上帧通常不带标签标签主要出现在需要区分多个的链路上标签取代了地址错误分组仍然保留头标签只是域中的额外转发依据只是更快的路由查表技术不完整现代的重要价值包括流量工程和快速故障恢复路径必须是最短路径错误流量工程可以让业务选择满足带宽延迟和策略约束的路径即使该路径不是最短路径数据中心中所有请求都由同一台服务器处理错误大型服务通常由多个服务器共同提供负载均衡器负责把请求分配到合适实例负载均衡器就是普通交换机错误普通交换机主要根据地址转发帧负载均衡器可能根据传输层或应用层信息选择后端服务器返回网页内容错误返回域名相关的地址信息网页内容由后续请求获得访问远端服务器时以太网目的是远端服务器错误以太网目的只指向当前链路中的下一跳访问外部服务器时客户端第一帧的目的通常是默认网关结论本章把链路层和局域网知识扩展到了更复杂的网络环境解决的是大型局域网中的逻辑组织问题它通过端口划分和标签在共享交换基础设施上建立多个独立广播域不同之间默认二层隔离需要通过路由器或三层交换机通信解决的是路径控制与业务承载问题它在数据报之外增加标签使运营商能够建立标签交换路径并进一步支持流量工程和快速故障恢复数据中心网络解决的是海量服务器的连接与服务调度问题交换机分层或多路径拓扑边界路由器和负载均衡器共同支撑高吞吐高可靠的大规模服务一次完整的页面访问则说明现实通信从来不是某个单独协议完成的让主机获得网络配置找到本地下一跳的地址把域名转换为服务器建立可靠连接传输应用请求和网页内容负责跨网络转发或负责每一跳交付最终可以将本章压缩为四句话决定哪些设备属于同一个逻辑局域网决定某类业务在运营商网络中沿什么标签路径前进数据中心网络决定大量服务器如何互连并共同对外提供服务协议栈决定一个普通请求如何从应用操作变成真实的网络通信最终核心结论网络规模扩大后单纯的以太网交换和目的路由已经不足以解决全部问题提供逻辑隔离提供路径控制数据中心网络提供大规模资源组织而分层协议协作最终把这些基础设施转化为用户可见的网络服务',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-25 23:05:21',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">46</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:21.939Z" title="Updated 2026-06-25 23:05:21">2026-06-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">10.8k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>34min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/guile.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:21.939Z" title="Updated 2026-06-25 23:05:21">2026-06-25</time></header><h1 id="Chapter-6-3：VLAN、MPLS、数据中心网络与-Web-请求全过程"><a href="#Chapter-6-3：VLAN、MPLS、数据中心网络与-Web-请求全过程" class="headerlink" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"></a>Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</h1><h2 id="引言：从简单局域网走向真实的大规模网络"><a href="#引言：从简单局域网走向真实的大规模网络" class="headerlink" title="引言：从简单局域网走向真实的大规模网络"></a>引言：从简单局域网走向真实的大规模网络</h2><p>前面的链路层内容主要讨论了一个相对简单的环境：主机通过以太网和交换机组成局域网，交换机根据 MAC 地址转发帧，ARP 则帮助发送方根据 IP 地址获得下一跳的 MAC 地址。</p>
+<p>但真实网络远比一个普通局域网复杂。</p>
+<p>随着设备数量、组织规模和业务类型不断增加，网络开始面临四类新的问题：</p>
+<ul>
+<li>一个物理交换网络中，如何隔离不同部门、租户或安全区域？</li>
+<li>仅按照目的 IP 地址转发，无法满足路径控制需求时怎么办？</li>
+<li>数据中心内部有数万台服务器，如何组织拓扑并分配请求？</li>
+<li>用户访问一个网页时，DHCP、ARP、DNS、TCP、HTTP 等协议如何连续配合？</li>
+</ul>
+<p>这些问题分别对应四个主题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">VLAN：组织和隔离大型局域网</span><br><span class="line">MPLS：通过标签提供更灵活的转发路径</span><br><span class="line">数据中心网络：连接和管理大规模服务器集群</span><br><span class="line">Web 请求全过程：将多层协议串成一次完整通信</span><br></pre></td></tr></table></figure>
+
+<p>本章不是若干独立技术的简单罗列，而是在回答一个逐步扩大的问题：</p>
+<blockquote>
+<p>当网络从单个局域网扩展到企业网络、运营商网络和大型数据中心时，如何继续保持隔离性、可控性、可扩展性和端到端通信能力？</p>
+</blockquote>
+<hr>
+<p>❗ 本节核心结论：<br>VLAN、MPLS 和数据中心网络分别从二层逻辑隔离、标签化路径控制和大规模服务架构三个角度扩展传统网络；一次 Web 访问则把这些底层机制与上层协议连接起来。</p>
+<hr>
+<h2 id="1-VLAN：在一套物理网络上建立多个逻辑局域网"><a href="#1-VLAN：在一套物理网络上建立多个逻辑局域网" class="headerlink" title="1. VLAN：在一套物理网络上建立多个逻辑局域网"></a>1. VLAN：在一套物理网络上建立多个逻辑局域网</h2><p>VLAN 是 Virtual Local Area Network，即虚拟局域网。</p>
+<p>它的核心思想是：</p>
+<blockquote>
+<p>不改变或少改变物理布线，通过交换机配置，将同一套物理基础设施划分成多个相互隔离的逻辑局域网。</p>
+</blockquote>
+<p>例如，一台交换机有 24 个端口，可以配置为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">端口 1—8：VLAN 10，计算机系</span><br><span class="line">端口 9—16：VLAN 20，电子系</span><br><span class="line">端口 17—24：VLAN 30，行政部门</span><br></pre></td></tr></table></figure>
+
+<p>虽然这些主机可能连接在同一台物理交换机上，但在二层逻辑上，它们被划分到了不同的局域网中。</p>
+<p>从通信效果看，一台支持 VLAN 的交换机可以表现得像多台相互独立的虚拟交换机。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    subgraph Physical[同一台物理交换机]
+        V10[VLAN 10&lt;br&#x2F;&gt;计算机系]
+        V20[VLAN 20&lt;br&#x2F;&gt;电子系]
+        V30[VLAN 30&lt;br&#x2F;&gt;行政部门]
+    end
+
+    A[主机 A] --&gt; V10
+    B[主机 B] --&gt; V10
+    C[主机 C] --&gt; V20
+    D[主机 D] --&gt; V30
+  </pre></div>
+
+<p>这张图的重点是：物理设备可以共享，但不同 VLAN 的二层通信范围彼此隔离。</p>
+<h3 id="1-1-为什么大型局域网需要-VLAN"><a href="#1-1-为什么大型局域网需要-VLAN" class="headerlink" title="1.1 为什么大型局域网需要 VLAN"></a>1.1 为什么大型局域网需要 VLAN</h3><p>如果所有设备都放在一个巨大的二层广播域中，会出现几个问题。</p>
+<h4 id="广播范围过大"><a href="#广播范围过大" class="headerlink" title="广播范围过大"></a>广播范围过大</h4><p>ARP、DHCP 和某些未知单播帧会在广播域内传播。</p>
+<p>设备越多，广播和泛洪流量影响的节点越多。即使一条广播消息只占很少带宽，当主机数量和协议活动不断增加时，整个局域网都可能受到影响。</p>
+<h4 id="组织结构与物理位置绑定"><a href="#组织结构与物理位置绑定" class="headerlink" title="组织结构与物理位置绑定"></a>组织结构与物理位置绑定</h4><p>没有 VLAN 时，一个部门的主机往往需要接入特定交换机或特定物理网络。</p>
+<p>如果计算机系的人员搬到另一栋楼，但仍希望使用计算机系的网络策略，就可能需要重新布线或调整大量网络设备。</p>
+<p>VLAN 可以让逻辑归属与物理位置分离。</p>
+<h4 id="安全边界模糊"><a href="#安全边界模糊" class="headerlink" title="安全边界模糊"></a>安全边界模糊</h4><p>如果不同部门、访客设备和服务器都处于同一个二层网络中，它们会共享广播流量，也更容易直接发生链路层交互。</p>
+<p>VLAN 可以提供基础的二层隔离，使不同用户组不能默认直接互通。</p>
+<h4 id="网络管理困难"><a href="#网络管理困难" class="headerlink" title="网络管理困难"></a>网络管理困难</h4><p>网络管理员通常希望针对不同群体应用不同的：</p>
+<ul>
+<li>IP 地址规划；</li>
+<li>DHCP 配置；</li>
+<li>访问控制策略；</li>
+<li>带宽或优先级策略；</li>
+<li>安全审计规则。</li>
+</ul>
+<p>VLAN 为这些逻辑分组提供了清晰边界。</p>
+<p><strong>❗ VLAN 的主要价值不是节省几根网线，而是把逻辑组织关系从物理布线中解耦。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>VLAN 通过逻辑划分缩小广播域、改善安全隔离，并允许用户或设备在物理位置变化后继续保留原有网络归属。</p>
+<hr>
+<h2 id="2-基于端口的-VLAN"><a href="#2-基于端口的-VLAN" class="headerlink" title="2. 基于端口的 VLAN"></a>2. 基于端口的 VLAN</h2><p>常见的 VLAN 实现方式是基于交换机端口划分。</p>
+<p>管理员把每个端口配置为属于某个 VLAN。普通主机接入端口后，会自动被归入该端口对应的 VLAN。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>交换机端口</th>
+<th align="right">VLAN</th>
+<th>逻辑部门</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1—8</td>
+<td align="right">10</td>
+<td>计算机系</td>
+</tr>
+<tr>
+<td>9—15</td>
+<td align="right">20</td>
+<td>电子系</td>
+</tr>
+<tr>
+<td>16—20</td>
+<td align="right">30</td>
+<td>访客网络</td>
+</tr>
+</tbody></table>
+<p>当端口 1 上的主机发送广播帧时，交换机只会把它传播到 VLAN 10 的其他相关端口，而不会传播到 VLAN 20 或 VLAN 30。</p>
+<p>因此，VLAN 改变了交换机内部的转发边界：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">传统单一 LAN：</span><br><span class="line">所有端口属于同一广播域</span><br><span class="line"></span><br><span class="line">配置 VLAN 后：</span><br><span class="line">每个 VLAN 是独立广播域</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-1-VLAN-内部通信"><a href="#2-1-VLAN-内部通信" class="headerlink" title="2.1 VLAN 内部通信"></a>2.1 VLAN 内部通信</h3><p>同一 VLAN 中的主机可以通过交换机完成普通二层通信。</p>
+<p>交换机会：</p>
+<ol>
+<li>学习源 MAC 地址；</li>
+<li>查询目的 MAC 地址；</li>
+<li>在该 VLAN 范围内转发、过滤或泛洪。</li>
+</ol>
+<p>交换表中的 MAC 地址学习也必须结合 VLAN 理解。两个不同 VLAN 中即使出现相同或相似的二层环境，其流量也不能被直接混合。</p>
+<h3 id="2-2-不同-VLAN-为什么不能直接二层通信"><a href="#2-2-不同-VLAN-为什么不能直接二层通信" class="headerlink" title="2.2 不同 VLAN 为什么不能直接二层通信"></a>2.2 不同 VLAN 为什么不能直接二层通信</h3><p>不同 VLAN 在逻辑上被视为不同的局域网。</p>
+<p>因此，位于 VLAN 10 的主机不能仅凭交换机二层转发，直接向 VLAN 20 的主机发送帧。</p>
+<p>这是 VLAN 隔离机制本身的结果，而不是设备故障。</p>
+<p>不同 VLAN 之间要通信，必须经过网络层设备，例如：</p>
+<ul>
+<li>路由器；</li>
+<li>三层交换机；</li>
+<li>集成了路由功能的交换设备。</li>
+</ul>
+<p>通信过程类似于两个不同物理局域网之间的通信：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">VLAN 10 主机</span><br><span class="line">    ↓</span><br><span class="line">VLAN 10 网关</span><br><span class="line">    ↓ 三层路由</span><br><span class="line">VLAN 20 网关</span><br><span class="line">    ↓</span><br><span class="line">VLAN 20 主机</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-VLAN-与安全性的边界"><a href="#2-3-VLAN-与安全性的边界" class="headerlink" title="2.3 VLAN 与安全性的边界"></a>2.3 VLAN 与安全性的边界</h3><p>VLAN 能够提供二层隔离，但它不是完整的安全系统。</p>
+<p>VLAN 可以阻止不同逻辑网络默认直接交换二层帧，但只要配置了 VLAN 间路由，不同 VLAN 仍可能通信。</p>
+<p>是否允许某种通信，需要结合：</p>
+<ul>
+<li>路由策略；</li>
+<li>ACL；</li>
+<li>防火墙；</li>
+<li>身份认证；</li>
+<li>终端安全策略。</li>
+</ul>
+<p>因此，更准确的说法是：</p>
+<blockquote>
+<p>VLAN 提供网络分段和基础隔离，安全策略决定不同分段之间允许哪些流量通过。</p>
+</blockquote>
+<hr>
+<p>❗ 本节核心结论：<br>同一 VLAN 内可以依靠二层交换通信；不同 VLAN 之间默认隔离，必须经过三层路由才能互通。</p>
+<hr>
+<h2 id="3-VLAN-与-IP-子网"><a href="#3-VLAN-与-IP-子网" class="headerlink" title="3. VLAN 与 IP 子网"></a>3. VLAN 与 IP 子网</h2><p>VLAN 与 IP 子网经常一一对应，但它们不是同一个概念。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>VLAN</th>
+<th>IP 子网</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>所属层次</td>
+<td>链路层</td>
+<td>网络层</td>
+</tr>
+<tr>
+<td>标识方式</td>
+<td>VLAN ID</td>
+<td>IP 前缀与子网掩码</td>
+</tr>
+<tr>
+<td>主要作用</td>
+<td>划分二层广播域</td>
+<td>组织 IP 地址和路由边界</td>
+</tr>
+<tr>
+<td>内部通信</td>
+<td>二层交换</td>
+<td>视为本地网络</td>
+</tr>
+<tr>
+<td>跨边界通信</td>
+<td>需要三层设备</td>
+<td>需要路由</td>
+</tr>
+</tbody></table>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">VLAN 10 → 192.168.10.0/24</span><br><span class="line">VLAN 20 → 192.168.20.0/24</span><br><span class="line">VLAN 30 → 192.168.30.0/24</span><br></pre></td></tr></table></figure>
+
+<p>这种设计非常常见，因为它能让二层边界和三层边界保持一致：</p>
+<ul>
+<li>VLAN 10 中的主机使用 <code>192.168.10.0/24</code>；</li>
+<li>VLAN 20 中的主机使用 <code>192.168.20.0/24</code>；</li>
+<li>两个网络之间通过路由器或三层交换机转发。</li>
+</ul>
+<p>但从概念上说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">VLAN 是二层逻辑网络</span><br><span class="line">子网是三层地址范围</span><br></pre></td></tr></table></figure>
+
+<p>不能仅因为二者经常对应，就把它们当成同一种机制。</p>
+<p><strong>❗ VLAN 规定广播帧可以传播到哪里，IP 子网规定哪些 IP 地址被视为同一本地网络。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>VLAN 和子网分别定义二层和三层边界。实际网络常让一个 VLAN 对应一个子网，以简化地址管理和路由设计。</p>
+<hr>
+<h2 id="4-多交换机环境中的-VLAN"><a href="#4-多交换机环境中的-VLAN" class="headerlink" title="4. 多交换机环境中的 VLAN"></a>4. 多交换机环境中的 VLAN</h2><p>只有一台交换机时，VLAN 划分相对简单。问题在于，实际组织通常使用多台交换机，而且同一个 VLAN 的主机可能分布在不同交换机上。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">交换机 S1 上有 VLAN 10 主机</span><br><span class="line">交换机 S2 上也有 VLAN 10 主机</span><br><span class="line">交换机 S1 和 S2 之间需要传输 VLAN 10 流量</span><br></pre></td></tr></table></figure>
+
+<p>如果两台交换机之间的链路还需要同时承载 VLAN 20、VLAN 30 等流量，就必须区分每个帧属于哪个 VLAN。</p>
+<h3 id="4-1-每个-VLAN-单独布线为什么不可扩展"><a href="#4-1-每个-VLAN-单独布线为什么不可扩展" class="headerlink" title="4.1 每个 VLAN 单独布线为什么不可扩展"></a>4.1 每个 VLAN 单独布线为什么不可扩展</h3><p>一种简单方法是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">VLAN 10 使用一条交换机间链路</span><br><span class="line">VLAN 20 使用另一条链路</span><br><span class="line">VLAN 30 再使用一条链路</span><br></pre></td></tr></table></figure>
+
+<p>但 VLAN 数量增加时，需要的物理端口和链路也线性增加。</p>
+<p>假设有 20 个 VLAN，就可能需要 20 条独立的交换机间连接。这会导致：</p>
+<ul>
+<li>端口消耗严重；</li>
+<li>布线复杂；</li>
+<li>管理成本高；</li>
+<li>扩展困难。</li>
+</ul>
+<p>因此，需要让一条链路同时承载多个 VLAN 的帧。</p>
+<p>这就是 trunk 链路。</p>
+<hr>
+<h2 id="5-Access-端口、Trunk-端口与-802-1Q"><a href="#5-Access-端口、Trunk-端口与-802-1Q" class="headerlink" title="5. Access 端口、Trunk 端口与 802.1Q"></a>5. Access 端口、Trunk 端口与 802.1Q</h2><h3 id="5-1-Access-端口"><a href="#5-1-Access-端口" class="headerlink" title="5.1 Access 端口"></a>5.1 Access 端口</h3><p>Access 端口通常连接普通终端，例如：</p>
+<ul>
+<li>个人电脑；</li>
+<li>打印机；</li>
+<li>普通服务器；</li>
+<li>网络摄像头。</li>
+</ul>
+<p>一个 access 端口通常归属于一个 VLAN。</p>
+<p>普通终端发送和接收的以太网帧一般不需要携带 VLAN 标签。终端可以完全不知道 VLAN 的存在，交换机根据接入端口判断该帧属于哪个 VLAN。</p>
+<h3 id="5-2-Trunk-端口"><a href="#5-2-Trunk-端口" class="headerlink" title="5.2 Trunk 端口"></a>5.2 Trunk 端口</h3><p>Trunk 端口通常用于连接：</p>
+<ul>
+<li>交换机与交换机；</li>
+<li>交换机与路由器；</li>
+<li>交换机与三层交换设备；</li>
+<li>需要同时处理多个 VLAN 的服务器或虚拟化主机。</li>
+</ul>
+<p>一条 trunk 链路可以同时承载多个 VLAN 的流量。</p>
+<p>但这会产生一个问题：</p>
+<blockquote>
+<p>接收方如何知道每个帧属于哪个 VLAN？</p>
+</blockquote>
+<p>解决方法是在帧中加入 VLAN 标签。</p>
+<h3 id="5-3-802-1Q-标签"><a href="#5-3-802-1Q-标签" class="headerlink" title="5.3 802.1Q 标签"></a>5.3 802.1Q 标签</h3><p>IEEE 802.1Q 定义了在以太网帧中插入 VLAN 标签的方式。</p>
+<p>标签中包含的重要信息包括：</p>
+<ul>
+<li>Tag Protocol Identifier；</li>
+<li>优先级等控制信息；</li>
+<li>VLAN ID。</li>
+</ul>
+<p>VLAN ID 通常占 12 bit，因此可以表示大量 VLAN 编号。</p>
+<p>简化后的帧结构可以表示为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">普通以太网帧：</span><br><span class="line"></span><br><span class="line">目的 MAC | 源 MAC | Type | Data | CRC</span><br><span class="line"></span><br><span class="line">802.1Q 标记帧：</span><br><span class="line"></span><br><span class="line">目的 MAC | 源 MAC | 802.1Q Tag | Type | Data | CRC</span><br></pre></td></tr></table></figure>
+
+<p>由于插入标签会改变帧内容，帧的差错检测值也需要重新计算。</p>
+<h3 id="5-4-标签如何完成跨交换机-VLAN-转发"><a href="#5-4-标签如何完成跨交换机-VLAN-转发" class="headerlink" title="5.4 标签如何完成跨交换机 VLAN 转发"></a>5.4 标签如何完成跨交换机 VLAN 转发</h3><p>假设 VLAN 10 的主机 A 位于交换机 S1，另一台 VLAN 10 主机 B 位于交换机 S2。</p>
+<p>过程如下：</p>
+<ol>
+<li>A 发送普通以太网帧到 S1 的 access 端口。</li>
+<li>S1 根据输入端口判断该帧属于 VLAN 10。</li>
+<li>S1 将帧发送到 trunk 端口时，加入 VLAN 10 标签。</li>
+<li>S2 收到标记帧后读取 VLAN ID。</li>
+<li>S2 只在 VLAN 10 的范围内查询和转发。</li>
+<li>帧从 B 所在的 access 端口发出时，标签通常被移除。</li>
+<li>B 收到普通以太网帧。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant A as VLAN 10 主机 A
+    participant S1 as 交换机 S1
+    participant S2 as 交换机 S2
+    participant B as VLAN 10 主机 B
+
+    A-&gt;&gt;S1: 未标记以太网帧
+    S1-&gt;&gt;S1: 根据 access 端口识别 VLAN 10
+    S1-&gt;&gt;S2: 802.1Q 标记帧，VLAN ID&#x3D;10
+    S2-&gt;&gt;S2: 根据 VLAN ID 在 VLAN 10 内转发
+    S2-&gt;&gt;B: 移除标签后的普通帧
+  </pre></div>
+
+<h3 id="5-5-Trunk-不是“更快的链路”"><a href="#5-5-Trunk-不是“更快的链路”" class="headerlink" title="5.5 Trunk 不是“更快的链路”"></a>5.5 Trunk 不是“更快的链路”</h3><p>Trunk 的关键特征不是传输速率更高，而是：</p>
+<blockquote>
+<p>一条逻辑或物理链路可以携带多个 VLAN 的帧，并利用标签区分其所属网络。</p>
+</blockquote>
+<p>一条 trunk 链路可能速度很高，也可能速度普通。是否属于 trunk，取决于它是否承载并区分多个 VLAN，而不是单纯取决于带宽。</p>
+<hr>
+<p>❗ 本节核心结论：<br>Access 端口通常承载一个 VLAN 并连接普通主机；trunk 端口利用 802.1Q 标签，在一条链路上同时传输多个 VLAN 的流量。</p>
+<hr>
+<h2 id="6-MPLS：在-IP-转发之外增加标签化路径"><a href="#6-MPLS：在-IP-转发之外增加标签化路径" class="headerlink" title="6. MPLS：在 IP 转发之外增加标签化路径"></a>6. MPLS：在 IP 转发之外增加标签化路径</h2><p>MPLS 是 Multi-Protocol Label Switching，即多协议标签交换。</p>
+<p>它的基本思想是：</p>
+<blockquote>
+<p>给进入 MPLS 网络的分组附加一个短标签，使中间设备能够根据标签而不是仅根据目的 IP 地址进行转发。</p>
+</blockquote>
+<p>MPLS 标签通常位于链路层头部与 IP 头部之间。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">链路层头部 | MPLS 标签 | IP 头部 | 传输层数据</span><br></pre></td></tr></table></figure>
+
+<p>因此，MPLS 有时被描述为位于传统第二层和第三层之间的机制。</p>
+<h3 id="6-1-普通-IP-转发"><a href="#6-1-普通-IP-转发" class="headerlink" title="6.1 普通 IP 转发"></a>6.1 普通 IP 转发</h3><p>普通 IP 路由器通常根据目的 IP 地址进行最长前缀匹配。</p>
+<p>对于同一个目的地址，分组一般按照由路由协议和转发表确定的路径转发。</p>
+<p>简化表示为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">目的 IP</span><br><span class="line">   ↓</span><br><span class="line">最长前缀匹配</span><br><span class="line">   ↓</span><br><span class="line">输出接口和下一跳</span><br></pre></td></tr></table></figure>
+
+<p>这种机制通用、灵活，支撑了互联网的基本运行。</p>
+<p>但它的路径选择通常以目的地址为核心，不能天然表达复杂的业务要求。</p>
+<h3 id="6-2-MPLS-标签转发"><a href="#6-2-MPLS-标签转发" class="headerlink" title="6.2 MPLS 标签转发"></a>6.2 MPLS 标签转发</h3><p>在 MPLS 网络中，入口设备可以根据分组类型、源地址、目的地址、业务类别或运营策略，为分组分配标签。</p>
+<p>中间标签交换路由器主要执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入标签</span><br><span class="line">   ↓ 查 MPLS 转发表</span><br><span class="line">输出标签 + 输出接口</span><br></pre></td></tr></table></figure>
+
+<p>它不一定需要在每一跳重新进行完整的 IP 最长前缀匹配。</p>
+<p>一个典型过程包括：</p>
+<ol>
+<li>分组进入 MPLS 域。</li>
+<li>入口路由器压入标签。</li>
+<li>中间设备读取标签。</li>
+<li>中间设备把旧标签替换为新标签。</li>
+<li>分组沿标签交换路径前进。</li>
+<li>出口设备移除标签。</li>
+<li>分组恢复为普通 IP 转发。</li>
+</ol>
+<p>这种标签操作通常称为：</p>
+<ul>
+<li>Push：压入标签；</li>
+<li>Swap：交换标签；</li>
+<li>Pop：弹出标签。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    IP[普通 IP 分组] --&gt;|Push 标签| Ingress[MPLS 入口]
+    Ingress --&gt;|Label 16| LSR1[标签交换路由器]
+    LSR1 --&gt;|Swap: 16→25| LSR2[标签交换路由器]
+    LSR2 --&gt;|Swap: 25→40| Egress[MPLS 出口]
+    Egress --&gt;|Pop 标签| IP2[普通 IP 分组]
+  </pre></div>
+
+<p><strong>❗ MPLS 标签不会替代 IP 地址。IP 头仍然保留，标签只是为 MPLS 域内部提供另一种转发依据。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>MPLS 在保留 IP 数据报的基础上增加标签，使运营商能够通过标签交换路径实现更可控的转发。</p>
+<hr>
+<h2 id="7-MPLS-为什么不仅仅是为了提高查表速度"><a href="#7-MPLS-为什么不仅仅是为了提高查表速度" class="headerlink" title="7. MPLS 为什么不仅仅是为了提高查表速度"></a>7. MPLS 为什么不仅仅是为了提高查表速度</h2><p>MPLS 早期优势之一是固定长度标签查找可能比复杂的 IP 前缀匹配更高效。</p>
+<p>但现代路由硬件已经能够高速执行 IP 查表。因此，理解 MPLS 时，更重要的是它提供的路径控制和业务能力。</p>
+<h3 id="7-1-普通-IP-路由的局限"><a href="#7-1-普通-IP-路由的局限" class="headerlink" title="7.1 普通 IP 路由的局限"></a>7.1 普通 IP 路由的局限</h3><p>假设网络中存在两条路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">路径 A：较短，但已经拥塞</span><br><span class="line">路径 B：稍长，但有大量空闲带宽</span><br></pre></td></tr></table></figure>
+
+<p>普通路由协议往往根据预设度量选择成本较低的路径。</p>
+<p>如果大量流量都被导向路径 A，就可能出现：</p>
+<ul>
+<li>一条链路拥塞；</li>
+<li>另一条链路闲置；</li>
+<li>总体资源利用率不高；</li>
+<li>重要业务延迟增加。</li>
+</ul>
+<p>此外，仅根据目的 IP 地址进行转发，很难表达：</p>
+<ul>
+<li>同一目的地的语音流量走低延迟路径；</li>
+<li>普通下载流量走成本较低路径；</li>
+<li>高优先级客户使用独立逻辑路径；</li>
+<li>某类业务必须避开特定链路。</li>
+</ul>
+<h3 id="7-2-MPLS-提供的灵活性"><a href="#7-2-MPLS-提供的灵活性" class="headerlink" title="7.2 MPLS 提供的灵活性"></a>7.2 MPLS 提供的灵活性</h3><p>入口路由器可以把不同业务划分到不同的转发等价类，并分配不同标签。</p>
+<p>因此，即使两个分组具有相同目的 IP，也可以因为业务类别、来源或策略不同而进入不同的标签交换路径。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>普通 IP 转发</th>
+<th>MPLS 转发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心查表依据</td>
+<td>目的 IP 前缀</td>
+<td>MPLS 标签</td>
+</tr>
+<tr>
+<td>路径主要受什么影响</td>
+<td>路由协议和目的地址</td>
+<td>标签映射和运营策略</td>
+</tr>
+<tr>
+<td>同一目的地能否走不同路径</td>
+<td>可以通过额外机制实现，但不天然</td>
+<td>更容易按业务区分</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>通用互联网路由</td>
+<td>流量工程、VPN、QoS、快速恢复</td>
+</tr>
+</tbody></table>
+<hr>
+<p>❗ 本节核心结论：<br>MPLS 的现代价值主要不在于“标签比 IP 查得快”，而在于它让运营商能够按业务策略建立和管理路径。</p>
+<hr>
+<h2 id="8-MPLS-流量工程"><a href="#8-MPLS-流量工程" class="headerlink" title="8. MPLS 流量工程"></a>8. MPLS 流量工程</h2><p>流量工程关注的不只是分组能否到达目的地，而是：</p>
+<blockquote>
+<p>如何让网络流量按照整体资源状况和业务需求分布到合适路径上。</p>
+</blockquote>
+<p>MPLS Traffic Engineering，简称 MPLS-TE，可以让网络建立满足特定约束的标签交换路径。</p>
+<h3 id="8-1-最短路径不一定是最佳路径"><a href="#8-1-最短路径不一定是最佳路径" class="headerlink" title="8.1 最短路径不一定是最佳路径"></a>8.1 最短路径不一定是最佳路径</h3><p>在传统路由中，路径通常根据跳数、链路成本或其他度量计算。</p>
+<p>但对于特定业务来说，最短路径不一定最好。</p>
+<p>例如：</p>
+<ul>
+<li>最短路径可能没有足够剩余带宽；</li>
+<li>某条路径可能不支持所需服务等级；</li>
+<li>某条链路可能风险较高；</li>
+<li>某些业务需要经过或避开指定节点；</li>
+<li>重要业务需要预留资源。</li>
+</ul>
+<p>MPLS-TE 可以把这些条件纳入路径选择。</p>
+<h3 id="8-2-约束路径计算"><a href="#8-2-约束路径计算" class="headerlink" title="8.2 约束路径计算"></a>8.2 约束路径计算</h3><p>MPLS-TE 的典型逻辑是：</p>
+<ol>
+<li>收集链路带宽、状态和属性；</li>
+<li>建立流量工程数据库；</li>
+<li>根据业务约束计算可行路径；</li>
+<li>建立标签交换路径；</li>
+<li>必要时预留带宽或其他资源；</li>
+<li>把流量映射到该路径。</li>
+</ol>
+<p>路径计算可能使用 CSPF，即 Constraint-Based Shortest Path First。</p>
+<p>它不是简单寻找数学意义上的最短路径，而是在满足约束的可用路径中进行选择。</p>
+<h3 id="8-3-LSP"><a href="#8-3-LSP" class="headerlink" title="8.3 LSP"></a>8.3 LSP</h3><p>LSP 是 Label Switched Path，即标签交换路径。</p>
+<p>它可以理解为 MPLS 网络中预先建立或逻辑确定的一条标签转发通道。</p>
+<p>分组进入 LSP 后，中间设备根据标签连续转发，不必让每个分组独立决定完全不同的路径。</p>
+<h3 id="8-4-流量工程的主要价值"><a href="#8-4-流量工程的主要价值" class="headerlink" title="8.4 流量工程的主要价值"></a>8.4 流量工程的主要价值</h3><p>MPLS-TE 可以支持：</p>
+<ul>
+<li>绕开拥塞链路；</li>
+<li>使用原本闲置的备用路径；</li>
+<li>为关键业务分配带宽；</li>
+<li>区分不同优先级；</li>
+<li>建立主路径和备份路径；</li>
+<li>在故障时快速切换。</li>
+</ul>
+<p>高优先级业务还可能在资源紧张时抢占低优先级隧道资源。</p>
+<p>这不意味着所有 MPLS 网络都必然提供绝对的端到端性能保证，而是说明运营商能够以比普通目的地址路由更明确的方式规划和控制资源。</p>
+<p><strong>❗ 流量工程的目标不是让每个分组都走最短路，而是让整个网络按照业务需求更合理地使用资源。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>MPLS-TE 通过约束路径计算、标签交换路径和资源管理，让网络从“能到达”进一步发展为“沿合适路径到达”。</p>
+<hr>
+<h2 id="9-MPLS、QoS-与-VPN"><a href="#9-MPLS、QoS-与-VPN" class="headerlink" title="9. MPLS、QoS 与 VPN"></a>9. MPLS、QoS 与 VPN</h2><p>MPLS 常与 QoS 和 VPN 结合使用。</p>
+<h3 id="9-1-QoS"><a href="#9-1-QoS" class="headerlink" title="9.1 QoS"></a>9.1 QoS</h3><p>QoS 是 Quality of Service，即服务质量。</p>
+<p>不同业务对网络的需求不同：</p>
+<table>
+<thead>
+<tr>
+<th>业务</th>
+<th>主要需求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实时语音</td>
+<td>低延迟、低抖动</td>
+</tr>
+<tr>
+<td>视频会议</td>
+<td>较高带宽、低丢包</td>
+</tr>
+<tr>
+<td>文件下载</td>
+<td>吞吐量重要，对短期延迟不敏感</td>
+</tr>
+<tr>
+<td>控制系统</td>
+<td>高可靠性和稳定时延</td>
+</tr>
+</tbody></table>
+<p>MPLS 标签和业务分类可以帮助网络区分这些流量，并将其放入不同路径或优先级队列。</p>
+<p>但 MPLS 标签本身不自动产生带宽和低延迟，仍然需要设备队列、资源规划和策略配置共同实现。</p>
+<h3 id="9-2-MPLS-VPN"><a href="#9-2-MPLS-VPN" class="headerlink" title="9.2 MPLS VPN"></a>9.2 MPLS VPN</h3><p>运营商可以利用 MPLS 构建不同客户之间逻辑隔离的 VPN。</p>
+<p>多个企业可以共享同一套运营商物理基础设施，但在逻辑上拥有独立的路由和转发环境。</p>
+<p>其基本价值是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">共享物理网络</span><br><span class="line">      +</span><br><span class="line">逻辑隔离的客户网络</span><br></pre></td></tr></table></figure>
+
+<p>这与 VLAN 有一定相似性：二者都在共享基础设施上提供逻辑隔离。</p>
+<p>但作用范围和技术层次不同：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>VLAN</th>
+<th>MPLS VPN</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>常见范围</td>
+<td>企业局域网、园区网</td>
+<td>运营商网络、广域网</td>
+</tr>
+<tr>
+<td>主要标识</td>
+<td>VLAN ID</td>
+<td>MPLS 标签及相关 VPN 信息</td>
+</tr>
+<tr>
+<td>主要作用</td>
+<td>二层广播域划分</td>
+<td>跨地域客户网络隔离与互联</td>
+</tr>
+<tr>
+<td>常见设备</td>
+<td>交换机</td>
+<td>提供商边缘路由器、MPLS 路由器</td>
+</tr>
+</tbody></table>
+<hr>
+<p>❗ 本节核心结论：<br>MPLS 可以作为 QoS、流量工程和运营商 VPN 的承载基础，但最终服务能力仍依赖完整的路由、资源和策略体系。</p>
+<hr>
+<h2 id="10-数据中心网络：连接大规模服务器集群"><a href="#10-数据中心网络：连接大规模服务器集群" class="headerlink" title="10. 数据中心网络：连接大规模服务器集群"></a>10. 数据中心网络：连接大规模服务器集群</h2><p>数据中心是集中部署计算、存储和网络资源的基础设施。</p>
+<p>一个大型数据中心可能拥有数万甚至数十万台服务器，运行：</p>
+<ul>
+<li>云计算服务；</li>
+<li>搜索引擎；</li>
+<li>电商平台；</li>
+<li>短视频与流媒体；</li>
+<li>分布式数据库；</li>
+<li>AI 训练与推理；</li>
+<li>微服务系统。</li>
+</ul>
+<p>数据中心网络必须连接这些服务器，并支持它们与外部用户及彼此之间进行高吞吐、低延迟通信。</p>
+<h3 id="10-1-为什么数据中心网络不同于普通局域网"><a href="#10-1-为什么数据中心网络不同于普通局域网" class="headerlink" title="10.1 为什么数据中心网络不同于普通局域网"></a>10.1 为什么数据中心网络不同于普通局域网</h3><p>普通办公室网络的主要通信模式可能是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">终端 → 互联网</span><br></pre></td></tr></table></figure>
+
+<p>而数据中心内部常存在大量服务器间通信：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">服务器 → 服务器</span><br><span class="line">存储节点 → 计算节点</span><br><span class="line">微服务 → 微服务</span><br><span class="line">训练节点 → 训练节点</span><br></pre></td></tr></table></figure>
+
+<p>因此，数据中心网络不仅要处理外部用户访问，还要处理大量东西向流量。</p>
+<p>其主要挑战包括：</p>
+<ul>
+<li>服务器数量巨大；</li>
+<li>请求量变化剧烈；</li>
+<li>内部通信频繁；</li>
+<li>单点故障不可接受；</li>
+<li>链路带宽容易成为瓶颈；</li>
+<li>服务需要动态扩缩容；</li>
+<li>网络必须支持多租户隔离。</li>
+</ul>
+<hr>
+<h2 id="11-数据中心的分层结构"><a href="#11-数据中心的分层结构" class="headerlink" title="11. 数据中心的分层结构"></a>11. 数据中心的分层结构</h2><p>一种经典的数据中心网络结构包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">服务器</span><br><span class="line">  ↓</span><br><span class="line">ToR 交换机</span><br><span class="line">  ↓</span><br><span class="line">汇聚层交换机</span><br><span class="line">  ↓</span><br><span class="line">核心层交换机</span><br><span class="line">  ↓</span><br><span class="line">边界路由器</span><br><span class="line">  ↓</span><br><span class="line">外部网络</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-1-服务器机架"><a href="#11-1-服务器机架" class="headerlink" title="11.1 服务器机架"></a>11.1 服务器机架</h3><p>服务器通常被集中安装在机架中。</p>
+<p>一个机架可能包含多台服务器，每台服务器通过网线连接到机架顶部交换机。</p>
+<h3 id="11-2-ToR-交换机"><a href="#11-2-ToR-交换机" class="headerlink" title="11.2 ToR 交换机"></a>11.2 ToR 交换机</h3><p>ToR 是 Top of Rack，即机架顶部交换机。</p>
+<p>它负责：</p>
+<ul>
+<li>连接同一机架中的服务器；</li>
+<li>汇聚机架内的上行流量；</li>
+<li>将服务器连接到数据中心更高层网络。</li>
+</ul>
+<p>可以把 ToR 理解为一个服务器机架的网络出口。</p>
+<h3 id="11-3-汇聚层和核心层"><a href="#11-3-汇聚层和核心层" class="headerlink" title="11.3 汇聚层和核心层"></a>11.3 汇聚层和核心层</h3><p>多个 ToR 交换机可能连接到更高层交换机。</p>
+<p>高层交换机负责：</p>
+<ul>
+<li>连接不同机架；</li>
+<li>提供到数据中心其他区域的路径；</li>
+<li>汇聚到边界网络的流量；</li>
+<li>建立冗余连接。</li>
+</ul>
+<h3 id="11-4-边界路由器"><a href="#11-4-边界路由器" class="headerlink" title="11.4 边界路由器"></a>11.4 边界路由器</h3><p>边界路由器连接数据中心内部网络与外部互联网或其他专用网络。</p>
+<p>它负责：</p>
+<ul>
+<li>对外发布可达性；</li>
+<li>接收外部请求；</li>
+<li>执行边界路由策略；</li>
+<li>与运营商网络连接。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    Internet[互联网] --&gt; BR[边界路由器]
+    BR --&gt; Core1[核心交换机 1]
+    BR --&gt; Core2[核心交换机 2]
+
+    Core1 --&gt; Agg1[汇聚交换机]
+    Core2 --&gt; Agg1
+    Core1 --&gt; Agg2[汇聚交换机]
+    Core2 --&gt; Agg2
+
+    Agg1 --&gt; ToR1[ToR 1]
+    Agg1 --&gt; ToR2[ToR 2]
+    Agg2 --&gt; ToR3[ToR 3]
+    Agg2 --&gt; ToR4[ToR 4]
+
+    ToR1 --&gt; Rack1[服务器机架]
+    ToR2 --&gt; Rack2[服务器机架]
+    ToR3 --&gt; Rack3[服务器机架]
+    ToR4 --&gt; Rack4[服务器机架]
+  </pre></div>
+
+<hr>
+<p>❗ 本节核心结论：<br>数据中心通常通过机架、ToR、汇聚或核心设备和边界路由器组成分层网络，使海量服务器能够被有组织地连接起来。</p>
+<hr>
+<h2 id="12-数据中心为什么需要多路径"><a href="#12-数据中心为什么需要多路径" class="headerlink" title="12. 数据中心为什么需要多路径"></a>12. 数据中心为什么需要多路径</h2><p>如果任意两台服务器之间只有一条路径，会产生两个严重问题。</p>
+<h3 id="12-1-吞吐量受限"><a href="#12-1-吞吐量受限" class="headerlink" title="12.1 吞吐量受限"></a>12.1 吞吐量受限</h3><p>大量流量集中在少数链路上时，这些链路会成为瓶颈，而其他区域可能仍有空闲容量。</p>
+<p>多条路径可以让不同流量分散到不同链路，提高网络总吞吐量。</p>
+<h3 id="12-2-故障风险过高"><a href="#12-2-故障风险过高" class="headerlink" title="12.2 故障风险过高"></a>12.2 故障风险过高</h3><p>交换机、端口、光模块和链路都可能故障。</p>
+<p>如果通信只有唯一通路，任意单点故障都可能造成大范围服务中断。</p>
+<p>多路径和冗余连接允许网络在部分组件失效后继续运行。</p>
+<h3 id="12-3-不相交路径"><a href="#12-3-不相交路径" class="headerlink" title="12.3 不相交路径"></a>12.3 不相交路径</h3><p>如果两条备用路径仍共享同一个关键交换机，那么该交换机故障时，两条路径都会同时中断。</p>
+<p>因此，网络设计常希望提供尽量不相交的路径，使它们不共享关键链路或设备。</p>
+<h3 id="12-4-多路径不等于自动高效"><a href="#12-4-多路径不等于自动高效" class="headerlink" title="12.4 多路径不等于自动高效"></a>12.4 多路径不等于自动高效</h3><p>物理上存在多条路径，并不意味着流量一定会被合理分配。</p>
+<p>还需要：</p>
+<ul>
+<li>路由或转发算法；</li>
+<li>等价多路径机制；</li>
+<li>流量调度；</li>
+<li>拥塞控制；</li>
+<li>故障检测；</li>
+<li>路径切换策略。</li>
+</ul>
+<p><strong>❗ 多路径同时服务于性能和可靠性：既可以并行承载流量，也可以在故障时提供替代通道。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>数据中心通过冗余互连和多路径避免单链路瓶颈与单点故障，但路径资源必须配合合适的调度和拥塞控制才能充分利用。</p>
+<hr>
+<h2 id="13-负载均衡器：把请求交给合适的服务器"><a href="#13-负载均衡器：把请求交给合适的服务器" class="headerlink" title="13. 负载均衡器：把请求交给合适的服务器"></a>13. 负载均衡器：把请求交给合适的服务器</h2><p>用户访问一个大型网站时，通常不会直接指定某一台具体服务器。</p>
+<p>用户看到的是统一的域名或服务地址，但数据中心内部可能有成百上千台服务器共同提供服务。</p>
+<p>负载均衡器负责：</p>
+<ol>
+<li>接收或识别外部请求；</li>
+<li>从多个后端服务器中选择目标；</li>
+<li>将请求转交给被选中的服务器；</li>
+<li>将响应返回给客户端；</li>
+<li>对客户端隐藏内部服务器结构。</li>
+</ol>
+<h3 id="13-1-为什么需要负载均衡"><a href="#13-1-为什么需要负载均衡" class="headerlink" title="13.1 为什么需要负载均衡"></a>13.1 为什么需要负载均衡</h3><p>如果所有请求都集中到一台服务器：</p>
+<ul>
+<li>服务器可能过载；</li>
+<li>单机故障会导致服务中断；</li>
+<li>扩容能力有限；</li>
+<li>其他服务器资源无法利用。</li>
+</ul>
+<p>负载均衡器可以根据不同指标选择服务器，例如：</p>
+<ul>
+<li>当前连接数；</li>
+<li>CPU 或内存负载；</li>
+<li>响应时间；</li>
+<li>会话一致性；</li>
+<li>地理位置；</li>
+<li>服务实例健康状态。</li>
+</ul>
+<h3 id="13-2-为什么称为应用层路由"><a href="#13-2-为什么称为应用层路由" class="headerlink" title="13.2 为什么称为应用层路由"></a>13.2 为什么称为应用层路由</h3><p>网络层路由器主要根据 IP 地址选择下一跳。</p>
+<p>负载均衡器可能进一步检查：</p>
+<ul>
+<li>域名；</li>
+<li>URL；</li>
+<li>HTTP 头部；</li>
+<li>Cookie；</li>
+<li>服务类型；</li>
+<li>用户会话。</li>
+</ul>
+<p>它可以根据应用层信息把不同请求交给不同后端，因此常被描述为应用层路由或四层、七层负载均衡设备。</p>
+<h3 id="13-3-负载均衡器隐藏了什么"><a href="#13-3-负载均衡器隐藏了什么" class="headerlink" title="13.3 负载均衡器隐藏了什么"></a>13.3 负载均衡器隐藏了什么</h3><p>对外部客户端而言，服务可能只有一个统一地址。</p>
+<p>客户端通常不需要知道：</p>
+<ul>
+<li>数据中心内有多少台服务器；</li>
+<li>具体是哪台服务器处理请求；</li>
+<li>服务器是否发生扩容或替换；</li>
+<li>内部网络如何组织；</li>
+<li>某台服务器故障后请求被迁移到哪里。</li>
+</ul>
+<p>这种抽象使服务端可以在不改变客户端使用方式的前提下动态调整内部资源。</p>
+<hr>
+<p>❗ 本节核心结论：<br>负载均衡器把统一服务入口映射到多个后端服务器，在提高吞吐量和可用性的同时，对客户端隐藏数据中心内部结构。</p>
+<hr>
+<h2 id="14-一次-Web-页面请求为什么涉及多个协议"><a href="#14-一次-Web-页面请求为什么涉及多个协议" class="headerlink" title="14. 一次 Web 页面请求为什么涉及多个协议"></a>14. 一次 Web 页面请求为什么涉及多个协议</h2><p>用户在浏览器中输入一个网址，看起来只是一个简单动作，但计算机必须依次解决多个问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">我能使用什么 IP 地址？</span><br><span class="line">我的默认网关是谁？</span><br><span class="line">DNS 服务器在哪里？</span><br><span class="line">目标域名对应什么 IP？</span><br><span class="line">如何可靠连接服务器？</span><br><span class="line">如何请求网页内容？</span><br></pre></td></tr></table></figure>
+
+<p>这些问题由不同协议负责。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>协议</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>网络配置</td>
+<td>DHCP</td>
+<td>主机的 IP、网关和 DNS 是什么</td>
+</tr>
+<tr>
+<td>本地链路寻址</td>
+<td>ARP</td>
+<td>下一跳的 MAC 地址是什么</td>
+</tr>
+<tr>
+<td>域名解析</td>
+<td>DNS</td>
+<td>域名对应什么 IP 地址</td>
+</tr>
+<tr>
+<td>可靠连接</td>
+<td>TCP</td>
+<td>如何建立可靠字节流</td>
+</tr>
+<tr>
+<td>应用请求</td>
+<td>HTTP</td>
+<td>请求和返回什么 Web 内容</td>
+</tr>
+<tr>
+<td>跨网络转发</td>
+<td>IP</td>
+<td>数据报沿哪些下一跳前进</td>
+</tr>
+<tr>
+<td>每跳传输</td>
+<td>Ethernet&#x2F;Wi-Fi</td>
+<td>帧如何在当前链路交付</td>
+</tr>
+</tbody></table>
+<p>因此，一次网页访问是协议栈分层协作的结果，而不是 HTTP 单独完成的。</p>
+<hr>
+<h2 id="15-第一步：DHCP-获取网络配置"><a href="#15-第一步：DHCP-获取网络配置" class="headerlink" title="15. 第一步：DHCP 获取网络配置"></a>15. 第一步：DHCP 获取网络配置</h2><p>一台刚连接校园网络的笔记本，可能还不知道：</p>
+<ul>
+<li>自己应使用什么 IP 地址；</li>
+<li>子网掩码是什么；</li>
+<li>默认网关地址是什么；</li>
+<li>DNS 服务器地址是什么。</li>
+</ul>
+<p>DHCP 即 Dynamic Host Configuration Protocol，用于动态提供这些配置。</p>
+<h3 id="15-1-为什么需要广播"><a href="#15-1-为什么需要广播" class="headerlink" title="15.1 为什么需要广播"></a>15.1 为什么需要广播</h3><p>客户端刚接入网络时，可能既不知道 DHCP 服务器的位置，也没有可正常使用的 IP 地址。</p>
+<p>因此，初始 DHCP 消息通常使用广播方式发送。</p>
+<p>封装关系可以表示为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">DHCP 消息</span><br><span class="line">   ↓</span><br><span class="line">UDP 数据报</span><br><span class="line">   ↓</span><br><span class="line">IP 数据报</span><br><span class="line">   ↓</span><br><span class="line">以太网广播帧</span><br><span class="line">   ↓</span><br><span class="line">物理信号</span><br></pre></td></tr></table></figure>
+
+<p>以太网目的 MAC 地址通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FF:FF:FF:FF:FF:FF</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-2-DHCP-交付的信息"><a href="#15-2-DHCP-交付的信息" class="headerlink" title="15.2 DHCP 交付的信息"></a>15.2 DHCP 交付的信息</h3><p>DHCP 服务器可以向客户端提供：</p>
+<ul>
+<li>客户端 IP 地址；</li>
+<li>子网掩码；</li>
+<li>默认网关；</li>
+<li>DNS 服务器；</li>
+<li>地址租期；</li>
+<li>其他网络参数。</li>
+</ul>
+<p>获得这些配置后，主机才能判断目标是否位于本地子网，并知道访问外部网络时应把分组交给哪个路由器。</p>
+<p><strong>❗ DHCP 不负责传输网页，也不负责域名解析；它首先让主机具备正常参与 IP 网络通信的基本配置。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>DHCP 解决的是主机刚接入网络时的初始化问题，使主机获得自己的 IP 地址、网关和 DNS 等必要参数。</p>
+<hr>
+<h2 id="16-第二步：ARP-获取第一跳路由器的-MAC-地址"><a href="#16-第二步：ARP-获取第一跳路由器的-MAC-地址" class="headerlink" title="16. 第二步：ARP 获取第一跳路由器的 MAC 地址"></a>16. 第二步：ARP 获取第一跳路由器的 MAC 地址</h2><p>假设客户端已经知道 DNS 服务器的 IP 地址，但 DNS 服务器位于外部网络。</p>
+<p>客户端根据子网判断发现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DNS 服务器不在本地子网</span><br></pre></td></tr></table></figure>
+
+<p>因此，DNS 查询必须先交给默认网关。</p>
+<p>IP 数据报中可以填写：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 IP = DNS 服务器 IP</span><br></pre></td></tr></table></figure>
+
+<p>但以太网帧还需要填写当前一跳的目的 MAC 地址。</p>
+<p>这一跳的接收方不是远端 DNS 服务器，而是默认网关。</p>
+<p>因此，客户端通过 ARP 查询：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">谁拥有默认网关的 IP 地址？</span><br><span class="line">请返回你的 MAC 地址。</span><br></pre></td></tr></table></figure>
+
+<p>路由器接口回复自己的 MAC 地址后，客户端把映射写入 ARP 缓存。</p>
+<p>随后构造帧：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">目的 IP：DNS 服务器</span><br><span class="line">目的 MAC：默认网关</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗ 访问外部网络时，帧的目的 MAC 是第一跳路由器，而不是远端服务器。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>ARP 将默认网关的 IP 地址解析为 MAC 地址，使客户端能够把外部流量的第一跳帧交给路由器。</p>
+<hr>
+<h2 id="17-第三步：DNS-查询目标服务器-IP"><a href="#17-第三步：DNS-查询目标服务器-IP" class="headerlink" title="17. 第三步：DNS 查询目标服务器 IP"></a>17. 第三步：DNS 查询目标服务器 IP</h2><p>浏览器使用的是域名，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www.google.com</span><br></pre></td></tr></table></figure>
+
+<p>IP 网络不能直接根据域名转发，因此客户端需要通过 DNS 获取对应的 IP 地址。</p>
+<p>DNS 查询的封装过程通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DNS 查询</span><br><span class="line">   ↓</span><br><span class="line">UDP 或 TCP</span><br><span class="line">   ↓</span><br><span class="line">IP</span><br><span class="line">   ↓</span><br><span class="line">以太网或 Wi-Fi 帧</span><br></pre></td></tr></table></figure>
+
+<p>在本地链路上：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 MAC = 默认网关 MAC</span><br></pre></td></tr></table></figure>
+
+<p>在网络层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目的 IP = DNS 服务器 IP</span><br></pre></td></tr></table></figure>
+
+<p>交换机根据目的 MAC 将帧送到网关，路由器取出 IP 数据报，再根据目的 IP 逐跳转发到 DNS 服务器。</p>
+<p>DNS 服务器返回域名对应的记录，客户端由此获得 Web 服务器的 IP 地址。</p>
+<h3 id="17-1-DNS-不返回网页"><a href="#17-1-DNS-不返回网页" class="headerlink" title="17.1 DNS 不返回网页"></a>17.1 DNS 不返回网页</h3><p>DNS 的任务只是名称解析。</p>
+<p>它返回的是类似下面的信息：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www.example.com → 某个 IP 地址</span><br></pre></td></tr></table></figure>
+
+<p>真正的网页内容要在后续 TCP 连接建立后，通过 HTTP 请求获得。</p>
+<hr>
+<p>❗ 本节核心结论：<br>DNS 将人类易读的域名转换为网络层可以使用的 IP 地址，但它不建立 Web 连接，也不传输网页内容。</p>
+<hr>
+<h2 id="18-第四步：TCP-建立可靠连接"><a href="#18-第四步：TCP-建立可靠连接" class="headerlink" title="18. 第四步：TCP 建立可靠连接"></a>18. 第四步：TCP 建立可靠连接</h2><p>浏览器获得服务器 IP 地址后，需要与服务器建立通信。</p>
+<p>传统 HTTP&#x2F;1.1 和 HTTP&#x2F;2 通常运行在 TCP 之上，因此客户端首先建立 TCP 连接。</p>
+<p>经典三次握手包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">客户端 → 服务器：SYN</span><br><span class="line">服务器 → 客户端：SYN-ACK</span><br><span class="line">客户端 → 服务器：ACK</span><br></pre></td></tr></table></figure>
+
+<p>三次握手的主要作用包括：</p>
+<ul>
+<li>确认双方具备发送和接收能力；</li>
+<li>同步初始序列号；</li>
+<li>建立连接状态；</li>
+<li>协商部分 TCP 参数。</li>
+</ul>
+<p>每个 TCP 报文段都会继续被封装：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TCP 报文段</span><br><span class="line">   ↓</span><br><span class="line">IP 数据报</span><br><span class="line">   ↓</span><br><span class="line">当前链路的帧</span><br></pre></td></tr></table></figure>
+
+<p>当分组经过不同路由器时：</p>
+<ul>
+<li>IP 层继续面向服务器 IP；</li>
+<li>每一跳的源 MAC 和目的 MAC 会变化；</li>
+<li>路由器不断拆除旧帧并创建新帧。</li>
+</ul>
+<hr>
+<p>❗ 本节核心结论：<br>TCP 三次握手在客户端和服务器之间建立端到端连接状态，而实际握手报文仍需依赖 IP 路由和逐跳链路层交付。</p>
+<hr>
+<h2 id="19-第五步：HTTP-请求和响应"><a href="#19-第五步：HTTP-请求和响应" class="headerlink" title="19. 第五步：HTTP 请求和响应"></a>19. 第五步：HTTP 请求和响应</h2><p>TCP 连接建立后，浏览器才能通过连接发送 HTTP 请求。</p>
+<p>请求可能包含：</p>
+<ul>
+<li>请求方法；</li>
+<li>目标资源路径；</li>
+<li>主机名；</li>
+<li>浏览器支持的信息；</li>
+<li>Cookie；</li>
+<li>其他请求头。</li>
+</ul>
+<p>简化表示为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1</span><br><span class="line">Host: www.example.com</span><br></pre></td></tr></table></figure>
+
+<p>服务器收到请求后处理资源，并返回 HTTP 响应。</p>
+<p>响应中可能包含：</p>
+<ul>
+<li>状态码；</li>
+<li>内容类型；</li>
+<li>缓存信息；</li>
+<li>HTML；</li>
+<li>图片、脚本或样式资源的引用。</li>
+</ul>
+<p>浏览器收到 HTML 后，通常还会继续请求页面引用的其他资源，因此一次“打开网页”可能产生多次 DNS、TCP、TLS 或 HTTP 交互。</p>
+<p>课件中的主线可以简化为：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant Client as 客户端
+    participant DHCP as DHCP 服务器
+    participant Gateway as 默认网关
+    participant DNS as DNS 服务器
+    participant Web as Web 服务器
+
+    Client-&gt;&gt;DHCP: 获取 IP、网关和 DNS 配置
+    DHCP--&gt;&gt;Client: 返回网络参数
+
+    Client-&gt;&gt;Gateway: ARP 查询网关 MAC
+    Gateway--&gt;&gt;Client: 返回网关 MAC
+
+    Client-&gt;&gt;DNS: 查询域名对应 IP
+    DNS--&gt;&gt;Client: 返回 Web 服务器 IP
+
+    Client-&gt;&gt;Web: TCP SYN
+    Web--&gt;&gt;Client: TCP SYN-ACK
+    Client-&gt;&gt;Web: TCP ACK
+
+    Client-&gt;&gt;Web: HTTP Request
+    Web--&gt;&gt;Client: HTTP Response
+  </pre></div>
+
+<p>这张图省略了大量中间路由器和链路细节，但保留了协议调用顺序。</p>
+<hr>
+<p>❗ 本节核心结论：<br>HTTP 负责表达应用层请求与响应，但它依赖 TCP 的连接、IP 的路由、ARP 的本地寻址和链路层的逐跳传输。</p>
+<hr>
+<h2 id="20-完整封装关系"><a href="#20-完整封装关系" class="headerlink" title="20. 完整封装关系"></a>20. 完整封装关系</h2><p>一次 HTTP 请求在客户端内部会逐层封装。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP 请求</span><br><span class="line">   ↓ 添加 TCP 首部</span><br><span class="line">TCP 报文段</span><br><span class="line">   ↓ 添加 IP 首部</span><br><span class="line">IP 数据报</span><br><span class="line">   ↓ 添加以太网首部和尾部</span><br><span class="line">以太网帧</span><br><span class="line">   ↓ 转换为信号</span><br><span class="line">物理层比特</span><br></pre></td></tr></table></figure>
+
+<p>接收端执行反向过程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">物理信号</span><br><span class="line">   ↓</span><br><span class="line">以太网帧</span><br><span class="line">   ↓ 去除链路层封装</span><br><span class="line">IP 数据报</span><br><span class="line">   ↓ 去除 IP 首部</span><br><span class="line">TCP 数据</span><br><span class="line">   ↓ 重组字节流</span><br><span class="line">HTTP 请求</span><br></pre></td></tr></table></figure>
+
+<p>每一层只处理自己负责的头部和语义：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>主要信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP</td>
+<td>请求什么资源</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>属于哪个连接、如何可靠传输</td>
+</tr>
+<tr>
+<td>IP</td>
+<td>最终目标主机是谁</td>
+</tr>
+<tr>
+<td>Ethernet</td>
+<td>当前一跳交给哪个接口</td>
+</tr>
+<tr>
+<td>物理层</td>
+<td>如何表现为真实信号</td>
+</tr>
+</tbody></table>
+<p><strong>❗ 分层协议的意义在于，每一层解决一种相对独立的问题，再通过封装共同完成通信。</strong></p>
+<hr>
+<p>❗ 本节核心结论：<br>一次 Web 请求会被逐层封装为 TCP 报文段、IP 数据报和链路层帧；接收端再逐层解封装恢复应用数据。</p>
+<hr>
+<h2 id="21-VLAN、MPLS-与数据中心网络的关系"><a href="#21-VLAN、MPLS-与数据中心网络的关系" class="headerlink" title="21. VLAN、MPLS 与数据中心网络的关系"></a>21. VLAN、MPLS 与数据中心网络的关系</h2><p>VLAN、MPLS 和数据中心网络作用于不同范围，但都体现了同一种系统设计思想：</p>
+<blockquote>
+<p>在共享的物理基础设施之上建立逻辑结构，从而提升隔离性、可控性和资源利用率。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>主要范围</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VLAN</td>
+<td>局域网、园区网</td>
+<td>如何划分二层广播域</td>
+</tr>
+<tr>
+<td>MPLS</td>
+<td>运营商网、广域网</td>
+<td>如何按标签和业务策略控制路径</td>
+</tr>
+<tr>
+<td>数据中心网络</td>
+<td>大规模服务器集群</td>
+<td>如何高效、可靠地连接和调度海量服务器</td>
+</tr>
+</tbody></table>
+<h3 id="21-1-VLAN-的逻辑抽象"><a href="#21-1-VLAN-的逻辑抽象" class="headerlink" title="21.1 VLAN 的逻辑抽象"></a>21.1 VLAN 的逻辑抽象</h3><p>一台物理交换机可以被划分为多个逻辑局域网。</p>
+<h3 id="21-2-MPLS-的逻辑抽象"><a href="#21-2-MPLS-的逻辑抽象" class="headerlink" title="21.2 MPLS 的逻辑抽象"></a>21.2 MPLS 的逻辑抽象</h3><p>一套物理运营商网络可以承载多条逻辑标签路径和多个客户 VPN。</p>
+<h3 id="21-3-数据中心的逻辑抽象"><a href="#21-3-数据中心的逻辑抽象" class="headerlink" title="21.3 数据中心的逻辑抽象"></a>21.3 数据中心的逻辑抽象</h3><p>大量物理服务器可以被负载均衡器包装成一个统一服务，底层多条物理路径则被组织成高可用网络。</p>
+<p>这些机制都在减少上层对底层物理细节的依赖。</p>
+<hr>
+<p>❗ 本节核心结论：<br>三类技术虽然工作层次和应用场景不同，但都通过逻辑化和抽象化，使共享网络基础设施能够服务不同组织、业务和规模需求。</p>
+<hr>
+<h2 id="22-常见理解误区"><a href="#22-常见理解误区" class="headerlink" title="22. 常见理解误区"></a>22. 常见理解误区</h2><h3 id="22-1-VLAN-就是多买几台交换机"><a href="#22-1-VLAN-就是多买几台交换机" class="headerlink" title="22.1 VLAN 就是多买几台交换机"></a>22.1 VLAN 就是多买几台交换机</h3><p>错误。</p>
+<p>VLAN 是在共享物理交换基础设施上进行逻辑划分，其效果类似多个独立局域网，但不一定对应多台物理交换机。</p>
+<h3 id="22-2-接在同一台交换机上的设备必然可以直接通信"><a href="#22-2-接在同一台交换机上的设备必然可以直接通信" class="headerlink" title="22.2 接在同一台交换机上的设备必然可以直接通信"></a>22.2 接在同一台交换机上的设备必然可以直接通信</h3><p>错误。</p>
+<p>如果设备属于不同 VLAN，它们默认不能通过二层交换直接互通。</p>
+<h3 id="22-3-不同-VLAN-之间永远不能通信"><a href="#22-3-不同-VLAN-之间永远不能通信" class="headerlink" title="22.3 不同 VLAN 之间永远不能通信"></a>22.3 不同 VLAN 之间永远不能通信</h3><p>错误。</p>
+<p>不同 VLAN 可以通过路由器或三层交换机进行三层转发，是否允许通信由路由和安全策略决定。</p>
+<h3 id="22-4-Trunk-是速度更快的网线"><a href="#22-4-Trunk-是速度更快的网线" class="headerlink" title="22.4 Trunk 是速度更快的网线"></a>22.4 Trunk 是速度更快的网线</h3><p>错误。</p>
+<p>Trunk 的关键是能够在一条链路上承载多个 VLAN，并使用标签区分帧所属的 VLAN。</p>
+<h3 id="22-5-所有主机发送的帧都必须携带-802-1Q-标签"><a href="#22-5-所有主机发送的帧都必须携带-802-1Q-标签" class="headerlink" title="22.5 所有主机发送的帧都必须携带 802.1Q 标签"></a>22.5 所有主机发送的帧都必须携带 802.1Q 标签</h3><p>错误。</p>
+<p>普通主机连接的 access 端口上，帧通常不带标签。标签主要出现在需要区分多个 VLAN 的 trunk 链路上。</p>
+<h3 id="22-6-MPLS-标签取代了-IP-地址"><a href="#22-6-MPLS-标签取代了-IP-地址" class="headerlink" title="22.6 MPLS 标签取代了 IP 地址"></a>22.6 MPLS 标签取代了 IP 地址</h3><p>错误。</p>
+<p>MPLS 分组仍然保留 IP 头。标签只是 MPLS 域中的额外转发依据。</p>
+<h3 id="22-7-MPLS-只是更快的路由查表技术"><a href="#22-7-MPLS-只是更快的路由查表技术" class="headerlink" title="22.7 MPLS 只是更快的路由查表技术"></a>22.7 MPLS 只是更快的路由查表技术</h3><p>不完整。</p>
+<p>现代 MPLS 的重要价值包括流量工程、VPN、QoS 和快速故障恢复。</p>
+<h3 id="22-8-MPLS-路径必须是最短路径"><a href="#22-8-MPLS-路径必须是最短路径" class="headerlink" title="22.8 MPLS 路径必须是最短路径"></a>22.8 MPLS 路径必须是最短路径</h3><p>错误。</p>
+<p>流量工程可以让业务选择满足带宽、延迟和策略约束的路径，即使该路径不是最短路径。</p>
+<h3 id="22-9-数据中心中所有请求都由同一台服务器处理"><a href="#22-9-数据中心中所有请求都由同一台服务器处理" class="headerlink" title="22.9 数据中心中所有请求都由同一台服务器处理"></a>22.9 数据中心中所有请求都由同一台服务器处理</h3><p>错误。</p>
+<p>大型服务通常由多个服务器共同提供，负载均衡器负责把请求分配到合适实例。</p>
+<h3 id="22-10-负载均衡器就是普通交换机"><a href="#22-10-负载均衡器就是普通交换机" class="headerlink" title="22.10 负载均衡器就是普通交换机"></a>22.10 负载均衡器就是普通交换机</h3><p>错误。</p>
+<p>普通交换机主要根据 MAC 地址转发帧；负载均衡器可能根据传输层或应用层信息选择后端服务器。</p>
+<h3 id="22-11-DNS-返回网页内容"><a href="#22-11-DNS-返回网页内容" class="headerlink" title="22.11 DNS 返回网页内容"></a>22.11 DNS 返回网页内容</h3><p>错误。</p>
+<p>DNS 返回域名相关的地址信息，网页内容由后续 HTTP 请求获得。</p>
+<h3 id="22-12-访问远端服务器时，以太网目的-MAC-是远端服务器"><a href="#22-12-访问远端服务器时，以太网目的-MAC-是远端服务器" class="headerlink" title="22.12 访问远端服务器时，以太网目的 MAC 是远端服务器"></a>22.12 访问远端服务器时，以太网目的 MAC 是远端服务器</h3><p>错误。</p>
+<p>以太网目的 MAC 只指向当前链路中的下一跳。访问外部服务器时，客户端第一帧的目的 MAC 通常是默认网关。</p>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>本章把链路层和局域网知识扩展到了更复杂的网络环境。</p>
+<p>VLAN 解决的是大型局域网中的逻辑组织问题。它通过端口划分和 802.1Q 标签，在共享交换基础设施上建立多个独立广播域。不同 VLAN 之间默认二层隔离，需要通过路由器或三层交换机通信。</p>
+<p>MPLS 解决的是路径控制与业务承载问题。它在 IP 数据报之外增加标签，使运营商能够建立标签交换路径，并进一步支持流量工程、QoS、VPN 和快速故障恢复。</p>
+<p>数据中心网络解决的是海量服务器的连接与服务调度问题。ToR 交换机、分层或多路径拓扑、边界路由器和负载均衡器共同支撑高吞吐、高可靠的大规模服务。</p>
+<p>一次完整的 Web 页面访问则说明，现实通信从来不是某个单独协议完成的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DHCP 让主机获得网络配置</span><br><span class="line">ARP 找到本地下一跳的 MAC 地址</span><br><span class="line">DNS 把域名转换为服务器 IP</span><br><span class="line">TCP 建立可靠连接</span><br><span class="line">HTTP 传输应用请求和网页内容</span><br><span class="line">IP 负责跨网络转发</span><br><span class="line">Ethernet 或 Wi-Fi 负责每一跳交付</span><br></pre></td></tr></table></figure>
+
+<p>最终可以将本章压缩为四句话：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">VLAN 决定哪些设备属于同一个逻辑局域网。</span><br><span class="line">MPLS 决定某类业务在运营商网络中沿什么标签路径前进。</span><br><span class="line">数据中心网络决定大量服务器如何互连并共同对外提供服务。</span><br><span class="line">协议栈决定一个普通 Web 请求如何从应用操作变成真实的网络通信。</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗ 最终核心结论：网络规模扩大后，单纯的以太网交换和目的 IP 路由已经不足以解决全部问题。VLAN 提供逻辑隔离，MPLS 提供路径控制，数据中心网络提供大规模资源组织，而分层协议协作最终把这些基础设施转化为用户可见的网络服务。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/')">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程&amp;url=http://example.com/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/&amp;pic=/cover/guile.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/25/Chapter-6-2%EF%BC%9AMAC-%E5%9C%B0%E5%9D%80%E3%80%81ARP%E3%80%81%E4%BB%A5%E5%A4%AA%E7%BD%91%E4%B8%8E%E4%BA%A4%E6%8D%A2%E6%9C%BA/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/marisa.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 6-2：MAC 地址、ARP、以太网与交换机</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E4%BB%8E%E7%AE%80%E5%8D%95%E5%B1%80%E5%9F%9F%E7%BD%91%E8%B5%B0%E5%90%91%E7%9C%9F%E5%AE%9E%E7%9A%84%E5%A4%A7%E8%A7%84%E6%A8%A1%E7%BD%91%E7%BB%9C"><span class="toc-number">1.1.</span> <span class="toc-text">引言：从简单局域网走向真实的大规模网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-VLAN%EF%BC%9A%E5%9C%A8%E4%B8%80%E5%A5%97%E7%89%A9%E7%90%86%E7%BD%91%E7%BB%9C%E4%B8%8A%E5%BB%BA%E7%AB%8B%E5%A4%9A%E4%B8%AA%E9%80%BB%E8%BE%91%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="toc-number">1.2.</span> <span class="toc-text">1. VLAN：在一套物理网络上建立多个逻辑局域网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%A4%A7%E5%9E%8B%E5%B1%80%E5%9F%9F%E7%BD%91%E9%9C%80%E8%A6%81-VLAN"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1 为什么大型局域网需要 VLAN</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%BF%E6%92%AD%E8%8C%83%E5%9B%B4%E8%BF%87%E5%A4%A7"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">广播范围过大</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%84%E7%BB%87%E7%BB%93%E6%9E%84%E4%B8%8E%E7%89%A9%E7%90%86%E4%BD%8D%E7%BD%AE%E7%BB%91%E5%AE%9A"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">组织结构与物理位置绑定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C%E6%A8%A1%E7%B3%8A"><span class="toc-number">1.2.1.3.</span> <span class="toc-text">安全边界模糊</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E5%9B%B0%E9%9A%BE"><span class="toc-number">1.2.1.4.</span> <span class="toc-text">网络管理困难</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%9F%BA%E4%BA%8E%E7%AB%AF%E5%8F%A3%E7%9A%84-VLAN"><span class="toc-number">1.3.</span> <span class="toc-text">2. 基于端口的 VLAN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-VLAN-%E5%86%85%E9%83%A8%E9%80%9A%E4%BF%A1"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1 VLAN 内部通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%8D%E5%90%8C-VLAN-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%9B%B4%E6%8E%A5%E4%BA%8C%E5%B1%82%E9%80%9A%E4%BF%A1"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2 不同 VLAN 为什么不能直接二层通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-VLAN-%E4%B8%8E%E5%AE%89%E5%85%A8%E6%80%A7%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.3 VLAN 与安全性的边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-VLAN-%E4%B8%8E-IP-%E5%AD%90%E7%BD%91"><span class="toc-number">1.4.</span> <span class="toc-text">3. VLAN 与 IP 子网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%A4%9A%E4%BA%A4%E6%8D%A2%E6%9C%BA%E7%8E%AF%E5%A2%83%E4%B8%AD%E7%9A%84-VLAN"><span class="toc-number">1.5.</span> <span class="toc-text">4. 多交换机环境中的 VLAN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%AF%8F%E4%B8%AA-VLAN-%E5%8D%95%E7%8B%AC%E5%B8%83%E7%BA%BF%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%8F%AF%E6%89%A9%E5%B1%95"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1 每个 VLAN 单独布线为什么不可扩展</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Access-%E7%AB%AF%E5%8F%A3%E3%80%81Trunk-%E7%AB%AF%E5%8F%A3%E4%B8%8E-802-1Q"><span class="toc-number">1.6.</span> <span class="toc-text">5. Access 端口、Trunk 端口与 802.1Q</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Access-%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.6.1.</span> <span class="toc-text">5.1 Access 端口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Trunk-%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.6.2.</span> <span class="toc-text">5.2 Trunk 端口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-802-1Q-%E6%A0%87%E7%AD%BE"><span class="toc-number">1.6.3.</span> <span class="toc-text">5.3 802.1Q 标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E6%A0%87%E7%AD%BE%E5%A6%82%E4%BD%95%E5%AE%8C%E6%88%90%E8%B7%A8%E4%BA%A4%E6%8D%A2%E6%9C%BA-VLAN-%E8%BD%AC%E5%8F%91"><span class="toc-number">1.6.4.</span> <span class="toc-text">5.4 标签如何完成跨交换机 VLAN 转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-Trunk-%E4%B8%8D%E6%98%AF%E2%80%9C%E6%9B%B4%E5%BF%AB%E7%9A%84%E9%93%BE%E8%B7%AF%E2%80%9D"><span class="toc-number">1.6.5.</span> <span class="toc-text">5.5 Trunk 不是“更快的链路”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-MPLS%EF%BC%9A%E5%9C%A8-IP-%E8%BD%AC%E5%8F%91%E4%B9%8B%E5%A4%96%E5%A2%9E%E5%8A%A0%E6%A0%87%E7%AD%BE%E5%8C%96%E8%B7%AF%E5%BE%84"><span class="toc-number">1.7.</span> <span class="toc-text">6. MPLS：在 IP 转发之外增加标签化路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%99%AE%E9%80%9A-IP-%E8%BD%AC%E5%8F%91"><span class="toc-number">1.7.1.</span> <span class="toc-text">6.1 普通 IP 转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-MPLS-%E6%A0%87%E7%AD%BE%E8%BD%AC%E5%8F%91"><span class="toc-number">1.7.2.</span> <span class="toc-text">6.2 MPLS 标签转发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-MPLS-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%BB%85%E4%BB%85%E6%98%AF%E4%B8%BA%E4%BA%86%E6%8F%90%E9%AB%98%E6%9F%A5%E8%A1%A8%E9%80%9F%E5%BA%A6"><span class="toc-number">1.8.</span> <span class="toc-text">7. MPLS 为什么不仅仅是为了提高查表速度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E6%99%AE%E9%80%9A-IP-%E8%B7%AF%E7%94%B1%E7%9A%84%E5%B1%80%E9%99%90"><span class="toc-number">1.8.1.</span> <span class="toc-text">7.1 普通 IP 路由的局限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-MPLS-%E6%8F%90%E4%BE%9B%E7%9A%84%E7%81%B5%E6%B4%BB%E6%80%A7"><span class="toc-number">1.8.2.</span> <span class="toc-text">7.2 MPLS 提供的灵活性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-MPLS-%E6%B5%81%E9%87%8F%E5%B7%A5%E7%A8%8B"><span class="toc-number">1.9.</span> <span class="toc-text">8. MPLS 流量工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E4%B8%8D%E4%B8%80%E5%AE%9A%E6%98%AF%E6%9C%80%E4%BD%B3%E8%B7%AF%E5%BE%84"><span class="toc-number">1.9.1.</span> <span class="toc-text">8.1 最短路径不一定是最佳路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E7%BA%A6%E6%9D%9F%E8%B7%AF%E5%BE%84%E8%AE%A1%E7%AE%97"><span class="toc-number">1.9.2.</span> <span class="toc-text">8.2 约束路径计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-LSP"><span class="toc-number">1.9.3.</span> <span class="toc-text">8.3 LSP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E6%B5%81%E9%87%8F%E5%B7%A5%E7%A8%8B%E7%9A%84%E4%B8%BB%E8%A6%81%E4%BB%B7%E5%80%BC"><span class="toc-number">1.9.4.</span> <span class="toc-text">8.4 流量工程的主要价值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-MPLS%E3%80%81QoS-%E4%B8%8E-VPN"><span class="toc-number">1.10.</span> <span class="toc-text">9. MPLS、QoS 与 VPN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-QoS"><span class="toc-number">1.10.1.</span> <span class="toc-text">9.1 QoS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-MPLS-VPN"><span class="toc-number">1.10.2.</span> <span class="toc-text">9.2 MPLS VPN</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%EF%BC%9A%E8%BF%9E%E6%8E%A5%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%9B%86%E7%BE%A4"><span class="toc-number">1.11.</span> <span class="toc-text">10. 数据中心网络：连接大规模服务器集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8D%E5%90%8C%E4%BA%8E%E6%99%AE%E9%80%9A%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="toc-number">1.11.1.</span> <span class="toc-text">10.1 为什么数据中心网络不同于普通局域网</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E5%88%86%E5%B1%82%E7%BB%93%E6%9E%84"><span class="toc-number">1.12.</span> <span class="toc-text">11. 数据中心的分层结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9C%BA%E6%9E%B6"><span class="toc-number">1.12.1.</span> <span class="toc-text">11.1 服务器机架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-ToR-%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="toc-number">1.12.2.</span> <span class="toc-text">11.2 ToR 交换机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E6%B1%87%E8%81%9A%E5%B1%82%E5%92%8C%E6%A0%B8%E5%BF%83%E5%B1%82"><span class="toc-number">1.12.3.</span> <span class="toc-text">11.3 汇聚层和核心层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-%E8%BE%B9%E7%95%8C%E8%B7%AF%E7%94%B1%E5%99%A8"><span class="toc-number">1.12.4.</span> <span class="toc-text">11.4 边界路由器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%A4%9A%E8%B7%AF%E5%BE%84"><span class="toc-number">1.13.</span> <span class="toc-text">12. 数据中心为什么需要多路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E5%90%9E%E5%90%90%E9%87%8F%E5%8F%97%E9%99%90"><span class="toc-number">1.13.1.</span> <span class="toc-text">12.1 吞吐量受限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-%E6%95%85%E9%9A%9C%E9%A3%8E%E9%99%A9%E8%BF%87%E9%AB%98"><span class="toc-number">1.13.2.</span> <span class="toc-text">12.2 故障风险过高</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-%E4%B8%8D%E7%9B%B8%E4%BA%A4%E8%B7%AF%E5%BE%84"><span class="toc-number">1.13.3.</span> <span class="toc-text">12.3 不相交路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-4-%E5%A4%9A%E8%B7%AF%E5%BE%84%E4%B8%8D%E7%AD%89%E4%BA%8E%E8%87%AA%E5%8A%A8%E9%AB%98%E6%95%88"><span class="toc-number">1.13.4.</span> <span class="toc-text">12.4 多路径不等于自动高效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%EF%BC%9A%E6%8A%8A%E8%AF%B7%E6%B1%82%E4%BA%A4%E7%BB%99%E5%90%88%E9%80%82%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.14.</span> <span class="toc-text">13. 负载均衡器：把请求交给合适的服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="toc-number">1.14.1.</span> <span class="toc-text">13.1 为什么需要负载均衡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%A7%B0%E4%B8%BA%E5%BA%94%E7%94%A8%E5%B1%82%E8%B7%AF%E7%94%B1"><span class="toc-number">1.14.2.</span> <span class="toc-text">13.2 为什么称为应用层路由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%E9%9A%90%E8%97%8F%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number">1.14.3.</span> <span class="toc-text">13.3 负载均衡器隐藏了什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E4%B8%80%E6%AC%A1-Web-%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B6%89%E5%8F%8A%E5%A4%9A%E4%B8%AA%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.15.</span> <span class="toc-text">14. 一次 Web 页面请求为什么涉及多个协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9ADHCP-%E8%8E%B7%E5%8F%96%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="toc-number">1.16.</span> <span class="toc-text">15. 第一步：DHCP 获取网络配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%B9%BF%E6%92%AD"><span class="toc-number">1.16.1.</span> <span class="toc-text">15.1 为什么需要广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-2-DHCP-%E4%BA%A4%E4%BB%98%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="toc-number">1.16.2.</span> <span class="toc-text">15.2 DHCP 交付的信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9AARP-%E8%8E%B7%E5%8F%96%E7%AC%AC%E4%B8%80%E8%B7%B3%E8%B7%AF%E7%94%B1%E5%99%A8%E7%9A%84-MAC-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.17.</span> <span class="toc-text">16. 第二步：ARP 获取第一跳路由器的 MAC 地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9ADNS-%E6%9F%A5%E8%AF%A2%E7%9B%AE%E6%A0%87%E6%9C%8D%E5%8A%A1%E5%99%A8-IP"><span class="toc-number">1.18.</span> <span class="toc-text">17. 第三步：DNS 查询目标服务器 IP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#17-1-DNS-%E4%B8%8D%E8%BF%94%E5%9B%9E%E7%BD%91%E9%A1%B5"><span class="toc-number">1.18.1.</span> <span class="toc-text">17.1 DNS 不返回网页</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9ATCP-%E5%BB%BA%E7%AB%8B%E5%8F%AF%E9%9D%A0%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.19.</span> <span class="toc-text">18. 第四步：TCP 建立可靠连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#19-%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9AHTTP-%E8%AF%B7%E6%B1%82%E5%92%8C%E5%93%8D%E5%BA%94"><span class="toc-number">1.20.</span> <span class="toc-text">19. 第五步：HTTP 请求和响应</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-%E5%AE%8C%E6%95%B4%E5%B0%81%E8%A3%85%E5%85%B3%E7%B3%BB"><span class="toc-number">1.21.</span> <span class="toc-text">20. 完整封装关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#21-VLAN%E3%80%81MPLS-%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.22.</span> <span class="toc-text">21. VLAN、MPLS 与数据中心网络的关系</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-1-VLAN-%E7%9A%84%E9%80%BB%E8%BE%91%E6%8A%BD%E8%B1%A1"><span class="toc-number">1.22.1.</span> <span class="toc-text">21.1 VLAN 的逻辑抽象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-2-MPLS-%E7%9A%84%E9%80%BB%E8%BE%91%E6%8A%BD%E8%B1%A1"><span class="toc-number">1.22.2.</span> <span class="toc-text">21.2 MPLS 的逻辑抽象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-3-%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E9%80%BB%E8%BE%91%E6%8A%BD%E8%B1%A1"><span class="toc-number">1.22.3.</span> <span class="toc-text">21.3 数据中心的逻辑抽象</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E5%B8%B8%E8%A7%81%E7%90%86%E8%A7%A3%E8%AF%AF%E5%8C%BA"><span class="toc-number">1.23.</span> <span class="toc-text">22. 常见理解误区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#22-1-VLAN-%E5%B0%B1%E6%98%AF%E5%A4%9A%E4%B9%B0%E5%87%A0%E5%8F%B0%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="toc-number">1.23.1.</span> <span class="toc-text">22.1 VLAN 就是多买几台交换机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-2-%E6%8E%A5%E5%9C%A8%E5%90%8C%E4%B8%80%E5%8F%B0%E4%BA%A4%E6%8D%A2%E6%9C%BA%E4%B8%8A%E7%9A%84%E8%AE%BE%E5%A4%87%E5%BF%85%E7%84%B6%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E9%80%9A%E4%BF%A1"><span class="toc-number">1.23.2.</span> <span class="toc-text">22.2 接在同一台交换机上的设备必然可以直接通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-3-%E4%B8%8D%E5%90%8C-VLAN-%E4%B9%8B%E9%97%B4%E6%B0%B8%E8%BF%9C%E4%B8%8D%E8%83%BD%E9%80%9A%E4%BF%A1"><span class="toc-number">1.23.3.</span> <span class="toc-text">22.3 不同 VLAN 之间永远不能通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-4-Trunk-%E6%98%AF%E9%80%9F%E5%BA%A6%E6%9B%B4%E5%BF%AB%E7%9A%84%E7%BD%91%E7%BA%BF"><span class="toc-number">1.23.4.</span> <span class="toc-text">22.4 Trunk 是速度更快的网线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-5-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%8F%91%E9%80%81%E7%9A%84%E5%B8%A7%E9%83%BD%E5%BF%85%E9%A1%BB%E6%90%BA%E5%B8%A6-802-1Q-%E6%A0%87%E7%AD%BE"><span class="toc-number">1.23.5.</span> <span class="toc-text">22.5 所有主机发送的帧都必须携带 802.1Q 标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-6-MPLS-%E6%A0%87%E7%AD%BE%E5%8F%96%E4%BB%A3%E4%BA%86-IP-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.23.6.</span> <span class="toc-text">22.6 MPLS 标签取代了 IP 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-7-MPLS-%E5%8F%AA%E6%98%AF%E6%9B%B4%E5%BF%AB%E7%9A%84%E8%B7%AF%E7%94%B1%E6%9F%A5%E8%A1%A8%E6%8A%80%E6%9C%AF"><span class="toc-number">1.23.7.</span> <span class="toc-text">22.7 MPLS 只是更快的路由查表技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-8-MPLS-%E8%B7%AF%E5%BE%84%E5%BF%85%E9%A1%BB%E6%98%AF%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84"><span class="toc-number">1.23.8.</span> <span class="toc-text">22.8 MPLS 路径必须是最短路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-9-%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E4%B8%AD%E6%89%80%E6%9C%89%E8%AF%B7%E6%B1%82%E9%83%BD%E7%94%B1%E5%90%8C%E4%B8%80%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A4%84%E7%90%86"><span class="toc-number">1.23.9.</span> <span class="toc-text">22.9 数据中心中所有请求都由同一台服务器处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-10-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%E5%B0%B1%E6%98%AF%E6%99%AE%E9%80%9A%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="toc-number">1.23.10.</span> <span class="toc-text">22.10 负载均衡器就是普通交换机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-11-DNS-%E8%BF%94%E5%9B%9E%E7%BD%91%E9%A1%B5%E5%86%85%E5%AE%B9"><span class="toc-number">1.23.11.</span> <span class="toc-text">22.11 DNS 返回网页内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-12-%E8%AE%BF%E9%97%AE%E8%BF%9C%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%97%B6%EF%BC%8C%E4%BB%A5%E5%A4%AA%E7%BD%91%E7%9B%AE%E7%9A%84-MAC-%E6%98%AF%E8%BF%9C%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.23.12.</span> <span class="toc-text">22.12 访问远端服务器时，以太网目的 MAC 是远端服务器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.24.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-2：从密码学工具到网络纵深防御"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御">Chapter 8-2：从密码学工具到网络纵深防御</a><time datetime="2026-06-25T15:06:24.000Z" title="Created 2026-06-25 23:06:24">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</a><time datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:05:27.000Z" title="Created 2026-06-25 23:05:27">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</a><time datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

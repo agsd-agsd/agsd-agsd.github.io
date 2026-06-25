@@ -1,0 +1,1077 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><meta name="application-name" content="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><meta property="og:url" content="http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="从加密到信任：不可信网络中安全通信的建立逻辑互联网能够把数据从一台主机传输到另一台主机，却不会天然保证这些数据是秘密的、完整的，也不会自动证明通信对象的真实身份。一个数据报即使按照协议顺利到达目的地，也可能已经被攻击者窃听、修改、复制或替换。攻击者还可能冒充通信双方，重放过去截获的合法报文，或者在公"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/dhalsim.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/dhalsim.png"><meta name="description" content="从加密到信任：不可信网络中安全通信的建立逻辑互联网能够把数据从一台主机传输到另一台主机，却不会天然保证这些数据是秘密的、完整的，也不会自动证明通信对象的真实身份。一个数据报即使按照协议顺利到达目的地，也可能已经被攻击者窃听、修改、复制或替换。攻击者还可能冒充通信双方，重放过去截获的合法报文，或者在公"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑',
+  postAI: '',
+  pageFillDescription: '从加密到信任：不可信网络中安全通信的建立逻辑, 1. 安全通信需要同时满足多种性质, 1.1 机密性：攻击者即使截获也不能理解, 1.2 完整性：接收方必须知道数据是否被修改, 1.3 端点鉴别：身份声明不等于身份证明, 1.4 运行安全性：算法安全不等于系统安全, ❗ 本节核心结论： 安全通信不是单一目标。机密性、完整性和身份认证分别解决不同问题不能因为数据已经加密就默认它没有被篡改或发送者身份已经得到证明。, 2. 对称加密：高效但依赖共享秘密, 2.1 从简单替换密码到现代分组密码, 2.2 DES、3DES 与 AES 的演进, 2.3 对称加密的根本矛盾, ❗ 本节核心结论： 对称加密适合保护大量实际数据但它预设通信双方已经拥有共享秘密。其性能优势和密钥分发困难共同推动了公钥密码的发展。, 3. 公钥密码：把可以公开与必须保密分离, 3.1 公钥为什么能够公开, 3.2 RSA 的两种使用方向, 3.3 为什么不能用 RSA 加密所有数据, ❗ 本节核心结论： 公钥密码不是对称加密的全面替代品。它主要解决认证和密钥建立问题而实际数据传输仍通常交给高效的对称密码完成。, 4. 数字签名：证明消息来源与内容完整性, 4.1 为什么签名消息摘要, 4.2 校验和不能代替密码学散列, 4.3 签名与验证流程, ❗ 本节核心结论： 数字签名通过消息摘要＋私钥签名＋公钥验证证明消息来源和完整性但不负责隐藏消息内容其可信程度还取决于验证者是否持有正确且可信的公钥。, 5. 身份认证协议的演进：从声明身份到证明在线, 5.1 ap1.0：只声明身份, 5.2 ap2.0：使用源 IP 地址, 5.3 ap3.0：发送密码, 5.4 ap4.0：使用 nonce 实现挑战—响应, 5.5 ap5.0：使用公钥完成挑战—响应, ❗ 本节核心结论： 身份认证不仅要证明对方掌握某个秘密还要证明响应属于当前会话。nonce 解决报文新鲜性问题公钥挑战—响应缓解共享密钥分发问题但仍不能自行证明公钥归属。, 6. 中间人攻击：算法正确通信仍可能失守, 7. 数字证书与 CA：建立公钥和身份之间的绑定, 7.1 数字证书的生成, 7.2 浏览器如何验证证书, 7.3 证书链与根信任, 7.4 CA 体系的边界, ❗ 本节核心结论： 数字证书不是网站安全保证书而是经过 CA 签名的公钥身份证明。其可靠性既依赖密码学算法也依赖 CA 的验证流程、私钥保护和浏览器信任配置。, 8. 现代安全通信是一条连续的信任链, 结论从加密到信任不可信网络中安全通信的建立逻辑互联网能够把数据从一台主机传输到另一台主机却不会天然保证这些数据是秘密的完整的也不会自动证明通信对象的真实身份一个数据报即使按照协议顺利到达目的地也可能已经被攻击者窃听修改复制或替换攻击者还可能冒充通信双方重放过去截获的合法报文或者在公钥交换过程中替换密钥因此网络安全所要解决的核心问题并不只是如何加密一段数据而是如何在存在主动攻击者的不可信网络中建立一条可验证可持续的可信通信关系围绕这一目标现代网络安全逐步形成了相互衔接的机制对称加密负责高效保护数据内容公钥密码缓解密钥分发问题散列函数和数字签名验证消息来源与完整性随机数防止旧报文被重复利用数字证书和证书颁发机构则建立公钥与真实身份之间的可信绑定不可信网络机密性完整性身份认证运行安全对称加密散列与数字签名挑战响应数字证书信任体系这套体系的关键不在于某一种算法能够独立解决所有安全问题而在于不同机制分别承担不同职责并通过协议组合形成完整的安全链条安全通信需要同时满足多种性质网络安全通常包含机密性消息完整性端点鉴别和运行安全性四个层面这些性质彼此相关却不能相互替代机密性攻击者即使截获也不能理解机密性要求只有获得授权的通信实体能够理解报文内容发送方使用密钥和加密算法把明文转换为密文接收方再使用正确的密钥恢复原文其中表示明文表示密文表示密钥加密并不阻止攻击者看到网络中传输的比特它真正保证的是攻击者即使截获密文也难以恢复其中的有效信息完整性接收方必须知道数据是否被修改消息完整性关注的不是攻击者能否阅读报文而是攻击者能否在不被发现的情况下修改报文例如攻击者不一定需要理解一条转账指令的全部内容只要能够把金额字段从修改为就可能造成实际损失即使报文经过加密如果所使用的方案没有提供完整性保护攻击者仍可能修改密文并影响解密结果因此加密主要解决别人能否看懂完整性机制解决别人是否改动端点鉴别身份声明不等于身份证明网络中的通信实体无法直接观察对方本人只能接收到数据报协议字段口令公钥或数字签名发送一句只能表达发送者声称自己是却不能证明该声明真实可靠的身份认证必须依赖攻击者难以伪造的密码学证据例如共享秘密私钥签名或者可信证书运行安全性算法安全不等于系统安全即使密码算法本身足够安全系统仍可能由于密钥泄露权限配置错误服务器漏洞或证书管理失误而被攻破因此真实系统还需要防火墙入侵检测访问控制补丁管理密钥保护和安全运维算法再强如果密钥被公开保存加密也会失去意义安全性质所回答的问题典型机制机密性攻击者能否读懂数据加密完整性数据是否被修改散列数字签名身份认证对方究竟是谁口令挑战响应证书运行安全性整个系统能否安全运行防火墙权限控制入侵检测本节核心结论安全通信不是单一目标机密性完整性和身份认证分别解决不同问题不能因为数据已经加密就默认它没有被篡改或发送者身份已经得到证明对称加密高效但依赖共享秘密对称密钥加密要求通信双方拥有同一个共享秘密或者拥有可以高效相互推导的加密与解密密钥发送方使用该秘密完成加密接收方使用相应秘密完成解密对称加密的主要优势是计算效率高适合处理大量数据现代文件加密磁盘加密和网络会话中的主体数据通常都依赖对称密码从简单替换密码到现代分组密码简单替换密码把每个明文字母固定映射为另一个字母它能够直观说明密钥控制明文与密文之间的映射关系但无法抵御现代攻击自然语言具有稳定的统计特征例如不同字母出现频率不同某些字母组合和单词反复出现攻击者可以利用这些规律进行频率分析从而逐渐推测出替换表现代对称密码不再依赖简单字符替换而是通过多轮复杂变换使明文密钥和密文之间形成难以分析的关系与的演进是早期广泛使用的对称分组密码采用位有效密钥和位分组其主要问题是密钥空间过小位密钥只有种可能在计算能力不断提升后攻击者已经能够通过专用设备穷举密钥通过多次执行延长密钥长度典型结构为加密解密加密中间执行一次解密并不意味着取消前一次加密加密和解密在这里都是由密钥控制的可逆变换结构还可以在三个密钥相同时兼容原有系统提高了安全性但需要执行多次运算效率较低随后成为现代主流标准使用位分组支持和位密钥的密钥空间为与的相比密钥空间不是简单扩大两倍而是扩大了倍算法主要密钥长度特点当前定位位密钥空间过小已不安全多个密钥安全性提高但速度较慢过渡方案位安全高效现代主流对称加密的根本矛盾对称加密本身并不难使用只要和已经拥有同一个安全密钥就可以高效传输大量数据真正困难的是和在通信开始之前如何安全获得同一个秘密密钥如果直接通过不安全网络发送密钥攻击者也可以截获它这就是密钥分发问题它可以通过线下预置密钥分发中心公钥密码或密钥交换协议解决本节核心结论对称加密适合保护大量实际数据但它预设通信双方已经拥有共享秘密其性能优势和密钥分发困难共同推动了公钥密码的发展公钥密码把可以公开与必须保密分离非对称密码为每个用户建立一对数学相关但功能不同的密钥公钥可以公开私钥只能由密钥拥有者保存假设拥有公钥和私钥想向发送秘密消息时可以使用的公钥进行加密使用自己的私钥解密在课程中的抽象模型下可以表示为由于只有掌握对应私钥因此其他获得公钥的人虽然可以生成发给的密文却不能直接恢复明文公钥为什么能够公开公钥的职责不是作为共享秘密而是让其他实体能够与密钥拥有者建立密码学关系获得公钥的人可以加密只有能解密的消息验证由私钥生成的数字签名公钥密码的安全性要求攻击者不能在现实可接受的时间内仅根据公钥推出私钥的两种使用方向在课程模型中具有两种可逆关系两种方向对应不同目的运算方式主要目的使用接收者公钥处理接收者私钥恢复保护机密性使用发送者私钥生成结果发送者公钥验证证明消息来源这里最容易产生的误解是把使用私钥理解为另一种加密现代数字签名具有独立的算法结构和填充规则不能简单等同于把原始消息用私钥进行普通加密但在课程的概念模型中可以通过私钥生成签名公钥完成验证理解其密钥使用方向为什么不能用加密所有数据公钥密码运算通常比对称密码昂贵若对大型文件视频或全部网络流量直接执行运算会产生显著计算开销实际系统通常采用混合加密生成会话密钥使用公钥保护使用私钥获得使用和传输数据使用和返回数据公钥密码负责认证或建立共享会话密钥对称密码负责加密会话中的大量数据这种分工同时利用了公钥密码便于建立秘密的优势和对称密码高效的优势本节核心结论公钥密码不是对称加密的全面替代品它主要解决认证和密钥建立问题而实际数据传输仍通常交给高效的对称密码完成数字签名证明消息来源与内容完整性加密回答的是谁能够阅读消息数字签名回答的是谁生成了消息以及消息是否发生变化假设向发送消息数字签名机制需要让能够验证签名者掌握的私钥消息在签名后没有被修改为什么签名消息摘要直接对长消息执行公钥密码运算效率较低因此实际签名一般先使用散列函数计算消息摘要散列函数接收任意长度的输入输出固定长度的结果摘要可以被理解为消息的密码学指纹理想的密码学散列函数应满足给定消息能够快速计算摘要给定摘要难以恢复原消息难以找到与指定消息摘要相同的另一条消息难以主动构造两条摘要相同的不同消息由于输入空间远大于固定长度的输出空间碰撞在数学上一定存在即可能出现但密码学安全所要求的不是碰撞绝对不存在而是攻击者无法在可接受成本内找到有实际价值的碰撞校验和不能代替密码学散列校验和也能把较长数据映射为固定长度结果但其目标是检测传输中的随机错误而不是抵抗恶意攻击攻击者可以有意修改多个字段使变化在校验和计算中相互抵消因此校验和可以发现部分意外错误却不能可靠防止精心构造的篡改特性校验和密码学散列主要目标检测随机错误抵抗恶意篡改是否强调抗碰撞否是是否适合作为签名摘要否是典型用途网络传输差错检测数字签名完整性验证和分别生成位和位摘要在密码学发展史中具有重要地位但由于已发现实际碰撞攻击它们不再适合用于要求抗碰撞性的现代数字签名系统签名与验证流程首先计算消息摘要随后使用私钥生成签名将消息和签名一起发送给收到后重新计算消息摘要同时使用的公钥验证签名获得或验证签名所对应的摘要若则说明收到的消息与签名时的消息一致并且签名由掌握相应私钥的实体生成消息计算使用私钥生成签名发送消息和签名接收方重新计算摘要使用公钥验证签名摘要是否一致是签名有效否消息或签名不可信数字签名并不自动隐藏原文任何能够获得消息的人都可能读取其内容但只有拥有可信公钥的人才能验证签名对比点公钥加密数字签名主要目标机密性来源认证与完整性核心密钥接收者公钥发送者私钥后续操作接收者私钥解密发送者公钥验证是否隐藏原文通常是不一定本节核心结论数字签名通过消息摘要私钥签名公钥验证证明消息来源和完整性但不负责隐藏消息内容其可信程度还取决于验证者是否持有正确且可信的公钥身份认证协议的演进从声明身份到证明在线身份认证协议的设计不能只观察正常情况下是否能够完成认证还必须站在攻击者视角分析报文能否被伪造复制或重新使用从到的演进展示了安全协议设计的基本方法每增加一种机制都是为了修复上一版本暴露出的特定漏洞只声明身份向发送该方案完全依赖发送者的自我声明任何攻击者都可以发送同样的字符串因此它没有提供任何可验证的身份证据使用源地址下一步可以尝试检查报文的源地址但数据报中的源地址可以被伪造攻击者能够构造一个源地址看起来属于的数据报地址只能说明报文声称从哪里发出不能构成密码学意义上的身份证明发送密码要求同时发送身份和密码可以阻止不知道密码的攻击者直接登录然而如果密码或认证报文以可复制形式通过网络发送监听者可以记录整段合法通信之后原样再次提交这种攻击称为重放攻击攻击者甚至不需要理解密码内容只需要复制以前被系统接受的报文重放攻击揭示了身份认证中的一个重要区别一条报文曾经合法不代表它在当前会话中仍然合法使用实现挑战响应为防止旧报文被重复使用可以为每次认证生成一个新的是仅使用一次的随机数或不可重复值认证过程如下声明身份生成新的随机数并发送给使用与共享的秘密对进行密码学处理验证返回结果是否与本次挑战匹配若和共享密钥可以返回攻击者过去记录的响应对应旧随机数而本次认证要求的是只要新的不重复旧响应就无法通过验证因此不仅确认对方掌握共享秘密还确认对方正在针对当前挑战实时响应本身通常不需要保密需要保密的是生成合法响应所依赖的密钥使用公钥完成挑战响应共享密钥方案仍然面临密钥分发问题为避免事先共享对称密钥可以让使用私钥响应的随机挑战发送使用自己的私钥生成响应再使用的公钥完成验证若验证成功可以确认对方掌握与该公钥配对的私钥但这一方案立即产生新的问题如何确定手中的公钥确实属于如果只是通过当前网络连接询问的公钥攻击者就可以把自己的公钥发送给并声称它属于此时密码学运算可能全部正确身份绑定却是错误的本节核心结论身份认证不仅要证明对方掌握某个秘密还要证明响应属于当前会话解决报文新鲜性问题公钥挑战响应缓解共享密钥分发问题但仍不能自行证明公钥归属中间人攻击算法正确通信仍可能失守中间人攻击发生时攻击者位于和之间并分别与双方建立通信以为自己正在与通信也以为自己正在与通信实际上双方都只与建立了经过替换的密码学关系假设请求的公钥可以把自己的公钥发送给并声称这是的公钥随后使用该公钥加密消息使用自己的私钥解密读取或修改内容再用的真实公钥重新加密并转发整个过程中使用的加密算法是正确的使用的解密算法也是正确的双方可能正常收到格式正确的数据真正错误的是公钥与身份之间的绑定这说明公钥可以公开不代表从网络中获得的任意公钥都可信公钥密码解决的是拿到正确公钥以后如何安全通信却不能单独解决如何确认拿到的是正确公钥数字证书与建立公钥和身份之间的绑定为解决公钥归属问题网络安全体系引入证书颁发机构的核心职责是验证实体身份并对实体身份与公钥之间的绑定关系进行数字签名实体可以是个人组织服务器网站软件发布者或其他网络设备数字证书的生成向提交身份或组织信息域名信息的公钥用于证明身份或域名控制权的材料完成验证后生成包含以下信息的证书证书主体域名主体公钥有效期签发者允许用途使用的密码算法随后使用自己的私钥对证书内容或其摘要签名证书所表达的并不是这个网站绝对安全而是根据其验证程序确认该公钥与证书中声明的身份或域名存在绑定关系浏览器如何验证证书浏览器收到网站证书后不能只检查签名是否在数学上正确还需要完成多项验证验证签发的数字签名验证证书链能否连接到受信任的根检查证书中的域名是否与当前访问域名一致检查证书是否处于有效期内检查证书用途是否允许服务器身份认证检查证书是否已被吊销或受到其他限制即使一张证书由可信正确签名如果它绑定的是另一个域名也不能用于当前网站证书链与根信任网站证书通常不是直接由根签发而是由中间签发验证过程形成一条证书链网站证书中间签名中间证书根签名根证书操作系统或浏览器预先信任信任起点根证书通常预装在操作系统或浏览器的信任库中它不是因为能够被更高层证书验证才可信而是作为系统预先配置的信任锚网站证书验证中间签名验证到根检查访问域名检查有效期检查证书用途接受网站公钥体系的边界并不能彻底消除风险它只是把原来的问题我是否相信网站自己提供的公钥转化为我是否相信正确完成身份验证并妥善保护了自己的私钥历史上的错误签发和入侵事件说明一张证书的密码学签名可以完全正确其签发过程却可能已经失守若错误地向攻击者签发目标域名证书浏览器可能在密码学层面顺利验证这张欺诈证书证书也不能证明网站业务合法网页内容真实或者服务器不存在漏洞它主要证明的是域名公钥和签发体系之间的关系本节核心结论数字证书不是网站安全保证书而是经过签名的公钥身份证明其可靠性既依赖密码学算法也依赖的验证流程私钥保护和浏览器信任配置现代安全通信是一条连续的信任链对称加密公钥密码数字签名和数字证书并不是彼此独立的知识点而是依次修复安全通信中的不同缺口需要保护大量数据使用对称加密出现密钥分发问题引入公钥密码需要确认通信对象身份数字签名与挑战响应需要防止重放引入需要确认公钥归属数字证书与建立可信会话各机制之间的职责可以归纳为机制主要解决的问题不能单独解决的问题对称加密高效保护大量数据初始密钥如何安全分发公钥加密在未共享秘密时保护密钥或数据公钥究竟属于谁散列函数生成消息摘要单独使用不能证明发送者身份数字签名来源认证和消息完整性不自动提供机密性防止旧认证报文被重放不负责证明公钥归属数字证书绑定身份域名和公钥不证明网站业务绝对可信体系提供可扩展的第三方信任仍依赖机构和根信任安全以典型安全连接为例通信过程通常包含以下逻辑客户端获得服务器证书客户端验证证书链域名有效期和用途客户端接受证书中的服务器公钥双方通过公钥机制或密钥交换建立会话密钥后续大量数据使用对称密码加密完整性认证机制防止数据被悄悄修改序列号或其他新鲜性信息防止旧报文被重复利用现代协议的安全性因此不是来自某一个足够强的算法而是来自整个流程中每个环节都完成了自己的职责结论网络安全的根本任务是在不可信的传输环境中建立可信关系加密只能让攻击者难以理解数据不能自动证明数据没有被修改数字签名能够证明来源和完整性却不负责隐藏原文能够证明响应属于当前会话却不能解决公钥归属公钥可以公开但必须通过数字证书和信任体系确认它属于谁对称密码公钥密码散列函数数字签名挑战响应和证书体系共同构成了一条连续的信任链对称密码负责高效保护数据公钥密码负责建立秘密数字签名负责证明来源与完整性负责保证报文新鲜性数字证书负责绑定身份与公钥理解网络安全的关键不是孤立背诵每种算法的定义而是明确每一种机制解决了什么问题仍然留下什么缺口以及下一种机制为什么必须出现只有当机密性完整性身份认证公钥可信性和系统运行安全同时成立时通信双方才真正获得了一条可信的安全连接',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-25 23:06:20',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">46</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:20.403Z" title="Updated 2026-06-25 23:06:20">2026-06-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">6.9k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>21min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/dhalsim.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:20.403Z" title="Updated 2026-06-25 23:06:20">2026-06-25</time></header><h1 id="从加密到信任：不可信网络中安全通信的建立逻辑"><a href="#从加密到信任：不可信网络中安全通信的建立逻辑" class="headerlink" title="从加密到信任：不可信网络中安全通信的建立逻辑"></a>从加密到信任：不可信网络中安全通信的建立逻辑</h1><p>互联网能够把数据从一台主机传输到另一台主机，却不会天然保证这些数据是秘密的、完整的，也不会自动证明通信对象的真实身份。一个数据报即使按照协议顺利到达目的地，也可能已经被攻击者窃听、修改、复制或替换。攻击者还可能冒充通信双方，重放过去截获的合法报文，或者在公钥交换过程中替换密钥。</p>
+<p>因此，网络安全所要解决的核心问题并不只是如何加密一段数据，而是：</p>
+<blockquote>
+<p>如何在存在主动攻击者的不可信网络中，建立一条可验证、可持续的可信通信关系？</p>
+</blockquote>
+<p>围绕这一目标，现代网络安全逐步形成了相互衔接的机制：对称加密负责高效保护数据内容，公钥密码缓解密钥分发问题，散列函数和数字签名验证消息来源与完整性，随机数防止旧报文被重复利用，数字证书和证书颁发机构则建立公钥与真实身份之间的可信绑定。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    A[不可信网络] --&gt; B[机密性]
+    A --&gt; C[完整性]
+    A --&gt; D[身份认证]
+    A --&gt; E[运行安全]
+
+    B --&gt; F[对称加密]
+    C --&gt; G[散列与数字签名]
+    D --&gt; H[挑战—响应]
+    D --&gt; I[数字证书]
+    I --&gt; J[CA信任体系]
+  </pre></div>
+
+<p>这套体系的关键不在于某一种算法能够独立解决所有安全问题，而在于不同机制分别承担不同职责，并通过协议组合形成完整的安全链条。</p>
+<hr>
+<h2 id="1-安全通信需要同时满足多种性质"><a href="#1-安全通信需要同时满足多种性质" class="headerlink" title="1. 安全通信需要同时满足多种性质"></a>1. 安全通信需要同时满足多种性质</h2><p>网络安全通常包含机密性、消息完整性、端点鉴别和运行安全性四个层面。这些性质彼此相关，却不能相互替代。</p>
+<h3 id="1-1-机密性：攻击者即使截获，也不能理解"><a href="#1-1-机密性：攻击者即使截获，也不能理解" class="headerlink" title="1.1 机密性：攻击者即使截获，也不能理解"></a>1.1 机密性：攻击者即使截获，也不能理解</h3><p>机密性要求只有获得授权的通信实体能够理解报文内容。发送方使用密钥和加密算法把明文转换为密文，接收方再使用正确的密钥恢复原文：</p>
+<p>[<br>c&#x3D;E_K(m)<br>]</p>
+<p>[<br>m&#x3D;D_K(c)<br>]</p>
+<p>其中，(m) 表示明文，(c) 表示密文，(K) 表示密钥。</p>
+<p>加密并不阻止攻击者看到网络中传输的比特。它真正保证的是：攻击者即使截获密文，也难以恢复其中的有效信息。</p>
+<h3 id="1-2-完整性：接收方必须知道数据是否被修改"><a href="#1-2-完整性：接收方必须知道数据是否被修改" class="headerlink" title="1.2 完整性：接收方必须知道数据是否被修改"></a>1.2 完整性：接收方必须知道数据是否被修改</h3><p>消息完整性关注的不是攻击者能否阅读报文，而是攻击者能否在不被发现的情况下修改报文。</p>
+<p>例如，攻击者不一定需要理解一条转账指令的全部内容，只要能够把金额字段从 100 修改为 900，就可能造成实际损失。即使报文经过加密，如果所使用的方案没有提供完整性保护，攻击者仍可能修改密文并影响解密结果。</p>
+<p>因此：</p>
+<blockquote>
+<p><strong>加密主要解决“别人能否看懂”，完整性机制解决“别人是否改动”。</strong></p>
+</blockquote>
+<h3 id="1-3-端点鉴别：身份声明不等于身份证明"><a href="#1-3-端点鉴别：身份声明不等于身份证明" class="headerlink" title="1.3 端点鉴别：身份声明不等于身份证明"></a>1.3 端点鉴别：身份声明不等于身份证明</h3><p>网络中的通信实体无法直接观察对方本人，只能接收到 IP 数据报、协议字段、口令、公钥或数字签名。</p>
+<p>发送一句“I am Alice”只能表达发送者声称自己是 Alice，却不能证明该声明真实。可靠的身份认证必须依赖攻击者难以伪造的密码学证据，例如共享秘密、私钥签名或者可信证书。</p>
+<h3 id="1-4-运行安全性：算法安全不等于系统安全"><a href="#1-4-运行安全性：算法安全不等于系统安全" class="headerlink" title="1.4 运行安全性：算法安全不等于系统安全"></a>1.4 运行安全性：算法安全不等于系统安全</h3><p>即使密码算法本身足够安全，系统仍可能由于密钥泄露、权限配置错误、服务器漏洞或证书管理失误而被攻破。</p>
+<p>因此，真实系统还需要防火墙、入侵检测、访问控制、补丁管理、密钥保护和安全运维。AES 算法再强，如果密钥被公开保存，加密也会失去意义。</p>
+<table>
+<thead>
+<tr>
+<th>安全性质</th>
+<th>所回答的问题</th>
+<th>典型机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>机密性</td>
+<td>攻击者能否读懂数据</td>
+<td>加密</td>
+</tr>
+<tr>
+<td>完整性</td>
+<td>数据是否被修改</td>
+<td>MAC、散列、数字签名</td>
+</tr>
+<tr>
+<td>身份认证</td>
+<td>对方究竟是谁</td>
+<td>口令、挑战—响应、证书</td>
+</tr>
+<tr>
+<td>运行安全性</td>
+<td>整个系统能否安全运行</td>
+<td>防火墙、权限控制、入侵检测</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：-安全通信不是单一目标。机密性、完整性和身份认证分别解决不同问题，不能因为数据已经加密，就默认它没有被篡改或发送者身份已经得到证明。"><a href="#❗-本节核心结论：-安全通信不是单一目标。机密性、完整性和身份认证分别解决不同问题，不能因为数据已经加密，就默认它没有被篡改或发送者身份已经得到证明。" class="headerlink" title="❗ 本节核心结论： 安全通信不是单一目标。机密性、完整性和身份认证分别解决不同问题，不能因为数据已经加密，就默认它没有被篡改或发送者身份已经得到证明。"></a>❗ <strong>本节核心结论：</strong> 安全通信不是单一目标。机密性、完整性和身份认证分别解决不同问题，不能因为数据已经加密，就默认它没有被篡改或发送者身份已经得到证明。</h2><h2 id="2-对称加密：高效，但依赖共享秘密"><a href="#2-对称加密：高效，但依赖共享秘密" class="headerlink" title="2. 对称加密：高效，但依赖共享秘密"></a>2. 对称加密：高效，但依赖共享秘密</h2><p>对称密钥加密要求通信双方拥有同一个共享秘密，或者拥有可以高效相互推导的加密与解密密钥。发送方使用该秘密完成加密，接收方使用相应秘密完成解密。</p>
+<p>对称加密的主要优势是计算效率高，适合处理大量数据。现代文件加密、磁盘加密和网络会话中的主体数据通常都依赖对称密码。</p>
+<h3 id="2-1-从简单替换密码到现代分组密码"><a href="#2-1-从简单替换密码到现代分组密码" class="headerlink" title="2.1 从简单替换密码到现代分组密码"></a>2.1 从简单替换密码到现代分组密码</h3><p>简单替换密码把每个明文字母固定映射为另一个字母。它能够直观说明密钥控制明文与密文之间的映射关系，但无法抵御现代攻击。</p>
+<p>自然语言具有稳定的统计特征，例如不同字母出现频率不同，某些字母组合和单词反复出现。攻击者可以利用这些规律进行频率分析，从而逐渐推测出替换表。</p>
+<p>现代对称密码不再依赖简单字符替换，而是通过多轮复杂变换，使明文、密钥和密文之间形成难以分析的关系。</p>
+<h3 id="2-2-DES、3DES-与-AES-的演进"><a href="#2-2-DES、3DES-与-AES-的演进" class="headerlink" title="2.2 DES、3DES 与 AES 的演进"></a>2.2 DES、3DES 与 AES 的演进</h3><p>DES 是早期广泛使用的对称分组密码，采用 56 位有效密钥和 64 位分组。其主要问题是密钥空间过小。56 位密钥只有 (2^{56}) 种可能，在计算能力不断提升后，攻击者已经能够通过专用设备穷举密钥。</p>
+<p>3DES 通过多次执行 DES 延长密钥长度。典型结构为“加密—解密—加密”：</p>
+<p>[<br>C&#x3D;E_{K_3}(D_{K_2}(E_{K_1}(M)))<br>]</p>
+<p>中间执行一次解密并不意味着取消前一次加密。加密和解密在这里都是由密钥控制的可逆变换。EDE 结构还可以在三个密钥相同时兼容原有 DES 系统。</p>
+<p>3DES 提高了安全性，但需要执行多次 DES 运算，效率较低。AES 随后成为现代主流标准。AES 使用 128 位分组，支持 128、192 和 256 位密钥。</p>
+<p>AES-128 的密钥空间为：</p>
+<p>[<br>2^{128}<br>]</p>
+<p>与 DES 的 (2^{56}) 相比，密钥空间不是简单扩大两倍，而是扩大了：</p>
+<p>[<br>2^{72}<br>]</p>
+<p>倍。</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th align="right">主要密钥长度</th>
+<th>特点</th>
+<th>当前定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DES</td>
+<td align="right">56 位</td>
+<td>密钥空间过小</td>
+<td>已不安全</td>
+</tr>
+<tr>
+<td>3DES</td>
+<td align="right">多个 DES 密钥</td>
+<td>安全性提高但速度较慢</td>
+<td>过渡方案</td>
+</tr>
+<tr>
+<td>AES</td>
+<td align="right">128、192、256 位</td>
+<td>安全、高效</td>
+<td>现代主流</td>
+</tr>
+</tbody></table>
+<h3 id="2-3-对称加密的根本矛盾"><a href="#2-3-对称加密的根本矛盾" class="headerlink" title="2.3 对称加密的根本矛盾"></a>2.3 对称加密的根本矛盾</h3><p>对称加密本身并不难使用。只要 Alice 和 Bob 已经拥有同一个安全密钥，就可以高效传输大量数据。</p>
+<p>真正困难的是：</p>
+<blockquote>
+<p>Alice 和 Bob 在通信开始之前，如何安全获得同一个秘密密钥？</p>
+</blockquote>
+<p>如果 Alice 直接通过不安全网络发送密钥，攻击者也可以截获它。这就是密钥分发问题。它可以通过线下预置、密钥分发中心、公钥密码或密钥交换协议解决。</p>
+<hr>
+<h2 id="❗-本节核心结论：-对称加密适合保护大量实际数据，但它预设通信双方已经拥有共享秘密。其性能优势和密钥分发困难共同推动了公钥密码的发展。"><a href="#❗-本节核心结论：-对称加密适合保护大量实际数据，但它预设通信双方已经拥有共享秘密。其性能优势和密钥分发困难共同推动了公钥密码的发展。" class="headerlink" title="❗ 本节核心结论： 对称加密适合保护大量实际数据，但它预设通信双方已经拥有共享秘密。其性能优势和密钥分发困难共同推动了公钥密码的发展。"></a>❗ <strong>本节核心结论：</strong> 对称加密适合保护大量实际数据，但它预设通信双方已经拥有共享秘密。其性能优势和密钥分发困难共同推动了公钥密码的发展。</h2><h2 id="3-公钥密码：把“可以公开”与“必须保密”分离"><a href="#3-公钥密码：把“可以公开”与“必须保密”分离" class="headerlink" title="3. 公钥密码：把“可以公开”与“必须保密”分离"></a>3. 公钥密码：把“可以公开”与“必须保密”分离</h2><p>非对称密码为每个用户建立一对数学相关但功能不同的密钥：</p>
+<ul>
+<li>公钥可以公开；</li>
+<li>私钥只能由密钥拥有者保存。</li>
+</ul>
+<p>假设 Bob 拥有公钥 (K_B^+) 和私钥 (K_B^-)。Alice 想向 Bob 发送秘密消息时，可以使用 Bob 的公钥进行加密：</p>
+<p>[<br>c&#x3D;K_B^+(m)<br>]</p>
+<p>Bob 使用自己的私钥解密：</p>
+<p>[<br>m&#x3D;K_B^-(c)<br>]</p>
+<p>在课程中的抽象模型下，可以表示为：</p>
+<p>[<br>K_B^-(K_B^+(m))&#x3D;m<br>]</p>
+<p>由于只有 Bob 掌握对应私钥，因此其他获得 Bob 公钥的人虽然可以生成发给 Bob 的密文，却不能直接恢复明文。</p>
+<h3 id="3-1-公钥为什么能够公开"><a href="#3-1-公钥为什么能够公开" class="headerlink" title="3.1 公钥为什么能够公开"></a>3.1 公钥为什么能够公开</h3><p>公钥的职责不是作为共享秘密，而是让其他实体能够与密钥拥有者建立密码学关系。获得 Bob 公钥的人可以：</p>
+<ul>
+<li>加密只有 Bob 能解密的消息；</li>
+<li>验证由 Bob 私钥生成的数字签名。</li>
+</ul>
+<p>公钥密码的安全性要求攻击者不能在现实可接受的时间内仅根据公钥推出私钥。</p>
+<h3 id="3-2-RSA-的两种使用方向"><a href="#3-2-RSA-的两种使用方向" class="headerlink" title="3.2 RSA 的两种使用方向"></a>3.2 RSA 的两种使用方向</h3><p>在课程模型中，RSA 具有两种可逆关系：</p>
+<p>[<br>K_B^-(K_B^+(m))&#x3D;m<br>]</p>
+<p>[<br>K_B^+(K_B^-(m))&#x3D;m<br>]</p>
+<p>两种方向对应不同目的：</p>
+<table>
+<thead>
+<tr>
+<th>运算方式</th>
+<th>主要目的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>使用接收者公钥处理，接收者私钥恢复</td>
+<td>保护机密性</td>
+</tr>
+<tr>
+<td>使用发送者私钥生成结果，发送者公钥验证</td>
+<td>证明消息来源</td>
+</tr>
+</tbody></table>
+<p>这里最容易产生的误解是把“使用私钥”理解为另一种加密。现代数字签名具有独立的算法结构和填充规则，不能简单等同于把原始消息用私钥进行普通 RSA 加密。但在课程的概念模型中，可以通过“私钥生成签名、公钥完成验证”理解其密钥使用方向。</p>
+<h3 id="3-3-为什么不能用-RSA-加密所有数据"><a href="#3-3-为什么不能用-RSA-加密所有数据" class="headerlink" title="3.3 为什么不能用 RSA 加密所有数据"></a>3.3 为什么不能用 RSA 加密所有数据</h3><p>公钥密码运算通常比对称密码昂贵。若对大型文件、视频或全部网络流量直接执行 RSA 运算，会产生显著计算开销。</p>
+<p>实际系统通常采用混合加密：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant A as Alice
+    participant B as Bob
+
+    A-&gt;&gt;A: 生成会话密钥 Ks
+    A-&gt;&gt;B: 使用Bob公钥保护Ks
+    B-&gt;&gt;B: 使用Bob私钥获得Ks
+    A-&gt;&gt;B: 使用Ks和AES传输数据
+    B-&gt;&gt;A: 使用Ks和AES返回数据
+  </pre></div>
+
+<p>公钥密码负责认证或建立共享会话密钥，对称密码负责加密会话中的大量数据。这种分工同时利用了公钥密码便于建立秘密的优势和对称密码高效的优势。</p>
+<hr>
+<h2 id="❗-本节核心结论：-公钥密码不是对称加密的全面替代品。它主要解决认证和密钥建立问题，而实际数据传输仍通常交给高效的对称密码完成。"><a href="#❗-本节核心结论：-公钥密码不是对称加密的全面替代品。它主要解决认证和密钥建立问题，而实际数据传输仍通常交给高效的对称密码完成。" class="headerlink" title="❗ 本节核心结论： 公钥密码不是对称加密的全面替代品。它主要解决认证和密钥建立问题，而实际数据传输仍通常交给高效的对称密码完成。"></a>❗ <strong>本节核心结论：</strong> 公钥密码不是对称加密的全面替代品。它主要解决认证和密钥建立问题，而实际数据传输仍通常交给高效的对称密码完成。</h2><h2 id="4-数字签名：证明消息来源与内容完整性"><a href="#4-数字签名：证明消息来源与内容完整性" class="headerlink" title="4. 数字签名：证明消息来源与内容完整性"></a>4. 数字签名：证明消息来源与内容完整性</h2><p>加密回答的是“谁能够阅读消息”，数字签名回答的是“谁生成了消息，以及消息是否发生变化”。</p>
+<p>假设 Bob 向 Alice 发送消息 (m)。数字签名机制需要让 Alice 能够验证：</p>
+<ul>
+<li>签名者掌握 Bob 的私钥；</li>
+<li>消息在签名后没有被修改。</li>
+</ul>
+<h3 id="4-1-为什么签名消息摘要"><a href="#4-1-为什么签名消息摘要" class="headerlink" title="4.1 为什么签名消息摘要"></a>4.1 为什么签名消息摘要</h3><p>直接对长消息执行公钥密码运算效率较低。因此，实际签名一般先使用散列函数计算消息摘要：</p>
+<p>[<br>h&#x3D;H(m)<br>]</p>
+<p>散列函数接收任意长度的输入，输出固定长度的结果。摘要可以被理解为消息的密码学指纹。</p>
+<p>理想的密码学散列函数应满足：</p>
+<ul>
+<li>给定消息，能够快速计算摘要；</li>
+<li>给定摘要，难以恢复原消息；</li>
+<li>难以找到与指定消息摘要相同的另一条消息；</li>
+<li>难以主动构造两条摘要相同的不同消息。</li>
+</ul>
+<p>由于输入空间远大于固定长度的输出空间，碰撞在数学上一定存在，即可能出现：</p>
+<p>[<br>m_1\neq m_2<br>]</p>
+<p>但：</p>
+<p>[<br>H(m_1)&#x3D;H(m_2)<br>]</p>
+<p>密码学安全所要求的不是碰撞绝对不存在，而是攻击者无法在可接受成本内找到有实际价值的碰撞。</p>
+<h3 id="4-2-校验和不能代替密码学散列"><a href="#4-2-校验和不能代替密码学散列" class="headerlink" title="4.2 校验和不能代替密码学散列"></a>4.2 校验和不能代替密码学散列</h3><p>Internet 校验和也能把较长数据映射为固定长度结果，但其目标是检测传输中的随机错误，而不是抵抗恶意攻击。</p>
+<p>攻击者可以有意修改多个字段，使变化在校验和计算中相互抵消。因此，校验和可以发现部分意外错误，却不能可靠防止精心构造的篡改。</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Internet 校验和</th>
+<th>密码学散列</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要目标</td>
+<td>检测随机错误</td>
+<td>抵抗恶意篡改</td>
+</tr>
+<tr>
+<td>是否强调抗碰撞</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>是否适合作为签名摘要</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>网络传输差错检测</td>
+<td>数字签名、完整性验证</td>
+</tr>
+</tbody></table>
+<p>MD5 和 SHA-1 分别生成 128 位和 160 位摘要，在密码学发展史中具有重要地位。但由于已发现实际碰撞攻击，它们不再适合用于要求抗碰撞性的现代数字签名系统。</p>
+<h3 id="4-3-签名与验证流程"><a href="#4-3-签名与验证流程" class="headerlink" title="4.3 签名与验证流程"></a>4.3 签名与验证流程</h3><p>Bob 首先计算消息摘要：</p>
+<p>[<br>h&#x3D;H(m)<br>]</p>
+<p>随后使用私钥生成签名：</p>
+<p>[<br>s&#x3D;\operatorname{Sign}_{K_B^-}(h)<br>]</p>
+<p>Bob 将消息和签名一起发送给 Alice：</p>
+<p>[<br>(m,s)<br>]</p>
+<p>Alice 收到后重新计算消息摘要：</p>
+<p>[<br>h_1&#x3D;H(m)<br>]</p>
+<p>同时使用 Bob 的公钥验证签名，获得或验证签名所对应的摘要 (h_2)。若：</p>
+<p>[<br>h_1&#x3D;h_2<br>]</p>
+<p>则说明收到的消息与 Bob 签名时的消息一致，并且签名由掌握相应私钥的实体生成。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    M[消息 m] --&gt; H1[计算 H(m)]
+    H1 --&gt; S[使用私钥生成签名]
+    M --&gt; T[发送消息和签名]
+    S --&gt; T
+    T --&gt; R1[接收方重新计算摘要]
+    T --&gt; R2[使用公钥验证签名]
+    R1 --&gt; C{摘要是否一致}
+    R2 --&gt; C
+    C --&gt;|是| V[签名有效]
+    C --&gt;|否| F[消息或签名不可信]
+  </pre></div>
+
+<p>数字签名并不自动隐藏原文。任何能够获得消息的人都可能读取其内容，但只有拥有可信公钥的人才能验证签名。</p>
+<table>
+<thead>
+<tr>
+<th>对比点</th>
+<th>公钥加密</th>
+<th>数字签名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要目标</td>
+<td>机密性</td>
+<td>来源认证与完整性</td>
+</tr>
+<tr>
+<td>核心密钥</td>
+<td>接收者公钥</td>
+<td>发送者私钥</td>
+</tr>
+<tr>
+<td>后续操作</td>
+<td>接收者私钥解密</td>
+<td>发送者公钥验证</td>
+</tr>
+<tr>
+<td>是否隐藏原文</td>
+<td>通常是</td>
+<td>不一定</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：-数字签名通过“消息摘要＋私钥签名＋公钥验证”证明消息来源和完整性，但不负责隐藏消息内容，其可信程度还取决于验证者是否持有正确且可信的公钥。"><a href="#❗-本节核心结论：-数字签名通过“消息摘要＋私钥签名＋公钥验证”证明消息来源和完整性，但不负责隐藏消息内容，其可信程度还取决于验证者是否持有正确且可信的公钥。" class="headerlink" title="❗ 本节核心结论： 数字签名通过“消息摘要＋私钥签名＋公钥验证”证明消息来源和完整性，但不负责隐藏消息内容，其可信程度还取决于验证者是否持有正确且可信的公钥。"></a>❗ <strong>本节核心结论：</strong> 数字签名通过“消息摘要＋私钥签名＋公钥验证”证明消息来源和完整性，但不负责隐藏消息内容，其可信程度还取决于验证者是否持有正确且可信的公钥。</h2><h2 id="5-身份认证协议的演进：从声明身份到证明在线"><a href="#5-身份认证协议的演进：从声明身份到证明在线" class="headerlink" title="5. 身份认证协议的演进：从声明身份到证明在线"></a>5. 身份认证协议的演进：从声明身份到证明在线</h2><p>身份认证协议的设计不能只观察正常情况下是否能够完成认证，还必须站在攻击者视角分析报文能否被伪造、复制或重新使用。</p>
+<p>从 ap1.0 到 ap5.0 的演进展示了安全协议设计的基本方法：每增加一种机制，都是为了修复上一版本暴露出的特定漏洞。</p>
+<h3 id="5-1-ap1-0：只声明身份"><a href="#5-1-ap1-0：只声明身份" class="headerlink" title="5.1 ap1.0：只声明身份"></a>5.1 ap1.0：只声明身份</h3><p>Alice 向 Bob 发送：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">I am Alice.</span><br></pre></td></tr></table></figure>
+
+<p>该方案完全依赖发送者的自我声明。任何攻击者都可以发送同样的字符串，因此它没有提供任何可验证的身份证据。</p>
+<h3 id="5-2-ap2-0：使用源-IP-地址"><a href="#5-2-ap2-0：使用源-IP-地址" class="headerlink" title="5.2 ap2.0：使用源 IP 地址"></a>5.2 ap2.0：使用源 IP 地址</h3><p>下一步可以尝试检查报文的源 IP 地址。但 IP 数据报中的源地址可以被伪造。攻击者能够构造一个源地址看起来属于 Alice 的数据报。</p>
+<p>IP 地址只能说明报文声称从哪里发出，不能构成密码学意义上的身份证明。</p>
+<h3 id="5-3-ap3-0：发送密码"><a href="#5-3-ap3-0：发送密码" class="headerlink" title="5.3 ap3.0：发送密码"></a>5.3 ap3.0：发送密码</h3><p>要求 Alice 同时发送身份和密码，可以阻止不知道密码的攻击者直接登录。然而，如果密码或认证报文以可复制形式通过网络发送，监听者可以记录整段合法通信，之后原样再次提交。</p>
+<p>这种攻击称为重放攻击。攻击者甚至不需要理解密码内容，只需要复制以前被系统接受的报文。</p>
+<p>重放攻击揭示了身份认证中的一个重要区别：</p>
+<blockquote>
+<p>一条报文曾经合法，不代表它在当前会话中仍然合法。</p>
+</blockquote>
+<h3 id="5-4-ap4-0：使用-nonce-实现挑战—响应"><a href="#5-4-ap4-0：使用-nonce-实现挑战—响应" class="headerlink" title="5.4 ap4.0：使用 nonce 实现挑战—响应"></a>5.4 ap4.0：使用 nonce 实现挑战—响应</h3><p>为防止旧报文被重复使用，Bob 可以为每次认证生成一个新的 nonce。nonce 是仅使用一次的随机数或不可重复值。</p>
+<p>认证过程如下：</p>
+<ol>
+<li>Alice 声明身份。</li>
+<li>Bob 生成新的随机数 (R) 并发送给 Alice。</li>
+<li>Alice 使用与 Bob 共享的秘密对 (R) 进行密码学处理。</li>
+<li>Bob 验证返回结果是否与本次挑战匹配。</li>
+</ol>
+<p>若 Alice 和 Bob 共享密钥 (K_{A-B})，Alice 可以返回：</p>
+<p>[<br>K_{A-B}(R)<br>]</p>
+<p>攻击者过去记录的响应对应旧随机数：</p>
+<p>[<br>K_{A-B}(R_{\text{old}})<br>]</p>
+<p>而本次认证要求的是：</p>
+<p>[<br>K_{A-B}(R_{\text{new}})<br>]</p>
+<p>只要新的 nonce 不重复，旧响应就无法通过验证。Bob 因此不仅确认对方掌握共享秘密，还确认对方正在针对当前挑战实时响应。</p>
+<p>nonce 本身通常不需要保密。需要保密的是生成合法响应所依赖的密钥。</p>
+<h3 id="5-5-ap5-0：使用公钥完成挑战—响应"><a href="#5-5-ap5-0：使用公钥完成挑战—响应" class="headerlink" title="5.5 ap5.0：使用公钥完成挑战—响应"></a>5.5 ap5.0：使用公钥完成挑战—响应</h3><p>共享密钥方案仍然面临密钥分发问题。为避免事先共享对称密钥，可以让 Alice 使用私钥响应 Bob 的随机挑战。</p>
+<p>Bob 发送 nonce (R)，Alice 使用自己的私钥生成响应，Bob 再使用 Alice 的公钥完成验证。若验证成功，Bob 可以确认对方掌握与该公钥配对的私钥。</p>
+<p>但这一方案立即产生新的问题：</p>
+<blockquote>
+<p>Bob 如何确定手中的公钥确实属于 Alice？</p>
+</blockquote>
+<p>如果 Bob 只是通过当前网络连接询问 Alice 的公钥，攻击者就可以把自己的公钥发送给 Bob，并声称它属于 Alice。此时密码学运算可能全部正确，身份绑定却是错误的。</p>
+<hr>
+<h2 id="❗-本节核心结论：-身份认证不仅要证明对方掌握某个秘密，还要证明响应属于当前会话。nonce-解决报文新鲜性问题，公钥挑战—响应缓解共享密钥分发问题，但仍不能自行证明公钥归属。"><a href="#❗-本节核心结论：-身份认证不仅要证明对方掌握某个秘密，还要证明响应属于当前会话。nonce-解决报文新鲜性问题，公钥挑战—响应缓解共享密钥分发问题，但仍不能自行证明公钥归属。" class="headerlink" title="❗ 本节核心结论： 身份认证不仅要证明对方掌握某个秘密，还要证明响应属于当前会话。nonce 解决报文新鲜性问题，公钥挑战—响应缓解共享密钥分发问题，但仍不能自行证明公钥归属。"></a>❗ <strong>本节核心结论：</strong> 身份认证不仅要证明对方掌握某个秘密，还要证明响应属于当前会话。nonce 解决报文新鲜性问题，公钥挑战—响应缓解共享密钥分发问题，但仍不能自行证明公钥归属。</h2><h2 id="6-中间人攻击：算法正确，通信仍可能失守"><a href="#6-中间人攻击：算法正确，通信仍可能失守" class="headerlink" title="6. 中间人攻击：算法正确，通信仍可能失守"></a>6. 中间人攻击：算法正确，通信仍可能失守</h2><p>中间人攻击发生时，攻击者 Trudy 位于 Alice 和 Bob 之间，并分别与双方建立通信：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Alice ←→ Trudy ←→ Bob</span><br></pre></td></tr></table></figure>
+
+<p>Alice 以为自己正在与 Bob 通信，Bob 也以为自己正在与 Alice 通信。实际上，双方都只与 Trudy 建立了经过替换的密码学关系。</p>
+<p>假设 Bob 请求 Alice 的公钥，Trudy 可以把自己的公钥发送给 Bob，并声称这是 Alice 的公钥。Bob 随后使用该公钥加密消息。Trudy 使用自己的私钥解密，读取或修改内容，再用 Alice 的真实公钥重新加密并转发。</p>
+<p>整个过程中：</p>
+<ul>
+<li>Bob 使用的加密算法是正确的；</li>
+<li>Alice 使用的解密算法也是正确的；</li>
+<li>双方可能正常收到格式正确的数据；</li>
+<li>真正错误的是公钥与身份之间的绑定。</li>
+</ul>
+<p>这说明：</p>
+<blockquote>
+<p>公钥可以公开，不代表从网络中获得的任意公钥都可信。</p>
+</blockquote>
+<p>公钥密码解决的是“拿到正确公钥以后如何安全通信”，却不能单独解决“如何确认拿到的是正确公钥”。</p>
+<hr>
+<h2 id="7-数字证书与-CA：建立公钥和身份之间的绑定"><a href="#7-数字证书与-CA：建立公钥和身份之间的绑定" class="headerlink" title="7. 数字证书与 CA：建立公钥和身份之间的绑定"></a>7. 数字证书与 CA：建立公钥和身份之间的绑定</h2><p>为解决公钥归属问题，网络安全体系引入证书颁发机构 CA。CA 的核心职责是验证实体身份，并对实体身份与公钥之间的绑定关系进行数字签名。</p>
+<p>实体可以是个人、组织、服务器、网站、软件发布者或其他网络设备。</p>
+<h3 id="7-1-数字证书的生成"><a href="#7-1-数字证书的生成" class="headerlink" title="7.1 数字证书的生成"></a>7.1 数字证书的生成</h3><p>Bob 向 CA 提交：</p>
+<ul>
+<li>身份或组织信息；</li>
+<li>域名信息；</li>
+<li>Bob 的公钥；</li>
+<li>用于证明身份或域名控制权的材料。</li>
+</ul>
+<p>CA 完成验证后，生成包含以下信息的证书：</p>
+<ul>
+<li>证书主体；</li>
+<li>域名；</li>
+<li>主体公钥；</li>
+<li>有效期；</li>
+<li>签发者；</li>
+<li>允许用途；</li>
+<li>使用的密码算法。</li>
+</ul>
+<p>CA 随后使用自己的私钥对证书内容或其摘要签名。证书所表达的并不是“这个网站绝对安全”，而是：</p>
+<blockquote>
+<p>CA 根据其验证程序，确认该公钥与证书中声明的身份或域名存在绑定关系。</p>
+</blockquote>
+<h3 id="7-2-浏览器如何验证证书"><a href="#7-2-浏览器如何验证证书" class="headerlink" title="7.2 浏览器如何验证证书"></a>7.2 浏览器如何验证证书</h3><p>浏览器收到网站证书后，不能只检查签名是否在数学上正确，还需要完成多项验证：</p>
+<ol>
+<li>验证签发 CA 的数字签名。</li>
+<li>验证证书链能否连接到受信任的根 CA。</li>
+<li>检查证书中的域名是否与当前访问域名一致。</li>
+<li>检查证书是否处于有效期内。</li>
+<li>检查证书用途是否允许服务器身份认证。</li>
+<li>检查证书是否已被吊销或受到其他限制。</li>
+</ol>
+<p>即使一张证书由可信 CA 正确签名，如果它绑定的是另一个域名，也不能用于当前网站。</p>
+<h3 id="7-3-证书链与根信任"><a href="#7-3-证书链与根信任" class="headerlink" title="7.3 证书链与根信任"></a>7.3 证书链与根信任</h3><p>网站证书通常不是直接由根 CA 签发，而是由中间 CA 签发。验证过程形成一条证书链：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">网站证书</span><br><span class="line">    ↓ 中间CA签名</span><br><span class="line">中间CA证书</span><br><span class="line">    ↓ 根CA签名</span><br><span class="line">根CA证书</span><br><span class="line">    ↓ 操作系统或浏览器预先信任</span><br><span class="line">信任起点</span><br></pre></td></tr></table></figure>
+
+<p>根 CA 证书通常预装在操作系统或浏览器的信任库中。它不是因为能够被更高层证书验证才可信，而是作为系统预先配置的信任锚。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    W[网站证书] --&gt; I[验证中间CA签名]
+    I --&gt; R[验证到根CA]
+    R --&gt; D[检查访问域名]
+    D --&gt; T[检查有效期]
+    T --&gt; U[检查证书用途]
+    U --&gt; A[接受网站公钥]
+  </pre></div>
+
+<h3 id="7-4-CA-体系的边界"><a href="#7-4-CA-体系的边界" class="headerlink" title="7.4 CA 体系的边界"></a>7.4 CA 体系的边界</h3><p>CA 并不能彻底消除风险。它只是把原来的问题：</p>
+<blockquote>
+<p>我是否相信网站自己提供的公钥？</p>
+</blockquote>
+<p>转化为：</p>
+<blockquote>
+<p>我是否相信 CA 正确完成身份验证，并妥善保护了自己的私钥？</p>
+</blockquote>
+<p>历史上的错误签发和 CA 入侵事件说明，一张证书的密码学签名可以完全正确，其签发过程却可能已经失守。若 CA 错误地向攻击者签发目标域名证书，浏览器可能在密码学层面顺利验证这张欺诈证书。</p>
+<p>证书也不能证明网站业务合法、网页内容真实或者服务器不存在漏洞。它主要证明的是域名、公钥和签发体系之间的关系。</p>
+<hr>
+<h2 id="❗-本节核心结论：-数字证书不是网站安全保证书，而是经过-CA-签名的公钥身份证明。其可靠性既依赖密码学算法，也依赖-CA-的验证流程、私钥保护和浏览器信任配置。"><a href="#❗-本节核心结论：-数字证书不是网站安全保证书，而是经过-CA-签名的公钥身份证明。其可靠性既依赖密码学算法，也依赖-CA-的验证流程、私钥保护和浏览器信任配置。" class="headerlink" title="❗ 本节核心结论： 数字证书不是网站安全保证书，而是经过 CA 签名的公钥身份证明。其可靠性既依赖密码学算法，也依赖 CA 的验证流程、私钥保护和浏览器信任配置。"></a>❗ <strong>本节核心结论：</strong> 数字证书不是网站安全保证书，而是经过 CA 签名的公钥身份证明。其可靠性既依赖密码学算法，也依赖 CA 的验证流程、私钥保护和浏览器信任配置。</h2><h2 id="8-现代安全通信是一条连续的信任链"><a href="#8-现代安全通信是一条连续的信任链" class="headerlink" title="8. 现代安全通信是一条连续的信任链"></a>8. 现代安全通信是一条连续的信任链</h2><p>对称加密、公钥密码、数字签名、nonce 和数字证书并不是彼此独立的知识点，而是依次修复安全通信中的不同缺口。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[需要保护大量数据] --&gt; B[使用对称加密]
+    B --&gt; C[出现密钥分发问题]
+    C --&gt; D[引入公钥密码]
+    D --&gt; E[需要确认通信对象身份]
+    E --&gt; F[数字签名与挑战—响应]
+    F --&gt; G[需要防止重放]
+    G --&gt; H[引入nonce]
+    D --&gt; I[需要确认公钥归属]
+    I --&gt; J[数字证书与CA]
+    J --&gt; K[建立可信会话]
+  </pre></div>
+
+<p>各机制之间的职责可以归纳为：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>主要解决的问题</th>
+<th>不能单独解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>对称加密</td>
+<td>高效保护大量数据</td>
+<td>初始密钥如何安全分发</td>
+</tr>
+<tr>
+<td>公钥加密</td>
+<td>在未共享秘密时保护密钥或数据</td>
+<td>公钥究竟属于谁</td>
+</tr>
+<tr>
+<td>散列函数</td>
+<td>生成消息摘要</td>
+<td>单独使用不能证明发送者身份</td>
+</tr>
+<tr>
+<td>数字签名</td>
+<td>来源认证和消息完整性</td>
+<td>不自动提供机密性</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>防止旧认证报文被重放</td>
+<td>不负责证明公钥归属</td>
+</tr>
+<tr>
+<td>数字证书</td>
+<td>绑定身份、域名和公钥</td>
+<td>不证明网站业务绝对可信</td>
+</tr>
+<tr>
+<td>CA 体系</td>
+<td>提供可扩展的第三方信任</td>
+<td>仍依赖机构和根信任安全</td>
+</tr>
+</tbody></table>
+<p>以典型安全连接为例，通信过程通常包含以下逻辑：</p>
+<ol>
+<li>客户端获得服务器证书。</li>
+<li>客户端验证证书链、域名、有效期和用途。</li>
+<li>客户端接受证书中的服务器公钥。</li>
+<li>双方通过公钥机制或密钥交换建立会话密钥。</li>
+<li>后续大量数据使用对称密码加密。</li>
+<li>完整性认证机制防止数据被悄悄修改。</li>
+<li>nonce、序列号或其他新鲜性信息防止旧报文被重复利用。</li>
+</ol>
+<p>现代协议的安全性因此不是来自某一个“足够强”的算法，而是来自整个流程中每个环节都完成了自己的职责。</p>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>网络安全的根本任务，是在不可信的传输环境中建立可信关系。加密只能让攻击者难以理解数据，不能自动证明数据没有被修改；数字签名能够证明来源和完整性，却不负责隐藏原文；nonce 能够证明响应属于当前会话，却不能解决公钥归属；公钥可以公开，但必须通过数字证书和 CA 信任体系确认它属于谁。</p>
+<p>对称密码、公钥密码、散列函数、数字签名、挑战—响应和证书体系共同构成了一条连续的信任链：</p>
+<blockquote>
+<p>对称密码负责高效保护数据，公钥密码负责建立秘密，数字签名负责证明来源与完整性，nonce 负责保证报文新鲜性，数字证书负责绑定身份与公钥。</p>
+</blockquote>
+<p>理解网络安全的关键，不是孤立背诵每种算法的定义，而是明确每一种机制解决了什么问题、仍然留下什么缺口，以及下一种机制为什么必须出现。只有当机密性、完整性、身份认证、公钥可信性和系统运行安全同时成立时，通信双方才真正获得了一条可信的安全连接。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/')">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑&amp;url=http://example.com/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/&amp;pic=/cover/dhalsim.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 8-2：从密码学工具到网络纵深防御</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91"><span class="toc-number">1.</span> <span class="toc-text">从加密到信任：不可信网络中安全通信的建立逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E9%9C%80%E8%A6%81%E5%90%8C%E6%97%B6%E6%BB%A1%E8%B6%B3%E5%A4%9A%E7%A7%8D%E6%80%A7%E8%B4%A8"><span class="toc-number">1.1.</span> <span class="toc-text">1. 安全通信需要同时满足多种性质</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E6%9C%BA%E5%AF%86%E6%80%A7%EF%BC%9A%E6%94%BB%E5%87%BB%E8%80%85%E5%8D%B3%E4%BD%BF%E6%88%AA%E8%8E%B7%EF%BC%8C%E4%B9%9F%E4%B8%8D%E8%83%BD%E7%90%86%E8%A7%A3"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 机密性：攻击者即使截获，也不能理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%AE%8C%E6%95%B4%E6%80%A7%EF%BC%9A%E6%8E%A5%E6%94%B6%E6%96%B9%E5%BF%85%E9%A1%BB%E7%9F%A5%E9%81%93%E6%95%B0%E6%8D%AE%E6%98%AF%E5%90%A6%E8%A2%AB%E4%BF%AE%E6%94%B9"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 完整性：接收方必须知道数据是否被修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E7%AB%AF%E7%82%B9%E9%89%B4%E5%88%AB%EF%BC%9A%E8%BA%AB%E4%BB%BD%E5%A3%B0%E6%98%8E%E4%B8%8D%E7%AD%89%E4%BA%8E%E8%BA%AB%E4%BB%BD%E8%AF%81%E6%98%8E"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 端点鉴别：身份声明不等于身份证明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E8%BF%90%E8%A1%8C%E5%AE%89%E5%85%A8%E6%80%A7%EF%BC%9A%E7%AE%97%E6%B3%95%E5%AE%89%E5%85%A8%E4%B8%8D%E7%AD%89%E4%BA%8E%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="toc-number">1.1.4.</span> <span class="toc-text">1.4 运行安全性：算法安全不等于系统安全</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E4%B8%8D%E6%98%AF%E5%8D%95%E4%B8%80%E7%9B%AE%E6%A0%87%E3%80%82%E6%9C%BA%E5%AF%86%E6%80%A7%E3%80%81%E5%AE%8C%E6%95%B4%E6%80%A7%E5%92%8C%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E5%88%86%E5%88%AB%E8%A7%A3%E5%86%B3%E4%B8%8D%E5%90%8C%E9%97%AE%E9%A2%98%EF%BC%8C%E4%B8%8D%E8%83%BD%E5%9B%A0%E4%B8%BA%E6%95%B0%E6%8D%AE%E5%B7%B2%E7%BB%8F%E5%8A%A0%E5%AF%86%EF%BC%8C%E5%B0%B1%E9%BB%98%E8%AE%A4%E5%AE%83%E6%B2%A1%E6%9C%89%E8%A2%AB%E7%AF%A1%E6%94%B9%E6%88%96%E5%8F%91%E9%80%81%E8%80%85%E8%BA%AB%E4%BB%BD%E5%B7%B2%E7%BB%8F%E5%BE%97%E5%88%B0%E8%AF%81%E6%98%8E%E3%80%82"><span class="toc-number">1.2.</span> <span class="toc-text">❗ 本节核心结论： 安全通信不是单一目标。机密性、完整性和身份认证分别解决不同问题，不能因为数据已经加密，就默认它没有被篡改或发送者身份已经得到证明。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%EF%BC%9A%E9%AB%98%E6%95%88%EF%BC%8C%E4%BD%86%E4%BE%9D%E8%B5%96%E5%85%B1%E4%BA%AB%E7%A7%98%E5%AF%86"><span class="toc-number">1.3.</span> <span class="toc-text">2. 对称加密：高效，但依赖共享秘密</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E4%BB%8E%E7%AE%80%E5%8D%95%E6%9B%BF%E6%8D%A2%E5%AF%86%E7%A0%81%E5%88%B0%E7%8E%B0%E4%BB%A3%E5%88%86%E7%BB%84%E5%AF%86%E7%A0%81"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1 从简单替换密码到现代分组密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-DES%E3%80%813DES-%E4%B8%8E-AES-%E7%9A%84%E6%BC%94%E8%BF%9B"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2 DES、3DES 与 AES 的演进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%9A%84%E6%A0%B9%E6%9C%AC%E7%9F%9B%E7%9B%BE"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.3 对称加密的根本矛盾</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E9%80%82%E5%90%88%E4%BF%9D%E6%8A%A4%E5%A4%A7%E9%87%8F%E5%AE%9E%E9%99%85%E6%95%B0%E6%8D%AE%EF%BC%8C%E4%BD%86%E5%AE%83%E9%A2%84%E8%AE%BE%E9%80%9A%E4%BF%A1%E5%8F%8C%E6%96%B9%E5%B7%B2%E7%BB%8F%E6%8B%A5%E6%9C%89%E5%85%B1%E4%BA%AB%E7%A7%98%E5%AF%86%E3%80%82%E5%85%B6%E6%80%A7%E8%83%BD%E4%BC%98%E5%8A%BF%E5%92%8C%E5%AF%86%E9%92%A5%E5%88%86%E5%8F%91%E5%9B%B0%E9%9A%BE%E5%85%B1%E5%90%8C%E6%8E%A8%E5%8A%A8%E4%BA%86%E5%85%AC%E9%92%A5%E5%AF%86%E7%A0%81%E7%9A%84%E5%8F%91%E5%B1%95%E3%80%82"><span class="toc-number">1.4.</span> <span class="toc-text">❗ 本节核心结论： 对称加密适合保护大量实际数据，但它预设通信双方已经拥有共享秘密。其性能优势和密钥分发困难共同推动了公钥密码的发展。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%85%AC%E9%92%A5%E5%AF%86%E7%A0%81%EF%BC%9A%E6%8A%8A%E2%80%9C%E5%8F%AF%E4%BB%A5%E5%85%AC%E5%BC%80%E2%80%9D%E4%B8%8E%E2%80%9C%E5%BF%85%E9%A1%BB%E4%BF%9D%E5%AF%86%E2%80%9D%E5%88%86%E7%A6%BB"><span class="toc-number">1.5.</span> <span class="toc-text">3. 公钥密码：把“可以公开”与“必须保密”分离</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%85%AC%E9%92%A5%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%A4%9F%E5%85%AC%E5%BC%80"><span class="toc-number">1.5.1.</span> <span class="toc-text">3.1 公钥为什么能够公开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-RSA-%E7%9A%84%E4%B8%A4%E7%A7%8D%E4%BD%BF%E7%94%A8%E6%96%B9%E5%90%91"><span class="toc-number">1.5.2.</span> <span class="toc-text">3.2 RSA 的两种使用方向</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%94%A8-RSA-%E5%8A%A0%E5%AF%86%E6%89%80%E6%9C%89%E6%95%B0%E6%8D%AE"><span class="toc-number">1.5.3.</span> <span class="toc-text">3.3 为什么不能用 RSA 加密所有数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E5%85%AC%E9%92%A5%E5%AF%86%E7%A0%81%E4%B8%8D%E6%98%AF%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%9A%84%E5%85%A8%E9%9D%A2%E6%9B%BF%E4%BB%A3%E5%93%81%E3%80%82%E5%AE%83%E4%B8%BB%E8%A6%81%E8%A7%A3%E5%86%B3%E8%AE%A4%E8%AF%81%E5%92%8C%E5%AF%86%E9%92%A5%E5%BB%BA%E7%AB%8B%E9%97%AE%E9%A2%98%EF%BC%8C%E8%80%8C%E5%AE%9E%E9%99%85%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E4%BB%8D%E9%80%9A%E5%B8%B8%E4%BA%A4%E7%BB%99%E9%AB%98%E6%95%88%E7%9A%84%E5%AF%B9%E7%A7%B0%E5%AF%86%E7%A0%81%E5%AE%8C%E6%88%90%E3%80%82"><span class="toc-number">1.6.</span> <span class="toc-text">❗ 本节核心结论： 公钥密码不是对称加密的全面替代品。它主要解决认证和密钥建立问题，而实际数据传输仍通常交给高效的对称密码完成。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%EF%BC%9A%E8%AF%81%E6%98%8E%E6%B6%88%E6%81%AF%E6%9D%A5%E6%BA%90%E4%B8%8E%E5%86%85%E5%AE%B9%E5%AE%8C%E6%95%B4%E6%80%A7"><span class="toc-number">1.7.</span> <span class="toc-text">4. 数字签名：证明消息来源与内容完整性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%AD%BE%E5%90%8D%E6%B6%88%E6%81%AF%E6%91%98%E8%A6%81"><span class="toc-number">1.7.1.</span> <span class="toc-text">4.1 为什么签名消息摘要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%A0%A1%E9%AA%8C%E5%92%8C%E4%B8%8D%E8%83%BD%E4%BB%A3%E6%9B%BF%E5%AF%86%E7%A0%81%E5%AD%A6%E6%95%A3%E5%88%97"><span class="toc-number">1.7.2.</span> <span class="toc-text">4.2 校验和不能代替密码学散列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E7%AD%BE%E5%90%8D%E4%B8%8E%E9%AA%8C%E8%AF%81%E6%B5%81%E7%A8%8B"><span class="toc-number">1.7.3.</span> <span class="toc-text">4.3 签名与验证流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E9%80%9A%E8%BF%87%E2%80%9C%E6%B6%88%E6%81%AF%E6%91%98%E8%A6%81%EF%BC%8B%E7%A7%81%E9%92%A5%E7%AD%BE%E5%90%8D%EF%BC%8B%E5%85%AC%E9%92%A5%E9%AA%8C%E8%AF%81%E2%80%9D%E8%AF%81%E6%98%8E%E6%B6%88%E6%81%AF%E6%9D%A5%E6%BA%90%E5%92%8C%E5%AE%8C%E6%95%B4%E6%80%A7%EF%BC%8C%E4%BD%86%E4%B8%8D%E8%B4%9F%E8%B4%A3%E9%9A%90%E8%97%8F%E6%B6%88%E6%81%AF%E5%86%85%E5%AE%B9%EF%BC%8C%E5%85%B6%E5%8F%AF%E4%BF%A1%E7%A8%8B%E5%BA%A6%E8%BF%98%E5%8F%96%E5%86%B3%E4%BA%8E%E9%AA%8C%E8%AF%81%E8%80%85%E6%98%AF%E5%90%A6%E6%8C%81%E6%9C%89%E6%AD%A3%E7%A1%AE%E4%B8%94%E5%8F%AF%E4%BF%A1%E7%9A%84%E5%85%AC%E9%92%A5%E3%80%82"><span class="toc-number">1.8.</span> <span class="toc-text">❗ 本节核心结论： 数字签名通过“消息摘要＋私钥签名＋公钥验证”证明消息来源和完整性，但不负责隐藏消息内容，其可信程度还取决于验证者是否持有正确且可信的公钥。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E5%8D%8F%E8%AE%AE%E7%9A%84%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E5%A3%B0%E6%98%8E%E8%BA%AB%E4%BB%BD%E5%88%B0%E8%AF%81%E6%98%8E%E5%9C%A8%E7%BA%BF"><span class="toc-number">1.9.</span> <span class="toc-text">5. 身份认证协议的演进：从声明身份到证明在线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-ap1-0%EF%BC%9A%E5%8F%AA%E5%A3%B0%E6%98%8E%E8%BA%AB%E4%BB%BD"><span class="toc-number">1.9.1.</span> <span class="toc-text">5.1 ap1.0：只声明身份</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-ap2-0%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%BA%90-IP-%E5%9C%B0%E5%9D%80"><span class="toc-number">1.9.2.</span> <span class="toc-text">5.2 ap2.0：使用源 IP 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-ap3-0%EF%BC%9A%E5%8F%91%E9%80%81%E5%AF%86%E7%A0%81"><span class="toc-number">1.9.3.</span> <span class="toc-text">5.3 ap3.0：发送密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-ap4-0%EF%BC%9A%E4%BD%BF%E7%94%A8-nonce-%E5%AE%9E%E7%8E%B0%E6%8C%91%E6%88%98%E2%80%94%E5%93%8D%E5%BA%94"><span class="toc-number">1.9.4.</span> <span class="toc-text">5.4 ap4.0：使用 nonce 实现挑战—响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-ap5-0%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%85%AC%E9%92%A5%E5%AE%8C%E6%88%90%E6%8C%91%E6%88%98%E2%80%94%E5%93%8D%E5%BA%94"><span class="toc-number">1.9.5.</span> <span class="toc-text">5.5 ap5.0：使用公钥完成挑战—响应</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E4%B8%8D%E4%BB%85%E8%A6%81%E8%AF%81%E6%98%8E%E5%AF%B9%E6%96%B9%E6%8E%8C%E6%8F%A1%E6%9F%90%E4%B8%AA%E7%A7%98%E5%AF%86%EF%BC%8C%E8%BF%98%E8%A6%81%E8%AF%81%E6%98%8E%E5%93%8D%E5%BA%94%E5%B1%9E%E4%BA%8E%E5%BD%93%E5%89%8D%E4%BC%9A%E8%AF%9D%E3%80%82nonce-%E8%A7%A3%E5%86%B3%E6%8A%A5%E6%96%87%E6%96%B0%E9%B2%9C%E6%80%A7%E9%97%AE%E9%A2%98%EF%BC%8C%E5%85%AC%E9%92%A5%E6%8C%91%E6%88%98%E2%80%94%E5%93%8D%E5%BA%94%E7%BC%93%E8%A7%A3%E5%85%B1%E4%BA%AB%E5%AF%86%E9%92%A5%E5%88%86%E5%8F%91%E9%97%AE%E9%A2%98%EF%BC%8C%E4%BD%86%E4%BB%8D%E4%B8%8D%E8%83%BD%E8%87%AA%E8%A1%8C%E8%AF%81%E6%98%8E%E5%85%AC%E9%92%A5%E5%BD%92%E5%B1%9E%E3%80%82"><span class="toc-number">1.10.</span> <span class="toc-text">❗ 本节核心结论： 身份认证不仅要证明对方掌握某个秘密，还要证明响应属于当前会话。nonce 解决报文新鲜性问题，公钥挑战—响应缓解共享密钥分发问题，但仍不能自行证明公钥归属。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB%EF%BC%9A%E7%AE%97%E6%B3%95%E6%AD%A3%E7%A1%AE%EF%BC%8C%E9%80%9A%E4%BF%A1%E4%BB%8D%E5%8F%AF%E8%83%BD%E5%A4%B1%E5%AE%88"><span class="toc-number">1.11.</span> <span class="toc-text">6. 中间人攻击：算法正确，通信仍可能失守</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E4%B8%8E-CA%EF%BC%9A%E5%BB%BA%E7%AB%8B%E5%85%AC%E9%92%A5%E5%92%8C%E8%BA%AB%E4%BB%BD%E4%B9%8B%E9%97%B4%E7%9A%84%E7%BB%91%E5%AE%9A"><span class="toc-number">1.12.</span> <span class="toc-text">7. 数字证书与 CA：建立公钥和身份之间的绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E7%9A%84%E7%94%9F%E6%88%90"><span class="toc-number">1.12.1.</span> <span class="toc-text">7.1 数字证书的生成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E6%B5%8F%E8%A7%88%E5%99%A8%E5%A6%82%E4%BD%95%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6"><span class="toc-number">1.12.2.</span> <span class="toc-text">7.2 浏览器如何验证证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E8%AF%81%E4%B9%A6%E9%93%BE%E4%B8%8E%E6%A0%B9%E4%BF%A1%E4%BB%BB"><span class="toc-number">1.12.3.</span> <span class="toc-text">7.3 证书链与根信任</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-CA-%E4%BD%93%E7%B3%BB%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-number">1.12.4.</span> <span class="toc-text">7.4 CA 体系的边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E4%B8%8D%E6%98%AF%E7%BD%91%E7%AB%99%E5%AE%89%E5%85%A8%E4%BF%9D%E8%AF%81%E4%B9%A6%EF%BC%8C%E8%80%8C%E6%98%AF%E7%BB%8F%E8%BF%87-CA-%E7%AD%BE%E5%90%8D%E7%9A%84%E5%85%AC%E9%92%A5%E8%BA%AB%E4%BB%BD%E8%AF%81%E6%98%8E%E3%80%82%E5%85%B6%E5%8F%AF%E9%9D%A0%E6%80%A7%E6%97%A2%E4%BE%9D%E8%B5%96%E5%AF%86%E7%A0%81%E5%AD%A6%E7%AE%97%E6%B3%95%EF%BC%8C%E4%B9%9F%E4%BE%9D%E8%B5%96-CA-%E7%9A%84%E9%AA%8C%E8%AF%81%E6%B5%81%E7%A8%8B%E3%80%81%E7%A7%81%E9%92%A5%E4%BF%9D%E6%8A%A4%E5%92%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BF%A1%E4%BB%BB%E9%85%8D%E7%BD%AE%E3%80%82"><span class="toc-number">1.13.</span> <span class="toc-text">❗ 本节核心结论： 数字证书不是网站安全保证书，而是经过 CA 签名的公钥身份证明。其可靠性既依赖密码学算法，也依赖 CA 的验证流程、私钥保护和浏览器信任配置。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E7%8E%B0%E4%BB%A3%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E6%98%AF%E4%B8%80%E6%9D%A1%E8%BF%9E%E7%BB%AD%E7%9A%84%E4%BF%A1%E4%BB%BB%E9%93%BE"><span class="toc-number">1.14.</span> <span class="toc-text">8. 现代安全通信是一条连续的信任链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.15.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-2：从密码学工具到网络纵深防御"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御">Chapter 8-2：从密码学工具到网络纵深防御</a><time datetime="2026-06-25T15:06:24.000Z" title="Created 2026-06-25 23:06:24">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</a><time datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:05:27.000Z" title="Created 2026-06-25 23:05:27">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</a><time datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

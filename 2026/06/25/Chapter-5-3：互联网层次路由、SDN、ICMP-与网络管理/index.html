@@ -1,0 +1,1906 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理 | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理"><meta name="application-name" content="Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理"><meta property="og:url" content="http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理引言：真实互联网为什么不能只运行一种路由算法在学习链路状态路由和距离向量路由时，可以暂时把网络看成一张规模有限的平面图：所有路由器地位相近，路由算法只需要根据链路代价计算路径。 真实互联网却不能采用这种简单模型。 互联网由大量组织、"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/ehonda.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/ehonda.png"><meta name="description" content="Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理引言：真实互联网为什么不能只运行一种路由算法在学习链路状态路由和距离向量路由时，可以暂时把网络看成一张规模有限的平面图：所有路由器地位相近，路由算法只需要根据链路代价计算路径。 真实互联网却不能采用这种简单模型。 互联网由大量组织、"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理',
+  postAI: '',
+  pageFillDescription: 'Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理, 引言：真实互联网为什么不能只运行一种路由算法, 1. 为什么互联网需要层次路由, 1.1 平面路由的规模限制, 1.2 管理自治问题, 2. 自治系统 AS, 2.1 AS 的定义, 2.2 AS 与子网的区别, 2.3 网关路由器, 2.4 两层路由结构, 3. OSPF：自治系统内部的链路状态路由, 3.1 OSPF 是什么, 3.2 OSPF 与 LS、Dijkstra 的关系, 3.3 OSPF 的基本运行过程, 3.4 OSPF 主要关注性能, 3.5 OSPF 直接由 IP 承载, 4. 层次化 OSPF 与 Area, 4.1 为什么 OSPF 内部还要分层, 4.2 区域化的基本思想, 4.3 Area 带来的好处, 4.4 付出的代价, 5. BGP：连接不同自治系统, 5.1 BGP 的作用, 5.2 BGP 通告的不是完整内部拓扑, 5.3 前缀、属性与路由, 6. eBGP 与 iBGP, 6.1 eBGP, 6.2 iBGP, 6.3 iBGP 不是普通内部最短路径协议, 7. BGP 是路径向量协议, 7.1 普通 DV 与 BGP 的区别, 7.2 AS-PATH, 7.3 路径向量解决了什么问题, 8. NEXT-HOP 属性, 8.1 NEXT-HOP 的含义, 8.2 NEXT-HOP 不是最终目的地, 8.3 BGP 与 IGP 的配合, 9. BGP 的路径选择, 9.1 BGP 不一定选择最短路径, 9.2 为什么 AS 间路由策略优先, 10. 热土豆路由, 10.1 基本思想, 10.2 示例, 10.3 为什么它不一定全局最优, 10.4 背后的运营逻辑, 11. 外部前缀如何传播到其他 AS, 11.1 AS3 向 AS2 通告, 11.2 AS2 执行输入策略, 11.3 通过 iBGP 在 AS2 内传播, 11.4 AS2 向 AS1 通告, 12. BGP 的安全问题, 12.1 基于信任的风险, 12.2 RPKI, 12.3 安全与自治之间的难题, 13. 为什么需要 SDN, 13.1 传统路由的限制, 13.2 SDN 的基本思想, 14. SDN 的分层结构, 14.1 网络控制应用层, 14.2 网络范围状态管理层, 14.3 通信层, 14.4 OpenFlow, 15. SDN 的逻辑集中与物理分布, 15.1 逻辑集中, 15.2 不等于只有一台服务器, 15.3 SDN 面临的挑战, 16. ICMP：网络层的反馈机制, 16.1 为什么 IP 需要 ICMP, 16.2 ICMP 的典型用途, 16.3 ICMP 与 IP 的关系, 17. ICMP 差错报文包含什么, 18. Traceroute 的工作原理, 18.1 TTL 的作用, 18.2 逐步增加 TTL, 18.3 如何判断到达目的主机, 19. 网络管理与路由控制的区别, 20. 网络管理的五类功能, 20.1 性能管理, 20.2 故障管理, 20.3 配置管理, 20.4 账户管理, 20.5 安全管理, 21. 网络管理体系结构, 21.1 管理服务器, 21.2 被管理设备, 21.3 Agent, 21.4 管理数据, 21.5 管理协议, 22. CLI、SNMPx2FMIB 与 NETCONFx2FYANG, 22.1 CLI, 22.2 SNMP 与 MIB, 22.3 NETCONF 与 YANG, 22.4 SNMP 与 NETCONFx2FYANG 的区别, 23. OSPF、BGP、SDN、ICMP 与管理协议的职责边界, 24. 重要对比, 24.1 OSPF 与 BGP, 24.2 eBGP 与 iBGP, 24.3 传统路由与 SDN, 24.4 ICMP 与路由协议, 25. 常见误区, 25.1 AS 就是一个子网, 25.2 OSPF 用于整个互联网, 25.3 BGP 总是选择 AS-PATH 最短的路径, 25.4 iBGP 是 AS 内部普通最短路径协议, 25.5 NEXT-HOP 就是最终目的地, 25.6 热土豆路由选择全局最短路径, 25.7 SDN 必须依赖一台中央机器, 25.8 ICMP 属于传输层, 25.9 ICMP 决定网络路由, 25.10 YANG 是一种传输协议, 26. 知识结构总览, 27. 复习清单, 结论互联网层次路由与网络管理引言真实互联网为什么不能只运行一种路由算法在学习链路状态路由和距离向量路由时可以暂时把网络看成一张规模有限的平面图所有路由器地位相近路由算法只需要根据链路代价计算路径真实互联网却不能采用这种简单模型互联网由大量组织运营商企业大学和云服务商的网络共同组成不同网络分别由不同管理者控制具有各自的拓扑路由策略商业关系和安全要求如果把整个互联网视为一个平面网络就会出现三个根本问题规模问题路由器无法维护全球所有路由器和链路的详细状态通信问题全网泛洪或交换完整距离向量会产生巨大的控制开销自治问题不同组织不愿公开内部拓扑也不会接受由其他组织决定自己的路由政策因此互联网采用层次化的控制平面真实互联网划分自治系统内部路由之间路由等内部网关协议更灵活的控制需求错误报告与诊断长期运行与维护核心主线互联网首先通过自治系统解决规模与管理边界问题再分别使用和处理内部与之间的路由提供更灵活的集中控制负责网络层反馈网络管理协议则负责设备监控与配置为什么互联网需要层次路由平面路由的规模限制假设整个互联网都运行同一个链路状态协议那么每台路由器都需要接收全网所有路由器的链路状态保存完整的全球拓扑在拓扑变化后重新执行最短路径计算将自己的状态向全球泛洪随着节点和链路数量增加链路状态数据库泛洪消息和计算成本都会迅速扩大如果整个互联网运行距离向量协议则每台路由器需要维护面向海量目的地的距离向量路由更新需要逐跳传播收敛时间环路风险和控制报文规模也将难以接受因此和虽然能够解决一般图中的路由问题却不能直接作为整个互联网的单层组织方式管理自治问题互联网不是由一个中心机构统一运营的单一网络而是网络的网络不同组织拥有不同目标企业可能优先考虑安全与业务隔离运营商需要考虑客户供应商和对等互联关系大学可能选择成本较低的出口云服务商可能根据流量工程策略分配路径一个网络可能拒绝为没有商业关系的其他网络转发流量因此互联网路由不只是求数学意义上的最短路径还必须尊重各个组织的管理边界与策略本节核心结论互联网采用层次路由既是为了降低路由信息和计算规模也是为了允许不同组织独立控制自己的网络自治系统的定义是即自治系统它可以理解为由同一个组织或管理实体控制并对外采用统一路由政策的一组路由器和网络每个自治系统使用自治系统号进行标识一个大型互联网服务提供商可能只运行一个也可能因为规模地区或业务划分而运行多个与子网的区别不能简单理解为一个子网对比维度子网自治系统核心含义地址与转发范围管理和路由策略范围主要标识前缀包含内容一组同前缀或相关地址的接口多个路由器链路和子网关注重点地址分配和本地交付谁管理网络如何对外发布路由规模通常较小可以包含大量子网一个内部通常包含多个子网一段前缀表示地址空间而表示网络控制权和路由政策网关路由器位于边缘连接其他自治系统的路由器称为网关路由器或边界路由器网关路由器通常同时参与两类路由通过内部协议与本路由器交换信息通过间协议与其他的网关路由器交换可达性信息两层路由结构引入后路径选择被分为两个问题内部路由在本组织内部怎样到达某个内部网络或出口网关间路由应该经过哪些自治系统到达外部目的网络常见协议对应关系如下路由范围主要协议主要目标内部等性能代价快速收敛之间策略自治可扩展性其中表示内部网关协议则承担互联网中的间路由本节核心结论是管理与路由政策意义上的自治域而不是单纯的地址子网层次路由将全网问题拆成了内部路径与之间路径两个层次自治系统内部的链路状态路由是什么全称为即开放最短路径优先协议它是一种典型的内部路由协议采用链路状态思想路由器发现邻居测量或配置链路代价生成链路状态通告在规定范围内泛洪通告建立链路状态数据库使用算法计算最短路径表示协议规范公开不依赖某一家厂商的私有实现与的关系链路状态机制和算法不是同一个概念概念作用链路状态思想让路由器获得拓扑和链路代价实现链路状态路由的具体协议在已知拓扑上计算最短路径的算法负责定义路由器如何发现邻居传播状态并维护数据库负责在数据库描述的图上计算最短路径树的基本运行过程发现相邻路由器确定链路代价生成链路状态通告在范围内泛洪各路由器建立拓扑数据库运行形成路由表路由器最终根据最短路径树确定到达某个目的网络的总代价应选择哪个下一跳应从哪个接口发送分组主要关注性能在一个内部路由器通常由同一组织管理因此路由目标相对统一管理员可以通过链路代价表达内部偏好例如让高带宽链路具有较低代价避开低速或高成本链路让主要链路优先于备用链路调整流量在内部网络中的分布因此的重点通常是寻找代价较低的内部路径并在拓扑变化后较快恢复直接由承载控制报文封装在数据报中不通过或这意味着自己定义邻居关系维护状态通告可靠泛洪数据库同步等机制这与使用建立会话的方式不同本节核心结论是链路状态思想在内部的具体实现它通过泛洪建立拓扑数据库再使用算法生成内部路由层次化与为什么内部还要分层即使只在一个内运行大型自治系统中也可能存在大量路由器如果所有链路状态通告都在整个中传播会带来链路状态数据库过大泛洪流量增加拓扑变化影响范围过广重算次数增加路由器的存储和计算压力上升因此可以进一步将一个划分为多个区域区域化的基本思想区域化后路由器主要掌握本区域内部的详细拓扑对于其他区域普通路由器不必了解每一条链路只需要知道外部目的地可以通过哪个区域边界路由器到达到该边界路由器的内部代价是多少目标网络大致位于哪个方向区域区域边界路由器骨干区域区域边界路由器区域区域之间通常通过骨干区域连接区域边界路由器负责在不同区域之间传播经过汇总或处理的路由信息带来的好处区域划分能够限制链路状态通告的传播范围缩小单台路由器需要保存的详细拓扑将局部故障和变化限制在区域内部减少全网重算提高大型的可扩展性付出的代价层次化会隐藏部分拓扑细节因此区域之间的路径选择不一定等价于在完整全局图上求得的绝对最优路径这是一种典型的工程折中用部分全局最优性换取更好的规模性稳定性和管理能力本节核心结论让路由器在本区域了解细节对其他区域只掌握汇总方向从而控制泛洪范围和拓扑规模连接不同自治系统的作用全称为即边界网关协议它是互联网事实上的间路由协议承担以下任务让一个网络前缀向其他声明自己的存在在不同之间传播前缀可达性为同一个前缀选择符合策略的路径根据商业安全和管理政策决定是否接受或传播路由将大量自治系统连接在一起因此常被称为把互联网粘合起来的协议通告的不是完整内部拓扑一个不需要向外部公开内部每台路由器和每条链路它只需要向其他通告自己能够到达哪些网络前缀到达这些前缀需要经过哪些下一跳等相关路径属性这样既隐藏了内部结构又降低了跨域路由信息规模前缀属性与路由一条路由可以表示为网络前缀路径属性路由例如一个路由可能表达前缀某边界路由器它表示该前缀可以通过指定的下一跳并沿相应的路径到达本节核心结论传播的是带有属性的网络前缀可达性而不是其他的完整内部拓扑与是运行在不同自治系统的路由器之间它负责从相邻学习外部前缀向相邻通告本或其他可传播的前缀执行输入和输出路由策略建立跨的可达性例如的网关的网关可以通过该会话向通告自己能够到达的前缀是运行在同一个内部的路由器之间它的主要作用是将通过学到的外部前缀及其属性传播给本的其他相关路由器如果一个有多个出口内部路由器需要知道哪些前缀可以从出口到达哪些前缀可以从出口到达每条外部路径具有什么属性应该选择哪个出口负责传播这些外部路由信息不是普通内部最短路径协议虽然在内部运行但它与的任务不同对比维度主要对象内部网络与链路外部网络前缀主要任务计算内部到达路径传播外部可达性和属性核心信息拓扑和链路代价前缀等典型用途到达内部节点或出口决定外部前缀应走哪个出口在传统网络中两者通常协同工作而不是互相替代决定选择哪个外部出口等内部协议决定怎样在内到达这个出口本节核心结论在之间交换路由在内传播外部路由并不等同于负责全部内部转发的是路径向量协议普通与的区别普通距离向量协议主要通告我到目的地的代价是接收者通常看不到完整路径因此可能出现邻居的路径实际经过自己的问题不只通告一个距离值还携带所经过的自治系统序列到前缀的路径为因此更准确地被称为路径向量协议记录到达某个前缀需要经过的序列它有两个重要作用帮助进行路径选择帮助发现级路由环路假设收到以下路由前缀向外继续通告时会把自己加入路径如果某个收到一条路由并发现自己的已经出现在中就说明采用这条路由会形成环路因此可以拒绝该路由路径向量解决了什么问题与只传播距离相比让接收者获得了更明确的路径结构它不能解决的所有安全与策略问题但可以避免最基本的级循环依赖本节核心结论不只通告有多远还通告经过哪些因此能够利用检测跨自治系统的路由环路属性的含义用来指出要采用这条路由数据包接下来应被送往哪个网关地址最终目的地可能是远端前缀但当前首先要解决的是应该从本的哪个边界出口离开为内部路由器提供了连接路径与内部转发路径的关键线索不是最终目的地例如最终目的前缀选择的边界出口下一跳地址与相连的外部接口地址这里是最终要到达的网络是当前阶段需要到达的网关从内部路由器到该网关的路径仍需要由等内部协议确定与的配合一个数据包前往外部网络时通常经历两层决策目的前缀选择出口和外部路径确定等计算到出口的内部路径逐跳转发至边界路由器进入下一自治系统本节核心结论决定去哪个外部出口内部路由协议负责把分组送到该出口是连接这两个层次的关键属性的路径选择不一定选择最短路径对于同一个前缀路由器可能同时学到多条路径不会只比较物理距离或数量而是按照一系列规则筛选典型因素包括本地偏好或管理策略长度在本内的可达代价其他协议属性和附加判据其中本地策略通常具有很高优先级这意味着一条更短的路径仍然可能因为商业或管理策略而被拒绝为什么间路由策略优先之间可能存在不同经济关系客户关系客户向运营商付费获得互联网连接提供商关系当前购买上游服务对等关系两个网络在一定条件下互换流量一个可能愿意为自己的客户转发流量使用付费上游到达互联网与对等网络交换双方客户流量但它通常不愿免费替两个无关上游或对等方中转流量因此选择不仅回答哪条路径短还要回答是否愿意使用这条路径是否愿意向某个邻居通告该路径是否愿意承担中转流量哪条路径符合商业和安全策略本节核心结论更接近按代价优化内部性能则首先服从自治系统的策略短并不保证一定被选择热土豆路由基本思想热土豆路由指一个在存在多个外部出口时倾向于选择在本内部代价最低最容易到达的出口它的目标不是让整个互联网路径最短而是尽快将外部流量送出本这像拿到一块烫手的土豆后尽快丢出去因此得名热土豆示例假设内部路由器可以通过两个出口到达前缀方案一外部方案二外部如果到的内部代价为到的内部代价为热土豆策略可能选择即使从出去后经过的数量更多为什么它不一定全局最优热土豆路由只优化本内部成本最小化当前路由器本出口它不直接优化当前路由器最终目的地因此流量可能更早离开本却在外部网络中经过更长路径背后的运营逻辑一个通常只能够直接管理自己的链路和资源尽早将流量交给其他可以减少本骨干链路占用降低内部传输成本减少自身需要承担的远距离转发压力本节核心结论热土豆路由追求的是尽快离开自己的而不是端到端全局最短路径外部前缀如何传播到其他假设前缀位于中其可达性可以按以下方式传播向通告的网关路由器通过向的网关通告前缀执行输入策略收到路由后不是无条件接受而是先判断前缀是否允许接收路由属性是否符合策略通告者是否是可信邻居是否存在更优路径如果接受将这条路由加入候选集合通过在内传播使用将前缀的可达性告诉内部其他路由器内部路由器由此知道可以经到达相应的和是否还存在其他出口路径向通告如果的输出策略允许它可以通过另一个边界路由器向通告前缀每经过一个该通常会把自己的加入网关网关内部路由器网关通告执行输入策略传播外部路由通告本节核心结论路由在之间逐级传播每个都可以独立决定是否接受选择和继续通告该路径的安全问题基于信任的风险传统的核心设计主要解决可达性和策略问题并不天然证明某个是否真正拥有其通告的前缀是否完全真实路由通告是否由合法主体发出因此错误配置或恶意行为可能导致路由泄漏将本不应该继续传播的路由通告给其他网络前缀劫持未经授权的宣称自己能够到达某段前缀流量误导其他网络因错误通告而把流量发送到错误方向是用于提高互联网路由安全性的一类基础设施它可以帮助验证某个是否被授权为某个前缀发起路由通告主要增强前缀起源验证但不能自动解决所有路径伪造策略错误和路由泄漏问题安全与自治之间的难题必须在以下目标之间取得平衡全球互联各独立控制路由可扩展性策略灵活性路由信息真实性这也是互联网控制平面长期演进的重要方向本节核心结论的策略灵活性建立在跨组织协作与信任之上因此路由泄漏和前缀劫持是现实风险可以加强前缀起源验证为什么需要传统路由的限制和主要围绕目的地址决定路径假设管理员希望实现来自前往的流量走路径来自同样前往的流量走路径视频流量和普通网页流量走不同路径将一部分流量分配到主链路另一部分分配到备用链路根据用户身份或传输层端口执行访问控制如果转发只查询目的前缀就很难直接表达这些要求传统网络可以通过修改链路代价部署策略路由或配置大量设备实现部分目标但通常存在配置复杂设备厂商接口不一致全网策略难以统一故障时难以快速调整新功能需要逐台设备部署的基本思想是即软件定义网络其核心思想是将控制逻辑与高速数据转发分离由逻辑集中的控制器掌握网络状态并下发转发规则数据平面设备主要执行匹配分组字段转发丢弃修改首部复制统计控制器负责收集网络状态运行控制应用计算路径和策略向设备安装流表规则本节核心结论不是单纯更换路由算法而是重新划分控制平面与数据平面的职责使网络策略能够由软件统一编程的分层结构网络控制应用层最上层运行具体网络应用例如路由计算访问控制负载均衡流量工程防火墙策略故障恢复这些应用描述网络应该怎样运行网络范围状态管理层控制器维护网络整体状态例如交换机和端口链路连接关系主机位置流量统计已安装的流表链路故障网络拓扑上层应用不必直接逐台读取设备而是通过控制器提供的网络抽象获取信息通信层控制器通过南向协议与数据平面设备通信完成获取设备状态接收事件安装或删除流表项查询统计信息指定分组处理动作是典型的南向控制协议之一网络控制应用路由负载均衡控制器网络范围状态管理南向通信层等协议交换机流表匹配动作允许控制器与交换机交换控制消息并对流表进行管理一条流表规则通常包含匹配条件执行动作统计与优先级等信息例如匹配源地址属于网络目的地址属于网络目的端口为某值动作从端口转发相比只根据目的地址查询传统转发表流表可以基于多个字段定义流本节核心结论控制器在上层应用与底层交换机之间提供统一抽象并通过等协议把控制决策转化为流表规则的逻辑集中与物理分布逻辑集中所谓逻辑集中是指控制应用面对统一的网络视图控制策略由统一逻辑协调数据平面设备接受控制器的规则管理不等于只有一台服务器现实中的控制器可以由多个物理节点构成多个节点可以共同实现状态复制故障接管负载分担地理分布高可用部署对上层应用而言它们可以表现为一个统一控制系统因此逻辑集中物理单点面临的挑战仍需要解决控制器故障后的可靠性控制器与设备之间的安全大规模设备和流量下的性能多控制器之间的状态一致性控制规则冲突网络变化时的快速响应本节核心结论的集中指统一控制逻辑而不是必须依赖一台机器工程实现通常需要分布式控制器保证扩展性和可靠性网络层的反馈机制为什么需要提供尽力而为的数据报服务当数据报无法正常交付时本身并不会自动建立可靠连接或保证重传但发送方和管理员仍然需要知道目的网络是否不可达目的主机是否不可达端口是否不可用数据报是否因用尽而被丢弃网络路径是否存在异常提供了网络层控制信息与错误报告机制可以概括为尽力传送数据报反馈传送过程中发生的问题的典型用途可以用于网络不可达主机不可达协议不可达端口不可达超时请求与回复网络诊断主要利用和测试目标是否能够到达与的关系属于网络层控制协议但报文由数据报承载可以理解为数据报报文因此在协议封装上位于之上但在功能分类上仍属于网络层控制机制本节核心结论不负责普通应用数据传输而是为提供错误反馈状态通知和诊断支持差错报文包含什么报文包含和字段用于说明消息类别和更具体的原因当报告某个原始数据报发生错误时差错报文通常还会携带原始首部原始数据部分开头的一段内容传统上至少包含前字节保留这些内容的目的是帮助发送主机识别哪一个原始数据报出错原始数据报使用了什么传输层协议哪个应用或套接字可能与该数据报相关对于首部长度为字节因此可以包含源端口目的端口长度和校验和等字段对于开头部分也可以提供端口等关键信息帮助协议栈定位相关连接本节核心结论差错报文附带原始数据报的一部分不是为了重新传送原数据而是为了让发送方识别具体出错的数据报和通信端点的工作原理的作用数据报中的字段会在经过路由器时递减当变为零时路由器丢弃该数据报路由器通常返回消息原本用于防止数据报在路由环路中无限转发则利用了这一行为发现路径上的路由器逐步增加发送一系列探测数据报第一组第二组第三组当为时第一个路由器将其减为零并返回超时消息当为时数据报到达第二个路由器后归零由第二个路由器返回消息以此类推源主机逐步获得沿途路由器的信息源主机路由器路由器目的主机探测报文探测报文减为探测报文继续转发到达目的主机终止类型的响应如何判断到达目的主机经典实现可以向目的主机一个通常未使用的端口发送探测数据报当数据报最终到达目的主机时目标主机发现该端口没有应用监听返回据此判断探测已经到达终点不同系统也可能采用其他类型的探测报文但核心思想仍是逐步增加并利用返回消息识别各跳本节核心结论通过逐步增加让每一跳路由器依次产生超时消息从而推断数据报经过的路径网络管理与路由控制的区别路由协议主要解决数据包应该怎样到达目的地网络管理还需要解决设备是否正常运行链路利用率是多少配置是否符合规范哪些接口发生故障谁能够访问管理系统多台设备的配置是否一致网络服务是否达到性能要求因此网络管理是一套涉及硬件软件协议和人员的综合体系用于监测测试轮询配置分析评价控制网络资源本节核心结论路由协议关注转发路径网络管理关注整个网络及其设备如何被监控配置和维护网络管理的五类功能性能管理性能管理关注链路利用率吞吐量时延丢包率设备负载容量趋势其目标是发现性能瓶颈评估网络质量并支持容量规划故障管理故障管理负责检测故障记录故障定位问题发出告警采取恢复措施验证服务是否恢复配置管理配置管理关注设备当前配置配置修改历史多设备配置一致性软件和固件版本配置备份与恢复自动化部署账户管理账户管理用于记录用户或设备对资源的使用控制使用权限支持计费或资源统计识别资源使用主体这里的账户不只指普通登录账户也可以涉及用户设备租户和服务等管理对象安全管理安全管理负责定义安全策略控制管理访问验证身份和权限保护设备配置记录安全事件监测异常行为功能核心问题性能管理网络运行得怎么样故障管理哪里坏了怎样恢复配置管理设备应该怎样配置账户管理谁在使用哪些资源安全管理谁被允许做什么本节核心结论网络管理不仅是查看设备状态还包括性能故障配置账户和安全五个相互关联的方面网络管理体系结构典型网络管理体系包括以下组成部分管理服务器管理服务器或控制器负责收集设备数据展示网络状态保存历史记录发送配置命令处理告警执行自动化管理逻辑被管理设备被管理设备可以是路由器交换机服务器防火墙无线接入点其他网络设备是运行在被管理设备上的管理代理它负责读取本地状态维护可管理数据响应管理服务器查询接受配置修改主动报告部分事件管理数据管理数据可能包括接口状态流量统计错误计数路由表设备配置与内存使用率告警信息管理协议管理服务器和设备之间通过管理协议交换查询请求查询响应配置命令事件通知状态数据管理服务器网络管理协议设备设备状态与配置数据被管理网络设备本节核心结论管理服务器通过协议与设备交互将设备内部状态和配置转化为可以远程查询和修改的管理数据与是命令行接口管理员可以登录单台设备并输入命令例如查看接口状态配置地址修改路由协议查看路由表保存配置的优点是直观灵活适合人工排查和小规模操作它的局限包括不同厂商命令差异较大大规模重复操作效率低人工输入容易出错配置结果不易统一验证自动化处理需要额外解析文本输出与是简单网络管理协议主要用于远程读取和设置设备管理信息是管理信息库用来组织和描述可被管理的数据对象例如接口状态流量计数错误数量设备运行时间系统信息可以将两者理解为定义有哪些管理数据如何组织负责查询设置和报告这些数据尤其常用于监控和传统设备管理与面向结构化网络配置和状态管理是数据建模语言用来定义配置项的层次结构字段类型约束条件状态数据可执行操作二者关系可以概括为描述数据长什么样负责远程读取和修改这些数据与直接处理设备文本相比结构化模型更便于自动化配置验证输入是否合法管理多台设备比较和回滚配置跨平台工具集成与的区别对比维度主要用途监控查询简单设置结构化配置与状态管理数据模型配置能力相对有限更适合复杂配置数据表达管理对象层次化结构模型自动化程度可自动化但配置表达较弱更适合现代自动化系统典型场景设备监控遗留系统多设备配置现代网络管理并没有失去价值它仍广泛用于状态监测和已有设备维护则更适合要求结构化配置和自动化编排的现代网络本节核心结论面向人工逐设备操作擅长监控管理数据更强调结构化可验证和自动化的网络配置与管理协议的职责边界这些协议和机制都属于网络控制相关内容但解决的问题不同机制主要问题是否计算路径内部怎样路由是之间怎样传播和选择路径是怎样集中编程和控制转发行为可以怎样报告网络层错误和辅助诊断否怎样查询和监测设备数据否怎样结构化配置和管理设备否可以将整个控制体系理解为决定路由和可达性以软件化方式统一计算和下发控制策略反馈单个数据报或路径中的异常长期监测配置和维护网络设备重要对比与对比维度使用范围内部之间协议类型链路状态协议路径向量协议主要目标性能代价与内部收敛策略自治与扩展性主要信息拓扑链路与代价前缀及路径属性典型路径依据计算路径选择规则是否公开内部拓扑在范围内共享不向其他公开全部内部拓扑商业策略重要性通常较低非常重要与对比维度全称运行位置不同之间同一内部主要作用获得和发布外部路由在内传播外部路由典型节点不同的网关路由器同一的路由器是否等同否否传统路由与对比维度传统路由控制方式路由器分布式运行协议控制逻辑集中管理设备职责同时参与控制与转发交换机重点执行流表转发依据主要根据目的地址可根据多个首部字段策略部署逐设备协议驱动控制器统一编程流量工程通常较间接更灵活集中含义不适用逻辑集中不一定物理集中与路由协议对比维度核心目的错误报告与诊断路由信息传播和路径选择是否生成路由否是典型用途不可达报告建立路由表处理对象网络层事件与数据报异常网络前缀和拓扑可达性常见误区就是一个子网错误是管理和路由政策边界一个可以包含大量子网用于整个互联网错误主要用于一个内部跨的互联网路由主要由完成总是选择最短的路径错误长度只是选择因素之一本地偏好和管理策略可能具有更高优先级是内部普通最短路径协议错误主要传播外部路由内部怎样到达出口通常仍需等支持就是最终目的地错误是采用某条路由时当前需要到达的网关最终目的地是远端网络前缀热土豆路由选择全局最短路径错误它优先减少流量在本内的传输距离可能增加外部路径长度必须依赖一台中央机器错误强调逻辑集中控制器可以由多个物理节点分布式实现属于传输层错误是网络层控制协议只是由数据报承载决定网络路由错误报告错误和状态不负责通过路由算法生成路径是一种传输协议错误是数据建模语言等协议负责传输和操作按照描述的数据知识结构总览网络层控制平面层次路由软件定义控制错误与诊断网络管理自治系统内部路由间路由链路状态策略选择控制器流表匹配与动作复习清单完成本章学习后应能够回答为什么真实互联网不能采用单层平面路由路由规模问题和管理自治问题分别是什么与子网有什么区别网关路由器在自治系统边界承担什么职责内部路由与间路由分别解决什么问题为什么属于链路状态协议机制和算法有什么关系报文为什么不依赖或大型网络为什么需要划分如何限制拓扑信息和故障传播范围为什么被称为连接互联网的协议一条路由由哪些基本内容组成与分别承担什么任务为什么不能简单等同于为什么属于路径向量协议如何帮助检测路由环路与最终目的前缀有什么区别和内部路由协议怎样共同确定外部转发路径为什么不一定选择最短的路线商业关系为什么会影响路由策略什么是热土豆路由热土豆路由为什么不一定是全局最优一个外部前缀如何通过和传播什么是路由泄漏和前缀劫持主要验证什么传统目的地址转发为什么难以表达复杂流量工程需求如何分离控制平面与数据平面控制器包含哪些主要层次在控制器和交换机之间承担什么作用为什么说是逻辑集中而非物理单点主要解决什么问题为什么由承载却仍属于网络层差错报文为什么要附带原始数据报的一部分主要利用哪类消息如何利用和发现路径网络管理与路由协议的关注点有何区别网络管理的五类功能分别是什么管理服务器和被管理设备之间是什么关系与分别适合什么场景与的职责有何区别结论真实互联网不能依赖一个统一的平面路由算法它通过自治系统划分管理边界并将路径选择拆分为内部和之间两个层次在自治系统内部传播链路状态建立拓扑数据库并使用算法计算内部路径对于规模较大的进一步限制链路状态传播范围使路由系统更具扩展性在不同自治系统之间传播网络前缀及路径属性它使用表示经过的自治系统并检测环路使用连接外部路径与内部出口与单纯追求最短路径的算法不同首先服从各自治系统的商业管理和安全策略当传统基于目的地址的分布式路由不足以表达复杂流量工程时通过逻辑集中控制器和可编程流表提高网络控制的统一性和灵活性为尽力而为的服务提供错误反馈和诊断支持和都建立在相关机制之上和则将关注点从路径怎样计算扩展到整个网络如何被持续监控配置和维护本章的完整逻辑可以压缩为互联网规模与自治需求划分自治系统计算内部路径传播和选择间路径提供更灵活的可编程控制提供错误反馈与诊断支持长期网络管理最终结论现代互联网控制平面不是单一协议而是一套分层协作体系解决内部路径连接自治系统统一编程转发行为反馈运行异常网络管理协议保证设备和配置长期可控',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-25 23:05:10',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">46</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:10.000Z" title="Created 2026-06-25 23:05:10">2026-06-25</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:10.495Z" title="Updated 2026-06-25 23:05:10">2026-06-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">11.9k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>38min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/ehonda.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:10.000Z" title="Created 2026-06-25 23:05:10">2026-06-25</time><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:05:10.495Z" title="Updated 2026-06-25 23:05:10">2026-06-25</time></header><h1 id="Chapter-5-3：互联网层次路由、SDN、ICMP-与网络管理"><a href="#Chapter-5-3：互联网层次路由、SDN、ICMP-与网络管理" class="headerlink" title="Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理"></a>Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理</h1><h2 id="引言：真实互联网为什么不能只运行一种路由算法"><a href="#引言：真实互联网为什么不能只运行一种路由算法" class="headerlink" title="引言：真实互联网为什么不能只运行一种路由算法"></a>引言：真实互联网为什么不能只运行一种路由算法</h2><p>在学习链路状态路由和距离向量路由时，可以暂时把网络看成一张规模有限的平面图：所有路由器地位相近，路由算法只需要根据链路代价计算路径。</p>
+<p>真实互联网却不能采用这种简单模型。</p>
+<p>互联网由大量组织、运营商、企业、大学和云服务商的网络共同组成。不同网络分别由不同管理者控制，具有各自的拓扑、路由策略、商业关系和安全要求。如果把整个互联网视为一个平面网络，就会出现三个根本问题：</p>
+<ul>
+<li><strong>规模问题：</strong> 路由器无法维护全球所有路由器和链路的详细状态。</li>
+<li><strong>通信问题：</strong> 全网泛洪或交换完整距离向量会产生巨大的控制开销。</li>
+<li><strong>自治问题：</strong> 不同组织不愿公开内部拓扑，也不会接受由其他组织决定自己的路由政策。</li>
+</ul>
+<p>因此，互联网采用层次化的控制平面：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[真实互联网] --&gt; B[划分自治系统 AS]
+    B --&gt; C[AS 内部路由]
+    B --&gt; D[AS 之间路由]
+    C --&gt; E[OSPF 等内部网关协议]
+    D --&gt; F[BGP]
+    A --&gt; G[更灵活的控制需求]
+    G --&gt; H[SDN]
+    A --&gt; I[错误报告与诊断]
+    I --&gt; J[ICMP]
+    A --&gt; K[长期运行与维护]
+    K --&gt; L[SNMP、NETCONF、YANG]
+  </pre></div>
+
+<p><strong>❗核心主线：</strong> 互联网首先通过自治系统解决规模与管理边界问题，再分别使用 OSPF 和 BGP 处理 AS 内部与 AS 之间的路由；SDN 提供更灵活的集中控制，ICMP 负责网络层反馈，网络管理协议则负责设备监控与配置。</p>
+<hr>
+<h2 id="1-为什么互联网需要层次路由"><a href="#1-为什么互联网需要层次路由" class="headerlink" title="1. 为什么互联网需要层次路由"></a>1. 为什么互联网需要层次路由</h2><h3 id="1-1-平面路由的规模限制"><a href="#1-1-平面路由的规模限制" class="headerlink" title="1.1 平面路由的规模限制"></a>1.1 平面路由的规模限制</h3><p>假设整个互联网都运行同一个链路状态协议，那么每台路由器都需要：</p>
+<ul>
+<li>接收全网所有路由器的链路状态；</li>
+<li>保存完整的全球拓扑；</li>
+<li>在拓扑变化后重新执行最短路径计算；</li>
+<li>将自己的状态向全球泛洪。</li>
+</ul>
+<p>随着节点和链路数量增加，链路状态数据库、泛洪消息和计算成本都会迅速扩大。</p>
+<p>如果整个互联网运行距离向量协议，则每台路由器需要维护面向海量目的地的距离向量。路由更新需要逐跳传播，收敛时间、环路风险和控制报文规模也将难以接受。</p>
+<p>因此，LS 和 DV 虽然能够解决一般图中的路由问题，却不能直接作为整个互联网的单层组织方式。</p>
+<h3 id="1-2-管理自治问题"><a href="#1-2-管理自治问题" class="headerlink" title="1.2 管理自治问题"></a>1.2 管理自治问题</h3><p>互联网不是由一个中心机构统一运营的单一网络，而是“网络的网络”。</p>
+<p>不同组织拥有不同目标：</p>
+<ul>
+<li>企业可能优先考虑安全与业务隔离；</li>
+<li>运营商需要考虑客户、供应商和对等互联关系；</li>
+<li>大学可能选择成本较低的出口；</li>
+<li>云服务商可能根据流量工程策略分配路径；</li>
+<li>一个网络可能拒绝为没有商业关系的其他网络转发流量。</li>
+</ul>
+<p>因此，互联网路由不只是求数学意义上的最短路径，还必须尊重各个组织的管理边界与策略。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>互联网采用层次路由，既是为了降低路由信息和计算规模，也是为了允许不同组织独立控制自己的网络。</p>
+<hr>
+<h2 id="2-自治系统-AS"><a href="#2-自治系统-AS" class="headerlink" title="2. 自治系统 AS"></a>2. 自治系统 AS</h2><h3 id="2-1-AS-的定义"><a href="#2-1-AS-的定义" class="headerlink" title="2.1 AS 的定义"></a>2.1 AS 的定义</h3><p>AS 是 Autonomous System，即自治系统。</p>
+<p>它可以理解为：</p>
+<blockquote>
+<p>由同一个组织或管理实体控制，并对外采用统一路由政策的一组路由器和网络。</p>
+</blockquote>
+<p>每个自治系统使用自治系统号 ASN 进行标识。一个大型互联网服务提供商可能只运行一个 AS，也可能因为规模、地区或业务划分而运行多个 AS。</p>
+<h3 id="2-2-AS-与子网的区别"><a href="#2-2-AS-与子网的区别" class="headerlink" title="2.2 AS 与子网的区别"></a>2.2 AS 与子网的区别</h3><p>AS 不能简单理解为一个子网。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>子网</th>
+<th>自治系统 AS</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心含义</td>
+<td>IP 地址与转发范围</td>
+<td>管理和路由策略范围</td>
+</tr>
+<tr>
+<td>主要标识</td>
+<td>IP 前缀</td>
+<td>ASN</td>
+</tr>
+<tr>
+<td>包含内容</td>
+<td>一组同前缀或相关地址的接口</td>
+<td>多个路由器、链路和子网</td>
+</tr>
+<tr>
+<td>关注重点</td>
+<td>地址分配和本地交付</td>
+<td>谁管理网络、如何对外发布路由</td>
+</tr>
+<tr>
+<td>规模</td>
+<td>通常较小</td>
+<td>可以包含大量子网</td>
+</tr>
+</tbody></table>
+<p>一个 AS 内部通常包含多个 IP 子网。一段 IP 前缀表示地址空间，而 AS 表示网络控制权和路由政策。</p>
+<h3 id="2-3-网关路由器"><a href="#2-3-网关路由器" class="headerlink" title="2.3 网关路由器"></a>2.3 网关路由器</h3><p>位于 AS 边缘、连接其他自治系统的路由器称为网关路由器或边界路由器。</p>
+<p>网关路由器通常同时参与两类路由：</p>
+<ul>
+<li>通过 AS 内部协议与本 AS 路由器交换信息；</li>
+<li>通过 AS 间协议与其他 AS 的网关路由器交换可达性信息。</li>
+</ul>
+<h3 id="2-4-两层路由结构"><a href="#2-4-两层路由结构" class="headerlink" title="2.4 两层路由结构"></a>2.4 两层路由结构</h3><p>引入 AS 后，路径选择被分为两个问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AS 内部路由：</span><br><span class="line">在本组织内部怎样到达某个内部网络或出口网关？</span><br><span class="line"></span><br><span class="line">AS 间路由：</span><br><span class="line">应该经过哪些自治系统，到达外部目的网络？</span><br></pre></td></tr></table></figure>
+
+<p>常见协议对应关系如下：</p>
+<table>
+<thead>
+<tr>
+<th>路由范围</th>
+<th>主要协议</th>
+<th>主要目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AS 内部</td>
+<td>OSPF 等 IGP</td>
+<td>性能、代价、快速收敛</td>
+</tr>
+<tr>
+<td>AS 之间</td>
+<td>BGP</td>
+<td>策略、自治、可扩展性</td>
+</tr>
+</tbody></table>
+<p>其中 IGP 表示内部网关协议，BGP 则承担互联网中的 AS 间路由。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>AS 是管理与路由政策意义上的自治域，而不是单纯的地址子网。层次路由将全网问题拆成了 AS 内部路径与 AS 之间路径两个层次。</p>
+<hr>
+<h2 id="3-OSPF：自治系统内部的链路状态路由"><a href="#3-OSPF：自治系统内部的链路状态路由" class="headerlink" title="3. OSPF：自治系统内部的链路状态路由"></a>3. OSPF：自治系统内部的链路状态路由</h2><h3 id="3-1-OSPF-是什么"><a href="#3-1-OSPF-是什么" class="headerlink" title="3.1 OSPF 是什么"></a>3.1 OSPF 是什么</h3><p>OSPF 全称为 Open Shortest Path First，即开放最短路径优先协议。</p>
+<p>它是一种典型的 AS 内部路由协议，采用链路状态思想：</p>
+<ul>
+<li>路由器发现邻居；</li>
+<li>测量或配置链路代价；</li>
+<li>生成链路状态通告；</li>
+<li>在规定范围内泛洪通告；</li>
+<li>建立链路状态数据库；</li>
+<li>使用 Dijkstra 算法计算最短路径。</li>
+</ul>
+<p>“Open”表示协议规范公开，不依赖某一家厂商的私有实现。</p>
+<h3 id="3-2-OSPF-与-LS、Dijkstra-的关系"><a href="#3-2-OSPF-与-LS、Dijkstra-的关系" class="headerlink" title="3.2 OSPF 与 LS、Dijkstra 的关系"></a>3.2 OSPF 与 LS、Dijkstra 的关系</h3><p>OSPF、链路状态机制和 Dijkstra 算法不是同一个概念。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>链路状态思想</td>
+<td>让路由器获得拓扑和链路代价</td>
+</tr>
+<tr>
+<td>OSPF</td>
+<td>实现链路状态路由的具体协议</td>
+</tr>
+<tr>
+<td>Dijkstra</td>
+<td>在已知拓扑上计算最短路径的算法</td>
+</tr>
+</tbody></table>
+<p>OSPF 负责定义路由器如何发现邻居、传播状态并维护数据库；Dijkstra 负责在数据库描述的图上计算最短路径树。</p>
+<h3 id="3-3-OSPF-的基本运行过程"><a href="#3-3-OSPF-的基本运行过程" class="headerlink" title="3.3 OSPF 的基本运行过程"></a>3.3 OSPF 的基本运行过程</h3><div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[发现相邻路由器] --&gt; B[确定链路代价]
+    B --&gt; C[生成链路状态通告]
+    C --&gt; D[在 OSPF 范围内泛洪]
+    D --&gt; E[各路由器建立拓扑数据库]
+    E --&gt; F[运行 Dijkstra]
+    F --&gt; G[形成路由表]
+  </pre></div>
+
+<p>OSPF 路由器最终根据最短路径树确定：</p>
+<ul>
+<li>到达某个目的网络的总代价；</li>
+<li>应选择哪个下一跳；</li>
+<li>应从哪个接口发送分组。</li>
+</ul>
+<h3 id="3-4-OSPF-主要关注性能"><a href="#3-4-OSPF-主要关注性能" class="headerlink" title="3.4 OSPF 主要关注性能"></a>3.4 OSPF 主要关注性能</h3><p>在一个 AS 内部，路由器通常由同一组织管理，因此路由目标相对统一。</p>
+<p>管理员可以通过链路代价表达内部偏好，例如：</p>
+<ul>
+<li>让高带宽链路具有较低代价；</li>
+<li>避开低速或高成本链路；</li>
+<li>让主要链路优先于备用链路；</li>
+<li>调整流量在内部网络中的分布。</li>
+</ul>
+<p>因此，OSPF 的重点通常是寻找代价较低的内部路径，并在拓扑变化后较快恢复。</p>
+<h3 id="3-5-OSPF-直接由-IP-承载"><a href="#3-5-OSPF-直接由-IP-承载" class="headerlink" title="3.5 OSPF 直接由 IP 承载"></a>3.5 OSPF 直接由 IP 承载</h3><p>OSPF 控制报文封装在 IP 数据报中，不通过 TCP 或 UDP。</p>
+<p>这意味着 OSPF 自己定义：</p>
+<ul>
+<li>邻居关系维护；</li>
+<li>状态通告；</li>
+<li>可靠泛洪；</li>
+<li>数据库同步等机制。</li>
+</ul>
+<p>这与 BGP 使用 TCP 建立会话的方式不同。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>OSPF 是链路状态思想在 AS 内部的具体实现。它通过泛洪建立拓扑数据库，再使用 Dijkstra 算法生成内部路由。</p>
+<hr>
+<h2 id="4-层次化-OSPF-与-Area"><a href="#4-层次化-OSPF-与-Area" class="headerlink" title="4. 层次化 OSPF 与 Area"></a>4. 层次化 OSPF 与 Area</h2><h3 id="4-1-为什么-OSPF-内部还要分层"><a href="#4-1-为什么-OSPF-内部还要分层" class="headerlink" title="4.1 为什么 OSPF 内部还要分层"></a>4.1 为什么 OSPF 内部还要分层</h3><p>即使只在一个 AS 内运行 OSPF，大型自治系统中也可能存在大量路由器。</p>
+<p>如果所有链路状态通告都在整个 AS 中传播，会带来：</p>
+<ul>
+<li>链路状态数据库过大；</li>
+<li>泛洪流量增加；</li>
+<li>拓扑变化影响范围过广；</li>
+<li>SPF 重算次数增加；</li>
+<li>路由器的存储和计算压力上升。</li>
+</ul>
+<p>因此，OSPF 可以进一步将一个 AS 划分为多个区域 Area。</p>
+<h3 id="4-2-区域化的基本思想"><a href="#4-2-区域化的基本思想" class="headerlink" title="4.2 区域化的基本思想"></a>4.2 区域化的基本思想</h3><p>区域化后，路由器主要掌握本区域内部的详细拓扑。</p>
+<p>对于其他区域，普通路由器不必了解每一条链路，只需要知道：</p>
+<ul>
+<li>外部目的地可以通过哪个区域边界路由器到达；</li>
+<li>到该边界路由器的内部代价是多少；</li>
+<li>目标网络大致位于哪个方向。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[区域 1] --&gt; ABR1[区域边界路由器]
+    ABR1 --&gt; BB[骨干区域]
+    BB --&gt; ABR2[区域边界路由器]
+    ABR2 --&gt; C[区域 2]
+  </pre></div>
+
+<p>区域之间通常通过骨干区域连接。区域边界路由器负责在不同区域之间传播经过汇总或处理的路由信息。</p>
+<h3 id="4-3-Area-带来的好处"><a href="#4-3-Area-带来的好处" class="headerlink" title="4.3 Area 带来的好处"></a>4.3 Area 带来的好处</h3><p>区域划分能够：</p>
+<ul>
+<li>限制链路状态通告的传播范围；</li>
+<li>缩小单台路由器需要保存的详细拓扑；</li>
+<li>将局部故障和变化限制在区域内部；</li>
+<li>减少全网 SPF 重算；</li>
+<li>提高大型 AS 的可扩展性。</li>
+</ul>
+<h3 id="4-4-付出的代价"><a href="#4-4-付出的代价" class="headerlink" title="4.4 付出的代价"></a>4.4 付出的代价</h3><p>层次化会隐藏部分拓扑细节，因此区域之间的路径选择不一定等价于在完整全局图上求得的绝对最优路径。</p>
+<p>这是一种典型的工程折中：</p>
+<blockquote>
+<p>用部分全局最优性换取更好的规模性、稳定性和管理能力。</p>
+</blockquote>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>OSPF Area 让路由器在本区域了解细节、对其他区域只掌握汇总方向，从而控制泛洪范围和拓扑规模。</p>
+<hr>
+<h2 id="5-BGP：连接不同自治系统"><a href="#5-BGP：连接不同自治系统" class="headerlink" title="5. BGP：连接不同自治系统"></a>5. BGP：连接不同自治系统</h2><h3 id="5-1-BGP-的作用"><a href="#5-1-BGP-的作用" class="headerlink" title="5.1 BGP 的作用"></a>5.1 BGP 的作用</h3><p>BGP 全称为 Border Gateway Protocol，即边界网关协议。</p>
+<p>它是互联网事实上的 AS 间路由协议，承担以下任务：</p>
+<ul>
+<li>让一个网络前缀向其他 AS 声明自己的存在；</li>
+<li>在不同 AS 之间传播前缀可达性；</li>
+<li>为同一个前缀选择符合策略的路径；</li>
+<li>根据商业、安全和管理政策决定是否接受或传播路由。</li>
+</ul>
+<p>BGP 将大量自治系统连接在一起，因此常被称为把互联网“粘合”起来的协议。</p>
+<h3 id="5-2-BGP-通告的不是完整内部拓扑"><a href="#5-2-BGP-通告的不是完整内部拓扑" class="headerlink" title="5.2 BGP 通告的不是完整内部拓扑"></a>5.2 BGP 通告的不是完整内部拓扑</h3><p>一个 AS 不需要向外部公开内部每台路由器和每条链路。</p>
+<p>它只需要向其他 AS 通告：</p>
+<ul>
+<li>自己能够到达哪些网络前缀；</li>
+<li>到达这些前缀需要经过哪些 AS；</li>
+<li>下一跳等相关路径属性。</li>
+</ul>
+<p>这样既隐藏了内部结构，又降低了跨域路由信息规模。</p>
+<h3 id="5-3-前缀、属性与路由"><a href="#5-3-前缀、属性与路由" class="headerlink" title="5.3 前缀、属性与路由"></a>5.3 前缀、属性与路由</h3><p>一条 BGP 路由可以表示为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">网络前缀 + 路径属性 = BGP 路由</span><br></pre></td></tr></table></figure>
+
+<p>例如，一个 BGP 路由可能表达：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">前缀：X</span><br><span class="line">AS-PATH：AS2 → AS3</span><br><span class="line">NEXT-HOP：某边界路由器</span><br></pre></td></tr></table></figure>
+
+<p>它表示该前缀可以通过指定的下一跳，并沿相应的 AS 路径到达。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>BGP 传播的是带有属性的网络前缀可达性，而不是其他 AS 的完整内部拓扑。</p>
+<hr>
+<h2 id="6-eBGP-与-iBGP"><a href="#6-eBGP-与-iBGP" class="headerlink" title="6. eBGP 与 iBGP"></a>6. eBGP 与 iBGP</h2><h3 id="6-1-eBGP"><a href="#6-1-eBGP" class="headerlink" title="6.1 eBGP"></a>6.1 eBGP</h3><p>eBGP 是 external BGP，运行在不同自治系统的 BGP 路由器之间。</p>
+<p>它负责：</p>
+<ul>
+<li>从相邻 AS 学习外部前缀；</li>
+<li>向相邻 AS 通告本 AS 或其他可传播的前缀；</li>
+<li>执行输入和输出路由策略；</li>
+<li>建立跨 AS 的可达性。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AS3 的网关 3a</span><br><span class="line">    ↓ eBGP</span><br><span class="line">AS2 的网关 2c</span><br></pre></td></tr></table></figure>
+
+<p>AS3 可以通过该会话向 AS2 通告自己能够到达的前缀。</p>
+<h3 id="6-2-iBGP"><a href="#6-2-iBGP" class="headerlink" title="6.2 iBGP"></a>6.2 iBGP</h3><p>iBGP 是 internal BGP，运行在同一个 AS 内部的 BGP 路由器之间。</p>
+<p>它的主要作用是：</p>
+<blockquote>
+<p>将通过 eBGP 学到的外部前缀及其属性传播给本 AS 的其他相关路由器。</p>
+</blockquote>
+<p>如果一个 AS 有多个出口，内部路由器需要知道：</p>
+<ul>
+<li>哪些前缀可以从出口 A 到达；</li>
+<li>哪些前缀可以从出口 B 到达；</li>
+<li>每条外部路径具有什么属性；</li>
+<li>应该选择哪个出口。</li>
+</ul>
+<p>iBGP 负责传播这些外部路由信息。</p>
+<h3 id="6-3-iBGP-不是普通内部最短路径协议"><a href="#6-3-iBGP-不是普通内部最短路径协议" class="headerlink" title="6.3 iBGP 不是普通内部最短路径协议"></a>6.3 iBGP 不是普通内部最短路径协议</h3><p>iBGP 虽然在 AS 内部运行，但它与 OSPF 的任务不同。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>OSPF</th>
+<th>iBGP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要对象</td>
+<td>AS 内部网络与链路</td>
+<td>外部网络前缀</td>
+</tr>
+<tr>
+<td>主要任务</td>
+<td>计算内部到达路径</td>
+<td>传播外部可达性和 BGP 属性</td>
+</tr>
+<tr>
+<td>核心信息</td>
+<td>拓扑和链路代价</td>
+<td>前缀、AS-PATH、NEXT-HOP 等</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>到达内部节点或出口</td>
+<td>决定外部前缀应走哪个出口</td>
+</tr>
+</tbody></table>
+<p>在传统网络中，两者通常协同工作，而不是互相替代：</p>
+<ul>
+<li>BGP 决定选择哪个外部出口；</li>
+<li>OSPF 等内部协议决定怎样在 AS 内到达这个出口。</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>eBGP 在 AS 之间交换路由，iBGP 在 AS 内传播外部路由；iBGP 并不等同于负责全部内部转发的 IGP。</p>
+<hr>
+<h2 id="7-BGP-是路径向量协议"><a href="#7-BGP-是路径向量协议" class="headerlink" title="7. BGP 是路径向量协议"></a>7. BGP 是路径向量协议</h2><h3 id="7-1-普通-DV-与-BGP-的区别"><a href="#7-1-普通-DV-与-BGP-的区别" class="headerlink" title="7.1 普通 DV 与 BGP 的区别"></a>7.1 普通 DV 与 BGP 的区别</h3><p>普通距离向量协议主要通告：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我到目的地 y 的代价是 d</span><br></pre></td></tr></table></figure>
+
+<p>接收者通常看不到完整路径，因此可能出现邻居的路径实际经过自己的问题。</p>
+<p>BGP 不只通告一个距离值，还携带所经过的自治系统序列：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">到前缀 X 的路径为：</span><br><span class="line">AS2 → AS3 → AS4</span><br></pre></td></tr></table></figure>
+
+<p>因此，BGP 更准确地被称为路径向量协议。</p>
+<h3 id="7-2-AS-PATH"><a href="#7-2-AS-PATH" class="headerlink" title="7.2 AS-PATH"></a>7.2 AS-PATH</h3><p>AS-PATH 记录到达某个前缀需要经过的 AS 序列。</p>
+<p>它有两个重要作用：</p>
+<ul>
+<li>帮助进行路径选择；</li>
+<li>帮助发现 AS 级路由环路。</li>
+</ul>
+<p>假设 AS2 收到以下路由：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">前缀 X</span><br><span class="line">AS-PATH：AS3 → AS4</span><br></pre></td></tr></table></figure>
+
+<p>AS2 向外继续通告时，会把自己加入路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AS-PATH：AS2 → AS3 → AS4</span><br></pre></td></tr></table></figure>
+
+<p>如果某个 AS 收到一条路由，并发现自己的 ASN 已经出现在 AS-PATH 中，就说明采用这条路由会形成环路，因此可以拒绝该路由。</p>
+<h3 id="7-3-路径向量解决了什么问题"><a href="#7-3-路径向量解决了什么问题" class="headerlink" title="7.3 路径向量解决了什么问题"></a>7.3 路径向量解决了什么问题</h3><p>与只传播距离相比，AS-PATH让接收者获得了更明确的路径结构。</p>
+<p>它不能解决 BGP 的所有安全与策略问题，但可以避免最基本的 AS 级循环依赖。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>BGP 不只通告“有多远”，还通告“经过哪些 AS”，因此能够利用 AS-PATH 检测跨自治系统的路由环路。</p>
+<hr>
+<h2 id="8-NEXT-HOP-属性"><a href="#8-NEXT-HOP-属性" class="headerlink" title="8. NEXT-HOP 属性"></a>8. NEXT-HOP 属性</h2><h3 id="8-1-NEXT-HOP-的含义"><a href="#8-1-NEXT-HOP-的含义" class="headerlink" title="8.1 NEXT-HOP 的含义"></a>8.1 NEXT-HOP 的含义</h3><p>NEXT-HOP 用来指出：</p>
+<blockquote>
+<p>要采用这条 BGP 路由，数据包接下来应被送往哪个网关地址。</p>
+</blockquote>
+<p>最终目的地可能是远端前缀 <code>X</code>，但当前 AS 首先要解决的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">应该从本 AS 的哪个边界出口离开？</span><br></pre></td></tr></table></figure>
+
+<p>NEXT-HOP 为内部路由器提供了连接 BGP 路径与内部转发路径的关键线索。</p>
+<h3 id="8-2-NEXT-HOP-不是最终目的地"><a href="#8-2-NEXT-HOP-不是最终目的地" class="headerlink" title="8.2 NEXT-HOP 不是最终目的地"></a>8.2 NEXT-HOP 不是最终目的地</h3><p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">最终目的前缀：X</span><br><span class="line">选择的边界出口：2c</span><br><span class="line">下一跳地址：与 2c 相连的外部接口地址</span><br></pre></td></tr></table></figure>
+
+<p>这里：</p>
+<ul>
+<li><code>X</code> 是最终要到达的网络；</li>
+<li>NEXT-HOP 是当前阶段需要到达的网关；</li>
+<li>从内部路由器到该网关的路径仍需要由 OSPF 等内部协议确定。</li>
+</ul>
+<h3 id="8-3-BGP-与-IGP-的配合"><a href="#8-3-BGP-与-IGP-的配合" class="headerlink" title="8.3 BGP 与 IGP 的配合"></a>8.3 BGP 与 IGP 的配合</h3><p>一个数据包前往外部网络时，通常经历两层决策：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[目的前缀 X] --&gt; B[BGP 选择出口和外部路径]
+    B --&gt; C[确定 NEXT-HOP]
+    C --&gt; D[OSPF 等 IGP 计算到出口的内部路径]
+    D --&gt; E[逐跳转发至边界路由器]
+    E --&gt; F[进入下一自治系统]
+  </pre></div>
+
+<p><strong>❗本节核心结论：</strong></p>
+<p>BGP 决定去哪个外部出口，内部路由协议负责把分组送到该出口。NEXT-HOP 是连接这两个层次的关键属性。</p>
+<hr>
+<h2 id="9-BGP-的路径选择"><a href="#9-BGP-的路径选择" class="headerlink" title="9. BGP 的路径选择"></a>9. BGP 的路径选择</h2><h3 id="9-1-BGP-不一定选择最短路径"><a href="#9-1-BGP-不一定选择最短路径" class="headerlink" title="9.1 BGP 不一定选择最短路径"></a>9.1 BGP 不一定选择最短路径</h3><p>对于同一个前缀，路由器可能同时学到多条路径。</p>
+<p>BGP 不会只比较物理距离或 AS 数量，而是按照一系列规则筛选。典型因素包括：</p>
+<ul>
+<li>本地偏好或管理策略；</li>
+<li>AS-PATH 长度；</li>
+<li>NEXT-HOP 在本 AS 内的可达代价；</li>
+<li>其他协议属性和附加判据。</li>
+</ul>
+<p>其中，本地策略通常具有很高优先级。这意味着一条 AS-PATH 更短的路径，仍然可能因为商业或管理策略而被拒绝。</p>
+<h3 id="9-2-为什么-AS-间路由策略优先"><a href="#9-2-为什么-AS-间路由策略优先" class="headerlink" title="9.2 为什么 AS 间路由策略优先"></a>9.2 为什么 AS 间路由策略优先</h3><p>AS 之间可能存在不同经济关系：</p>
+<ul>
+<li><strong>客户关系：</strong> 客户向运营商付费获得互联网连接；</li>
+<li><strong>提供商关系：</strong> 当前 AS 购买上游服务；</li>
+<li><strong>对等关系：</strong> 两个网络在一定条件下互换流量。</li>
+</ul>
+<p>一个 AS 可能愿意：</p>
+<ul>
+<li>为自己的客户转发流量；</li>
+<li>使用付费上游到达互联网；</li>
+<li>与对等网络交换双方客户流量。</li>
+</ul>
+<p>但它通常不愿免费替两个无关上游或对等方中转流量。</p>
+<p>因此，BGP 选择不仅回答“哪条路径短”，还要回答：</p>
+<ul>
+<li>是否愿意使用这条路径？</li>
+<li>是否愿意向某个邻居通告该路径？</li>
+<li>是否愿意承担中转流量？</li>
+<li>哪条路径符合商业和安全策略？</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>OSPF 更接近按代价优化内部性能，BGP 则首先服从自治系统的策略；AS-PATH 短并不保证一定被选择。</p>
+<hr>
+<h2 id="10-热土豆路由"><a href="#10-热土豆路由" class="headerlink" title="10. 热土豆路由"></a>10. 热土豆路由</h2><h3 id="10-1-基本思想"><a href="#10-1-基本思想" class="headerlink" title="10.1 基本思想"></a>10.1 基本思想</h3><p>热土豆路由指一个 AS 在存在多个外部出口时，倾向于选择：</p>
+<blockquote>
+<p>在本 AS 内部代价最低、最容易到达的出口。</p>
+</blockquote>
+<p>它的目标不是让整个互联网路径最短，而是尽快将外部流量送出本 AS。</p>
+<p>这像拿到一块烫手的土豆后尽快丢出去，因此得名“热土豆”。</p>
+<h3 id="10-2-示例"><a href="#10-2-示例" class="headerlink" title="10.2 示例"></a>10.2 示例</h3><p>假设内部路由器 <code>2d</code> 可以通过两个出口到达前缀 <code>X</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">方案一：</span><br><span class="line">2d → 2a → 外部 AS → X</span><br><span class="line"></span><br><span class="line">方案二：</span><br><span class="line">2d → 2c → 外部 AS → X</span><br></pre></td></tr></table></figure>
+
+<p>如果：</p>
+<ul>
+<li>到 <code>2a</code> 的内部代价为 <code>10</code>；</li>
+<li>到 <code>2c</code> 的内部代价为 <code>3</code>；</li>
+</ul>
+<p>热土豆策略可能选择 <code>2c</code>，即使从 <code>2c</code> 出去后经过的 AS 数量更多。</p>
+<h3 id="10-3-为什么它不一定全局最优"><a href="#10-3-为什么它不一定全局最优" class="headerlink" title="10.3 为什么它不一定全局最优"></a>10.3 为什么它不一定全局最优</h3><p>热土豆路由只优化本 AS 内部成本：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">最小化：</span><br><span class="line">当前路由器 → 本 AS 出口</span><br></pre></td></tr></table></figure>
+
+<p>它不直接优化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当前路由器 → 最终目的地</span><br></pre></td></tr></table></figure>
+
+<p>因此，流量可能更早离开本 AS，却在外部网络中经过更长路径。</p>
+<h3 id="10-4-背后的运营逻辑"><a href="#10-4-背后的运营逻辑" class="headerlink" title="10.4 背后的运营逻辑"></a>10.4 背后的运营逻辑</h3><p>一个 AS 通常只能够直接管理自己的链路和资源。尽早将流量交给其他 AS，可以：</p>
+<ul>
+<li>减少本 AS 骨干链路占用；</li>
+<li>降低内部传输成本；</li>
+<li>减少自身需要承担的远距离转发压力。</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>热土豆路由追求的是“尽快离开自己的 AS”，而不是端到端全局最短路径。</p>
+<hr>
+<h2 id="11-外部前缀如何传播到其他-AS"><a href="#11-外部前缀如何传播到其他-AS" class="headerlink" title="11. 外部前缀如何传播到其他 AS"></a>11. 外部前缀如何传播到其他 AS</h2><p>假设前缀 <code>X</code> 位于 AS3 中，其可达性可以按以下方式传播。</p>
+<h3 id="11-1-AS3-向-AS2-通告"><a href="#11-1-AS3-向-AS2-通告" class="headerlink" title="11.1 AS3 向 AS2 通告"></a>11.1 AS3 向 AS2 通告</h3><p>AS3 的网关路由器 <code>3a</code> 通过 eBGP 向 AS2 的网关 <code>2c</code> 通告：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">前缀：X</span><br><span class="line">AS-PATH：AS3</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-2-AS2-执行输入策略"><a href="#11-2-AS2-执行输入策略" class="headerlink" title="11.2 AS2 执行输入策略"></a>11.2 AS2 执行输入策略</h3><p>AS2 收到路由后，不是无条件接受，而是先判断：</p>
+<ul>
+<li>前缀是否允许接收；</li>
+<li>路由属性是否符合策略；</li>
+<li>通告者是否是可信邻居；</li>
+<li>是否存在更优路径。</li>
+</ul>
+<p>如果接受，<code>2c</code> 将这条路由加入候选集合。</p>
+<h3 id="11-3-通过-iBGP-在-AS2-内传播"><a href="#11-3-通过-iBGP-在-AS2-内传播" class="headerlink" title="11.3 通过 iBGP 在 AS2 内传播"></a>11.3 通过 iBGP 在 AS2 内传播</h3><p><code>2c</code> 使用 iBGP 将前缀 <code>X</code> 的可达性告诉 AS2 内部其他 BGP 路由器。</p>
+<p>内部路由器由此知道：</p>
+<ul>
+<li><code>X</code> 可以经 <code>2c</code> 到达；</li>
+<li>相应的 AS-PATH 和 NEXT-HOP；</li>
+<li>是否还存在其他出口路径。</li>
+</ul>
+<h3 id="11-4-AS2-向-AS1-通告"><a href="#11-4-AS2-向-AS1-通告" class="headerlink" title="11.4 AS2 向 AS1 通告"></a>11.4 AS2 向 AS1 通告</h3><p>如果 AS2 的输出策略允许，它可以通过另一个边界路由器向 AS1 通告：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">前缀：X</span><br><span class="line">AS-PATH：AS2 → AS3</span><br></pre></td></tr></table></figure>
+
+<p>每经过一个 AS，该 AS 通常会把自己的 ASN 加入 AS-PATH。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant AS3 as AS3 网关 3a
+    participant AS2E as AS2 网关 2c
+    participant AS2I as AS2 内部 BGP 路由器
+    participant AS1 as AS1 网关
+
+    AS3-&gt;&gt;AS2E: eBGP 通告 X，AS-PATH&#x3D;AS3
+    AS2E-&gt;&gt;AS2E: 执行输入策略
+    AS2E-&gt;&gt;AS2I: iBGP 传播外部路由
+    AS2I-&gt;&gt;AS1: eBGP 通告 X，AS-PATH&#x3D;AS2 AS3
+  </pre></div>
+
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>BGP 路由在 AS 之间逐级传播，每个 AS 都可以独立决定是否接受、选择和继续通告该路径。</p>
+<hr>
+<h2 id="12-BGP-的安全问题"><a href="#12-BGP-的安全问题" class="headerlink" title="12. BGP 的安全问题"></a>12. BGP 的安全问题</h2><h3 id="12-1-基于信任的风险"><a href="#12-1-基于信任的风险" class="headerlink" title="12.1 基于信任的风险"></a>12.1 基于信任的风险</h3><p>传统 BGP 的核心设计主要解决可达性和策略问题，并不天然证明：</p>
+<ul>
+<li>某个 AS 是否真正拥有其通告的 IP 前缀；</li>
+<li>AS-PATH 是否完全真实；</li>
+<li>路由通告是否由合法主体发出。</li>
+</ul>
+<p>因此，错误配置或恶意行为可能导致：</p>
+<ul>
+<li><strong>路由泄漏：</strong> 将本不应该继续传播的路由通告给其他网络；</li>
+<li><strong>前缀劫持：</strong> 未经授权的 AS 宣称自己能够到达某段 IP 前缀；</li>
+<li><strong>流量误导：</strong> 其他网络因错误通告而把流量发送到错误方向。</li>
+</ul>
+<h3 id="12-2-RPKI"><a href="#12-2-RPKI" class="headerlink" title="12.2 RPKI"></a>12.2 RPKI</h3><p>RPKI 是用于提高互联网路由安全性的一类基础设施。</p>
+<p>它可以帮助验证：</p>
+<blockquote>
+<p>某个 AS 是否被授权为某个 IP 前缀发起 BGP 路由通告。</p>
+</blockquote>
+<p>RPKI 主要增强前缀起源验证，但不能自动解决所有路径伪造、策略错误和路由泄漏问题。</p>
+<h3 id="12-3-安全与自治之间的难题"><a href="#12-3-安全与自治之间的难题" class="headerlink" title="12.3 安全与自治之间的难题"></a>12.3 安全与自治之间的难题</h3><p>BGP 必须在以下目标之间取得平衡：</p>
+<ul>
+<li>全球互联；</li>
+<li>各 AS 独立控制；</li>
+<li>路由可扩展性；</li>
+<li>策略灵活性；</li>
+<li>路由信息真实性。</li>
+</ul>
+<p>这也是互联网控制平面长期演进的重要方向。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>BGP 的策略灵活性建立在跨组织协作与信任之上，因此路由泄漏和前缀劫持是现实风险；RPKI 可以加强前缀起源验证。</p>
+<hr>
+<h2 id="13-为什么需要-SDN"><a href="#13-为什么需要-SDN" class="headerlink" title="13. 为什么需要 SDN"></a>13. 为什么需要 SDN</h2><h3 id="13-1-传统路由的限制"><a href="#13-1-传统路由的限制" class="headerlink" title="13.1 传统路由的限制"></a>13.1 传统路由的限制</h3><p>OSPF 和 BGP 主要围绕目的地址决定路径。</p>
+<p>假设管理员希望实现：</p>
+<ul>
+<li>来自 <code>u</code>、前往 <code>z</code> 的流量走路径 <code>u-v-w-z</code>；</li>
+<li>来自 <code>x</code>、同样前往 <code>z</code> 的流量走路径 <code>x-w-y-z</code>；</li>
+<li>视频流量和普通网页流量走不同路径；</li>
+<li>将一部分流量分配到主链路，另一部分分配到备用链路；</li>
+<li>根据用户身份或传输层端口执行访问控制。</li>
+</ul>
+<p>如果转发只查询目的 IP 前缀，就很难直接表达这些要求。</p>
+<p>传统网络可以通过修改链路代价、部署策略路由或配置大量设备实现部分目标，但通常存在：</p>
+<ul>
+<li>配置复杂；</li>
+<li>设备厂商接口不一致；</li>
+<li>全网策略难以统一；</li>
+<li>故障时难以快速调整；</li>
+<li>新功能需要逐台设备部署。</li>
+</ul>
+<h3 id="13-2-SDN-的基本思想"><a href="#13-2-SDN-的基本思想" class="headerlink" title="13.2 SDN 的基本思想"></a>13.2 SDN 的基本思想</h3><p>SDN 是 Software Defined Networking，即软件定义网络。</p>
+<p>其核心思想是：</p>
+<blockquote>
+<p>将控制逻辑与高速数据转发分离，由逻辑集中的控制器掌握网络状态并下发转发规则。</p>
+</blockquote>
+<p>数据平面设备主要执行：</p>
+<ul>
+<li>匹配分组字段；</li>
+<li>转发；</li>
+<li>丢弃；</li>
+<li>修改首部；</li>
+<li>复制；</li>
+<li>统计。</li>
+</ul>
+<p>控制器负责：</p>
+<ul>
+<li>收集网络状态；</li>
+<li>运行控制应用；</li>
+<li>计算路径和策略；</li>
+<li>向设备安装流表规则。</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>SDN 不是单纯更换路由算法，而是重新划分控制平面与数据平面的职责，使网络策略能够由软件统一编程。</p>
+<hr>
+<h2 id="14-SDN-的分层结构"><a href="#14-SDN-的分层结构" class="headerlink" title="14. SDN 的分层结构"></a>14. SDN 的分层结构</h2><h3 id="14-1-网络控制应用层"><a href="#14-1-网络控制应用层" class="headerlink" title="14.1 网络控制应用层"></a>14.1 网络控制应用层</h3><p>最上层运行具体网络应用，例如：</p>
+<ul>
+<li>路由计算；</li>
+<li>访问控制；</li>
+<li>负载均衡；</li>
+<li>流量工程；</li>
+<li>防火墙策略；</li>
+<li>故障恢复。</li>
+</ul>
+<p>这些应用描述“网络应该怎样运行”。</p>
+<h3 id="14-2-网络范围状态管理层"><a href="#14-2-网络范围状态管理层" class="headerlink" title="14.2 网络范围状态管理层"></a>14.2 网络范围状态管理层</h3><p>控制器维护网络整体状态，例如：</p>
+<ul>
+<li>交换机和端口；</li>
+<li>链路连接关系；</li>
+<li>主机位置；</li>
+<li>流量统计；</li>
+<li>已安装的流表；</li>
+<li>链路故障；</li>
+<li>网络拓扑。</li>
+</ul>
+<p>上层应用不必直接逐台读取设备，而是通过控制器提供的网络抽象获取信息。</p>
+<h3 id="14-3-通信层"><a href="#14-3-通信层" class="headerlink" title="14.3 通信层"></a>14.3 通信层</h3><p>控制器通过南向协议与数据平面设备通信，完成：</p>
+<ul>
+<li>获取设备状态；</li>
+<li>接收事件；</li>
+<li>安装或删除流表项；</li>
+<li>查询统计信息；</li>
+<li>指定分组处理动作。</li>
+</ul>
+<p>OpenFlow 是典型的南向控制协议之一。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[网络控制应用&lt;br&#x2F;&gt;路由、ACL、负载均衡] --&gt; B[控制器 API]
+    B --&gt; C[网络范围状态管理]
+    C --&gt; D[南向通信层]
+    D --&gt; E[OpenFlow 等协议]
+    E --&gt; F[SDN 交换机]
+    F --&gt; G[流表：匹配 + 动作]
+  </pre></div>
+
+<h3 id="14-4-OpenFlow"><a href="#14-4-OpenFlow" class="headerlink" title="14.4 OpenFlow"></a>14.4 OpenFlow</h3><p>OpenFlow 允许控制器与交换机交换控制消息，并对流表进行管理。</p>
+<p>一条流表规则通常包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">匹配条件</span><br><span class="line">    +</span><br><span class="line">执行动作</span><br><span class="line">    +</span><br><span class="line">统计与优先级等信息</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">匹配：</span><br><span class="line">源地址属于网络 A</span><br><span class="line">目的地址属于网络 B</span><br><span class="line">TCP 目的端口为某值</span><br><span class="line"></span><br><span class="line">动作：</span><br><span class="line">从端口 3 转发</span><br></pre></td></tr></table></figure>
+
+<p>相比只根据目的地址查询传统转发表，流表可以基于多个字段定义“流”。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>SDN 控制器在上层应用与底层交换机之间提供统一抽象，并通过 OpenFlow 等协议把控制决策转化为流表规则。</p>
+<hr>
+<h2 id="15-SDN-的逻辑集中与物理分布"><a href="#15-SDN-的逻辑集中与物理分布" class="headerlink" title="15. SDN 的逻辑集中与物理分布"></a>15. SDN 的逻辑集中与物理分布</h2><h3 id="15-1-逻辑集中"><a href="#15-1-逻辑集中" class="headerlink" title="15.1 逻辑集中"></a>15.1 逻辑集中</h3><p>所谓逻辑集中，是指：</p>
+<ul>
+<li>控制应用面对统一的网络视图；</li>
+<li>控制策略由统一逻辑协调；</li>
+<li>数据平面设备接受控制器的规则管理。</li>
+</ul>
+<h3 id="15-2-不等于只有一台服务器"><a href="#15-2-不等于只有一台服务器" class="headerlink" title="15.2 不等于只有一台服务器"></a>15.2 不等于只有一台服务器</h3><p>现实中的控制器可以由多个物理节点构成。</p>
+<p>多个节点可以共同实现：</p>
+<ul>
+<li>状态复制；</li>
+<li>故障接管；</li>
+<li>负载分担；</li>
+<li>地理分布；</li>
+<li>高可用部署。</li>
+</ul>
+<p>对上层应用而言，它们可以表现为一个统一控制系统。</p>
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">逻辑集中 ≠ 物理单点</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-3-SDN-面临的挑战"><a href="#15-3-SDN-面临的挑战" class="headerlink" title="15.3 SDN 面临的挑战"></a>15.3 SDN 面临的挑战</h3><p>SDN 仍需要解决：</p>
+<ul>
+<li>控制器故障后的可靠性；</li>
+<li>控制器与设备之间的安全；</li>
+<li>大规模设备和流量下的性能；</li>
+<li>多控制器之间的状态一致性；</li>
+<li>控制规则冲突；</li>
+<li>网络变化时的快速响应。</li>
+</ul>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>SDN 的集中指统一控制逻辑，而不是必须依赖一台机器。工程实现通常需要分布式控制器保证扩展性和可靠性。</p>
+<hr>
+<h2 id="16-ICMP：网络层的反馈机制"><a href="#16-ICMP：网络层的反馈机制" class="headerlink" title="16. ICMP：网络层的反馈机制"></a>16. ICMP：网络层的反馈机制</h2><h3 id="16-1-为什么-IP-需要-ICMP"><a href="#16-1-为什么-IP-需要-ICMP" class="headerlink" title="16.1 为什么 IP 需要 ICMP"></a>16.1 为什么 IP 需要 ICMP</h3><p>IP 提供尽力而为的数据报服务。</p>
+<p>当数据报无法正常交付时，IP 本身并不会自动建立可靠连接或保证重传。但发送方和管理员仍然需要知道：</p>
+<ul>
+<li>目的网络是否不可达；</li>
+<li>目的主机是否不可达；</li>
+<li>端口是否不可用；</li>
+<li>数据报是否因 TTL 用尽而被丢弃；</li>
+<li>网络路径是否存在异常。</li>
+</ul>
+<p>ICMP 提供了网络层控制信息与错误报告机制。</p>
+<p>可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP：尽力传送数据报</span><br><span class="line">ICMP：反馈传送过程中发生的问题</span><br></pre></td></tr></table></figure>
+
+<h3 id="16-2-ICMP-的典型用途"><a href="#16-2-ICMP-的典型用途" class="headerlink" title="16.2 ICMP 的典型用途"></a>16.2 ICMP 的典型用途</h3><p>ICMP 可以用于：</p>
+<ul>
+<li>网络不可达；</li>
+<li>主机不可达；</li>
+<li>协议不可达；</li>
+<li>端口不可达；</li>
+<li>TTL 超时；</li>
+<li>Echo 请求与 Echo 回复；</li>
+<li>网络诊断。</li>
+</ul>
+<p>Ping 主要利用 ICMP Echo Request 和 Echo Reply 测试目标是否能够到达。</p>
+<h3 id="16-3-ICMP-与-IP-的关系"><a href="#16-3-ICMP-与-IP-的关系" class="headerlink" title="16.3 ICMP 与 IP 的关系"></a>16.3 ICMP 与 IP 的关系</h3><p>ICMP 属于网络层控制协议，但 ICMP 报文由 IP 数据报承载。</p>
+<p>可以理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP 数据报</span><br><span class="line">└── ICMP 报文</span><br></pre></td></tr></table></figure>
+
+<p>因此，ICMP 在协议封装上位于 IP 之上，但在功能分类上仍属于网络层控制机制。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>ICMP 不负责普通应用数据传输，而是为 IP 提供错误反馈、状态通知和诊断支持。</p>
+<hr>
+<h2 id="17-ICMP-差错报文包含什么"><a href="#17-ICMP-差错报文包含什么" class="headerlink" title="17. ICMP 差错报文包含什么"></a>17. ICMP 差错报文包含什么</h2><p>ICMP 报文包含 Type 和 Code 字段，用于说明消息类别和更具体的原因。</p>
+<p>当 ICMP 报告某个原始 IP 数据报发生错误时，差错报文通常还会携带：</p>
+<ul>
+<li>原始 IP 首部；</li>
+<li>原始 IP 数据部分开头的一段内容，传统上至少包含前 8 字节。</li>
+</ul>
+<p>保留这些内容的目的是帮助发送主机识别：</p>
+<ul>
+<li>哪一个原始数据报出错；</li>
+<li>原始数据报使用了什么传输层协议；</li>
+<li>哪个应用或套接字可能与该数据报相关。</li>
+</ul>
+<p>对于 UDP，首部长度为 8 字节，因此可以包含源端口、目的端口、长度和校验和等字段。对于 TCP，开头部分也可以提供端口等关键信息，帮助协议栈定位相关连接。</p>
+<p><strong>❗本节核心结论：</strong></p>
+<p>ICMP 差错报文附带原始数据报的一部分，不是为了重新传送原数据，而是为了让发送方识别具体出错的数据报和通信端点。</p>
+<hr>
+<h2 id="18-Traceroute-的工作原理"><a href="#18-Traceroute-的工作原理" class="headerlink" title="18. Traceroute 的工作原理"></a>18. Traceroute 的工作原理</h2><h3 id="18-1-TTL-的作用"><a href="#18-1-TTL-的作用" class="headerlink" title="18.1 TTL 的作用"></a>18.1 TTL 的作用</h3><p>IP 数据报中的 TTL 字段会在经过路由器时递减。</p>
+<p>当 TTL 变为零时：</p>
+<ul>
+<li>路由器丢弃该数据报；</li>
+<li>路由器通常返回 ICMP Time Exceeded 消息。</li>
+</ul>
+<p>TTL 原本用于防止数据报在路由环路中无限转发，Traceroute 则利用了这一行为发现路径上的路由器。</p>
+<h3 id="18-2-逐步增加-TTL"><a href="#18-2-逐步增加-TTL" class="headerlink" title="18.2 逐步增加 TTL"></a>18.2 逐步增加 TTL</h3><p>Traceroute 发送一系列探测数据报：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">第一组：TTL = 1</span><br><span class="line">第二组：TTL = 2</span><br><span class="line">第三组：TTL = 3</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+
+<p>当 TTL 为 <code>1</code> 时，第一个路由器将其减为零并返回 ICMP 超时消息。</p>
+<p>当 TTL 为 <code>2</code> 时，数据报到达第二个路由器后 TTL 归零，由第二个路由器返回消息。</p>
+<p>以此类推，源主机逐步获得沿途路由器的信息。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant S as 源主机
+    participant R1 as 路由器 1
+    participant R2 as 路由器 2
+    participant D as 目的主机
+
+    S-&gt;&gt;R1: 探测报文 TTL&#x3D;1
+    R1--&gt;&gt;S: ICMP Time Exceeded
+
+    S-&gt;&gt;R1: 探测报文 TTL&#x3D;2
+    R1-&gt;&gt;R2: TTL 减为1
+    R2--&gt;&gt;S: ICMP Time Exceeded
+
+    S-&gt;&gt;R1: 探测报文 TTL&#x3D;3
+    R1-&gt;&gt;R2: 继续转发
+    R2-&gt;&gt;D: 到达目的主机
+    D--&gt;&gt;S: 终止类型的响应
+  </pre></div>
+
+<h3 id="18-3-如何判断到达目的主机"><a href="#18-3-如何判断到达目的主机" class="headerlink" title="18.3 如何判断到达目的主机"></a>18.3 如何判断到达目的主机</h3><p>经典实现可以向目的主机一个通常未使用的 UDP 端口发送探测数据报。</p>
+<p>当数据报最终到达目的主机时：</p>
+<ul>
+<li>目标主机发现该 UDP 端口没有应用监听；</li>
+<li>返回 ICMP Port Unreachable；</li>
+<li>Traceroute 据此判断探测已经到达终点。</li>
+</ul>
+<p>不同系统也可能采用其他类型的探测报文，但核心思想仍是逐步增加 TTL，并利用返回消息识别各跳。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>Traceroute 通过逐步增加 TTL，让每一跳路由器依次产生 ICMP 超时消息，从而推断数据报经过的路径。</p>
+<hr>
+<h2 id="19-网络管理与路由控制的区别"><a href="#19-网络管理与路由控制的区别" class="headerlink" title="19. 网络管理与路由控制的区别"></a>19. 网络管理与路由控制的区别</h2><p>路由协议主要解决：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数据包应该怎样到达目的地？</span><br></pre></td></tr></table></figure>
+
+<p>网络管理还需要解决：</p>
+<ul>
+<li>设备是否正常运行；</li>
+<li>链路利用率是多少；</li>
+<li>配置是否符合规范；</li>
+<li>哪些接口发生故障；</li>
+<li>谁能够访问管理系统；</li>
+<li>多台设备的配置是否一致；</li>
+<li>网络服务是否达到性能要求。</li>
+</ul>
+<p>因此，网络管理是一套涉及硬件、软件、协议和人员的综合体系，用于：</p>
+<ul>
+<li>监测；</li>
+<li>测试；</li>
+<li>轮询；</li>
+<li>配置；</li>
+<li>分析；</li>
+<li>评价；</li>
+<li>控制网络资源。</li>
+</ul>
+<p><strong>❗本节核心结论：</strong></p>
+<p>路由协议关注转发路径，网络管理关注整个网络及其设备如何被监控、配置和维护。</p>
+<hr>
+<h2 id="20-网络管理的五类功能"><a href="#20-网络管理的五类功能" class="headerlink" title="20. 网络管理的五类功能"></a>20. 网络管理的五类功能</h2><h3 id="20-1-性能管理"><a href="#20-1-性能管理" class="headerlink" title="20.1 性能管理"></a>20.1 性能管理</h3><p>性能管理关注：</p>
+<ul>
+<li>链路利用率；</li>
+<li>吞吐量；</li>
+<li>时延；</li>
+<li>丢包率；</li>
+<li>设备负载；</li>
+<li>容量趋势。</li>
+</ul>
+<p>其目标是发现性能瓶颈、评估网络质量并支持容量规划。</p>
+<h3 id="20-2-故障管理"><a href="#20-2-故障管理" class="headerlink" title="20.2 故障管理"></a>20.2 故障管理</h3><p>故障管理负责：</p>
+<ul>
+<li>检测故障；</li>
+<li>记录故障；</li>
+<li>定位问题；</li>
+<li>发出告警；</li>
+<li>采取恢复措施；</li>
+<li>验证服务是否恢复。</li>
+</ul>
+<h3 id="20-3-配置管理"><a href="#20-3-配置管理" class="headerlink" title="20.3 配置管理"></a>20.3 配置管理</h3><p>配置管理关注：</p>
+<ul>
+<li>设备当前配置；</li>
+<li>配置修改历史；</li>
+<li>多设备配置一致性；</li>
+<li>软件和固件版本；</li>
+<li>配置备份与恢复；</li>
+<li>自动化部署。</li>
+</ul>
+<h3 id="20-4-账户管理"><a href="#20-4-账户管理" class="headerlink" title="20.4 账户管理"></a>20.4 账户管理</h3><p>账户管理用于：</p>
+<ul>
+<li>记录用户或设备对资源的使用；</li>
+<li>控制使用权限；</li>
+<li>支持计费或资源统计；</li>
+<li>识别资源使用主体。</li>
+</ul>
+<p>这里的账户不只指普通登录账户，也可以涉及用户、设备、租户和服务等管理对象。</p>
+<h3 id="20-5-安全管理"><a href="#20-5-安全管理" class="headerlink" title="20.5 安全管理"></a>20.5 安全管理</h3><p>安全管理负责：</p>
+<ul>
+<li>定义安全策略；</li>
+<li>控制管理访问；</li>
+<li>验证身份和权限；</li>
+<li>保护设备配置；</li>
+<li>记录安全事件；</li>
+<li>监测异常行为。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能管理</td>
+<td>网络运行得怎么样</td>
+</tr>
+<tr>
+<td>故障管理</td>
+<td>哪里坏了，怎样恢复</td>
+</tr>
+<tr>
+<td>配置管理</td>
+<td>设备应该怎样配置</td>
+</tr>
+<tr>
+<td>账户管理</td>
+<td>谁在使用哪些资源</td>
+</tr>
+<tr>
+<td>安全管理</td>
+<td>谁被允许做什么</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>网络管理不仅是查看设备状态，还包括性能、故障、配置、账户和安全五个相互关联的方面。</p>
+<hr>
+<h2 id="21-网络管理体系结构"><a href="#21-网络管理体系结构" class="headerlink" title="21. 网络管理体系结构"></a>21. 网络管理体系结构</h2><p>典型网络管理体系包括以下组成部分：</p>
+<h3 id="21-1-管理服务器"><a href="#21-1-管理服务器" class="headerlink" title="21.1 管理服务器"></a>21.1 管理服务器</h3><p>管理服务器或控制器负责：</p>
+<ul>
+<li>收集设备数据；</li>
+<li>展示网络状态；</li>
+<li>保存历史记录；</li>
+<li>发送配置命令；</li>
+<li>处理告警；</li>
+<li>执行自动化管理逻辑。</li>
+</ul>
+<h3 id="21-2-被管理设备"><a href="#21-2-被管理设备" class="headerlink" title="21.2 被管理设备"></a>21.2 被管理设备</h3><p>被管理设备可以是：</p>
+<ul>
+<li>路由器；</li>
+<li>交换机；</li>
+<li>服务器；</li>
+<li>防火墙；</li>
+<li>无线接入点；</li>
+<li>其他网络设备。</li>
+</ul>
+<h3 id="21-3-Agent"><a href="#21-3-Agent" class="headerlink" title="21.3 Agent"></a>21.3 Agent</h3><p>Agent 是运行在被管理设备上的管理代理。</p>
+<p>它负责：</p>
+<ul>
+<li>读取本地状态；</li>
+<li>维护可管理数据；</li>
+<li>响应管理服务器查询；</li>
+<li>接受配置修改；</li>
+<li>主动报告部分事件。</li>
+</ul>
+<h3 id="21-4-管理数据"><a href="#21-4-管理数据" class="headerlink" title="21.4 管理数据"></a>21.4 管理数据</h3><p>管理数据可能包括：</p>
+<ul>
+<li>接口状态；</li>
+<li>流量统计；</li>
+<li>错误计数；</li>
+<li>路由表；</li>
+<li>设备配置；</li>
+<li>CPU 与内存使用率；</li>
+<li>告警信息。</li>
+</ul>
+<h3 id="21-5-管理协议"><a href="#21-5-管理协议" class="headerlink" title="21.5 管理协议"></a>21.5 管理协议</h3><p>管理服务器和设备之间通过管理协议交换：</p>
+<ul>
+<li>查询请求；</li>
+<li>查询响应；</li>
+<li>配置命令；</li>
+<li>事件通知；</li>
+<li>状态数据。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    M[管理服务器] &lt;--&gt;|网络管理协议| A[设备 Agent]
+    A --&gt; D[设备状态与配置数据]
+    A --&gt; N[被管理网络设备]
+  </pre></div>
+
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>管理服务器通过协议与设备 Agent 交互，Agent 将设备内部状态和配置转化为可以远程查询和修改的管理数据。</p>
+<hr>
+<h2 id="22-CLI、SNMP-MIB-与-NETCONF-YANG"><a href="#22-CLI、SNMP-MIB-与-NETCONF-YANG" class="headerlink" title="22. CLI、SNMP&#x2F;MIB 与 NETCONF&#x2F;YANG"></a>22. CLI、SNMP&#x2F;MIB 与 NETCONF&#x2F;YANG</h2><h3 id="22-1-CLI"><a href="#22-1-CLI" class="headerlink" title="22.1 CLI"></a>22.1 CLI</h3><p>CLI 是命令行接口。</p>
+<p>管理员可以登录单台设备并输入命令，例如：</p>
+<ul>
+<li>查看接口状态；</li>
+<li>配置 IP 地址；</li>
+<li>修改路由协议；</li>
+<li>查看路由表；</li>
+<li>保存配置。</li>
+</ul>
+<p>CLI 的优点是直观、灵活，适合人工排查和小规模操作。</p>
+<p>它的局限包括：</p>
+<ul>
+<li>不同厂商命令差异较大；</li>
+<li>大规模重复操作效率低；</li>
+<li>人工输入容易出错；</li>
+<li>配置结果不易统一验证；</li>
+<li>自动化处理需要额外解析文本输出。</li>
+</ul>
+<h3 id="22-2-SNMP-与-MIB"><a href="#22-2-SNMP-与-MIB" class="headerlink" title="22.2 SNMP 与 MIB"></a>22.2 SNMP 与 MIB</h3><p>SNMP 是简单网络管理协议，主要用于远程读取和设置设备管理信息。</p>
+<p>MIB 是管理信息库，用来组织和描述可被管理的数据对象，例如：</p>
+<ul>
+<li>接口状态；</li>
+<li>流量计数；</li>
+<li>错误数量；</li>
+<li>设备运行时间；</li>
+<li>系统信息。</li>
+</ul>
+<p>可以将两者理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MIB：定义有哪些管理数据、如何组织</span><br><span class="line">SNMP：负责查询、设置和报告这些数据</span><br></pre></td></tr></table></figure>
+
+<p>SNMP 尤其常用于监控和传统设备管理。</p>
+<h3 id="22-3-NETCONF-与-YANG"><a href="#22-3-NETCONF-与-YANG" class="headerlink" title="22.3 NETCONF 与 YANG"></a>22.3 NETCONF 与 YANG</h3><p>NETCONF 面向结构化网络配置和状态管理。</p>
+<p>YANG 是数据建模语言，用来定义：</p>
+<ul>
+<li>配置项的层次结构；</li>
+<li>字段类型；</li>
+<li>约束条件；</li>
+<li>状态数据；</li>
+<li>可执行操作。</li>
+</ul>
+<p>二者关系可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">YANG：描述数据长什么样</span><br><span class="line">NETCONF：负责远程读取和修改这些数据</span><br></pre></td></tr></table></figure>
+
+<p>与直接处理设备 CLI 文本相比，结构化模型更便于：</p>
+<ul>
+<li>自动化配置；</li>
+<li>验证输入是否合法；</li>
+<li>管理多台设备；</li>
+<li>比较和回滚配置；</li>
+<li>跨平台工具集成。</li>
+</ul>
+<h3 id="22-4-SNMP-与-NETCONF-YANG-的区别"><a href="#22-4-SNMP-与-NETCONF-YANG-的区别" class="headerlink" title="22.4 SNMP 与 NETCONF&#x2F;YANG 的区别"></a>22.4 SNMP 与 NETCONF&#x2F;YANG 的区别</h3><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>SNMP&#x2F;MIB</th>
+<th>NETCONF&#x2F;YANG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要用途</td>
+<td>监控、查询、简单设置</td>
+<td>结构化配置与状态管理</td>
+</tr>
+<tr>
+<td>数据模型</td>
+<td>MIB</td>
+<td>YANG</td>
+</tr>
+<tr>
+<td>配置能力</td>
+<td>相对有限</td>
+<td>更适合复杂配置</td>
+</tr>
+<tr>
+<td>数据表达</td>
+<td>管理对象</td>
+<td>层次化结构模型</td>
+</tr>
+<tr>
+<td>自动化程度</td>
+<td>可自动化，但配置表达较弱</td>
+<td>更适合现代自动化系统</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>设备监控、遗留系统</td>
+<td>多设备配置、现代网络管理</td>
+</tr>
+</tbody></table>
+<p>SNMP 并没有失去价值。它仍广泛用于状态监测和已有设备维护。NETCONF&#x2F;YANG 则更适合要求结构化配置和自动化编排的现代网络。</p>
+<hr>
+<p><strong>❗本节核心结论：</strong></p>
+<p>CLI 面向人工逐设备操作，SNMP&#x2F;MIB擅长监控管理数据，NETCONF&#x2F;YANG 更强调结构化、可验证和自动化的网络配置。</p>
+<hr>
+<h2 id="23-OSPF、BGP、SDN、ICMP-与管理协议的职责边界"><a href="#23-OSPF、BGP、SDN、ICMP-与管理协议的职责边界" class="headerlink" title="23. OSPF、BGP、SDN、ICMP 与管理协议的职责边界"></a>23. OSPF、BGP、SDN、ICMP 与管理协议的职责边界</h2><p>这些协议和机制都属于网络控制相关内容，但解决的问题不同。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>主要问题</th>
+<th align="right">是否计算路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OSPF</td>
+<td>AS 内部怎样路由</td>
+<td align="right">是</td>
+</tr>
+<tr>
+<td>BGP</td>
+<td>AS 之间怎样传播和选择路径</td>
+<td align="right">是</td>
+</tr>
+<tr>
+<td>SDN</td>
+<td>怎样集中编程和控制转发行为</td>
+<td align="right">可以</td>
+</tr>
+<tr>
+<td>ICMP</td>
+<td>怎样报告网络层错误和辅助诊断</td>
+<td align="right">否</td>
+</tr>
+<tr>
+<td>SNMP</td>
+<td>怎样查询和监测设备数据</td>
+<td align="right">否</td>
+</tr>
+<tr>
+<td>NETCONF&#x2F;YANG</td>
+<td>怎样结构化配置和管理设备</td>
+<td align="right">否</td>
+</tr>
+</tbody></table>
+<p>可以将整个控制体系理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">OSPF、BGP：</span><br><span class="line">决定路由和可达性</span><br><span class="line"></span><br><span class="line">SDN：</span><br><span class="line">以软件化方式统一计算和下发控制策略</span><br><span class="line"></span><br><span class="line">ICMP：</span><br><span class="line">反馈单个数据报或路径中的异常</span><br><span class="line"></span><br><span class="line">SNMP、NETCONF/YANG：</span><br><span class="line">长期监测、配置和维护网络设备</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="24-重要对比"><a href="#24-重要对比" class="headerlink" title="24. 重要对比"></a>24. 重要对比</h2><h3 id="24-1-OSPF-与-BGP"><a href="#24-1-OSPF-与-BGP" class="headerlink" title="24.1 OSPF 与 BGP"></a>24.1 OSPF 与 BGP</h3><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>OSPF</th>
+<th>BGP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>使用范围</td>
+<td>AS 内部</td>
+<td>AS 之间</td>
+</tr>
+<tr>
+<td>协议类型</td>
+<td>链路状态协议</td>
+<td>路径向量协议</td>
+</tr>
+<tr>
+<td>主要目标</td>
+<td>性能、代价与内部收敛</td>
+<td>策略、自治与扩展性</td>
+</tr>
+<tr>
+<td>主要信息</td>
+<td>拓扑、链路与代价</td>
+<td>前缀及路径属性</td>
+</tr>
+<tr>
+<td>典型路径依据</td>
+<td>Dijkstra 计算</td>
+<td>BGP 路径选择规则</td>
+</tr>
+<tr>
+<td>是否公开内部拓扑</td>
+<td>在 OSPF 范围内共享</td>
+<td>不向其他 AS 公开全部内部拓扑</td>
+</tr>
+<tr>
+<td>商业策略重要性</td>
+<td>通常较低</td>
+<td>非常重要</td>
+</tr>
+</tbody></table>
+<h3 id="24-2-eBGP-与-iBGP"><a href="#24-2-eBGP-与-iBGP" class="headerlink" title="24.2 eBGP 与 iBGP"></a>24.2 eBGP 与 iBGP</h3><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>eBGP</th>
+<th>iBGP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>全称</td>
+<td>External BGP</td>
+<td>Internal BGP</td>
+</tr>
+<tr>
+<td>运行位置</td>
+<td>不同 AS 之间</td>
+<td>同一 AS 内部</td>
+</tr>
+<tr>
+<td>主要作用</td>
+<td>获得和发布外部路由</td>
+<td>在 AS 内传播外部路由</td>
+</tr>
+<tr>
+<td>典型节点</td>
+<td>不同 AS 的网关路由器</td>
+<td>同一 AS 的 BGP 路由器</td>
+</tr>
+<tr>
+<td>是否等同 IGP</td>
+<td>否</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<h3 id="24-3-传统路由与-SDN"><a href="#24-3-传统路由与-SDN" class="headerlink" title="24.3 传统路由与 SDN"></a>24.3 传统路由与 SDN</h3><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>传统路由</th>
+<th>SDN</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制方式</td>
+<td>路由器分布式运行协议</td>
+<td>控制逻辑集中管理</td>
+</tr>
+<tr>
+<td>设备职责</td>
+<td>同时参与控制与转发</td>
+<td>交换机重点执行流表</td>
+</tr>
+<tr>
+<td>转发依据</td>
+<td>主要根据目的地址</td>
+<td>可根据多个首部字段</td>
+</tr>
+<tr>
+<td>策略部署</td>
+<td>逐设备、协议驱动</td>
+<td>控制器统一编程</td>
+</tr>
+<tr>
+<td>流量工程</td>
+<td>通常较间接</td>
+<td>更灵活</td>
+</tr>
+<tr>
+<td>集中含义</td>
+<td>不适用</td>
+<td>逻辑集中，不一定物理集中</td>
+</tr>
+</tbody></table>
+<h3 id="24-4-ICMP-与路由协议"><a href="#24-4-ICMP-与路由协议" class="headerlink" title="24.4 ICMP 与路由协议"></a>24.4 ICMP 与路由协议</h3><table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>ICMP</th>
+<th>OSPF&#x2F;BGP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心目的</td>
+<td>错误报告与诊断</td>
+<td>路由信息传播和路径选择</td>
+</tr>
+<tr>
+<td>是否生成路由</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>Ping、Traceroute、不可达报告</td>
+<td>建立路由表</td>
+</tr>
+<tr>
+<td>处理对象</td>
+<td>网络层事件与数据报异常</td>
+<td>网络前缀和拓扑可达性</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="25-常见误区"><a href="#25-常见误区" class="headerlink" title="25. 常见误区"></a>25. 常见误区</h2><h3 id="25-1-AS-就是一个子网"><a href="#25-1-AS-就是一个子网" class="headerlink" title="25.1 AS 就是一个子网"></a>25.1 AS 就是一个子网</h3><p>错误。</p>
+<p>AS 是管理和路由政策边界，一个 AS 可以包含大量子网。</p>
+<h3 id="25-2-OSPF-用于整个互联网"><a href="#25-2-OSPF-用于整个互联网" class="headerlink" title="25.2 OSPF 用于整个互联网"></a>25.2 OSPF 用于整个互联网</h3><p>错误。</p>
+<p>OSPF 主要用于一个 AS 内部。跨 AS 的互联网路由主要由 BGP 完成。</p>
+<h3 id="25-3-BGP-总是选择-AS-PATH-最短的路径"><a href="#25-3-BGP-总是选择-AS-PATH-最短的路径" class="headerlink" title="25.3 BGP 总是选择 AS-PATH 最短的路径"></a>25.3 BGP 总是选择 AS-PATH 最短的路径</h3><p>错误。</p>
+<p>AS-PATH 长度只是选择因素之一。本地偏好和管理策略可能具有更高优先级。</p>
+<h3 id="25-4-iBGP-是-AS-内部普通最短路径协议"><a href="#25-4-iBGP-是-AS-内部普通最短路径协议" class="headerlink" title="25.4 iBGP 是 AS 内部普通最短路径协议"></a>25.4 iBGP 是 AS 内部普通最短路径协议</h3><p>错误。</p>
+<p>iBGP 主要传播外部 BGP 路由。内部怎样到达出口，通常仍需 OSPF 等 IGP 支持。</p>
+<h3 id="25-5-NEXT-HOP-就是最终目的地"><a href="#25-5-NEXT-HOP-就是最终目的地" class="headerlink" title="25.5 NEXT-HOP 就是最终目的地"></a>25.5 NEXT-HOP 就是最终目的地</h3><p>错误。</p>
+<p>NEXT-HOP 是采用某条 BGP 路由时当前需要到达的网关，最终目的地是远端网络前缀。</p>
+<h3 id="25-6-热土豆路由选择全局最短路径"><a href="#25-6-热土豆路由选择全局最短路径" class="headerlink" title="25.6 热土豆路由选择全局最短路径"></a>25.6 热土豆路由选择全局最短路径</h3><p>错误。</p>
+<p>它优先减少流量在本 AS 内的传输距离，可能增加外部路径长度。</p>
+<h3 id="25-7-SDN-必须依赖一台中央机器"><a href="#25-7-SDN-必须依赖一台中央机器" class="headerlink" title="25.7 SDN 必须依赖一台中央机器"></a>25.7 SDN 必须依赖一台中央机器</h3><p>错误。</p>
+<p>SDN 强调逻辑集中，控制器可以由多个物理节点分布式实现。</p>
+<h3 id="25-8-ICMP-属于传输层"><a href="#25-8-ICMP-属于传输层" class="headerlink" title="25.8 ICMP 属于传输层"></a>25.8 ICMP 属于传输层</h3><p>错误。</p>
+<p>ICMP 是网络层控制协议，只是由 IP 数据报承载。</p>
+<h3 id="25-9-ICMP-决定网络路由"><a href="#25-9-ICMP-决定网络路由" class="headerlink" title="25.9 ICMP 决定网络路由"></a>25.9 ICMP 决定网络路由</h3><p>错误。</p>
+<p>ICMP报告错误和状态，不负责通过路由算法生成路径。</p>
+<h3 id="25-10-YANG-是一种传输协议"><a href="#25-10-YANG-是一种传输协议" class="headerlink" title="25.10 YANG 是一种传输协议"></a>25.10 YANG 是一种传输协议</h3><p>错误。</p>
+<p>YANG 是数据建模语言；NETCONF 等协议负责传输和操作按照 YANG 描述的数据。</p>
+<hr>
+<h2 id="26-知识结构总览"><a href="#26-知识结构总览" class="headerlink" title="26. 知识结构总览"></a>26. 知识结构总览</h2><div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[网络层控制平面] --&gt; B[层次路由]
+    A --&gt; C[软件定义控制]
+    A --&gt; D[错误与诊断]
+    A --&gt; E[网络管理]
+
+    B --&gt; B1[自治系统 AS]
+    B1 --&gt; B2[AS 内部路由]
+    B1 --&gt; B3[AS 间路由]
+
+    B2 --&gt; B21[OSPF]
+    B21 --&gt; B22[链路状态]
+    B22 --&gt; B23[Dijkstra]
+    B21 --&gt; B24[Area]
+
+    B3 --&gt; B31[BGP]
+    B31 --&gt; B32[eBGP]
+    B31 --&gt; B33[iBGP]
+    B31 --&gt; B34[AS-PATH]
+    B31 --&gt; B35[NEXT-HOP]
+    B31 --&gt; B36[策略选择]
+
+    C --&gt; C1[SDN 控制器]
+    C1 --&gt; C2[OpenFlow]
+    C2 --&gt; C3[流表匹配与动作]
+
+    D --&gt; D1[ICMP]
+    D1 --&gt; D2[Ping]
+    D1 --&gt; D3[Traceroute]
+
+    E --&gt; E1[CLI]
+    E --&gt; E2[SNMP&#x2F;MIB]
+    E --&gt; E3[NETCONF&#x2F;YANG]
+  </pre></div>
+
+<hr>
+<h2 id="27-复习清单"><a href="#27-复习清单" class="headerlink" title="27. 复习清单"></a>27. 复习清单</h2><p>完成本章学习后，应能够回答：</p>
+<ul>
+<li>为什么真实互联网不能采用单层平面路由？</li>
+<li>路由规模问题和管理自治问题分别是什么？</li>
+<li>AS 与子网有什么区别？</li>
+<li>网关路由器在自治系统边界承担什么职责？</li>
+<li>AS 内部路由与 AS 间路由分别解决什么问题？</li>
+<li>OSPF 为什么属于链路状态协议？</li>
+<li>OSPF、LS 机制和 Dijkstra 算法有什么关系？</li>
+<li>OSPF 报文为什么不依赖 TCP 或 UDP？</li>
+<li>大型 OSPF 网络为什么需要划分 Area？</li>
+<li>Area 如何限制拓扑信息和故障传播范围？</li>
+<li>BGP 为什么被称为连接互联网的协议？</li>
+<li>一条 BGP 路由由哪些基本内容组成？</li>
+<li>eBGP 与 iBGP 分别承担什么任务？</li>
+<li>为什么 iBGP 不能简单等同于 OSPF？</li>
+<li>BGP 为什么属于路径向量协议？</li>
+<li>AS-PATH 如何帮助检测路由环路？</li>
+<li>NEXT-HOP 与最终目的前缀有什么区别？</li>
+<li>BGP 和内部路由协议怎样共同确定外部转发路径？</li>
+<li>为什么 BGP 不一定选择 AS-PATH 最短的路线？</li>
+<li>商业关系为什么会影响 BGP 路由策略？</li>
+<li>什么是热土豆路由？</li>
+<li>热土豆路由为什么不一定是全局最优？</li>
+<li>一个外部前缀如何通过 eBGP 和 iBGP 传播？</li>
+<li>什么是 BGP 路由泄漏和前缀劫持？</li>
+<li>RPKI 主要验证什么？</li>
+<li>传统目的地址转发为什么难以表达复杂流量工程需求？</li>
+<li>SDN 如何分离控制平面与数据平面？</li>
+<li>SDN 控制器包含哪些主要层次？</li>
+<li>OpenFlow 在控制器和交换机之间承担什么作用？</li>
+<li>为什么说 SDN 是逻辑集中，而非物理单点？</li>
+<li>ICMP 主要解决什么问题？</li>
+<li>ICMP 为什么由 IP 承载，却仍属于网络层？</li>
+<li>ICMP 差错报文为什么要附带原始数据报的一部分？</li>
+<li>Ping 主要利用哪类 ICMP 消息？</li>
+<li>Traceroute 如何利用 TTL 和 ICMP 发现路径？</li>
+<li>网络管理与路由协议的关注点有何区别？</li>
+<li>网络管理的五类功能分别是什么？</li>
+<li>管理服务器、Agent 和被管理设备之间是什么关系？</li>
+<li>CLI、SNMP&#x2F;MIB 与 NETCONF&#x2F;YANG 分别适合什么场景？</li>
+<li>YANG 与 NETCONF 的职责有何区别？</li>
+</ul>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>真实互联网不能依赖一个统一的平面路由算法。它通过自治系统划分管理边界，并将路径选择拆分为 AS 内部和 AS 之间两个层次。</p>
+<p>OSPF 在自治系统内部传播链路状态，建立拓扑数据库并使用 Dijkstra 算法计算内部路径。对于规模较大的 AS，Area 进一步限制链路状态传播范围，使路由系统更具扩展性。</p>
+<p>BGP 在不同自治系统之间传播网络前缀及路径属性。它使用 AS-PATH 表示经过的自治系统并检测环路，使用 NEXT-HOP 连接外部路径与内部出口。与单纯追求最短路径的算法不同，BGP 首先服从各自治系统的商业、管理和安全策略。</p>
+<p>当传统基于目的地址的分布式路由不足以表达复杂流量工程时，SDN 通过逻辑集中控制器和可编程流表，提高网络控制的统一性和灵活性。</p>
+<p>ICMP 为尽力而为的 IP 服务提供错误反馈和诊断支持，Ping 和 Traceroute 都建立在相关 ICMP 机制之上。SNMP、NETCONF 和 YANG 则将关注点从“路径怎样计算”扩展到“整个网络如何被持续监控、配置和维护”。</p>
+<p>本章的完整逻辑可以压缩为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">互联网规模与自治需求</span><br><span class="line">        ↓</span><br><span class="line">划分自治系统 AS</span><br><span class="line">        ↓</span><br><span class="line">OSPF 计算 AS 内部路径</span><br><span class="line">BGP 传播和选择 AS 间路径</span><br><span class="line">        ↓</span><br><span class="line">SDN 提供更灵活的可编程控制</span><br><span class="line">        ↓</span><br><span class="line">ICMP 提供错误反馈与诊断</span><br><span class="line">        ↓</span><br><span class="line">SNMP、NETCONF/YANG 支持长期网络管理</span><br></pre></td></tr></table></figure>
+
+<p><strong>❗最终结论：</strong> 现代互联网控制平面不是单一协议，而是一套分层协作体系：OSPF 解决内部路径，BGP 连接自治系统，SDN 统一编程转发行为，ICMP 反馈运行异常，网络管理协议保证设备和配置长期可控。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/')">Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理&amp;url=http://example.com/2026/06/25/Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/&amp;pic=/cover/ehonda.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/25/Chapter-5-2%EF%BC%9A%E8%B7%9D%E7%A6%BB%E5%90%91%E9%87%8F%E8%B7%AF%E7%94%B1%E3%80%81Bellman-Ford-%E6%96%B9%E7%A8%8B%E4%B8%8E%E8%B7%AF%E7%94%B1%E7%8E%AF%E8%B7%AF/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ehonda.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 5-2：距离向量路由、Bellman-Ford 方程与路由环路</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/25/Chapter-6-1%EF%BC%9A%E9%93%BE%E8%B7%AF%E5%B1%82%E3%80%81%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E4%B8%8E%E5%A4%9A%E8%B7%AF%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jp.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 6-1：链路层、差错控制与多路访问协议</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-5-3%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">Chapter 5-3：互联网层次路由、SDN、ICMP 与网络管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E7%9C%9F%E5%AE%9E%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%8F%AA%E8%BF%90%E8%A1%8C%E4%B8%80%E7%A7%8D%E8%B7%AF%E7%94%B1%E7%AE%97%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">引言：真实互联网为什么不能只运行一种路由算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BA%92%E8%81%94%E7%BD%91%E9%9C%80%E8%A6%81%E5%B1%82%E6%AC%A1%E8%B7%AF%E7%94%B1"><span class="toc-number">1.2.</span> <span class="toc-text">1. 为什么互联网需要层次路由</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%B9%B3%E9%9D%A2%E8%B7%AF%E7%94%B1%E7%9A%84%E8%A7%84%E6%A8%A1%E9%99%90%E5%88%B6"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.1 平面路由的规模限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E7%AE%A1%E7%90%86%E8%87%AA%E6%B2%BB%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2 管理自治问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%87%AA%E6%B2%BB%E7%B3%BB%E7%BB%9F-AS"><span class="toc-number">1.3.</span> <span class="toc-text">2. 自治系统 AS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-AS-%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.1.</span> <span class="toc-text">2.1 AS 的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-AS-%E4%B8%8E%E5%AD%90%E7%BD%91%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.2 AS 与子网的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E7%BD%91%E5%85%B3%E8%B7%AF%E7%94%B1%E5%99%A8"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.3 网关路由器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E4%B8%A4%E5%B1%82%E8%B7%AF%E7%94%B1%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.4.</span> <span class="toc-text">2.4 两层路由结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-OSPF%EF%BC%9A%E8%87%AA%E6%B2%BB%E7%B3%BB%E7%BB%9F%E5%86%85%E9%83%A8%E7%9A%84%E9%93%BE%E8%B7%AF%E7%8A%B6%E6%80%81%E8%B7%AF%E7%94%B1"><span class="toc-number">1.4.</span> <span class="toc-text">3. OSPF：自治系统内部的链路状态路由</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-OSPF-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.4.1.</span> <span class="toc-text">3.1 OSPF 是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-OSPF-%E4%B8%8E-LS%E3%80%81Dijkstra-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.2 OSPF 与 LS、Dijkstra 的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-OSPF-%E7%9A%84%E5%9F%BA%E6%9C%AC%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.3 OSPF 的基本运行过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-OSPF-%E4%B8%BB%E8%A6%81%E5%85%B3%E6%B3%A8%E6%80%A7%E8%83%BD"><span class="toc-number">1.4.4.</span> <span class="toc-text">3.4 OSPF 主要关注性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-OSPF-%E7%9B%B4%E6%8E%A5%E7%94%B1-IP-%E6%89%BF%E8%BD%BD"><span class="toc-number">1.4.5.</span> <span class="toc-text">3.5 OSPF 直接由 IP 承载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B1%82%E6%AC%A1%E5%8C%96-OSPF-%E4%B8%8E-Area"><span class="toc-number">1.5.</span> <span class="toc-text">4. 层次化 OSPF 与 Area</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E4%B8%BA%E4%BB%80%E4%B9%88-OSPF-%E5%86%85%E9%83%A8%E8%BF%98%E8%A6%81%E5%88%86%E5%B1%82"><span class="toc-number">1.5.1.</span> <span class="toc-text">4.1 为什么 OSPF 内部还要分层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%8C%BA%E5%9F%9F%E5%8C%96%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="toc-number">1.5.2.</span> <span class="toc-text">4.2 区域化的基本思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Area-%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-number">1.5.3.</span> <span class="toc-text">4.3 Area 带来的好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%BB%98%E5%87%BA%E7%9A%84%E4%BB%A3%E4%BB%B7"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.4 付出的代价</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-BGP%EF%BC%9A%E8%BF%9E%E6%8E%A5%E4%B8%8D%E5%90%8C%E8%87%AA%E6%B2%BB%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.6.</span> <span class="toc-text">5. BGP：连接不同自治系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-BGP-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.6.1.</span> <span class="toc-text">5.1 BGP 的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-BGP-%E9%80%9A%E5%91%8A%E7%9A%84%E4%B8%8D%E6%98%AF%E5%AE%8C%E6%95%B4%E5%86%85%E9%83%A8%E6%8B%93%E6%89%91"><span class="toc-number">1.6.2.</span> <span class="toc-text">5.2 BGP 通告的不是完整内部拓扑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E5%89%8D%E7%BC%80%E3%80%81%E5%B1%9E%E6%80%A7%E4%B8%8E%E8%B7%AF%E7%94%B1"><span class="toc-number">1.6.3.</span> <span class="toc-text">5.3 前缀、属性与路由</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-eBGP-%E4%B8%8E-iBGP"><span class="toc-number">1.7.</span> <span class="toc-text">6. eBGP 与 iBGP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-eBGP"><span class="toc-number">1.7.1.</span> <span class="toc-text">6.1 eBGP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-iBGP"><span class="toc-number">1.7.2.</span> <span class="toc-text">6.2 iBGP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-iBGP-%E4%B8%8D%E6%98%AF%E6%99%AE%E9%80%9A%E5%86%85%E9%83%A8%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.7.3.</span> <span class="toc-text">6.3 iBGP 不是普通内部最短路径协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-BGP-%E6%98%AF%E8%B7%AF%E5%BE%84%E5%90%91%E9%87%8F%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.8.</span> <span class="toc-text">7. BGP 是路径向量协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E6%99%AE%E9%80%9A-DV-%E4%B8%8E-BGP-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.8.1.</span> <span class="toc-text">7.1 普通 DV 与 BGP 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-AS-PATH"><span class="toc-number">1.8.2.</span> <span class="toc-text">7.2 AS-PATH</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E8%B7%AF%E5%BE%84%E5%90%91%E9%87%8F%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-number">1.8.3.</span> <span class="toc-text">7.3 路径向量解决了什么问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-NEXT-HOP-%E5%B1%9E%E6%80%A7"><span class="toc-number">1.9.</span> <span class="toc-text">8. NEXT-HOP 属性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-NEXT-HOP-%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-number">1.9.1.</span> <span class="toc-text">8.1 NEXT-HOP 的含义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-NEXT-HOP-%E4%B8%8D%E6%98%AF%E6%9C%80%E7%BB%88%E7%9B%AE%E7%9A%84%E5%9C%B0"><span class="toc-number">1.9.2.</span> <span class="toc-text">8.2 NEXT-HOP 不是最终目的地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-BGP-%E4%B8%8E-IGP-%E7%9A%84%E9%85%8D%E5%90%88"><span class="toc-number">1.9.3.</span> <span class="toc-text">8.3 BGP 与 IGP 的配合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-BGP-%E7%9A%84%E8%B7%AF%E5%BE%84%E9%80%89%E6%8B%A9"><span class="toc-number">1.10.</span> <span class="toc-text">9. BGP 的路径选择</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-BGP-%E4%B8%8D%E4%B8%80%E5%AE%9A%E9%80%89%E6%8B%A9%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84"><span class="toc-number">1.10.1.</span> <span class="toc-text">9.1 BGP 不一定选择最短路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E4%B8%BA%E4%BB%80%E4%B9%88-AS-%E9%97%B4%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E4%BC%98%E5%85%88"><span class="toc-number">1.10.2.</span> <span class="toc-text">9.2 为什么 AS 间路由策略优先</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E7%83%AD%E5%9C%9F%E8%B1%86%E8%B7%AF%E7%94%B1"><span class="toc-number">1.11.</span> <span class="toc-text">10. 热土豆路由</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="toc-number">1.11.1.</span> <span class="toc-text">10.1 基本思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.11.2.</span> <span class="toc-text">10.2 示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AE%83%E4%B8%8D%E4%B8%80%E5%AE%9A%E5%85%A8%E5%B1%80%E6%9C%80%E4%BC%98"><span class="toc-number">1.11.3.</span> <span class="toc-text">10.3 为什么它不一定全局最优</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E8%83%8C%E5%90%8E%E7%9A%84%E8%BF%90%E8%90%A5%E9%80%BB%E8%BE%91"><span class="toc-number">1.11.4.</span> <span class="toc-text">10.4 背后的运营逻辑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E5%A4%96%E9%83%A8%E5%89%8D%E7%BC%80%E5%A6%82%E4%BD%95%E4%BC%A0%E6%92%AD%E5%88%B0%E5%85%B6%E4%BB%96-AS"><span class="toc-number">1.12.</span> <span class="toc-text">11. 外部前缀如何传播到其他 AS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-AS3-%E5%90%91-AS2-%E9%80%9A%E5%91%8A"><span class="toc-number">1.12.1.</span> <span class="toc-text">11.1 AS3 向 AS2 通告</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-AS2-%E6%89%A7%E8%A1%8C%E8%BE%93%E5%85%A5%E7%AD%96%E7%95%A5"><span class="toc-number">1.12.2.</span> <span class="toc-text">11.2 AS2 执行输入策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E9%80%9A%E8%BF%87-iBGP-%E5%9C%A8-AS2-%E5%86%85%E4%BC%A0%E6%92%AD"><span class="toc-number">1.12.3.</span> <span class="toc-text">11.3 通过 iBGP 在 AS2 内传播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-AS2-%E5%90%91-AS1-%E9%80%9A%E5%91%8A"><span class="toc-number">1.12.4.</span> <span class="toc-text">11.4 AS2 向 AS1 通告</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-BGP-%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="toc-number">1.13.</span> <span class="toc-text">12. BGP 的安全问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E5%9F%BA%E4%BA%8E%E4%BF%A1%E4%BB%BB%E7%9A%84%E9%A3%8E%E9%99%A9"><span class="toc-number">1.13.1.</span> <span class="toc-text">12.1 基于信任的风险</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-RPKI"><span class="toc-number">1.13.2.</span> <span class="toc-text">12.2 RPKI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-%E5%AE%89%E5%85%A8%E4%B8%8E%E8%87%AA%E6%B2%BB%E4%B9%8B%E9%97%B4%E7%9A%84%E9%9A%BE%E9%A2%98"><span class="toc-number">1.13.3.</span> <span class="toc-text">12.3 安全与自治之间的难题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81-SDN"><span class="toc-number">1.14.</span> <span class="toc-text">13. 为什么需要 SDN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-%E4%BC%A0%E7%BB%9F%E8%B7%AF%E7%94%B1%E7%9A%84%E9%99%90%E5%88%B6"><span class="toc-number">1.14.1.</span> <span class="toc-text">13.1 传统路由的限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-SDN-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="toc-number">1.14.2.</span> <span class="toc-text">13.2 SDN 的基本思想</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-SDN-%E7%9A%84%E5%88%86%E5%B1%82%E7%BB%93%E6%9E%84"><span class="toc-number">1.15.</span> <span class="toc-text">14. SDN 的分层结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E7%BD%91%E7%BB%9C%E6%8E%A7%E5%88%B6%E5%BA%94%E7%94%A8%E5%B1%82"><span class="toc-number">1.15.1.</span> <span class="toc-text">14.1 网络控制应用层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-%E7%BD%91%E7%BB%9C%E8%8C%83%E5%9B%B4%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E5%B1%82"><span class="toc-number">1.15.2.</span> <span class="toc-text">14.2 网络范围状态管理层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E9%80%9A%E4%BF%A1%E5%B1%82"><span class="toc-number">1.15.3.</span> <span class="toc-text">14.3 通信层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-OpenFlow"><span class="toc-number">1.15.4.</span> <span class="toc-text">14.4 OpenFlow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-SDN-%E7%9A%84%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD%E4%B8%8E%E7%89%A9%E7%90%86%E5%88%86%E5%B8%83"><span class="toc-number">1.16.</span> <span class="toc-text">15. SDN 的逻辑集中与物理分布</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E9%80%BB%E8%BE%91%E9%9B%86%E4%B8%AD"><span class="toc-number">1.16.1.</span> <span class="toc-text">15.1 逻辑集中</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-2-%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%8F%AA%E6%9C%89%E4%B8%80%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.16.2.</span> <span class="toc-text">15.2 不等于只有一台服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-3-SDN-%E9%9D%A2%E4%B8%B4%E7%9A%84%E6%8C%91%E6%88%98"><span class="toc-number">1.16.3.</span> <span class="toc-text">15.3 SDN 面临的挑战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-ICMP%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%B1%82%E7%9A%84%E5%8F%8D%E9%A6%88%E6%9C%BA%E5%88%B6"><span class="toc-number">1.17.</span> <span class="toc-text">16. ICMP：网络层的反馈机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#16-1-%E4%B8%BA%E4%BB%80%E4%B9%88-IP-%E9%9C%80%E8%A6%81-ICMP"><span class="toc-number">1.17.1.</span> <span class="toc-text">16.1 为什么 IP 需要 ICMP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-2-ICMP-%E7%9A%84%E5%85%B8%E5%9E%8B%E7%94%A8%E9%80%94"><span class="toc-number">1.17.2.</span> <span class="toc-text">16.2 ICMP 的典型用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-3-ICMP-%E4%B8%8E-IP-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">1.17.3.</span> <span class="toc-text">16.3 ICMP 与 IP 的关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-ICMP-%E5%B7%AE%E9%94%99%E6%8A%A5%E6%96%87%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88"><span class="toc-number">1.18.</span> <span class="toc-text">17. ICMP 差错报文包含什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-Traceroute-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">1.19.</span> <span class="toc-text">18. Traceroute 的工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#18-1-TTL-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.19.1.</span> <span class="toc-text">18.1 TTL 的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#18-2-%E9%80%90%E6%AD%A5%E5%A2%9E%E5%8A%A0-TTL"><span class="toc-number">1.19.2.</span> <span class="toc-text">18.2 逐步增加 TTL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#18-3-%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E5%88%B0%E8%BE%BE%E7%9B%AE%E7%9A%84%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.19.3.</span> <span class="toc-text">18.3 如何判断到达目的主机</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#19-%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E4%B8%8E%E8%B7%AF%E7%94%B1%E6%8E%A7%E5%88%B6%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.20.</span> <span class="toc-text">19. 网络管理与路由控制的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E7%9A%84%E4%BA%94%E7%B1%BB%E5%8A%9F%E8%83%BD"><span class="toc-number">1.21.</span> <span class="toc-text">20. 网络管理的五类功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#20-1-%E6%80%A7%E8%83%BD%E7%AE%A1%E7%90%86"><span class="toc-number">1.21.1.</span> <span class="toc-text">20.1 性能管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#20-2-%E6%95%85%E9%9A%9C%E7%AE%A1%E7%90%86"><span class="toc-number">1.21.2.</span> <span class="toc-text">20.2 故障管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#20-3-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86"><span class="toc-number">1.21.3.</span> <span class="toc-text">20.3 配置管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#20-4-%E8%B4%A6%E6%88%B7%E7%AE%A1%E7%90%86"><span class="toc-number">1.21.4.</span> <span class="toc-text">20.4 账户管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#20-5-%E5%AE%89%E5%85%A8%E7%AE%A1%E7%90%86"><span class="toc-number">1.21.5.</span> <span class="toc-text">20.5 安全管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="toc-number">1.22.</span> <span class="toc-text">21. 网络管理体系结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-1-%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.22.1.</span> <span class="toc-text">21.1 管理服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-2-%E8%A2%AB%E7%AE%A1%E7%90%86%E8%AE%BE%E5%A4%87"><span class="toc-number">1.22.2.</span> <span class="toc-text">21.2 被管理设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-3-Agent"><span class="toc-number">1.22.3.</span> <span class="toc-text">21.3 Agent</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-4-%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE"><span class="toc-number">1.22.4.</span> <span class="toc-text">21.4 管理数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#21-5-%E7%AE%A1%E7%90%86%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.22.5.</span> <span class="toc-text">21.5 管理协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-CLI%E3%80%81SNMP-MIB-%E4%B8%8E-NETCONF-YANG"><span class="toc-number">1.23.</span> <span class="toc-text">22. CLI、SNMP&#x2F;MIB 与 NETCONF&#x2F;YANG</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#22-1-CLI"><span class="toc-number">1.23.1.</span> <span class="toc-text">22.1 CLI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-2-SNMP-%E4%B8%8E-MIB"><span class="toc-number">1.23.2.</span> <span class="toc-text">22.2 SNMP 与 MIB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-3-NETCONF-%E4%B8%8E-YANG"><span class="toc-number">1.23.3.</span> <span class="toc-text">22.3 NETCONF 与 YANG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-4-SNMP-%E4%B8%8E-NETCONF-YANG-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.23.4.</span> <span class="toc-text">22.4 SNMP 与 NETCONF&#x2F;YANG 的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-OSPF%E3%80%81BGP%E3%80%81SDN%E3%80%81ICMP-%E4%B8%8E%E7%AE%A1%E7%90%86%E5%8D%8F%E8%AE%AE%E7%9A%84%E8%81%8C%E8%B4%A3%E8%BE%B9%E7%95%8C"><span class="toc-number">1.24.</span> <span class="toc-text">23. OSPF、BGP、SDN、ICMP 与管理协议的职责边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#24-%E9%87%8D%E8%A6%81%E5%AF%B9%E6%AF%94"><span class="toc-number">1.25.</span> <span class="toc-text">24. 重要对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#24-1-OSPF-%E4%B8%8E-BGP"><span class="toc-number">1.25.1.</span> <span class="toc-text">24.1 OSPF 与 BGP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-2-eBGP-%E4%B8%8E-iBGP"><span class="toc-number">1.25.2.</span> <span class="toc-text">24.2 eBGP 与 iBGP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-3-%E4%BC%A0%E7%BB%9F%E8%B7%AF%E7%94%B1%E4%B8%8E-SDN"><span class="toc-number">1.25.3.</span> <span class="toc-text">24.3 传统路由与 SDN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-4-ICMP-%E4%B8%8E%E8%B7%AF%E7%94%B1%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.25.4.</span> <span class="toc-text">24.4 ICMP 与路由协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#25-%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="toc-number">1.26.</span> <span class="toc-text">25. 常见误区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#25-1-AS-%E5%B0%B1%E6%98%AF%E4%B8%80%E4%B8%AA%E5%AD%90%E7%BD%91"><span class="toc-number">1.26.1.</span> <span class="toc-text">25.1 AS 就是一个子网</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-2-OSPF-%E7%94%A8%E4%BA%8E%E6%95%B4%E4%B8%AA%E4%BA%92%E8%81%94%E7%BD%91"><span class="toc-number">1.26.2.</span> <span class="toc-text">25.2 OSPF 用于整个互联网</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-3-BGP-%E6%80%BB%E6%98%AF%E9%80%89%E6%8B%A9-AS-PATH-%E6%9C%80%E7%9F%AD%E7%9A%84%E8%B7%AF%E5%BE%84"><span class="toc-number">1.26.3.</span> <span class="toc-text">25.3 BGP 总是选择 AS-PATH 最短的路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-4-iBGP-%E6%98%AF-AS-%E5%86%85%E9%83%A8%E6%99%AE%E9%80%9A%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.26.4.</span> <span class="toc-text">25.4 iBGP 是 AS 内部普通最短路径协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-5-NEXT-HOP-%E5%B0%B1%E6%98%AF%E6%9C%80%E7%BB%88%E7%9B%AE%E7%9A%84%E5%9C%B0"><span class="toc-number">1.26.5.</span> <span class="toc-text">25.5 NEXT-HOP 就是最终目的地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-6-%E7%83%AD%E5%9C%9F%E8%B1%86%E8%B7%AF%E7%94%B1%E9%80%89%E6%8B%A9%E5%85%A8%E5%B1%80%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84"><span class="toc-number">1.26.6.</span> <span class="toc-text">25.6 热土豆路由选择全局最短路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-7-SDN-%E5%BF%85%E9%A1%BB%E4%BE%9D%E8%B5%96%E4%B8%80%E5%8F%B0%E4%B8%AD%E5%A4%AE%E6%9C%BA%E5%99%A8"><span class="toc-number">1.26.7.</span> <span class="toc-text">25.7 SDN 必须依赖一台中央机器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-8-ICMP-%E5%B1%9E%E4%BA%8E%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="toc-number">1.26.8.</span> <span class="toc-text">25.8 ICMP 属于传输层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-9-ICMP-%E5%86%B3%E5%AE%9A%E7%BD%91%E7%BB%9C%E8%B7%AF%E7%94%B1"><span class="toc-number">1.26.9.</span> <span class="toc-text">25.9 ICMP 决定网络路由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-10-YANG-%E6%98%AF%E4%B8%80%E7%A7%8D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.26.10.</span> <span class="toc-text">25.10 YANG 是一种传输协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#26-%E7%9F%A5%E8%AF%86%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">1.27.</span> <span class="toc-text">26. 知识结构总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#27-%E5%A4%8D%E4%B9%A0%E6%B8%85%E5%8D%95"><span class="toc-number">1.28.</span> <span class="toc-text">27. 复习清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.29.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-2：从密码学工具到网络纵深防御"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御">Chapter 8-2：从密码学工具到网络纵深防御</a><time datetime="2026-06-25T15:06:24.000Z" title="Created 2026-06-25 23:06:24">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</a><time datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:05:27.000Z" title="Created 2026-06-25 23:05:27">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</a><time datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

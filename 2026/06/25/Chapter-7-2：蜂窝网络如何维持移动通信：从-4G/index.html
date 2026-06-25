@@ -1,0 +1,1422 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Chapter 7-2：蜂窝网络如何维持移动通信：从 4G | God Only Knows</title><meta name="author" content="agsd"><meta name="copyright" content="agsd"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#1C1A22"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><meta name="application-name" content="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#1C1A22"><meta property="og:type" content="article"><meta property="og:title" content="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><meta property="og:url" content="http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/index.html"><meta property="og:site_name" content="God Only Knows"><meta property="og:description" content="蜂窝网络如何维持移动通信：从 4G&amp;#x2F;5G 架构到移动性管理引言传统 IP 网络的寻址和路由机制隐含着一个重要前提：主机的位置相对稳定，IP 地址能够在一定程度上反映主机所在的网络。路由器只需根据目的地址所属的网络前缀，就可以逐跳将数据报送往目标位置。 移动设备打破了这一前提。 手机可能在通"><meta property="og:locale" content="en"><meta property="og:image" content="http://example.com/cover/jamie.png"><meta property="article:author" content="agsd"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="http://example.com/cover/jamie.png"><meta name="description" content="蜂窝网络如何维持移动通信：从 4G&amp;#x2F;5G 架构到移动性管理引言传统 IP 网络的寻址和路由机制隐含着一个重要前提：主机的位置相对稳定，IP 地址能够在一定程度上反映主机所在的网络。路由器只需根据目的地址所属的网络前缀，就可以逐跳将数据报送往目标位置。 移动设备打破了这一前提。 手机可能在通"><link rel="shortcut icon" href="/icons/bank.png"><link rel="canonical" href="http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/"><link rel="preconnect" href="//cdn.cbd.int"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: undefined,
+  peoplecanvas: undefined,
+  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"tianli","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
+  diytitle: {"enable":true,"leaveTitle":"(つ´∀｀)つ再见~","backTitle":"♪(^∇^*)欢迎回来！"},
+  LA51: undefined,
+  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
+  twikooEnvId: 'https://twikoo.agsd.top/',
+  commentBarrageConfig:undefined,
+  music_page_default: "nav_music",
+  root: '/',
+  preloader: {"source":5},
+  friends_vue_info: {"apiurl":"https://friends.anheyu.com/"},
+  navMusic: true,
+  mainTone: {"mode":"api","api":"https://img2color-go.vercel.app/api?img=","cover_change":true},
+  authorStatus: {"skills":["🤖️ 算法绝缘体","🔍 三分钟热度","🤝 乐观主义者","💢 最讨厌废话"]},
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"Author: agsd","link":"Link: ","source":"Source: God Only Knows","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.","copySuccess":"Copy success, copy and reprint please mark the address of this article"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.2.0/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: 'God Only Knows',
+  title: 'Chapter 7-2：蜂窝网络如何维持移动通信：从 4G',
+  postAI: '',
+  pageFillDescription: '蜂窝网络如何维持移动通信：从 4Gx2F5G 架构到移动性管理, 引言, 1. 蜂窝网络不是另一套互联网, ❗ 本节核心结论： 蜂窝网络仍然建立在 IP 协议体系之上但它必须额外管理用户身份、接入位置和通信连续性。, 2. 无线与移动性必须分开理解, 3. 4G LTE 的基本架构, 4. UE 与 IMSI：用户身份不等于网络地址, 5. eNode-B：无线接入与资源协调, 6. HSS 与 MME：用户档案和现场控制, 6.1 HSS：归属用户数据库, 6.2 MME：移动性控制实体, ❗ 本节核心结论： HSS 保存权威身份和服务档案MME 根据这些档案控制用户接入、位置和切换；二者都主要属于控制平面。, 7. S-GW 与 P-GW：用户数据怎样进入互联网, 7.1 S-GW：服务网关, 7.2 P-GW：分组数据网络网关, 8. 控制平面先建立状态数据平面再转发, 9. 5G 为什么需要新的无线部署, 9.1 MIMO 与波束成形, 9.2 毫米波的速率与覆盖权衡, ❗ 本节核心结论： 5G 通过新频段、多天线和定向传输提升速率与容量但更高频率也带来了覆盖缩小和部署成本上升。, 10. 为什么互联网不能追踪每一台手机的实时位置, 10.1 主机级路由会破坏前缀聚合, 10.2 移动产生的更新过于频繁, 10.3 互联网路由协议不适合快速终端移动, 11. 归属网络与被访网络, 11.1 归属网络, 11.2 被访网络, 12. 移动节点注册：建立身份与当前位置的映射, 12.1 注册过程, ❗ 本节核心结论： 注册负责维护稳定身份到当前位置的映射它为后续间接路由或直接路由提供必要信息。, 13. 间接路由：先送回归属网络再转交当前位置, 13.1 完整过程, 13.2 隧道的作用, 13.3 间接路由的优势, 13.4 三角路由问题, 14. 直接路由：查询位置后直接发送, 15. 移动性透明并不意味着网络内部没有变化, 16. 无线与移动性如何影响 TCP, 16.1 无线丢包不一定来自拥塞, 16.2 重传与拥塞控制必须区分, 16.3 链路层重传的双重影响, ❗ 本节核心结论： TCP 可以运行在蜂窝网络上但它可能把无线误码和切换丢包误判为拥塞从而不必要地降低发送速率。, 17. 实时应用面对的是可靠性与时延的冲突, 18. 稳定身份与变化位置：移动性的统一解释, 结论蜂窝网络如何维持移动通信从架构到移动性管理引言传统网络的寻址和路由机制隐含着一个重要前提主机的位置相对稳定地址能够在一定程度上反映主机所在的网络路由器只需根据目的地址所属的网络前缀就可以逐跳将数据报送往目标位置移动设备打破了这一前提手机可能在通信过程中不断切换基站也可能离开归属运营商的覆盖区域进入另一个运营商提供的被访网络此时用户的身份没有改变但其接入位置数据转发路径和无线链路状态都可能不断变化如果每次移动都需要更换永久身份重新建立所有连接或者要求全球路由器实时追踪每一台手机的位置移动互联网将难以扩展因此蜂窝网络需要同时解决四个相互关联的问题如何确认移动用户的身份和服务权限如何记录用户当前所在的位置如何把发送到稳定身份的数据转交到不断变化的位置如何在无线误码和基站切换的条件下尽量维持通信连续性蜂窝网络并不是简单扩大覆盖范围的而是一种围绕身份管理位置管理路径控制和移动连续性构建的网络其核心思想可以概括为将相对稳定的用户身份与不断变化的网络位置分离再通过注册查询隧道和网关转发在二者之间建立动态映射蜂窝网络不是另一套互联网蜂窝网络把较大的地理区域划分成多个由基站覆盖的蜂窝用户设备首先通过无线链路连接基站再经过运营商的核心网络访问公共互联网用户设备无线链路蜂窝基站运营商核心网互联网网关公共互联网从整体协议体系看蜂窝网络仍然大量使用互联网中的通用技术寻址与转发和与网关路由隧道封装控制平面和数据平面分离其特殊之处在于它在普通网络之上增加了面向移动用户的身份认证位置注册无线资源调度基站切换和漫游管理蜂窝网络与有线互联网的主要差异可以概括为三个方面差异普通有线网络蜂窝网络接入介质线缆或光纤无线电磁波主机位置通常较稳定可能持续变化身份管理主要依赖网络地址或账户具有运营商级订户身份网络管理范围关注路由和转发还要处理认证漫游和切换因此蜂窝网络不是脱离互联网的独立体系而是对无线接入和移动性进行了专门增强的网络本节核心结论蜂窝网络仍然建立在协议体系之上但它必须额外管理用户身份接入位置和通信连续性无线与移动性必须分开理解无线和移动性经常同时出现却不是同一个概念无线描述的是通信介质设备通过电磁波而不是线缆发送数据移动性描述的是设备改变接入位置后网络是否仍能找到它并维持通信对比项无线移动性关注对象通信链路接入位置核心问题如何通过无线介质传输移动后如何保持可达主要协议层物理层链路层网络层并影响高层是否要求切换不一定高移动场景通常要求典型例子固定的摄像头通话中的移动手机一台长期放在桌面上的无线打印机使用无线链路但几乎不存在需要网络处理的移动性一个人在关闭笔记本后将其带到图书馆虽然设备发生了物理移动也不一定要求原有连接继续保持真正困难的情况是设备在保持在线通信的同时移动例如用户在高铁上进行视频通话手机不断改变所连接的基站网络却需要让应用尽可能感觉不到这些变化设备移动原通信是否需要保持否重新接入即可是需要移动性管理位置更新路径切换连接连续性移动性不是设备能被拿走而是设备改变网络位置后原有通信是否仍能继续的基本架构网络可以先被划分为两个部分无线接入网络负责让用户设备接入运营商网络增强分组核心网负责认证位置管理数据转发和外部网络连接控制信令身份与权限查询无线接入网络中的主要设备是和核心网中的重要网元包括和理解这些缩写时关键不是孤立背诵名称而是区分三个问题谁负责通过无线链路接入谁负责认证和位置控制谁负责实际转发用户数据与用户身份不等于网络地址是即用户设备包括智能手机平板电脑车载终端和蜂窝物联网设备蜂窝设备通常借助中保存的标识订户身份的核心作用是回答这是哪个移动订户地址回答的则是当前数据报应该发送到哪个网络接口或网络位置对比项地址标识对象移动订户身份网络接口或网络位置主要用途认证查询归属网络和服务权限数据报寻址与转发与的关系通常保存在中不一定移动后的变化通常保持稳定可能改变或由网络维持核心问题你是谁数据发到哪里这种区分十分重要用户移动以后其网络位置可以变化但身份仍然需要保持稳定如果蜂窝网络只依赖地址识别用户那么每次地址变化都可能破坏身份计费和权限关系稳定身份与变化地址的分离是蜂窝移动性管理的基础无线接入与资源协调是中的基站它直接与进行无线通信并将用户数据接入运营商核心网其主要职责包括发送和接收无线信号管理覆盖范围内的用户设备分配频率时隙等无线资源将用户数据送入核心网与其他基站协作完成切换参与接入和控制信令处理蜂窝基站与都承担无线接入功能但蜂窝基站需要更加深入地参与移动性管理和连续覆盖对比项蜂窝基站主要范围局域网广域移动网络接入管理相对局部运营商统一管理基站间切换传统场景中较弱核心功能用户身份通常是局部认证和订户身份漫游能力通常有限原生支持运营商漫游蜂窝基站不仅提供信号还承担无线资源控制和移动切换的一部分工作与用户档案和现场控制归属用户数据库位于用户的归属网络中保存订户的权威信息例如用户身份认证相关数据套餐和服务权限漫游权限当前注册位置所属归属运营商当用户进入一个被访网络时被访网络本身不能仅凭设备声明判断用户是否合法它需要联系归属网络中的确认用户身份权限和漫游资格更像一个权威用户档案中心而不是数据转发设备用户访问网页或观看视频时普通业务数据不会全部经过移动性控制实体是主要属于控制平面它负责协调用户接入与认证与的身份查询用户位置跟踪设备寻呼基站切换隧道和承载状态建立用户接入状态管理可以将理解为核心网中的移动用户调度中心它不负责高速转发用户的每一个数据分组而是负责决定用户是否可以接入用户当前位于哪里以及数据平面应建立怎样的转发状态对比项主要性质用户数据库移动性控制实体主要位置归属网络当前服务核心网核心任务保存身份和权限认证协调位置和切换管理是否转发普通用户数据否通常不负责直观类比用户档案中心现场控制中心本节核心结论保存权威身份和服务档案根据这些档案控制用户接入位置和切换二者都主要属于控制平面与用户数据怎样进入互联网完成认证和控制状态建立后用户数据通常沿以下路径传输服务网关位于基站和之间主要负责蜂窝核心网内部的用户数据转发其作用包括在基站与核心网之间转发用户数据作为部分移动过程中的数据转发锚点在基站切换时协助维持已有数据路径根据控制平面建立的状态执行转发分组数据网络网关位于蜂窝核心网与外部数据网络之间它承担连接公共互联网或其他提供或维持用户的层接入执行外部网络方向的数据转发实施部分过滤策略和计费控制作为较高层的数据路径锚点可以将理解为运营商核心网内部的中转网关将理解为运营商面向互联网的出口网关网元主要任务平面属性认证位置切换和承载控制控制平面身份权限和订户档案控制平面核心网内部用户数据转发数据平面连接互联网和外部数据网络数据平面为主控制平面先建立状态数据平面再转发手机访问一个服务器时用户看到的只是网页请求和响应但网络内部在正式转发数据前已经完成了大量控制工作用户设备请求接入提交接入与身份信息查询身份和权限返回认证结果建立转发与隧道状态接入完成发送用户数据控制平面需要完成识别中的用户身份与协作认证登记用户当前位置建立承载和隧道配置数据转发状态分配或维持用户的接入数据平面随后根据已经建立的状态转发分组这种分工体现了典型的控制与转发分离控制平面负责决定用户能否接入以及数据应该走哪条路径数据平面负责按既定状态高速转发为什么需要新的无线部署中的表示它不仅追求更高数据速率也关注更低时延更高容量和更密集的设备接入与波束成形利用多根天线同时发送和接收信号以提高频谱利用率和数据传输能力波束成形则通过控制不同天线信号的相位和幅度将更多无线能量集中到目标设备所在方向而不是平均向所有方向辐射多天线基站定向波束用户定向波束用户定向波束用户强调多天线带来的并行传输能力波束成形强调将信号更精确地指向目标方向毫米波的速率与覆盖权衡更高频率能够提供更大的可用带宽因此毫米波适合实现高速无线传输但其传播距离较短穿透能力较弱并且更容易受到建筑物和人体遮挡这形成了一个典型工程权衡高频毫米波的优势高频毫米波的代价可用带宽更大覆盖范围较小峰值速率更高穿墙能力较弱支持高容量热点更容易受到遮挡空间复用潜力较高需要更密集的基站因此不只是给原来的基站安装新软件完整部署往往还需要新的频段天线阵列无线接口波束成形能力和更加密集的站点本节核心结论通过新频段多天线和定向传输提升速率与容量但更高频率也带来了覆盖缩小和部署成本上升为什么互联网不能追踪每一台手机的实时位置一种直观方案是手机每次移动到新网络后就向整个互联网宣布自己的最新地址让所有路由器为其维护一条精确主机路由这种方案理论上可以工作却无法扩展主机级路由会破坏前缀聚合互联网能够扩展的重要原因之一是路由器通常维护网络前缀而不是为每一台终端保存独立路由假如每台手机都有一条精确路由全球路由表可能需要加入数量巨大的主机级表项移动产生的更新过于频繁手机会不断上线下线切换基站和进入新的网络如果每次变化都传播到全球路由系统控制消息数量将非常庞大互联网路由协议不适合快速终端移动等协议主要处理网络前缀之间相对缓慢的变化而不是持续追踪数十亿终端的瞬时位置因此移动性不能被简单地交给全球路由系统更可扩展的思路是互联网核心继续按照稳定前缀转发用户的归属网络维护身份和位置映射被访网络管理当前接入必要时通过隧道或位置查询把数据送到当前位置互联网核心只维护聚合前缀归属网络维护用户位置映射被访网络移动用户移动性被限制在网络边缘和运营商管理域内而不是扩散到整个互联网归属网络与被访网络移动性管理的核心是区分用户的稳定归属关系和当前接入位置归属网络归属网络是用户长期订购服务的运营商网络它保存用户的权威信息包括身份服务权限套餐和漫游资格归属网络主要回答这个用户是谁用户具有什么权限用户是否允许漫游用户当前注册在哪个网络被访网络被访网络是用户当前接入但并不归属的网络它负责提供当前无线接入并与归属网络协作完成认证和位置注册被访网络主要回答用户现在接入在哪里当前应由哪个基站和网关服务如何把数据交付给用户对比项归属网络被访网络与用户的关系长期订购关系临时接入关系是否保存权威身份档案是通常不是是否提供当前位置的无线接入不一定是主要职责身份权限和位置记录当前接入和数据交付核心问题你是谁你现在在哪里这一区分体现了蜂窝移动性的基本矛盾用户身份长期稳定但用户所在的网络不断变化移动节点注册建立身份与当前位置的映射当移动设备进入被访网络时归属网络并不会自动知道其新位置设备需要完成注册过程注册过程移动设备被访网络归属网络请求接入并提供身份查询身份与漫游权限返回认证结果允许接入记录用户在本网络注册用户当前位置更新位置映射注册完成后被访网络知道该用户当前连接在本地归属网络知道该用户目前位于哪个被访网络后续数据可以根据这一位置映射进行转发注册和路由不是同一件事注册回答的是用户现在在哪里路由回答的是数据怎样到达这个位置没有注册归属网络不知道数据应被转交到哪里只有注册而没有转发机制数据仍然无法到达用户本节核心结论注册负责维护稳定身份到当前位置的映射它为后续间接路由或直接路由提供必要信息间接路由先送回归属网络再转交当前位置间接路由中通信者只需要知道移动节点的永久地址数据首先按照普通路由到达移动节点的归属网络再由归属网络转发到当前被访网络通信者归属网络隧道被访网络移动节点完整过程通信者向移动节点的永久地址发送数据由于该地址属于归属网络数据首先到达归属网络归属网络查询已经注册的当前位置归属网关把原数据报封装到一个新的数据报中外层数据报被发送到被访网络网关被访网关删除外层头部原数据报被交付给移动节点隧道的作用隧道是一种封装技术原始数据报被作为另一个数据报的载荷传输外层头部原始数据报原始头部原始数据中间路由器只关心外层地址将封装后的数据送到隧道出口出口解封装后再按照原始数据报继续转发间接路由的优势通信者不需要知道移动节点当前位置用户从一个被访网络移动到另一个被访网络时只需更新归属网络中的位置映射通信者仍然向原永久地址发送这使移动性对通信者和应用相对透明也有利于维持已有连接三角路由问题间接路由可能导致数据绕行例如通信者和移动节点当前都在日本但移动节点的归属网络位于中国数据可能先从日本送往中国再由中国的归属网络转发回日本日本的通信者中国的归属网络日本的被访网络移动用户这种路径会造成端到端时延增加带宽浪费归属网络承担额外负担上行和下行路径不对称三角路由的三角描述的是三方之间的绕行关系而不要求实际拓扑在图上形成严格的几何三角形直接路由查询位置后直接发送直接路由试图避免所有数据绕经归属网络通信者先向归属网络查询移动节点当前所在位置再直接将数据发送到被访网络通信者归属网络被访网络移动节点查询移动节点当前位置返回被访网络信息直接发送数据交付数据直接路由的主要优势是路径更短延迟更低避免明显的三角路由减轻归属网络的数据转发压力但这种效率是以更复杂的位置更新机制换来的当移动节点从被访网络移动到后通信者原先保存的位置可能失效系统需要重新查询更新绑定或者借助其他转发机制把旧路径迁移到新位置因此直接路由不再对通信者完全透明对比项间接路由直接路由是否经过归属网络数据通常经过查询后数据通常不经过通信者是否知道当前位置不需要需要移动性透明程度较高较低路径效率可能较低通常较高三角路由容易出现可以避免再次移动后的处理更新归属网络即可通信者位置绑定也可能更新复杂性集中位置归属网络和隧道查询缓存和绑定更新二者的本质权衡是间接路由用较长的数据路径换取移动性透明直接路由用更复杂的位置管理换取更短的转发路径移动性透明并不意味着网络内部没有变化所谓移动性透明是指通信者或应用不需要显式处理移动节点的位置改变用户从一个基站切换到另一个基站时应用可能继续使用原有连接但网络内部可能已经完成与新基站建立无线连接释放旧基站的部分状态更新用户位置调整核心网隧道修改数据转发路径转交尚未发送的数据对设备进行重新寻呼或调度应用看到同一连接网络内部新基站接入位置更新隧道切换路径修改透明并不意味着移动没有成本而是意味着这些成本主要由网络承担无线与移动性如何影响从分层角度看和可以继续运行在和上应用通常不需要了解底层是光纤以太网还是蜂窝链路但协议能够运行不代表性能不受影响无线丢包不一定来自拥塞传统经常把分组丢失视为网络拥塞的信号分组丢失推测路由器队列拥塞减小拥塞窗口降低发送速率在有线网络中分组丢失确实经常与路由器队列溢出相关无线环境中的丢包还可能来自信号衰减无线干扰遮挡多径传播短暂断连基站切换链路状态更新延迟这些情况并不一定意味着路径中的路由器已经拥塞检测到丢包推测拥塞减小降低发送速率真实原因可能是无线误码不一定存在拥塞真实原因可能是基站切换不一定存在拥塞无法轻易判断丢包的真实原因因此通常采取保守策略结果可能是不必要地减小拥塞窗口吞吐量明显下降无线链路能力未被充分利用切换结束后恢复速度较慢重传与拥塞控制必须区分无线误码导致的丢失仍然可能需要重传因为可靠传输必须补回缺失数据但是否需要大幅降低发送速率是另一个问题重传解决数据是否完整拥塞控制解决网络是否承受过高负载无线丢包需要重传并不自动意味着网络已经拥塞链路层重传的双重影响无线链路层可以在本地重传受损帧避免每次误码都直接暴露给这有助于提高可靠性却可能增加往返时延时延波动分组乱序队列积累因此链路层重传可能隐藏部分丢包却无法消除无线环境对高层性能的影响本节核心结论可以运行在蜂窝网络上但它可能把无线误码和切换丢包误判为拥塞从而不必要地降低发送速率实时应用面对的是可靠性与时延的冲突视频通话云游戏和实时控制系统不仅关心数据最终是否到达还关心数据何时到达如果一个语音分组经过多次重传后延迟数秒才到达即使其内容完整对实时通话也可能已经没有价值实时应用通常需要在以下目标之间权衡目标作用潜在冲突提高可靠性减少数据缺失重传会增加时延降低时延保持实时交互可能需要容忍少量丢包提高吞吐量改善视频质量可能增加队列和拥塞风险平滑播放抵抗抖动需要更大缓冲并增加等待对于文件下载迟到的数据仍然有价值对于实时语音过期数据可能不如直接丢弃因此无线移动网络的优化不能只追求最终无丢失还必须考虑时延抖动和应用数据的时效性稳定身份与变化位置移动性的统一解释网络中的许多机制看似分散实际都服务于同一个目标让用户在位置不断变化时仍然可以使用稳定身份进行通信各机制之间的关系可以概括如下问题对应机制如何标识用户谁保存权威身份归属网络谁管理当前接入被访网络基站如何记录当前位置注册和位置更新如何转发用户数据如何从永久地址找到当前位置间接路由或直接路由如何跨网络转交数据隧道如何维持移动过程中的通信切换和路径更新如何处理无线丢包链路层重传和高层恢复稳定身份归属网络保存身份变化位置被访网络注册位置身份位置映射建立转发路径维持通信移动性管理不是单纯的基站切换也不是简单地修改路由表它是一整套围绕身份位置认证和路径建立的协作机制结论蜂窝网络面对的根本问题不只是如何让手机通过无线信号访问互联网而是如何在用户持续移动的情况下维持身份可达性和通信连续性通过明确的控制平面和数据平面分工组织网络和完成用户设备的无线接入提供相对稳定的订户身份保存身份权限和归属信息负责认证位置跟踪和移动性控制和根据控制状态转发用户数据并连接外部互联网当用户进入被访网络时网络通过注册建立稳定身份到当前位置的映射间接路由允许通信者继续使用永久地址把数据先送到归属网络再通过隧道转交给被访网络直接路由则通过查询当前位置缩短路径但要求更复杂的位置更新和绑定管理在这一移动网络框架上进一步引入新频段多天线和波束成形等技术以提高速率容量和设备密度但也带来了覆盖缩小和部署密度上升等工程代价在更高协议层移动性并非完全透明无线误码链路层重传和基站切换可能引起丢包乱序和时延波动又可能将这些现象误判为拥塞从而降低拥塞窗口和发送速率对实时应用而言可靠性还必须与时延和数据时效性共同权衡蜂窝移动网络的本质是不让整个互联网追踪每一台终端而是在归属网络被访网络和核心网网关之间维护身份与位置的动态映射从而把移动造成的复杂性限制在可管理的网络边缘',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-25 23:06:13',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1C1A22')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#F3EEFA')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"><meta name="generator" content="Hexo 8.1.1"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div id="loading-box-me"><div id="wrapper"><div id="mouse"></div><div class="loader"></div><div class="loading-bar-me"><div class="progress-bar"></div></div><div class="status"><div class="state"></div><div class="percentage"></div></div></div></div></div><script>const preloader = {
+  endLoading: () => {
+    var loadingBox = document.getElementById('loading-box');
+    var loadingBoxme = document.getElementById('loading-box-me');
+    loadingBoxme.addEventListener('animationend', () => {setTimeout(function() {loadingBox.classList.add("loaded");}, 2000) })
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  },
+  otherendLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.otherendLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.otherendLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">God Only Knows</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="Random Post" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="Search 🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> Search</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="Console" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">Interests</div><span class="author-content-item-title">Find your area of interest</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 1.05rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 1.05rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 1.05rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 1.05rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 1.05rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 1.05rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 1.05rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 1.05rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 1.05rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 1.05rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 1.05rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 1.05rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 1.05rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 1.05rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 1.05rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 1.05rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 1.05rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 1.05rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 1.05rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 1.05rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>Articles</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/06/"><span class="card-archive-list-date">June 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">46</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/05/"><span class="card-archive-list-date">May 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/04/"><span class="card-archive-list-date">April 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/03/"><span class="card-archive-list-date">March 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/02/"><span class="card-archive-list-date">February 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2026/01/"><span class="card-archive-list-date">January 2026</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="Toggle Display Mode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="Toggle Sidebar"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="Toggle Music"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="Toggle"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="article-meta tags"></span></div></div><h1 class="post-title" itemprop="name headline">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:13.507Z" title="Updated 2026-06-25 23:06:13">2026-06-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">Word count:</span><span class="word-count" title="文章字数">7.9k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">Reading time:</span><span>24min</span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为新艾利都"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>新艾利都</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="/cover/jamie.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/"><header><h1 id="CrawlerTitle" itemprop="name headline">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">agsd</span><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time><time itemprop="dateCreated datePublished" datetime="2026-06-25T15:06:13.507Z" title="Updated 2026-06-25 23:06:13">2026-06-25</time></header><h1 id="蜂窝网络如何维持移动通信：从-4G-5G-架构到移动性管理"><a href="#蜂窝网络如何维持移动通信：从-4G-5G-架构到移动性管理" class="headerlink" title="蜂窝网络如何维持移动通信：从 4G&#x2F;5G 架构到移动性管理"></a>蜂窝网络如何维持移动通信：从 4G&#x2F;5G 架构到移动性管理</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>传统 IP 网络的寻址和路由机制隐含着一个重要前提：主机的位置相对稳定，IP 地址能够在一定程度上反映主机所在的网络。路由器只需根据目的地址所属的网络前缀，就可以逐跳将数据报送往目标位置。</p>
+<p>移动设备打破了这一前提。</p>
+<p>手机可能在通信过程中不断切换基站，也可能离开归属运营商的覆盖区域，进入另一个运营商提供的被访网络。此时，用户的身份没有改变，但其接入位置、数据转发路径和无线链路状态都可能不断变化。如果每次移动都需要更换永久身份、重新建立所有连接，或者要求全球路由器实时追踪每一台手机的位置，移动互联网将难以扩展。</p>
+<p>因此，蜂窝网络需要同时解决四个相互关联的问题：</p>
+<ul>
+<li>如何确认移动用户的身份和服务权限；</li>
+<li>如何记录用户当前所在的位置；</li>
+<li>如何把发送到稳定身份的数据转交到不断变化的位置；</li>
+<li>如何在无线误码和基站切换的条件下尽量维持通信连续性。</li>
+</ul>
+<p>4G&#x2F;5G 蜂窝网络并不是简单扩大覆盖范围的 WiFi，而是一种围绕身份管理、位置管理、路径控制和移动连续性构建的 IP 网络。其核心思想可以概括为：</p>
+<blockquote>
+<p><strong>将相对稳定的用户身份与不断变化的网络位置分离，再通过注册、查询、隧道和网关转发，在二者之间建立动态映射。</strong></p>
+</blockquote>
+<hr>
+<h2 id="1-蜂窝网络不是另一套互联网"><a href="#1-蜂窝网络不是另一套互联网" class="headerlink" title="1. 蜂窝网络不是另一套互联网"></a>1. 蜂窝网络不是另一套互联网</h2><p>蜂窝网络把较大的地理区域划分成多个由基站覆盖的蜂窝。用户设备首先通过无线链路连接基站，再经过运营商的核心网络访问公共互联网。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    UE[用户设备 UE] --&gt;|无线链路| BS[蜂窝基站]
+    BS --&gt; CORE[运营商核心网]
+    CORE --&gt; GW[互联网网关]
+    GW --&gt; NET[公共互联网]
+  </pre></div>
+
+<p>从整体协议体系看，蜂窝网络仍然大量使用互联网中的通用技术：</p>
+<ul>
+<li>IP 寻址与转发；</li>
+<li>TCP 和 UDP；</li>
+<li>HTTP 与 DNS；</li>
+<li>NAT；</li>
+<li>网关路由；</li>
+<li>隧道封装；</li>
+<li>控制平面和数据平面分离。</li>
+</ul>
+<p>其特殊之处在于，它在普通 IP 网络之上增加了面向移动用户的身份认证、位置注册、无线资源调度、基站切换和漫游管理。</p>
+<p>蜂窝网络与有线互联网的主要差异可以概括为三个方面。</p>
+<table>
+<thead>
+<tr>
+<th>差异</th>
+<th>普通有线网络</th>
+<th>蜂窝网络</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>接入介质</td>
+<td>线缆或光纤</td>
+<td>无线电磁波</td>
+</tr>
+<tr>
+<td>主机位置</td>
+<td>通常较稳定</td>
+<td>可能持续变化</td>
+</tr>
+<tr>
+<td>身份管理</td>
+<td>主要依赖网络地址或账户</td>
+<td>具有运营商级订户身份</td>
+</tr>
+<tr>
+<td>网络管理范围</td>
+<td>关注路由和转发</td>
+<td>还要处理认证、漫游和切换</td>
+</tr>
+</tbody></table>
+<p>因此，蜂窝网络不是脱离互联网的独立体系，而是对无线接入和移动性进行了专门增强的 IP 网络。</p>
+<hr>
+<h2 id="❗-本节核心结论：-蜂窝网络仍然建立在-IP-协议体系之上，但它必须额外管理用户身份、接入位置和通信连续性。"><a href="#❗-本节核心结论：-蜂窝网络仍然建立在-IP-协议体系之上，但它必须额外管理用户身份、接入位置和通信连续性。" class="headerlink" title="❗ 本节核心结论： 蜂窝网络仍然建立在 IP 协议体系之上，但它必须额外管理用户身份、接入位置和通信连续性。"></a>❗ <strong>本节核心结论：</strong> 蜂窝网络仍然建立在 IP 协议体系之上，但它必须额外管理用户身份、接入位置和通信连续性。</h2><h2 id="2-无线与移动性必须分开理解"><a href="#2-无线与移动性必须分开理解" class="headerlink" title="2. 无线与移动性必须分开理解"></a>2. 无线与移动性必须分开理解</h2><p>无线和移动性经常同时出现，却不是同一个概念。</p>
+<p>无线描述的是通信介质：设备通过电磁波而不是线缆发送数据。移动性描述的是设备改变接入位置后，网络是否仍能找到它并维持通信。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>无线 Wireless</th>
+<th>移动性 Mobility</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>关注对象</td>
+<td>通信链路</td>
+<td>接入位置</td>
+</tr>
+<tr>
+<td>核心问题</td>
+<td>如何通过无线介质传输</td>
+<td>移动后如何保持可达</td>
+</tr>
+<tr>
+<td>主要协议层</td>
+<td>物理层、链路层</td>
+<td>网络层，并影响高层</td>
+</tr>
+<tr>
+<td>是否要求切换</td>
+<td>不一定</td>
+<td>高移动场景通常要求</td>
+</tr>
+<tr>
+<td>典型例子</td>
+<td>固定的 WiFi 摄像头</td>
+<td>通话中的移动手机</td>
+</tr>
+</tbody></table>
+<p>一台长期放在桌面上的无线打印机使用无线链路，但几乎不存在需要网络处理的移动性。一个人在关闭笔记本后将其带到图书馆，虽然设备发生了物理移动，也不一定要求原有连接继续保持。</p>
+<p>真正困难的情况是：设备在保持在线通信的同时移动。例如，用户在高铁上进行视频通话，手机不断改变所连接的基站，网络却需要让应用尽可能感觉不到这些变化。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    A[设备移动] --&gt; B{原通信是否需要保持}
+    B -- 否 --&gt; C[重新接入即可]
+    B -- 是 --&gt; D[需要移动性管理]
+    D --&gt; E[位置更新]
+    D --&gt; F[路径切换]
+    D --&gt; G[连接连续性]
+  </pre></div>
+
+<p>移动性不是“设备能被拿走”，而是“设备改变网络位置后，原有通信是否仍能继续”。</p>
+<hr>
+<h2 id="3-4G-LTE-的基本架构"><a href="#3-4G-LTE-的基本架构" class="headerlink" title="3. 4G LTE 的基本架构"></a>3. 4G LTE 的基本架构</h2><p>4G LTE 网络可以先被划分为两个部分：</p>
+<ul>
+<li><strong>无线接入网络</strong>：负责让用户设备接入运营商网络；</li>
+<li><strong>增强分组核心网 EPC</strong>：负责认证、位置管理、数据转发和外部网络连接。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    UE[UE] --&gt; ENB[eNode-B]
+    ENB --&gt; SGW[S-GW]
+    SGW --&gt; PGW[P-GW]
+    PGW --&gt; INTERNET[Internet]
+
+    ENB -.控制信令.-&gt; MME[MME]
+    MME -.身份与权限查询.-&gt; HSS[HSS]
+  </pre></div>
+
+<p>无线接入网络中的主要设备是 UE 和 eNode-B；核心网中的重要网元包括 MME、HSS、S-GW 和 P-GW。</p>
+<p>理解这些缩写时，关键不是孤立背诵名称，而是区分三个问题：</p>
+<ul>
+<li>谁负责通过无线链路接入；</li>
+<li>谁负责认证和位置控制；</li>
+<li>谁负责实际转发用户数据。</li>
+</ul>
+<hr>
+<h2 id="4-UE-与-IMSI：用户身份不等于网络地址"><a href="#4-UE-与-IMSI：用户身份不等于网络地址" class="headerlink" title="4. UE 与 IMSI：用户身份不等于网络地址"></a>4. UE 与 IMSI：用户身份不等于网络地址</h2><p>UE 是 User Equipment，即用户设备，包括智能手机、平板电脑、车载终端和蜂窝物联网设备。</p>
+<p>蜂窝设备通常借助 SIM 中保存的 IMSI 标识订户身份。IMSI 的核心作用是回答：</p>
+<blockquote>
+<p>这是哪个移动订户？</p>
+</blockquote>
+<p>IP 地址回答的则是：</p>
+<blockquote>
+<p>当前数据报应该发送到哪个网络接口或网络位置？</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>IMSI</th>
+<th>IP 地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标识对象</td>
+<td>移动订户身份</td>
+<td>网络接口或网络位置</td>
+</tr>
+<tr>
+<td>主要用途</td>
+<td>认证、查询归属网络和服务权限</td>
+<td>数据报寻址与转发</td>
+</tr>
+<tr>
+<td>与 SIM 的关系</td>
+<td>通常保存在 SIM 中</td>
+<td>不一定</td>
+</tr>
+<tr>
+<td>移动后的变化</td>
+<td>通常保持稳定</td>
+<td>可能改变或由网络维持</td>
+</tr>
+<tr>
+<td>核心问题</td>
+<td>你是谁</td>
+<td>数据发到哪里</td>
+</tr>
+</tbody></table>
+<p>这种区分十分重要。用户移动以后，其网络位置可以变化，但身份仍然需要保持稳定。如果蜂窝网络只依赖 IP 地址识别用户，那么每次地址变化都可能破坏身份、计费和权限关系。</p>
+<p><strong>稳定身份与变化地址的分离，是蜂窝移动性管理的基础。</strong></p>
+<hr>
+<h2 id="5-eNode-B：无线接入与资源协调"><a href="#5-eNode-B：无线接入与资源协调" class="headerlink" title="5. eNode-B：无线接入与资源协调"></a>5. eNode-B：无线接入与资源协调</h2><p>eNode-B 是 4G LTE 中的基站。它直接与 UE 进行无线通信，并将用户数据接入运营商核心网。</p>
+<p>其主要职责包括：</p>
+<ul>
+<li>发送和接收无线信号；</li>
+<li>管理覆盖范围内的用户设备；</li>
+<li>分配频率、时隙等无线资源；</li>
+<li>将用户数据送入核心网；</li>
+<li>与其他基站协作完成切换；</li>
+<li>参与接入和控制信令处理。</li>
+</ul>
+<p>蜂窝基站与 WiFi AP 都承担无线接入功能，但蜂窝基站需要更加深入地参与移动性管理和连续覆盖。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>WiFi AP</th>
+<th>蜂窝基站</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要范围</td>
+<td>局域网</td>
+<td>广域移动网络</td>
+</tr>
+<tr>
+<td>接入管理</td>
+<td>相对局部</td>
+<td>运营商统一管理</td>
+</tr>
+<tr>
+<td>基站间切换</td>
+<td>传统场景中较弱</td>
+<td>核心功能</td>
+</tr>
+<tr>
+<td>用户身份</td>
+<td>通常是局部认证</td>
+<td>SIM 和订户身份</td>
+</tr>
+<tr>
+<td>漫游能力</td>
+<td>通常有限</td>
+<td>原生支持运营商漫游</td>
+</tr>
+</tbody></table>
+<p>蜂窝基站不仅提供信号，还承担无线资源控制和移动切换的一部分工作。</p>
+<hr>
+<h2 id="6-HSS-与-MME：用户档案和现场控制"><a href="#6-HSS-与-MME：用户档案和现场控制" class="headerlink" title="6. HSS 与 MME：用户档案和现场控制"></a>6. HSS 与 MME：用户档案和现场控制</h2><h3 id="6-1-HSS：归属用户数据库"><a href="#6-1-HSS：归属用户数据库" class="headerlink" title="6.1 HSS：归属用户数据库"></a>6.1 HSS：归属用户数据库</h3><p>HSS 位于用户的归属网络中，保存订户的权威信息，例如：</p>
+<ul>
+<li>用户身份；</li>
+<li>认证相关数据；</li>
+<li>套餐和服务权限；</li>
+<li>漫游权限；</li>
+<li>当前注册位置；</li>
+<li>所属归属运营商。</li>
+</ul>
+<p>当用户进入一个被访网络时，被访网络本身不能仅凭设备声明判断用户是否合法。它需要联系归属网络中的 HSS，确认用户身份、权限和漫游资格。</p>
+<p>HSS 更像一个权威用户档案中心，而不是数据转发设备。用户访问网页或观看视频时，普通业务数据不会全部经过 HSS。</p>
+<h3 id="6-2-MME：移动性控制实体"><a href="#6-2-MME：移动性控制实体" class="headerlink" title="6.2 MME：移动性控制实体"></a>6.2 MME：移动性控制实体</h3><p>MME 是 Mobility Management Entity，主要属于控制平面。它负责协调：</p>
+<ul>
+<li>用户接入与认证；</li>
+<li>与 HSS 的身份查询；</li>
+<li>用户位置跟踪；</li>
+<li>设备寻呼；</li>
+<li>基站切换；</li>
+<li>隧道和承载状态建立；</li>
+<li>用户接入状态管理。</li>
+</ul>
+<p>可以将 MME 理解为核心网中的移动用户调度中心。它不负责高速转发用户的每一个数据分组，而是负责决定用户是否可以接入、用户当前位于哪里，以及数据平面应建立怎样的转发状态。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>HSS</th>
+<th>MME</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主要性质</td>
+<td>用户数据库</td>
+<td>移动性控制实体</td>
+</tr>
+<tr>
+<td>主要位置</td>
+<td>归属网络</td>
+<td>当前服务核心网</td>
+</tr>
+<tr>
+<td>核心任务</td>
+<td>保存身份和权限</td>
+<td>认证协调、位置和切换管理</td>
+</tr>
+<tr>
+<td>是否转发普通用户数据</td>
+<td>否</td>
+<td>通常不负责</td>
+</tr>
+<tr>
+<td>直观类比</td>
+<td>用户档案中心</td>
+<td>现场控制中心</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="❗-本节核心结论：-HSS-保存权威身份和服务档案，MME-根据这些档案控制用户接入、位置和切换；二者都主要属于控制平面。"><a href="#❗-本节核心结论：-HSS-保存权威身份和服务档案，MME-根据这些档案控制用户接入、位置和切换；二者都主要属于控制平面。" class="headerlink" title="❗ 本节核心结论： HSS 保存权威身份和服务档案，MME 根据这些档案控制用户接入、位置和切换；二者都主要属于控制平面。"></a>❗ <strong>本节核心结论：</strong> HSS 保存权威身份和服务档案，MME 根据这些档案控制用户接入、位置和切换；二者都主要属于控制平面。</h2><h2 id="7-S-GW-与-P-GW：用户数据怎样进入互联网"><a href="#7-S-GW-与-P-GW：用户数据怎样进入互联网" class="headerlink" title="7. S-GW 与 P-GW：用户数据怎样进入互联网"></a>7. S-GW 与 P-GW：用户数据怎样进入互联网</h2><p>完成认证和控制状态建立后，用户数据通常沿以下路径传输：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UE → eNode-B → S-GW → P-GW → Internet</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-1-S-GW：服务网关"><a href="#7-1-S-GW：服务网关" class="headerlink" title="7.1 S-GW：服务网关"></a>7.1 S-GW：服务网关</h3><p>S-GW 位于基站和 P-GW 之间，主要负责蜂窝核心网内部的用户数据转发。</p>
+<p>其作用包括：</p>
+<ul>
+<li>在基站与核心网之间转发用户数据；</li>
+<li>作为部分移动过程中的数据转发锚点；</li>
+<li>在基站切换时协助维持已有数据路径；</li>
+<li>根据控制平面建立的状态执行转发。</li>
+</ul>
+<h3 id="7-2-P-GW：分组数据网络网关"><a href="#7-2-P-GW：分组数据网络网关" class="headerlink" title="7.2 P-GW：分组数据网络网关"></a>7.2 P-GW：分组数据网络网关</h3><p>P-GW 位于蜂窝核心网与外部数据网络之间。它承担：</p>
+<ul>
+<li>连接公共互联网或其他 PDN；</li>
+<li>提供或维持用户的 IP 层接入；</li>
+<li>执行外部网络方向的数据转发；</li>
+<li>实施部分过滤、策略和计费控制；</li>
+<li>作为较高层的数据路径锚点。</li>
+</ul>
+<p>可以将 S-GW 理解为运营商核心网内部的中转网关，将 P-GW 理解为运营商面向互联网的出口网关。</p>
+<table>
+<thead>
+<tr>
+<th>网元</th>
+<th>主要任务</th>
+<th>平面属性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MME</td>
+<td>认证、位置、切换和承载控制</td>
+<td>控制平面</td>
+</tr>
+<tr>
+<td>HSS</td>
+<td>身份、权限和订户档案</td>
+<td>控制平面</td>
+</tr>
+<tr>
+<td>S-GW</td>
+<td>核心网内部用户数据转发</td>
+<td>数据平面</td>
+</tr>
+<tr>
+<td>P-GW</td>
+<td>连接互联网和外部数据网络</td>
+<td>数据平面为主</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-控制平面先建立状态，数据平面再转发"><a href="#8-控制平面先建立状态，数据平面再转发" class="headerlink" title="8. 控制平面先建立状态，数据平面再转发"></a>8. 控制平面先建立状态，数据平面再转发</h2><p>手机访问一个 Web 服务器时，用户看到的只是网页请求和响应，但网络内部在正式转发数据前已经完成了大量控制工作。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant UE as 用户设备
+    participant ENB as eNode-B
+    participant MME as MME
+    participant HSS as HSS
+    participant GW as S-GW&#x2F;P-GW
+
+    UE-&gt;&gt;ENB: 请求接入
+    ENB-&gt;&gt;MME: 提交接入与身份信息
+    MME-&gt;&gt;HSS: 查询身份和权限
+    HSS--&gt;&gt;MME: 返回认证结果
+    MME-&gt;&gt;GW: 建立转发与隧道状态
+    MME--&gt;&gt;UE: 接入完成
+    UE-&gt;&gt;GW: 发送用户数据
+  </pre></div>
+
+<p>控制平面需要完成：</p>
+<ul>
+<li>识别 SIM 中的用户身份；</li>
+<li>与 HSS 协作认证；</li>
+<li>登记用户当前位置；</li>
+<li>建立承载和隧道；</li>
+<li>配置数据转发状态；</li>
+<li>分配或维持用户的 IP 接入。</li>
+</ul>
+<p>数据平面随后根据已经建立的状态转发分组。</p>
+<p>这种分工体现了典型的控制与转发分离：</p>
+<blockquote>
+<p><strong>控制平面负责决定用户能否接入以及数据应该走哪条路径，数据平面负责按既定状态高速转发。</strong></p>
+</blockquote>
+<hr>
+<h2 id="9-5G-为什么需要新的无线部署"><a href="#9-5G-为什么需要新的无线部署" class="headerlink" title="9. 5G 为什么需要新的无线部署"></a>9. 5G 为什么需要新的无线部署</h2><p>5G NR 中的 NR 表示 New Radio。它不仅追求更高数据速率，也关注更低时延、更高容量和更密集的设备接入。</p>
+<h3 id="9-1-MIMO-与波束成形"><a href="#9-1-MIMO-与波束成形" class="headerlink" title="9.1 MIMO 与波束成形"></a>9.1 MIMO 与波束成形</h3><p>MIMO 利用多根天线同时发送和接收信号，以提高频谱利用率和数据传输能力。</p>
+<p>波束成形则通过控制不同天线信号的相位和幅度，将更多无线能量集中到目标设备所在方向，而不是平均向所有方向辐射。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    BS[多天线基站] --&gt;|定向波束| UE1[用户 1]
+    BS --&gt;|定向波束| UE2[用户 2]
+    BS --&gt;|定向波束| UE3[用户 3]
+  </pre></div>
+
+<p>MIMO 强调多天线带来的并行传输能力，波束成形强调将信号更精确地指向目标方向。</p>
+<h3 id="9-2-毫米波的速率与覆盖权衡"><a href="#9-2-毫米波的速率与覆盖权衡" class="headerlink" title="9.2 毫米波的速率与覆盖权衡"></a>9.2 毫米波的速率与覆盖权衡</h3><p>更高频率能够提供更大的可用带宽，因此毫米波适合实现高速无线传输。但其传播距离较短、穿透能力较弱，并且更容易受到建筑物和人体遮挡。</p>
+<p>这形成了一个典型工程权衡：</p>
+<table>
+<thead>
+<tr>
+<th>高频毫米波的优势</th>
+<th>高频毫米波的代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可用带宽更大</td>
+<td>覆盖范围较小</td>
+</tr>
+<tr>
+<td>峰值速率更高</td>
+<td>穿墙能力较弱</td>
+</tr>
+<tr>
+<td>支持高容量热点</td>
+<td>更容易受到遮挡</td>
+</tr>
+<tr>
+<td>空间复用潜力较高</td>
+<td>需要更密集的基站</td>
+</tr>
+</tbody></table>
+<p>因此，5G 不只是给原来的 4G 基站安装新软件。完整部署往往还需要新的频段、天线阵列、无线接口、波束成形能力和更加密集的站点。</p>
+<hr>
+<h2 id="❗-本节核心结论：-5G-通过新频段、多天线和定向传输提升速率与容量，但更高频率也带来了覆盖缩小和部署成本上升。"><a href="#❗-本节核心结论：-5G-通过新频段、多天线和定向传输提升速率与容量，但更高频率也带来了覆盖缩小和部署成本上升。" class="headerlink" title="❗ 本节核心结论： 5G 通过新频段、多天线和定向传输提升速率与容量，但更高频率也带来了覆盖缩小和部署成本上升。"></a>❗ <strong>本节核心结论：</strong> 5G 通过新频段、多天线和定向传输提升速率与容量，但更高频率也带来了覆盖缩小和部署成本上升。</h2><h2 id="10-为什么互联网不能追踪每一台手机的实时位置"><a href="#10-为什么互联网不能追踪每一台手机的实时位置" class="headerlink" title="10. 为什么互联网不能追踪每一台手机的实时位置"></a>10. 为什么互联网不能追踪每一台手机的实时位置</h2><p>一种直观方案是：手机每次移动到新网络后，就向整个互联网宣布自己的最新地址，让所有路由器为其维护一条精确主机路由。</p>
+<p>这种方案理论上可以工作，却无法扩展。</p>
+<h3 id="10-1-主机级路由会破坏前缀聚合"><a href="#10-1-主机级路由会破坏前缀聚合" class="headerlink" title="10.1 主机级路由会破坏前缀聚合"></a>10.1 主机级路由会破坏前缀聚合</h3><p>互联网能够扩展的重要原因之一，是路由器通常维护网络前缀，而不是为每一台终端保存独立路由。</p>
+<p>假如每台手机都有一条精确路由，全球路由表可能需要加入数量巨大的主机级表项。</p>
+<h3 id="10-2-移动产生的更新过于频繁"><a href="#10-2-移动产生的更新过于频繁" class="headerlink" title="10.2 移动产生的更新过于频繁"></a>10.2 移动产生的更新过于频繁</h3><p>手机会不断上线、下线、切换基站和进入新的网络。如果每次变化都传播到全球路由系统，控制消息数量将非常庞大。</p>
+<h3 id="10-3-互联网路由协议不适合快速终端移动"><a href="#10-3-互联网路由协议不适合快速终端移动" class="headerlink" title="10.3 互联网路由协议不适合快速终端移动"></a>10.3 互联网路由协议不适合快速终端移动</h3><p>BGP 等协议主要处理网络前缀之间相对缓慢的变化，而不是持续追踪数十亿终端的瞬时位置。</p>
+<p>因此，移动性不能被简单地交给全球路由系统。更可扩展的思路是：</p>
+<ul>
+<li>互联网核心继续按照稳定前缀转发；</li>
+<li>用户的归属网络维护身份和位置映射；</li>
+<li>被访网络管理当前接入；</li>
+<li>必要时通过隧道或位置查询把数据送到当前位置。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    CORE[互联网核心] --&gt;|只维护聚合前缀| HOME[归属网络]
+    HOME --&gt;|维护用户位置映射| VISITED[被访网络]
+    VISITED --&gt; UE[移动用户]
+  </pre></div>
+
+<p><strong>移动性被限制在网络边缘和运营商管理域内，而不是扩散到整个互联网。</strong></p>
+<hr>
+<h2 id="11-归属网络与被访网络"><a href="#11-归属网络与被访网络" class="headerlink" title="11. 归属网络与被访网络"></a>11. 归属网络与被访网络</h2><p>移动性管理的核心，是区分用户的稳定归属关系和当前接入位置。</p>
+<h3 id="11-1-归属网络"><a href="#11-1-归属网络" class="headerlink" title="11.1 归属网络"></a>11.1 归属网络</h3><p>归属网络是用户长期订购服务的运营商网络。它保存用户的权威信息，包括身份、服务权限、套餐和漫游资格。</p>
+<p>归属网络主要回答：</p>
+<ul>
+<li>这个用户是谁；</li>
+<li>用户具有什么权限；</li>
+<li>用户是否允许漫游；</li>
+<li>用户当前注册在哪个网络。</li>
+</ul>
+<h3 id="11-2-被访网络"><a href="#11-2-被访网络" class="headerlink" title="11.2 被访网络"></a>11.2 被访网络</h3><p>被访网络是用户当前接入但并不归属的网络。它负责提供当前无线接入，并与归属网络协作完成认证和位置注册。</p>
+<p>被访网络主要回答：</p>
+<ul>
+<li>用户现在接入在哪里；</li>
+<li>当前应由哪个基站和网关服务；</li>
+<li>如何把数据交付给用户。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>归属网络</th>
+<th>被访网络</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>与用户的关系</td>
+<td>长期订购关系</td>
+<td>临时接入关系</td>
+</tr>
+<tr>
+<td>是否保存权威身份档案</td>
+<td>是</td>
+<td>通常不是</td>
+</tr>
+<tr>
+<td>是否提供当前位置的无线接入</td>
+<td>不一定</td>
+<td>是</td>
+</tr>
+<tr>
+<td>主要职责</td>
+<td>身份、权限和位置记录</td>
+<td>当前接入和数据交付</td>
+</tr>
+<tr>
+<td>核心问题</td>
+<td>你是谁</td>
+<td>你现在在哪里</td>
+</tr>
+</tbody></table>
+<p>这一区分体现了蜂窝移动性的基本矛盾：</p>
+<blockquote>
+<p><strong>用户身份长期稳定，但用户所在的网络不断变化。</strong></p>
+</blockquote>
+<hr>
+<h2 id="12-移动节点注册：建立身份与当前位置的映射"><a href="#12-移动节点注册：建立身份与当前位置的映射" class="headerlink" title="12. 移动节点注册：建立身份与当前位置的映射"></a>12. 移动节点注册：建立身份与当前位置的映射</h2><p>当移动设备进入被访网络时，归属网络并不会自动知道其新位置。设备需要完成注册过程。</p>
+<h3 id="12-1-注册过程"><a href="#12-1-注册过程" class="headerlink" title="12.1 注册过程"></a>12.1 注册过程</h3><div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant UE as 移动设备
+    participant V as 被访网络
+    participant H as 归属网络&#x2F;HSS
+
+    UE-&gt;&gt;V: 请求接入并提供身份
+    V-&gt;&gt;H: 查询身份与漫游权限
+    H--&gt;&gt;V: 返回认证结果
+    V--&gt;&gt;UE: 允许接入
+    V-&gt;&gt;V: 记录用户在本网络
+    V-&gt;&gt;H: 注册用户当前位置
+    H-&gt;&gt;H: 更新位置映射
+  </pre></div>
+
+<p>注册完成后：</p>
+<ul>
+<li>被访网络知道该用户当前连接在本地；</li>
+<li>归属网络知道该用户目前位于哪个被访网络；</li>
+<li>后续数据可以根据这一位置映射进行转发。</li>
+</ul>
+<p>注册和路由不是同一件事。</p>
+<p>注册回答的是：</p>
+<blockquote>
+<p>用户现在在哪里？</p>
+</blockquote>
+<p>路由回答的是：</p>
+<blockquote>
+<p>数据怎样到达这个位置？</p>
+</blockquote>
+<p>没有注册，归属网络不知道数据应被转交到哪里；只有注册而没有转发机制，数据仍然无法到达用户。</p>
+<hr>
+<h2 id="❗-本节核心结论：-注册负责维护稳定身份到当前位置的映射，它为后续间接路由或直接路由提供必要信息。"><a href="#❗-本节核心结论：-注册负责维护稳定身份到当前位置的映射，它为后续间接路由或直接路由提供必要信息。" class="headerlink" title="❗ 本节核心结论： 注册负责维护稳定身份到当前位置的映射，它为后续间接路由或直接路由提供必要信息。"></a>❗ <strong>本节核心结论：</strong> 注册负责维护稳定身份到当前位置的映射，它为后续间接路由或直接路由提供必要信息。</h2><h2 id="13-间接路由：先送回归属网络，再转交当前位置"><a href="#13-间接路由：先送回归属网络，再转交当前位置" class="headerlink" title="13. 间接路由：先送回归属网络，再转交当前位置"></a>13. 间接路由：先送回归属网络，再转交当前位置</h2><p>间接路由中，通信者只需要知道移动节点的永久地址。数据首先按照普通 IP 路由到达移动节点的归属网络，再由归属网络转发到当前被访网络。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    C[通信者] --&gt; H[归属网络]
+    H --&gt;|隧道| V[被访网络]
+    V --&gt; UE[移动节点]
+  </pre></div>
+
+<h3 id="13-1-完整过程"><a href="#13-1-完整过程" class="headerlink" title="13.1 完整过程"></a>13.1 完整过程</h3><ol>
+<li>通信者向移动节点的永久地址发送数据。</li>
+<li>由于该地址属于归属网络，数据首先到达归属网络。</li>
+<li>归属网络查询已经注册的当前位置。</li>
+<li>归属网关把原数据报封装到一个新的数据报中。</li>
+<li>外层数据报被发送到被访网络网关。</li>
+<li>被访网关删除外层头部。</li>
+<li>原数据报被交付给移动节点。</li>
+</ol>
+<h3 id="13-2-隧道的作用"><a href="#13-2-隧道的作用" class="headerlink" title="13.2 隧道的作用"></a>13.2 隧道的作用</h3><p>隧道是一种封装技术。原始数据报被作为另一个数据报的载荷传输：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">外层 IP 头部</span><br><span class="line">└─ 原始 IP 数据报</span><br><span class="line">   ├─ 原始 IP 头部</span><br><span class="line">   └─ 原始数据</span><br></pre></td></tr></table></figure>
+
+<p>中间路由器只关心外层地址，将封装后的数据送到隧道出口。出口解封装后，再按照原始数据报继续转发。</p>
+<h3 id="13-3-间接路由的优势"><a href="#13-3-间接路由的优势" class="headerlink" title="13.3 间接路由的优势"></a>13.3 间接路由的优势</h3><p>通信者不需要知道移动节点当前位置。用户从一个被访网络移动到另一个被访网络时，只需更新归属网络中的位置映射，通信者仍然向原永久地址发送。</p>
+<p>这使移动性对通信者和应用相对透明，也有利于维持已有连接。</p>
+<h3 id="13-4-三角路由问题"><a href="#13-4-三角路由问题" class="headerlink" title="13.4 三角路由问题"></a>13.4 三角路由问题</h3><p>间接路由可能导致数据绕行。</p>
+<p>例如，通信者和移动节点当前都在日本，但移动节点的归属网络位于中国。数据可能先从日本送往中国，再由中国的归属网络转发回日本。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    C[日本的通信者] --&gt; H[中国的归属网络]
+    H --&gt; V[日本的被访网络]
+    V --&gt; UE[移动用户]
+  </pre></div>
+
+<p>这种路径会造成：</p>
+<ul>
+<li>端到端时延增加；</li>
+<li>带宽浪费；</li>
+<li>归属网络承担额外负担；</li>
+<li>上行和下行路径不对称。</li>
+</ul>
+<p>三角路由的“三角”描述的是三方之间的绕行关系，而不要求实际拓扑在图上形成严格的几何三角形。</p>
+<hr>
+<h2 id="14-直接路由：查询位置后直接发送"><a href="#14-直接路由：查询位置后直接发送" class="headerlink" title="14. 直接路由：查询位置后直接发送"></a>14. 直接路由：查询位置后直接发送</h2><p>直接路由试图避免所有数据绕经归属网络。</p>
+<p>通信者先向归属网络查询移动节点当前所在位置，再直接将数据发送到被访网络。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  sequenceDiagram
+    participant C as 通信者
+    participant H as 归属网络
+    participant V as 被访网络
+    participant UE as 移动节点
+
+    C-&gt;&gt;H: 查询移动节点当前位置
+    H--&gt;&gt;C: 返回被访网络信息
+    C-&gt;&gt;V: 直接发送数据
+    V-&gt;&gt;UE: 交付数据
+  </pre></div>
+
+<p>直接路由的主要优势是：</p>
+<ul>
+<li>路径更短；</li>
+<li>延迟更低；</li>
+<li>避免明显的三角路由；</li>
+<li>减轻归属网络的数据转发压力。</li>
+</ul>
+<p>但这种效率是以更复杂的位置更新机制换来的。</p>
+<p>当移动节点从被访网络 V1 移动到 V2 后，通信者原先保存的位置可能失效。系统需要重新查询、更新绑定，或者借助其他转发机制把旧路径迁移到新位置。</p>
+<p>因此，直接路由不再对通信者完全透明。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>间接路由</th>
+<th>直接路由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否经过归属网络</td>
+<td>数据通常经过</td>
+<td>查询后数据通常不经过</td>
+</tr>
+<tr>
+<td>通信者是否知道当前位置</td>
+<td>不需要</td>
+<td>需要</td>
+</tr>
+<tr>
+<td>移动性透明程度</td>
+<td>较高</td>
+<td>较低</td>
+</tr>
+<tr>
+<td>路径效率</td>
+<td>可能较低</td>
+<td>通常较高</td>
+</tr>
+<tr>
+<td>三角路由</td>
+<td>容易出现</td>
+<td>可以避免</td>
+</tr>
+<tr>
+<td>再次移动后的处理</td>
+<td>更新归属网络即可</td>
+<td>通信者位置绑定也可能更新</td>
+</tr>
+<tr>
+<td>复杂性集中位置</td>
+<td>归属网络和隧道</td>
+<td>查询、缓存和绑定更新</td>
+</tr>
+</tbody></table>
+<p>二者的本质权衡是：</p>
+<blockquote>
+<p><strong>间接路由用较长的数据路径换取移动性透明，直接路由用更复杂的位置管理换取更短的转发路径。</strong></p>
+</blockquote>
+<hr>
+<h2 id="15-移动性透明并不意味着网络内部没有变化"><a href="#15-移动性透明并不意味着网络内部没有变化" class="headerlink" title="15. 移动性透明并不意味着网络内部没有变化"></a>15. 移动性透明并不意味着网络内部没有变化</h2><p>所谓移动性透明，是指通信者或应用不需要显式处理移动节点的位置改变。</p>
+<p>用户从一个基站切换到另一个基站时，应用可能继续使用原有连接，但网络内部可能已经完成：</p>
+<ul>
+<li>与新基站建立无线连接；</li>
+<li>释放旧基站的部分状态；</li>
+<li>更新用户位置；</li>
+<li>调整核心网隧道；</li>
+<li>修改数据转发路径；</li>
+<li>转交尚未发送的数据；</li>
+<li>对设备进行重新寻呼或调度。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart LR
+    APP[应用看到同一连接] --&gt; NET[网络内部]
+    NET --&gt; A[新基站接入]
+    NET --&gt; B[位置更新]
+    NET --&gt; C[隧道切换]
+    NET --&gt; D[路径修改]
+  </pre></div>
+
+<p>透明并不意味着移动没有成本，而是意味着这些成本主要由网络承担。</p>
+<hr>
+<h2 id="16-无线与移动性如何影响-TCP"><a href="#16-无线与移动性如何影响-TCP" class="headerlink" title="16. 无线与移动性如何影响 TCP"></a>16. 无线与移动性如何影响 TCP</h2><p>从分层角度看，TCP 和 UDP 可以继续运行在 WiFi、4G 和 5G 上。应用通常不需要了解底层是光纤、以太网还是蜂窝链路。</p>
+<p>但协议能够运行，不代表性能不受影响。</p>
+<h3 id="16-1-无线丢包不一定来自拥塞"><a href="#16-1-无线丢包不一定来自拥塞" class="headerlink" title="16.1 无线丢包不一定来自拥塞"></a>16.1 无线丢包不一定来自拥塞</h3><p>传统 TCP 经常把分组丢失视为网络拥塞的信号：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">分组丢失</span><br><span class="line">→ 推测路由器队列拥塞</span><br><span class="line">→ 减小拥塞窗口 cwnd</span><br><span class="line">→ 降低发送速率</span><br></pre></td></tr></table></figure>
+
+<p>在有线网络中，分组丢失确实经常与路由器队列溢出相关。</p>
+<p>无线环境中的丢包还可能来自：</p>
+<ul>
+<li>信号衰减；</li>
+<li>无线干扰；</li>
+<li>遮挡；</li>
+<li>多径传播；</li>
+<li>短暂断连；</li>
+<li>基站切换；</li>
+<li>链路状态更新延迟。</li>
+</ul>
+<p>这些情况并不一定意味着路径中的路由器已经拥塞。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    LOSS[检测到丢包] --&gt; TCP[TCP 推测拥塞]
+    TCP --&gt; CWND[减小 cwnd]
+    CWND --&gt; RATE[降低发送速率]
+
+    W[真实原因可能是无线误码] -.不一定存在拥塞.-&gt; LOSS
+    H[真实原因可能是基站切换] -.不一定存在拥塞.-&gt; LOSS
+  </pre></div>
+
+<p>TCP 无法轻易判断丢包的真实原因，因此通常采取保守策略。结果可能是：</p>
+<ul>
+<li>不必要地减小拥塞窗口；</li>
+<li>吞吐量明显下降；</li>
+<li>无线链路能力未被充分利用；</li>
+<li>切换结束后恢复速度较慢。</li>
+</ul>
+<h3 id="16-2-重传与拥塞控制必须区分"><a href="#16-2-重传与拥塞控制必须区分" class="headerlink" title="16.2 重传与拥塞控制必须区分"></a>16.2 重传与拥塞控制必须区分</h3><p>无线误码导致的丢失仍然可能需要重传，因为可靠传输必须补回缺失数据。</p>
+<p>但是否需要大幅降低发送速率，是另一个问题。</p>
+<ul>
+<li><strong>重传</strong>解决数据是否完整；</li>
+<li><strong>拥塞控制</strong>解决网络是否承受过高负载。</li>
+</ul>
+<p>无线丢包需要重传，并不自动意味着网络已经拥塞。</p>
+<h3 id="16-3-链路层重传的双重影响"><a href="#16-3-链路层重传的双重影响" class="headerlink" title="16.3 链路层重传的双重影响"></a>16.3 链路层重传的双重影响</h3><p>无线链路层可以在本地重传受损帧，避免每次误码都直接暴露给 TCP。这有助于提高可靠性，却可能增加：</p>
+<ul>
+<li>往返时延；</li>
+<li>时延波动；</li>
+<li>分组乱序；</li>
+<li>队列积累。</li>
+</ul>
+<p>因此，链路层重传可能隐藏部分丢包，却无法消除无线环境对高层性能的影响。</p>
+<hr>
+<h2 id="❗-本节核心结论：-TCP-可以运行在蜂窝网络上，但它可能把无线误码和切换丢包误判为拥塞，从而不必要地降低发送速率。"><a href="#❗-本节核心结论：-TCP-可以运行在蜂窝网络上，但它可能把无线误码和切换丢包误判为拥塞，从而不必要地降低发送速率。" class="headerlink" title="❗ 本节核心结论： TCP 可以运行在蜂窝网络上，但它可能把无线误码和切换丢包误判为拥塞，从而不必要地降低发送速率。"></a>❗ <strong>本节核心结论：</strong> TCP 可以运行在蜂窝网络上，但它可能把无线误码和切换丢包误判为拥塞，从而不必要地降低发送速率。</h2><h2 id="17-实时应用面对的是可靠性与时延的冲突"><a href="#17-实时应用面对的是可靠性与时延的冲突" class="headerlink" title="17. 实时应用面对的是可靠性与时延的冲突"></a>17. 实时应用面对的是可靠性与时延的冲突</h2><p>视频通话、云游戏和实时控制系统不仅关心数据最终是否到达，还关心数据何时到达。</p>
+<p>如果一个语音分组经过多次重传后延迟数秒才到达，即使其内容完整，对实时通话也可能已经没有价值。</p>
+<p>实时应用通常需要在以下目标之间权衡：</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>作用</th>
+<th>潜在冲突</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提高可靠性</td>
+<td>减少数据缺失</td>
+<td>重传会增加时延</td>
+</tr>
+<tr>
+<td>降低时延</td>
+<td>保持实时交互</td>
+<td>可能需要容忍少量丢包</td>
+</tr>
+<tr>
+<td>提高吞吐量</td>
+<td>改善视频质量</td>
+<td>可能增加队列和拥塞风险</td>
+</tr>
+<tr>
+<td>平滑播放</td>
+<td>抵抗抖动</td>
+<td>需要更大缓冲并增加等待</td>
+</tr>
+</tbody></table>
+<p>对于文件下载，迟到的数据仍然有价值；对于实时语音，过期数据可能不如直接丢弃。</p>
+<p>因此，无线移动网络的优化不能只追求最终无丢失，还必须考虑时延、抖动和应用数据的时效性。</p>
+<hr>
+<h2 id="18-稳定身份与变化位置：移动性的统一解释"><a href="#18-稳定身份与变化位置：移动性的统一解释" class="headerlink" title="18. 稳定身份与变化位置：移动性的统一解释"></a>18. 稳定身份与变化位置：移动性的统一解释</h2><p>4G&#x2F;5G 网络中的许多机制，看似分散，实际都服务于同一个目标：</p>
+<blockquote>
+<p><strong>让用户在位置不断变化时仍然可以使用稳定身份进行通信。</strong></p>
+</blockquote>
+<p>各机制之间的关系可以概括如下：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>对应机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>如何标识用户</td>
+<td>SIM、IMSI</td>
+</tr>
+<tr>
+<td>谁保存权威身份</td>
+<td>归属网络、HSS</td>
+</tr>
+<tr>
+<td>谁管理当前接入</td>
+<td>被访网络、基站、MME</td>
+</tr>
+<tr>
+<td>如何记录当前位置</td>
+<td>注册和位置更新</td>
+</tr>
+<tr>
+<td>如何转发用户数据</td>
+<td>S-GW、P-GW</td>
+</tr>
+<tr>
+<td>如何从永久地址找到当前位置</td>
+<td>间接路由或直接路由</td>
+</tr>
+<tr>
+<td>如何跨网络转交数据</td>
+<td>隧道</td>
+</tr>
+<tr>
+<td>如何维持移动过程中的通信</td>
+<td>切换和路径更新</td>
+</tr>
+<tr>
+<td>如何处理无线丢包</td>
+<td>链路层重传和高层恢复</td>
+</tr>
+</tbody></table>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+  flowchart TD
+    ID[稳定身份] --&gt; HSS[归属网络保存身份]
+    LOC[变化位置] --&gt; REG[被访网络注册位置]
+    HSS --&gt; MAP[身份—位置映射]
+    REG --&gt; MAP
+    MAP --&gt; ROUTE[建立转发路径]
+    ROUTE --&gt; COMM[维持通信]
+  </pre></div>
+
+<p>移动性管理不是单纯的基站切换，也不是简单地修改路由表。它是一整套围绕身份、位置、认证和路径建立的协作机制。</p>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>蜂窝网络面对的根本问题，不只是如何让手机通过无线信号访问互联网，而是如何在用户持续移动的情况下维持身份、可达性和通信连续性。</p>
+<p>4G LTE 通过明确的控制平面和数据平面分工组织网络：</p>
+<ul>
+<li>UE 和 eNode-B 完成用户设备的无线接入；</li>
+<li>IMSI 提供相对稳定的订户身份；</li>
+<li>HSS 保存身份、权限和归属信息；</li>
+<li>MME 负责认证、位置跟踪和移动性控制；</li>
+<li>S-GW 和 P-GW 根据控制状态转发用户数据并连接外部互联网。</li>
+</ul>
+<p>当用户进入被访网络时，网络通过注册建立稳定身份到当前位置的映射。间接路由允许通信者继续使用永久地址，把数据先送到归属网络，再通过隧道转交给被访网络；直接路由则通过查询当前位置缩短路径，但要求更复杂的位置更新和绑定管理。</p>
+<p>5G 在这一移动网络框架上进一步引入新频段、多天线和波束成形等技术，以提高速率、容量和设备密度，但也带来了覆盖缩小和部署密度上升等工程代价。</p>
+<p>在更高协议层，移动性并非完全透明。无线误码、链路层重传和基站切换可能引起丢包、乱序和时延波动。TCP 又可能将这些现象误判为拥塞，从而降低拥塞窗口和发送速率。对实时应用而言，可靠性还必须与时延和数据时效性共同权衡。</p>
+<p><strong>蜂窝移动网络的本质，是不让整个互联网追踪每一台终端，而是在归属网络、被访网络和核心网网关之间维护身份与位置的动态映射，从而把移动造成的复杂性限制在可管理的网络边缘。</strong></p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/mp4/avatar.mp4" title="头像" alt="头像"></a><div class="post-copyright__author_name">agsd</div><div class="post-copyright__author_desc">仅在此处的世界</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/')">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Chapter 7-2：蜂窝网络如何维持移动通信：从 4G&amp;url=http://example.com/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/&amp;pic=/cover/jamie.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"></div></div></div><div class="post_share"><div class="social-share" data-image="/cover/dhalsim.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> Comment</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><video class="avatar-img" autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline" style="object-fit: cover;"><source src="/mp4/avatar.mp4" type="video/mp4"/></video><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/LoveEye.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student majoring in SE at SYSU.My favorite games are Street Fighter VI and Zenless Zone Zero.Nice to meet you!</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">agsd</h1><div class="author-info__desc">仅在此处的世界</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/agsd-agsd" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:jyao4060@gmail.com" target="_blank" title="MailToMe"><i class="anzhiyufont anzhiyu-icon-envelope"></i></a></div></div></div></div><div class="card-widget anzhiyu-right-widget" id="card-wechat" onclick="null"><div id="flip-wrapper"><div id="flip-content"><div class="face" style="background: url(/img/chunli1.png) center center / 100% no-repeat"></div><div class="back face" style="background: url(/img/cammy1.png) center center / 100% no-repeat"></div></div></div></div><div class="card-widget card-countdown"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div class="cd-count-left">
+  <span class="cd-text">距离</span>
+  <span class="cd-name" id="eventName"></span>
+  <span class="cd-time" id="daysUntil"></span>
+  <span class="cd-date" id="eventDate"></span>
+</div>
+<div id="countRight" class="cd-count-right"></div>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G-5G-%E6%9E%B6%E6%9E%84%E5%88%B0%E7%A7%BB%E5%8A%A8%E6%80%A7%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">蜂窝网络如何维持移动通信：从 4G&#x2F;5G 架构到移动性管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E4%B8%8D%E6%98%AF%E5%8F%A6%E4%B8%80%E5%A5%97%E4%BA%92%E8%81%94%E7%BD%91"><span class="toc-number">1.2.</span> <span class="toc-text">1. 蜂窝网络不是另一套互联网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E4%BB%8D%E7%84%B6%E5%BB%BA%E7%AB%8B%E5%9C%A8-IP-%E5%8D%8F%E8%AE%AE%E4%BD%93%E7%B3%BB%E4%B9%8B%E4%B8%8A%EF%BC%8C%E4%BD%86%E5%AE%83%E5%BF%85%E9%A1%BB%E9%A2%9D%E5%A4%96%E7%AE%A1%E7%90%86%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD%E3%80%81%E6%8E%A5%E5%85%A5%E4%BD%8D%E7%BD%AE%E5%92%8C%E9%80%9A%E4%BF%A1%E8%BF%9E%E7%BB%AD%E6%80%A7%E3%80%82"><span class="toc-number">1.3.</span> <span class="toc-text">❗ 本节核心结论： 蜂窝网络仍然建立在 IP 协议体系之上，但它必须额外管理用户身份、接入位置和通信连续性。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%97%A0%E7%BA%BF%E4%B8%8E%E7%A7%BB%E5%8A%A8%E6%80%A7%E5%BF%85%E9%A1%BB%E5%88%86%E5%BC%80%E7%90%86%E8%A7%A3"><span class="toc-number">1.4.</span> <span class="toc-text">2. 无线与移动性必须分开理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4G-LTE-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84"><span class="toc-number">1.5.</span> <span class="toc-text">3. 4G LTE 的基本架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-UE-%E4%B8%8E-IMSI%EF%BC%9A%E7%94%A8%E6%88%B7%E8%BA%AB%E4%BB%BD%E4%B8%8D%E7%AD%89%E4%BA%8E%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80"><span class="toc-number">1.6.</span> <span class="toc-text">4. UE 与 IMSI：用户身份不等于网络地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-eNode-B%EF%BC%9A%E6%97%A0%E7%BA%BF%E6%8E%A5%E5%85%A5%E4%B8%8E%E8%B5%84%E6%BA%90%E5%8D%8F%E8%B0%83"><span class="toc-number">1.7.</span> <span class="toc-text">5. eNode-B：无线接入与资源协调</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-HSS-%E4%B8%8E-MME%EF%BC%9A%E7%94%A8%E6%88%B7%E6%A1%A3%E6%A1%88%E5%92%8C%E7%8E%B0%E5%9C%BA%E6%8E%A7%E5%88%B6"><span class="toc-number">1.8.</span> <span class="toc-text">6. HSS 与 MME：用户档案和现场控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-HSS%EF%BC%9A%E5%BD%92%E5%B1%9E%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.8.1.</span> <span class="toc-text">6.1 HSS：归属用户数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-MME%EF%BC%9A%E7%A7%BB%E5%8A%A8%E6%80%A7%E6%8E%A7%E5%88%B6%E5%AE%9E%E4%BD%93"><span class="toc-number">1.8.2.</span> <span class="toc-text">6.2 MME：移动性控制实体</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-HSS-%E4%BF%9D%E5%AD%98%E6%9D%83%E5%A8%81%E8%BA%AB%E4%BB%BD%E5%92%8C%E6%9C%8D%E5%8A%A1%E6%A1%A3%E6%A1%88%EF%BC%8CMME-%E6%A0%B9%E6%8D%AE%E8%BF%99%E4%BA%9B%E6%A1%A3%E6%A1%88%E6%8E%A7%E5%88%B6%E7%94%A8%E6%88%B7%E6%8E%A5%E5%85%A5%E3%80%81%E4%BD%8D%E7%BD%AE%E5%92%8C%E5%88%87%E6%8D%A2%EF%BC%9B%E4%BA%8C%E8%80%85%E9%83%BD%E4%B8%BB%E8%A6%81%E5%B1%9E%E4%BA%8E%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E3%80%82"><span class="toc-number">1.9.</span> <span class="toc-text">❗ 本节核心结论： HSS 保存权威身份和服务档案，MME 根据这些档案控制用户接入、位置和切换；二者都主要属于控制平面。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-S-GW-%E4%B8%8E-P-GW%EF%BC%9A%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%80%8E%E6%A0%B7%E8%BF%9B%E5%85%A5%E4%BA%92%E8%81%94%E7%BD%91"><span class="toc-number">1.10.</span> <span class="toc-text">7. S-GW 与 P-GW：用户数据怎样进入互联网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-S-GW%EF%BC%9A%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3"><span class="toc-number">1.10.1.</span> <span class="toc-text">7.1 S-GW：服务网关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-P-GW%EF%BC%9A%E5%88%86%E7%BB%84%E6%95%B0%E6%8D%AE%E7%BD%91%E7%BB%9C%E7%BD%91%E5%85%B3"><span class="toc-number">1.10.2.</span> <span class="toc-text">7.2 P-GW：分组数据网络网关</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E5%85%88%E5%BB%BA%E7%AB%8B%E7%8A%B6%E6%80%81%EF%BC%8C%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%E5%86%8D%E8%BD%AC%E5%8F%91"><span class="toc-number">1.11.</span> <span class="toc-text">8. 控制平面先建立状态，数据平面再转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-5G-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%96%B0%E7%9A%84%E6%97%A0%E7%BA%BF%E9%83%A8%E7%BD%B2"><span class="toc-number">1.12.</span> <span class="toc-text">9. 5G 为什么需要新的无线部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-MIMO-%E4%B8%8E%E6%B3%A2%E6%9D%9F%E6%88%90%E5%BD%A2"><span class="toc-number">1.12.1.</span> <span class="toc-text">9.1 MIMO 与波束成形</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E6%AF%AB%E7%B1%B3%E6%B3%A2%E7%9A%84%E9%80%9F%E7%8E%87%E4%B8%8E%E8%A6%86%E7%9B%96%E6%9D%83%E8%A1%A1"><span class="toc-number">1.12.2.</span> <span class="toc-text">9.2 毫米波的速率与覆盖权衡</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-5G-%E9%80%9A%E8%BF%87%E6%96%B0%E9%A2%91%E6%AE%B5%E3%80%81%E5%A4%9A%E5%A4%A9%E7%BA%BF%E5%92%8C%E5%AE%9A%E5%90%91%E4%BC%A0%E8%BE%93%E6%8F%90%E5%8D%87%E9%80%9F%E7%8E%87%E4%B8%8E%E5%AE%B9%E9%87%8F%EF%BC%8C%E4%BD%86%E6%9B%B4%E9%AB%98%E9%A2%91%E7%8E%87%E4%B9%9F%E5%B8%A6%E6%9D%A5%E4%BA%86%E8%A6%86%E7%9B%96%E7%BC%A9%E5%B0%8F%E5%92%8C%E9%83%A8%E7%BD%B2%E6%88%90%E6%9C%AC%E4%B8%8A%E5%8D%87%E3%80%82"><span class="toc-number">1.13.</span> <span class="toc-text">❗ 本节核心结论： 5G 通过新频段、多天线和定向传输提升速率与容量，但更高频率也带来了覆盖缩小和部署成本上升。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BA%92%E8%81%94%E7%BD%91%E4%B8%8D%E8%83%BD%E8%BF%BD%E8%B8%AA%E6%AF%8F%E4%B8%80%E5%8F%B0%E6%89%8B%E6%9C%BA%E7%9A%84%E5%AE%9E%E6%97%B6%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.14.</span> <span class="toc-text">10. 为什么互联网不能追踪每一台手机的实时位置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E4%B8%BB%E6%9C%BA%E7%BA%A7%E8%B7%AF%E7%94%B1%E4%BC%9A%E7%A0%B4%E5%9D%8F%E5%89%8D%E7%BC%80%E8%81%9A%E5%90%88"><span class="toc-number">1.14.1.</span> <span class="toc-text">10.1 主机级路由会破坏前缀聚合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E7%A7%BB%E5%8A%A8%E4%BA%A7%E7%94%9F%E7%9A%84%E6%9B%B4%E6%96%B0%E8%BF%87%E4%BA%8E%E9%A2%91%E7%B9%81"><span class="toc-number">1.14.2.</span> <span class="toc-text">10.2 移动产生的更新过于频繁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E4%BA%92%E8%81%94%E7%BD%91%E8%B7%AF%E7%94%B1%E5%8D%8F%E8%AE%AE%E4%B8%8D%E9%80%82%E5%90%88%E5%BF%AB%E9%80%9F%E7%BB%88%E7%AB%AF%E7%A7%BB%E5%8A%A8"><span class="toc-number">1.14.3.</span> <span class="toc-text">10.3 互联网路由协议不适合快速终端移动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E5%BD%92%E5%B1%9E%E7%BD%91%E7%BB%9C%E4%B8%8E%E8%A2%AB%E8%AE%BF%E7%BD%91%E7%BB%9C"><span class="toc-number">1.15.</span> <span class="toc-text">11. 归属网络与被访网络</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E5%BD%92%E5%B1%9E%E7%BD%91%E7%BB%9C"><span class="toc-number">1.15.1.</span> <span class="toc-text">11.1 归属网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E8%A2%AB%E8%AE%BF%E7%BD%91%E7%BB%9C"><span class="toc-number">1.15.2.</span> <span class="toc-text">11.2 被访网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E7%A7%BB%E5%8A%A8%E8%8A%82%E7%82%B9%E6%B3%A8%E5%86%8C%EF%BC%9A%E5%BB%BA%E7%AB%8B%E8%BA%AB%E4%BB%BD%E4%B8%8E%E5%BD%93%E5%89%8D%E4%BD%8D%E7%BD%AE%E7%9A%84%E6%98%A0%E5%B0%84"><span class="toc-number">1.16.</span> <span class="toc-text">12. 移动节点注册：建立身份与当前位置的映射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E6%B3%A8%E5%86%8C%E8%BF%87%E7%A8%8B"><span class="toc-number">1.16.1.</span> <span class="toc-text">12.1 注册过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-%E6%B3%A8%E5%86%8C%E8%B4%9F%E8%B4%A3%E7%BB%B4%E6%8A%A4%E7%A8%B3%E5%AE%9A%E8%BA%AB%E4%BB%BD%E5%88%B0%E5%BD%93%E5%89%8D%E4%BD%8D%E7%BD%AE%E7%9A%84%E6%98%A0%E5%B0%84%EF%BC%8C%E5%AE%83%E4%B8%BA%E5%90%8E%E7%BB%AD%E9%97%B4%E6%8E%A5%E8%B7%AF%E7%94%B1%E6%88%96%E7%9B%B4%E6%8E%A5%E8%B7%AF%E7%94%B1%E6%8F%90%E4%BE%9B%E5%BF%85%E8%A6%81%E4%BF%A1%E6%81%AF%E3%80%82"><span class="toc-number">1.17.</span> <span class="toc-text">❗ 本节核心结论： 注册负责维护稳定身份到当前位置的映射，它为后续间接路由或直接路由提供必要信息。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E9%97%B4%E6%8E%A5%E8%B7%AF%E7%94%B1%EF%BC%9A%E5%85%88%E9%80%81%E5%9B%9E%E5%BD%92%E5%B1%9E%E7%BD%91%E7%BB%9C%EF%BC%8C%E5%86%8D%E8%BD%AC%E4%BA%A4%E5%BD%93%E5%89%8D%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.18.</span> <span class="toc-text">13. 间接路由：先送回归属网络，再转交当前位置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-%E5%AE%8C%E6%95%B4%E8%BF%87%E7%A8%8B"><span class="toc-number">1.18.1.</span> <span class="toc-text">13.1 完整过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E9%9A%A7%E9%81%93%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">1.18.2.</span> <span class="toc-text">13.2 隧道的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-%E9%97%B4%E6%8E%A5%E8%B7%AF%E7%94%B1%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="toc-number">1.18.3.</span> <span class="toc-text">13.3 间接路由的优势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-4-%E4%B8%89%E8%A7%92%E8%B7%AF%E7%94%B1%E9%97%AE%E9%A2%98"><span class="toc-number">1.18.4.</span> <span class="toc-text">13.4 三角路由问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E7%9B%B4%E6%8E%A5%E8%B7%AF%E7%94%B1%EF%BC%9A%E6%9F%A5%E8%AF%A2%E4%BD%8D%E7%BD%AE%E5%90%8E%E7%9B%B4%E6%8E%A5%E5%8F%91%E9%80%81"><span class="toc-number">1.19.</span> <span class="toc-text">14. 直接路由：查询位置后直接发送</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E7%A7%BB%E5%8A%A8%E6%80%A7%E9%80%8F%E6%98%8E%E5%B9%B6%E4%B8%8D%E6%84%8F%E5%91%B3%E7%9D%80%E7%BD%91%E7%BB%9C%E5%86%85%E9%83%A8%E6%B2%A1%E6%9C%89%E5%8F%98%E5%8C%96"><span class="toc-number">1.20.</span> <span class="toc-text">15. 移动性透明并不意味着网络内部没有变化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-%E6%97%A0%E7%BA%BF%E4%B8%8E%E7%A7%BB%E5%8A%A8%E6%80%A7%E5%A6%82%E4%BD%95%E5%BD%B1%E5%93%8D-TCP"><span class="toc-number">1.21.</span> <span class="toc-text">16. 无线与移动性如何影响 TCP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#16-1-%E6%97%A0%E7%BA%BF%E4%B8%A2%E5%8C%85%E4%B8%8D%E4%B8%80%E5%AE%9A%E6%9D%A5%E8%87%AA%E6%8B%A5%E5%A1%9E"><span class="toc-number">1.21.1.</span> <span class="toc-text">16.1 无线丢包不一定来自拥塞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-2-%E9%87%8D%E4%BC%A0%E4%B8%8E%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%BF%85%E9%A1%BB%E5%8C%BA%E5%88%86"><span class="toc-number">1.21.2.</span> <span class="toc-text">16.2 重传与拥塞控制必须区分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-3-%E9%93%BE%E8%B7%AF%E5%B1%82%E9%87%8D%E4%BC%A0%E7%9A%84%E5%8F%8C%E9%87%8D%E5%BD%B1%E5%93%8D"><span class="toc-number">1.21.3.</span> <span class="toc-text">16.3 链路层重传的双重影响</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9D%97-%E6%9C%AC%E8%8A%82%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA%EF%BC%9A-TCP-%E5%8F%AF%E4%BB%A5%E8%BF%90%E8%A1%8C%E5%9C%A8%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E4%B8%8A%EF%BC%8C%E4%BD%86%E5%AE%83%E5%8F%AF%E8%83%BD%E6%8A%8A%E6%97%A0%E7%BA%BF%E8%AF%AF%E7%A0%81%E5%92%8C%E5%88%87%E6%8D%A2%E4%B8%A2%E5%8C%85%E8%AF%AF%E5%88%A4%E4%B8%BA%E6%8B%A5%E5%A1%9E%EF%BC%8C%E4%BB%8E%E8%80%8C%E4%B8%8D%E5%BF%85%E8%A6%81%E5%9C%B0%E9%99%8D%E4%BD%8E%E5%8F%91%E9%80%81%E9%80%9F%E7%8E%87%E3%80%82"><span class="toc-number">1.22.</span> <span class="toc-text">❗ 本节核心结论： TCP 可以运行在蜂窝网络上，但它可能把无线误码和切换丢包误判为拥塞，从而不必要地降低发送速率。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-%E5%AE%9E%E6%97%B6%E5%BA%94%E7%94%A8%E9%9D%A2%E5%AF%B9%E7%9A%84%E6%98%AF%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%B8%8E%E6%97%B6%E5%BB%B6%E7%9A%84%E5%86%B2%E7%AA%81"><span class="toc-number">1.23.</span> <span class="toc-text">17. 实时应用面对的是可靠性与时延的冲突</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-%E7%A8%B3%E5%AE%9A%E8%BA%AB%E4%BB%BD%E4%B8%8E%E5%8F%98%E5%8C%96%E4%BD%8D%E7%BD%AE%EF%BC%9A%E7%A7%BB%E5%8A%A8%E6%80%A7%E7%9A%84%E7%BB%9F%E4%B8%80%E8%A7%A3%E9%87%8A"><span class="toc-number">1.24.</span> <span class="toc-text">18. 稳定身份与变化位置：移动性的统一解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">1.25.</span> <span class="toc-text">结论</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/lily.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-2：从密码学工具到网络纵深防御"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-2%EF%BC%9A%E4%BB%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E5%88%B0%E7%BD%91%E7%BB%9C%E7%BA%B5%E6%B7%B1%E9%98%B2%E5%BE%A1/" title="Chapter 8-2：从密码学工具到网络纵深防御">Chapter 8-2：从密码学工具到网络纵深防御</a><time datetime="2026-06-25T15:06:24.000Z" title="Created 2026-06-25 23:06:24">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/dhalsim.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-8-1%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E4%BF%A1%E4%BB%BB%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%BD%91%E7%BB%9C%E4%B8%AD%E5%AE%89%E5%85%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%BB%BA%E7%AB%8B%E9%80%BB%E8%BE%91/" title="Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑">Chapter 8-1：从加密到信任：不可信网络中安全通信的建立逻辑</a><time datetime="2026-06-25T15:06:20.000Z" title="Created 2026-06-25 23:06:20">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/jamie.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-2%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-2：蜂窝网络如何维持移动通信：从 4G">Chapter 7-2：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:06:13.000Z" title="Created 2026-06-25 23:06:13">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/ryu.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-7-1%EF%BC%9A%E8%9C%82%E7%AA%9D%E7%BD%91%E7%BB%9C%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8C%81%E7%A7%BB%E5%8A%A8%E9%80%9A%E4%BF%A1%EF%BC%9A%E4%BB%8E-4G/" title="Chapter 7-1：蜂窝网络如何维持移动通信：从 4G">Chapter 7-1：蜂窝网络如何维持移动通信：从 4G</a><time datetime="2026-06-25T15:05:27.000Z" title="Created 2026-06-25 23:05:27">2026-06-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/cover/guile.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程"/></a><div class="content"><a class="title" href="/2026/06/25/Chapter-6-3%EF%BC%9AVLAN%E3%80%81MPLS%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E7%BD%91%E7%BB%9C%E4%B8%8E-Web-%E8%AF%B7%E6%B1%82%E5%85%A8%E8%BF%87%E7%A8%8B/" title="Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程">Chapter 6-3：VLAN、MPLS、数据中心网络与 Web 请求全过程</a><time datetime="2026-06-25T15:05:21.000Z" title="Created 2026-06-25 23:05:21">2026-06-25</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><div class="footer_custom_text">祝看到这里的你每天开心~早日暴富</div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2026 By <a class="footer-bar-link" href="/" title="agsd" target="_blank">agsd</a></div></div><div id="footer-type-tips"></div><div class="js-pjax"><script>function subtitleType () {
+  if (true) { 
+    window.typed = new Typed("#footer-type-tips", {
+      strings: ["Welcome to my blog, here is agsd's world."],
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50
+    })
+  } else {
+    document.getElementById("footer-type-tips").innerHTML = 'Welcome to my blog, here is agsd's world.'
+  }
+}
+
+if (true) {
+  if (typeof Typed === 'function') {
+    subtitleType()
+  } else {
+    getScript('https://cdn.cbd.int/typed.js@2.1.0/dist/typed.umd.js').then(subtitleType)
+  }
+} else {
+  subtitleType()
+}</script></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a><a class="footer-bar-link cc" href="/copyright" title="CC License"><i class="anzhiyufont anzhiyu-icon-copyright-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-by-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nc-line"></i><i class="anzhiyufont anzhiyu-icon-creative-commons-nd-line"></i></a></div></div></div></footer><div id="annotation-mask"></div><div id="annotation-drawer" aria-hidden="true"><div class="annotation-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="annotation-title"><div class="annotation-drawer__header"><button class="annotation-icon-button" id="annotation-back" type="button" title="返回"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></button><div class="annotation-drawer__title"><span id="annotation-title">Comments</span><span class="annotation-count" id="annotation-count">0</span></div><button class="annotation-icon-button" id="annotation-close" type="button" title="关闭"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></div><div class="annotation-drawer__body"><div class="annotation-panel annotation-compose" id="annotation-compose"><div class="annotation-panel__title">引用原文</div><blockquote class="annotation-quote" id="annotation-quote">选择正文后创建批注</blockquote><div class="annotation-panel__title">发表评论</div><textarea class="annotation-input" id="annotation-input" rows="4" placeholder="写下你的想法..."></textarea><div class="annotation-compose__actions"><button class="annotation-button annotation-button--ghost" id="annotation-cancel" type="button">取消</button><button class="annotation-button annotation-button--primary" id="annotation-submit" type="button">发送评论</button></div></div><div class="annotation-empty" id="annotation-empty"><div class="annotation-empty__title">暂无批注</div><div class="annotation-empty__desc">选中正文后右键引用，或点击已有高亮查看批注。</div></div><div class="annotation-list" id="annotation-list"></div></div></div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">Articles</div><div class="length-num">65</div></a><a href="/tags/" title="tag"><div class="headline">Tags</div><div class="length-num">22</div></a><a href="/categories/" title="category"><div class="headline">Categories</div><div class="length-num">7</div></a></div><span class="sidebar-menu-item-title">Function</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="Display Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>Display Mode</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://github.com/agsd-agsd" title="Github"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/GitHub_Logo.png" alt="Github"/><span class="back-menu-item-text">Github</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">快乐老家</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://www.pixiv.net/" title="Pixiv"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/icons/pixiv.png" alt="Pixiv"/><span class="back-menu-item-text">Pixiv</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 归档</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 友链</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友人帐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/?id=6909251788&amp;server=netease"><i class="anzhiyufont anzhiyu-icon-music faa-tada" style="font-size: 0.9em;"></i><span> 音乐馆</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/bangumis/"><i class="anzhiyufont anzhiyu-icon-bilibili faa-tada" style="font-size: 0.9em;"></i><span> 追番页</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> Album</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> MyInfo</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 闲言碎语</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> Stroll</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/AnZhiYu/" style="font-size: 0.88rem;">AnZhiYu<sup>9</sup></a><a href="/tags/BTC/" style="font-size: 0.88rem;">BTC<sup>7</sup></a><a href="/tags/Bitcoin/" style="font-size: 0.88rem;">Bitcoin<sup>7</sup></a><a href="/tags/BlockChain/" style="font-size: 0.88rem;">BlockChain<sup>2</sup></a><a href="/tags/CSS%E5%8A%A8%E7%94%BB/" style="font-size: 0.88rem;">CSS动画<sup>1</sup></a><a href="/tags/Consensus/" style="font-size: 0.88rem;">Consensus<sup>1</sup></a><a href="/tags/Cryptography/" style="font-size: 0.88rem;">Cryptography<sup>1</sup></a><a href="/tags/DataStructure/" style="font-size: 0.88rem;">DataStructure<sup>1</sup></a><a href="/tags/DeFi/" style="font-size: 0.88rem;">DeFi<sup>1</sup></a><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>9</sup></a><a href="/tags/ProgrammingLanguage/" style="font-size: 0.88rem;">ProgrammingLanguage<sup>1</sup></a><a href="/tags/ProofOfWork/" style="font-size: 0.88rem;">ProofOfWork<sup>1</sup></a><a href="/tags/Protocol/" style="font-size: 0.88rem;">Protocol<sup>1</sup></a><a href="/tags/Rust/" style="font-size: 0.88rem;">Rust<sup>1</sup></a><a href="/tags/Tools/" style="font-size: 0.88rem;">Tools<sup>3</sup></a><a href="/tags/ai/" style="font-size: 0.88rem;">ai<sup>1</sup></a><a href="/tags/website/" style="font-size: 0.88rem;">website<sup>3</sup></a><a href="/tags/%E5%A4%A7%E4%BA%8C%E8%AF%BE%E7%A8%8B/" style="font-size: 0.88rem;">大二课程<sup>6</sup></a><a href="/tags/%E5%AD%A6%E4%B9%A0/" style="font-size: 0.88rem;">学习<sup>1</sup></a><a href="/tags/%E6%96%87%E5%AD%A6/" style="font-size: 0.88rem;">文学<sup>1</sup></a><a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 0.88rem;">游戏<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>6</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Setting"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="annotation-rightside-button" type="button" title="批注"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i></button><button id="go-up" type="button" title="Back To Top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="6909251788" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=6909251788&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@6.1.6/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@19.1.3/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("02/02/2026 00:37:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2026 By 安知鱼 V1.7.1",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 agsd 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
+  var grt = new Date("02/02/2026 00:37:00"); //设置网站上线时间
+  var now = new Date();
+  var dnum;
+  var hnum;
+  var mnum;
+  var snum;
+  var nowHour;
+
+  // 计算并更新天数、小时数、分钟数和秒数
+  function updateTime() {
+    now = new Date(); // 更新 now 的值
+    nowHour = now.getHours(); // 更新 nowHour 的值
+    var days = (now - grt) / 1000 / 60 / 60 / 24;
+    dnum = Math.floor(days);
+    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
+    hnum = Math.floor(hours);
+    if (String(hnum).length == 1) {
+      hnum = "0" + hnum;
+    }
+    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
+    mnum = Math.floor(minutes);
+    if (String(mnum).length == 1) {
+      mnum = "0" + mnum;
+    }
+    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
+    snum = Math.round(seconds);
+    if (String(snum).length == 1) {
+      snum = "0" + snum;
+    }
+  }
+
+  // 更新网页中显示的网站运行时间
+  function updateHtml() {
+    const footer = document.getElementById("footer");
+    if (!footer) return
+    let currentTimeHtml = "";
+    if (nowHour < 18 && nowHour >= 9) {
+      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    } else {
+      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
+      let img = document.querySelector("#workboard .workSituationImg");
+      if (img != null) {
+        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
+        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
+        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
+      }
+
+      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
+    }
+
+    if (document.getElementById("runtimeTextTip")) {
+      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
+    }
+  }
+
+  setInterval(() => {
+    updateTime();
+    updateHtml();
+  }, 1000);
+})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.cbd.int/mathjax@4.0.0/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.cbd.int/mermaid@11.12.2/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  anzhiyu.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.44/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.agsd.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+
+  const initWaline = (Fn) => {
+    const waline = Fn(Object.assign({
+      el: '#waline-wrap',
+      serverURL: '',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+      imageUploader: true,
+    }, null))
+
+    const destroyWaline = () => {
+      waline.destroy()
+    }
+
+    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
+  }
+
+  const loadWaline = async () => {
+    if (initFn) initWaline(initFn)
+    else {
+      await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.css')
+      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline-meta.css')
+      const { init } = await import('https://cdn.cbd.int/@waline/client@3.8.0/dist/waline.js')
+      initFn = init || Waline.init
+      initWaline(initFn)
+      window.walineFn = initFn
+    }
+  }
+
+  if ('Twikoo' === 'Waline' || !true) {
+    if (true) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script async data-pjax src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.1/bubble/bubble.js"></script><script>var visitorMail = "";
+</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="/js/anzhiyu/annotation.js"></script><script src="https://cdn.cbd.int/qrcodejs@1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/footer-animal.js" defer></script><script src="/js/count.js"></script><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="true" data-text="I,LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
